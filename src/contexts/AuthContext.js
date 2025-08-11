@@ -3,7 +3,8 @@ import { auth } from '../firebase';
 import { 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail 
 } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -64,6 +65,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const resetPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (error) {
+      console.error('Erro ao enviar email de reset:', error);
+      return { 
+        success: false, 
+        error: getErrorMessage(error.code) 
+      };
+    }
+  };
+
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
       case 'auth/user-not-found':
@@ -74,6 +88,12 @@ export const AuthProvider = ({ children }) => {
         return 'Email inválido.';
       case 'auth/too-many-requests':
         return 'Muitas tentativas. Tente novamente mais tarde.';
+      case 'auth/user-not-found':
+        return 'Usuário não encontrado.';
+      case 'auth/invalid-email':
+        return 'Email inválido.';
+      case 'auth/network-request-failed':
+        return 'Erro de conexão. Verifique sua internet.';
       default:
         return 'Erro ao fazer login. Tente novamente.';
     }
@@ -100,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     isAdmin,
     login,
     logout,
+    resetPassword,
     loading
   };
 

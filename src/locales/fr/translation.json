@@ -1,0 +1,15 @@
+{
+  "admin_panel": "Panneau d'Administration",
+  "questions_tab": "Questions",
+  "questions_tab_desc": "Gérer les questions du quiz",
+  "users_tab": "Utilisateurs",
+  "users_tab_desc": "Gérer les utilisateurs",
+  "analytics_tab": "Analytiques",
+  "analytics_tab_desc": "Statistiques et rapports",
+  "settings_tab": "Paramètres",
+  "settings_tab_desc": "Configuration du jeu",
+  "quick_stats": "Statistiques Rapides",
+  "total_questions": "Questions Totales",
+  "total_users": "Utilisateurs Totaux",
+  "active_users": "Utilisateurs Actifs"
+}
