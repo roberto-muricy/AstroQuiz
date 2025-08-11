@@ -1,10 +1,12 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useStats } from "../hooks/useStats";
+import { useAuth } from "../contexts/AuthContext";
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
   const { t } = useTranslation();
   const { totalQuestions, totalUsers, activeUsers, loading } = useStats();
+  const { currentUser, logout } = useAuth();
 
   const tabs = [
     {
@@ -114,8 +116,32 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* User Info & Logout */}
       <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+        {currentUser && (
+          <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
+            <div className="flex items-center space-x-2 mb-2">
+              <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-sm font-bold text-black">
+                  {currentUser.email?.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  {currentUser.email}
+                </p>
+                <p className="text-xs text-gray-400">Administrador</p>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm py-2 px-3 rounded-lg transition-colors duration-200"
+            >
+              🚪 Sair
+            </button>
+          </div>
+        )}
+        
         <div className="text-center">
           <p className="text-xs text-gray-500">
             © 2024 AstroQuiz Admin

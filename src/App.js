@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-// import QuestionList from "./components/QuestionList"; // Removido - não usado
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/AdminLayout";
 import UserManagement from "./components/UserManagement";
 import AddUserModal from "./components/AddUserModal";
@@ -10,7 +11,7 @@ import DatabaseManager from "./components/DatabaseManager";
 import QuestionManager from "./components/QuestionManager";
 import Sidebar from "./components/Sidebar";
 
-function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState("questions");
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = useState(false);
@@ -81,6 +82,16 @@ function App() {
         }}
       />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <AppContent />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
 
