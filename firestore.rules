@@ -1,58 +1,146 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regras para a coleção users
+    
+    // ===== FUNÇÕES AUXILIARES =====
+    
+    // Verifica se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Verifica se o usuário é admin (baseado no email)
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email in ['robertomuricy@gmail.com'];
+    }
+    
+    // Verifica se o usuário está acessando seus próprios dados
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Verifica se o documento tem os campos obrigatórios
+    function hasRequiredFields(requiredFields) {
+      return request.resource.data.keys().hasAll(requiredFields);
+    }
+    
+    // ===== REGRAS PARA USUÁRIOS =====
     match /users/{userId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, você deve usar autenticação:
-      // allow read, write: if request.auth != null;
+      // Usuários podem ler/escrever apenas seus próprios dados
+      allow read, write: if isOwner(userId);
+      // Admins podem ler todos os usuários
+      allow read: if isAdmin();
     }
     
-    // Regras para a coleção questions
+    // ===== REGRAS PARA PERGUNTAS =====
     match /questions/{questionId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, você deve usar autenticação:
-      // allow read, write: if request.auth != null;
+      // Qualquer usuário autenticado pode ler perguntas
+      allow read: if isAuthenticated();
+      // Apenas admins podem criar/editar/deletar perguntas
+      allow create, update, delete: if isAdmin() && 
+        hasRequiredFields(['question', 'options', 'correctAnswer', 'level', 'language']);
     }
     
-    // Regras para a coleção gameRules
-    match /gameRules/{ruleId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, você deve usar autenticação:
-      // allow read, write: if request.auth != null;
-    }
-    
-    // Regras para a coleção userStats (estatísticas dos usuários)
+    // ===== REGRAS PARA ESTATÍSTICAS DE USUÁRIOS =====
     match /userStats/{userId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, você deve usar autenticação:
-      // allow read, write: if request.auth != null;
+      // Usuários podem ler/escrever apenas suas próprias estatísticas
+      allow read, write: if isOwner(userId);
+      // Admins podem ler todas as estatísticas
+      allow read: if isAdmin();
     }
     
-    // Regras para a coleção userProgress (progresso dos usuários)
+    // ===== REGRAS PARA PROGRESSO DE USUÁRIOS =====
     match /userProgress/{progressId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, você deve usar autenticação:
-      // allow read, write: if request.auth != null;
+      // Usuários podem ler/escrever apenas seu próprio progresso
+      allow read, write: if isAuthenticated() && 
+        request.auth.uid == resource.data.userId;
+      // Admins podem ler todo o progresso
+      allow read: if isAdmin();
     }
     
-    // Regras para as novas collections da estrutura hierárquica
+    // ===== REGRAS PARA REGRAS DO JOGO =====
+    match /gameRules/{ruleId} {
+      // Qualquer usuário autenticado pode ler regras do jogo
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar regras
+      allow write: if isAdmin();
+    }
+    
+    // ===== REGRAS PARA TEMAS =====
     match /themes/{themeId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
+      // Qualquer usuário autenticado pode ler temas
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar temas
+      allow write: if isAdmin();
     }
     
+    // ===== REGRAS PARA NÍVEIS =====
     match /levels/{levelId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
+      // Qualquer usuário autenticado pode ler níveis
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar níveis
+      allow write: if isAdmin();
     }
     
+    // ===== REGRAS PARA CONJUNTOS DE PERGUNTAS =====
     match /question_sets/{setId} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
+      // Qualquer usuário autenticado pode ler conjuntos
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar conjuntos
+      allow write: if isAdmin();
     }
     
-    // Regra geral para qualquer collection não especificada (desenvolvimento)
+    // ===== REGRAS PARA RELAÇÕES DE PERGUNTAS =====
+    match /question_relations/{relationId} {
+      // Qualquer usuário autenticado pode ler relações
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar relações
+      allow write: if isAdmin();
+    }
+    
+    // ===== REGRAS PARA PREFERÊNCIAS DE USUÁRIOS =====
+    match /user_preferences/{userId} {
+      // Usuários podem ler/escrever apenas suas próprias preferências
+      allow read, write: if isOwner(userId);
+      // Admins podem ler todas as preferências
+      allow read: if isAdmin();
+    }
+    
+    // ===== REGRAS PARA CONQUISTAS =====
+    match /achievements/{achievementId} {
+      // Qualquer usuário autenticado pode ler conquistas
+      allow read: if isAuthenticated();
+      // Apenas admins podem modificar conquistas
+      allow write: if isAdmin();
+    }
+    
+    // ===== REGRAS PARA CONQUISTAS DE USUÁRIOS =====
+    match /user_achievements/{userId} {
+      // Usuários podem ler/escrever apenas suas próprias conquistas
+      allow read, write: if isOwner(userId);
+      // Admins podem ler todas as conquistas
+      allow read: if isAdmin();
+    }
+    
+    // ===== REGRAS PARA LOGS DE ATIVIDADE =====
+    match /activity_logs/{logId} {
+      // Apenas admins podem ler logs de atividade
+      allow read: if isAdmin();
+      // Sistema pode criar logs (se necessário)
+      allow create: if isAuthenticated();
+    }
+    
+    // ===== REGRAS PARA CONFIGURAÇÕES DO SISTEMA =====
+    match /system_config/{configId} {
+      // Apenas admins podem ler/escrever configurações
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== REGRA PADRÃO - NEGAR TUDO =====
+    // Qualquer collection não especificada acima será negada
     match /{document=**} {
-      allow read, write: if true; // Permite leitura e escrita para todos (desenvolvimento)
-      // Para produção, remover esta regra e usar autenticação específica
+      allow read, write: if false;
     }
   }
 }
