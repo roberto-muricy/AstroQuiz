@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, setDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/index';
 
 const QuestionManager = () => {
@@ -8,7 +8,7 @@ const QuestionManager = () => {
   const [selectedTheme, setSelectedTheme] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState('all');
-  const [selectedLanguage, setSelectedLanguage] = useState('all');
+  const [selectedLanguage, setSelectedLanguage] = useState('pt');
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
@@ -32,6 +32,9 @@ const QuestionManager = () => {
     language: 'pt',
     active: true
   });
+
+  // Adicionar estado para relacionamentos de idioma
+  const [questionRelations, setQuestionRelations] = useState({});
 
   // Carregar perguntas
   const loadQuestions = useCallback(async () => {
@@ -323,6 +326,250 @@ const QuestionManager = () => {
     reader.readAsText(file);
   };
 
+  // Função para importar perguntas multi-idioma
+  const importMultiLanguageQuestions = async (csvData) => {
+    try {
+      const questions = [];
+      const relations = [];
+      
+      // Agrupar por ID base
+      const groupedQuestions = {};
+      
+      csvData.forEach(row => {
+        const baseId = row.baseId || row.id;
+        if (!groupedQuestions[baseId]) {
+          groupedQuestions[baseId] = [];
+        }
+        groupedQuestions[baseId].push(row);
+      });
+      
+      // Processar cada grupo
+      for (const [baseId, translations] of Object.entries(groupedQuestions)) {
+        const relationTranslations = {};
+        
+        for (const translation of translations) {
+          const questionId = `${baseId}_${translation.language}`;
+          const question = {
+            id: questionId,
+            question: translation.question,
+            options: [
+              translation.optionA,
+              translation.optionB,
+              translation.optionC,
+              translation.optionD
+            ],
+            correctAnswer: translation.correctOption === 'A' ? 0 : 
+                          translation.correctOption === 'B' ? 1 : 
+                          translation.correctOption === 'C' ? 2 : 3,
+            explanation: translation.explanation,
+            level: parseInt(translation.level) || 1,
+            difficulty: translation.difficulty || 'medium',
+            theme: translation.theme || 'astronomy',
+            language: translation.language,
+            active: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          questions.push(question);
+          relationTranslations[translation.language] = questionId;
+        }
+        
+        // Criar relacionamento
+        relations.push({
+          id: `relation_${baseId}`,
+          originalQuestionId: baseId,
+          translations: relationTranslations,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+      }
+      
+      // Salvar perguntas
+      for (const question of questions) {
+        await setDoc(doc(db, 'questions', question.id), question);
+      }
+      
+      // Salvar relacionamentos
+      for (const relation of relations) {
+        await setDoc(doc(db, 'question_relations', relation.id), relation);
+      }
+      
+      console.log(`✅ Importadas ${questions.length} perguntas em ${relations.length} idiomas`);
+      await loadQuestions();
+      
+    } catch (error) {
+      console.error('❌ Erro na importação multi-idioma:', error);
+      window.alert('❌ Erro na importação: ' + error.message);
+    }
+  };
+
+  // Função para importar de múltiplas abas do Google Sheets
+  const importFromMultipleSheets = async () => {
+    try {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv';
+      input.multiple = true; // Permitir múltiplos arquivos
+      input.style.display = 'none';
+      
+      input.onchange = async (event) => {
+        const files = Array.from(event.target.files);
+        const allQuestions = [];
+        const relations = {};
+        
+        for (const file of files) {
+          const language = file.name.includes('pt') ? 'pt' : 
+                          file.name.includes('en') ? 'en' : 
+                          file.name.includes('es') ? 'es' : 'pt';
+          
+          try {
+            const questions = await parseCSVFile(file, language);
+            allQuestions.push(...questions);
+            
+            // Agrupar por baseId para criar relacionamentos
+            questions.forEach(q => {
+              if (!relations[q.baseId]) {
+                relations[q.baseId] = {};
+              }
+              relations[q.baseId][language] = q.id;
+            });
+            
+          } catch (error) {
+            console.error(`❌ Erro ao processar ${file.name}:`, error);
+          }
+        }
+        
+        // Salvar perguntas
+        let importedCount = 0;
+        for (const question of allQuestions) {
+          try {
+            await setDoc(doc(db, 'questions', question.id), question);
+            importedCount++;
+          } catch (error) {
+            console.error(`❌ Erro ao salvar ${question.id}:`, error);
+          }
+        }
+        
+        // Criar relacionamentos
+        let relationCount = 0;
+        for (const [baseId, translations] of Object.entries(relations)) {
+          if (Object.keys(translations).length > 1) { // Só criar se tiver múltiplos idiomas
+            try {
+              const relation = {
+                id: `relation_${baseId}`,
+                originalQuestionId: baseId,
+                translations: translations,
+                createdAt: new Date(),
+                updatedAt: new Date()
+              };
+              
+              await setDoc(doc(db, 'question_relations', relation.id), relation);
+              relationCount++;
+            } catch (error) {
+              console.error(`❌ Erro ao criar relacionamento ${baseId}:`, error);
+            }
+          }
+        }
+        
+        await loadQuestions();
+        
+        window.alert(`🎉 Importação concluída!\n\n📊 Resultados:\n✅ Perguntas importadas: ${importedCount}\n🔗 Relacionamentos criados: ${relationCount}\n🌍 Idiomas: ${Object.keys(relations).length > 0 ? Object.keys(Object.values(relations)[0]).join(', ') : 'N/A'}`);
+        
+        document.body.removeChild(input);
+      };
+      
+      document.body.appendChild(input);
+      input.click();
+    } catch (error) {
+      console.error('❌ Erro na importação:', error);
+      window.alert('❌ Erro ao abrir seletor de arquivo');
+    }
+  };
+
+  // Função para processar arquivo CSV com idioma específico
+  const parseCSVFile = (file, language) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        try {
+          const csvText = event.target.result;
+          const lines = csvText.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          
+          console.log(`📊 Processando ${file.name} (${language}):`, headers);
+          
+          const questions = [];
+          
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+            const row = {};
+            
+            headers.forEach((header, index) => {
+              row[header] = values[index] || '';
+            });
+            
+            if (!row.question || !row.baseId) {
+              console.log('⚠️ Pergunta sem dados essenciais:', row);
+              continue;
+            }
+            
+            const questionId = `${row.baseId}_${language}`;
+            const level = parseInt(row.level) || 1;
+            
+            let difficulty = 'easy';
+            if (level >= 4) difficulty = 'hard';
+            else if (level >= 2) difficulty = 'medium';
+            
+            const question = {
+              id: questionId,
+              baseId: row.baseId,
+              question: row.question,
+              options: [
+                row.optionA || "Opção A",
+                row.optionB || "Opção B", 
+                row.optionC || "Opção C",
+                row.optionD || "Opção D"
+              ],
+              correctAnswer: row.correctOption === 'A' ? 0 : 
+                            row.correctOption === 'B' ? 1 : 
+                            row.correctOption === 'C' ? 2 : 3,
+              explanation: row.explanation || "Sem explicação disponível",
+              level: level,
+              difficulty: difficulty,
+              theme: row.topic?.toLowerCase().replace(/\s+/g, '-') || 'astronomy',
+              topics: [row.topic],
+              language: language,
+              active: true,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              metadata: {
+                source: `CSV Import - ${language}`,
+                verified: true,
+                lastReviewed: new Date(),
+                reviewCount: 0,
+                importDate: new Date()
+              }
+            };
+            
+            questions.push(question);
+          }
+          
+          resolve(questions);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
   // Resetar formulário
   const resetForm = () => {
     setQuestionForm({
@@ -441,7 +688,6 @@ const QuestionManager = () => {
             onChange={(e) => setSelectedLanguage(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
-            <option value="all" className="text-gray-900">🌍 Todos os Idiomas</option>
             <option value="pt" className="text-gray-900">🇧🇷 Português</option>
             <option value="en" className="text-gray-900">🇺🇸 Inglês</option>
           </select>
@@ -475,6 +721,12 @@ const QuestionManager = () => {
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
             >
               📥 Importar CSV
+            </button>
+            <button
+              onClick={importFromMultipleSheets}
+              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+            >
+              🌍 Importar Multi-idioma
             </button>
         </div>
       </div>
