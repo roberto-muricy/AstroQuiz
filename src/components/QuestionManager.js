@@ -169,8 +169,8 @@ const QuestionManager = () => {
     }
   };
 
-  // Importar do Google Sheets
-  const importFromGoogleSheets = async () => {
+  // Importar CSV via upload de arquivo
+  const importFromCSVFile = async () => {
     try {
       // Criar input de arquivo
       const input = document.createElement('input');
@@ -404,88 +404,7 @@ const QuestionManager = () => {
     }
   };
 
-  // Função para importar de múltiplas abas do Google Sheets
-  const importFromMultipleSheets = async () => {
-    try {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.csv';
-      input.multiple = true; // Permitir múltiplos arquivos
-      input.style.display = 'none';
-      
-      input.onchange = async (event) => {
-        const files = Array.from(event.target.files);
-        const allQuestions = [];
-        const relations = {};
-        
-        for (const file of files) {
-          const language = file.name.includes('pt') ? 'pt' : 
-                          file.name.includes('en') ? 'en' : 
-                          file.name.includes('es') ? 'es' : 'pt';
-          
-          try {
-            const questions = await parseCSVFile(file, language);
-            allQuestions.push(...questions);
-            
-            // Agrupar por baseId para criar relacionamentos
-            questions.forEach(q => {
-              if (!relations[q.baseId]) {
-                relations[q.baseId] = {};
-              }
-              relations[q.baseId][language] = q.id;
-            });
-            
-          } catch (error) {
-            console.error(`❌ Erro ao processar ${file.name}:`, error);
-          }
-        }
-        
-        // Salvar perguntas
-        let importedCount = 0;
-        for (const question of allQuestions) {
-          try {
-            await setDoc(doc(db, 'questions', question.id), question);
-            importedCount++;
-          } catch (error) {
-            console.error(`❌ Erro ao salvar ${question.id}:`, error);
-          }
-        }
-        
-        // Criar relacionamentos
-        let relationCount = 0;
-        for (const [baseId, translations] of Object.entries(relations)) {
-          if (Object.keys(translations).length > 1) { // Só criar se tiver múltiplos idiomas
-            try {
-              const relation = {
-                id: `relation_${baseId}`,
-                originalQuestionId: baseId,
-                translations: translations,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              };
-              
-              await setDoc(doc(db, 'question_relations', relation.id), relation);
-              relationCount++;
-            } catch (error) {
-              console.error(`❌ Erro ao criar relacionamento ${baseId}:`, error);
-            }
-          }
-        }
-        
-        await loadQuestions();
-        
-        window.alert(`🎉 Importação concluída!\n\n📊 Resultados:\n✅ Perguntas importadas: ${importedCount}\n🔗 Relacionamentos criados: ${relationCount}\n🌍 Idiomas: ${Object.keys(relations).length > 0 ? Object.keys(Object.values(relations)[0]).join(', ') : 'N/A'}`);
-        
-        document.body.removeChild(input);
-      };
-      
-      document.body.appendChild(input);
-      input.click();
-    } catch (error) {
-      console.error('❌ Erro na importação:', error);
-      window.alert('❌ Erro ao abrir seletor de arquivo');
-    }
-  };
+
 
   // Função para processar arquivo CSV com idioma específico
   const parseCSVFile = (file, language) => {
@@ -717,16 +636,10 @@ const QuestionManager = () => {
             ➕ Adicionar Pergunta
           </button>
                       <button
-              onClick={importFromGoogleSheets}
+              onClick={importFromCSVFile}
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
             >
               📥 Importar CSV
-            </button>
-            <button
-              onClick={importFromMultipleSheets}
-              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
-            >
-              🌍 Importar Multi-idioma
             </button>
         </div>
       </div>

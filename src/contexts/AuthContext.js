@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
   // Lista de emails de administradores autorizados
   const ADMIN_EMAILS = [
     'robertomuricy@gmail.com',
+    'joseanemansur@gmail.com',
     // Adicione outros emails de admin aqui
   ];
 

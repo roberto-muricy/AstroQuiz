@@ -12,7 +12,7 @@ service cloud.firestore {
     // Verifica se o usuário é admin (baseado no email)
     function isAdmin() {
       return isAuthenticated() && 
-             request.auth.token.email in ['robertomuricy@gmail.com'];
+             request.auth.token.email in ['robertomuricy@gmail.com', 'joseanemansur@gmail.com'];
     }
     
     // Verifica se o usuário está acessando seus próprios dados
