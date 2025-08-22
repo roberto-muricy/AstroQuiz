@@ -196,38 +196,63 @@ const QuestionManager = () => {
       // Configurações do Google Sheets
       const SHEET_ID = "1MynKehJpoYX1T_DoCI3ugDWRSiz8EYBHt1C3S99BgQk";
       const API_KEY = "AIzaSyA-yXZxVVExRQ7fyYDG0JWRQ-EotGl0aQo";
-      const RANGE = "A:Z";
       
       console.log("📋 Conectando com Google Sheets...");
       
-      // Fazer requisição para o Google Sheets
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
+      // Definir as abas para importar
+      const sheets = [
+        { name: 'PT', language: 'pt' },
+        { name: 'EN', language: 'en' },
+        { name: 'ES', language: 'es' },
+        { name: 'FR', language: 'fr' }
+      ];
       
-      console.log("📊 Resposta recebida:", data.values?.length || 0, "linhas");
+      let allQuestions = [];
       
-      if (!data.values || data.values.length === 0) {
-        throw new Error("Nenhum dado encontrado na planilha");
+      // Importar de cada aba
+      for (const sheet of sheets) {
+        try {
+          console.log(`📊 Importando da aba: ${sheet.name} (${sheet.language})`);
+          
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheet.name}!A:Z?key=${API_KEY}`;
+          const response = await fetch(url);
+          const data = await response.json();
+          
+          if (data.values && data.values.length > 0) {
+            const rows = data.values;
+            const headers = rows[0];
+            const sheetQuestions = rows.slice(1).map((row) => {
+              const obj = {};
+              headers.forEach((header, i) => {
+                obj[header] = row[i];
+              });
+              obj.language = sheet.language; // Adicionar idioma explicitamente
+              return obj;
+            });
+            
+            allQuestions = allQuestions.concat(sheetQuestions);
+            console.log(`✅ ${sheetQuestions.length} perguntas da aba ${sheet.name}`);
+          } else {
+            console.log(`⚠️ Nenhum dado na aba ${sheet.name}`);
+          }
+        } catch (error) {
+          console.log(`❌ Erro ao importar aba ${sheet.name}:`, error.message);
+        }
       }
       
-      const rows = data.values;
-      const headers = rows[0];
-      const rawQuestions = rows.slice(1).map((row) => {
-        const obj = {};
-        headers.forEach((header, i) => {
-          obj[header] = row[i];
-        });
-        return obj;
-      });
+      console.log(`📊 Total de perguntas coletadas: ${allQuestions.length}`);
       
-      console.log("📝 Processando", rawQuestions.length, "perguntas...");
+      if (allQuestions.length === 0) {
+        throw new Error("Nenhum dado encontrado em nenhuma aba da planilha");
+      }
+      
+      console.log("📝 Processando", allQuestions.length, "perguntas...");
       
       // Processar e importar perguntas
       let importedCount = 0;
       let errorCount = 0;
       
-      for (const questionData of rawQuestions) {
+      for (const questionData of allQuestions) {
         try {
           // Validar dados básicos
           if (!questionData.question || !questionData.topic) {
@@ -251,16 +276,8 @@ const QuestionManager = () => {
           if (level >= 7) difficulty = 'hard';
           else if (level >= 4) difficulty = 'medium';
           
-          // Determinar idioma
-          const questionText = questionData.question.toLowerCase();
-          const portugueseWords = ['como', 'qual', 'quando', 'onde', 'porque', 'quem', 'o que', 'qual é', 'quantos', 'quantas'];
-          let language = 'en';
-          for (const word of portugueseWords) {
-            if (questionText.includes(word)) {
-              language = 'pt';
-              break;
-            }
-          }
+          // Usar idioma da aba
+          const language = questionData.language || 'en';
           
           const firebaseQuestion = {
             question: questionData.question?.trim(),
@@ -300,24 +317,16 @@ const QuestionManager = () => {
 🎉 Importação do Google Sheets Concluída!
 
 📊 RESULTADOS:
-✅ Total processado: ${rawQuestions.length}
+✅ Total processado: ${allQuestions.length}
 📥 Importadas com sucesso: ${importedCount}
 💥 Erros: ${errorCount}
-⏭️ Duplicatas ignoradas: ${rawQuestions.length - importedCount - errorCount}
+⏭️ Duplicatas ignoradas: ${allQuestions.length - importedCount - errorCount}
 
 🌍 Distribuição por idioma:
 ${(() => {
   const langCount = {};
-  rawQuestions.forEach(q => {
-    const questionText = q.question?.toLowerCase() || '';
-    const portugueseWords = ['como', 'qual', 'quando', 'onde', 'porque', 'quem', 'o que', 'qual é', 'quantos', 'quantas'];
-    let language = 'en';
-    for (const word of portugueseWords) {
-      if (questionText.includes(word)) {
-        language = 'pt';
-        break;
-      }
-    }
+  allQuestions.forEach(q => {
+    const language = q.language || 'en';
     langCount[language] = (langCount[language] || 0) + 1;
   });
   return Object.entries(langCount).map(([lang, count]) => 
