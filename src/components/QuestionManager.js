@@ -169,6 +169,181 @@ const QuestionManager = () => {
     }
   };
 
+  // Importar do Google Sheets
+  const importFromGoogleSheets = async () => {
+    try {
+      // Mostrar loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px;">📥 Importando do Google Sheets...</h3>
+            <p style="color: #6b7280; margin-bottom: 20px;">Conectando e processando perguntas</p>
+            <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+              <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #3b82f6, #8b5cf6); animation: loading 2s infinite;"></div>
+            </div>
+            <style>
+              @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
+            </style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+      
+      // Configurações do Google Sheets
+      const SHEET_ID = "1MynKehJpoYX1T_DoCI3ugDWRSiz8EYBHt1C3S99BgQk";
+      const API_KEY = "AIzaSyA-yXZxVVExRQ7fyYDG0JWRQ-EotGl0aQo";
+      const RANGE = "A:Z";
+      
+      console.log("📋 Conectando com Google Sheets...");
+      
+      // Fazer requisição para o Google Sheets
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      console.log("📊 Resposta recebida:", data.values?.length || 0, "linhas");
+      
+      if (!data.values || data.values.length === 0) {
+        throw new Error("Nenhum dado encontrado na planilha");
+      }
+      
+      const rows = data.values;
+      const headers = rows[0];
+      const rawQuestions = rows.slice(1).map((row) => {
+        const obj = {};
+        headers.forEach((header, i) => {
+          obj[header] = row[i];
+        });
+        return obj;
+      });
+      
+      console.log("📝 Processando", rawQuestions.length, "perguntas...");
+      
+      // Processar e importar perguntas
+      let importedCount = 0;
+      let errorCount = 0;
+      
+      for (const questionData of rawQuestions) {
+        try {
+          // Validar dados básicos
+          if (!questionData.question || !questionData.topic) {
+            console.log("⚠️ Pergunta sem dados essenciais:", questionData);
+            continue;
+          }
+          
+          // Verificar se já existe
+          const exists = questions.some(q => q.question === questionData.question);
+          if (exists) {
+            console.log("🔄 Pergunta já existe:", questionData.question.substring(0, 50));
+            continue;
+          }
+          
+          // Converter para estrutura Firebase
+          const level = parseInt(questionData.level) || 1;
+          const correctAnswerMap = { "A": 0, "B": 1, "C": 2, "D": 3 };
+          const correctAnswer = correctAnswerMap[questionData.correctOption] || 0;
+          
+          let difficulty = 'easy';
+          if (level >= 7) difficulty = 'hard';
+          else if (level >= 4) difficulty = 'medium';
+          
+          // Determinar idioma
+          const questionText = questionData.question.toLowerCase();
+          const portugueseWords = ['como', 'qual', 'quando', 'onde', 'porque', 'quem', 'o que', 'qual é', 'quantos', 'quantas'];
+          let language = 'en';
+          for (const word of portugueseWords) {
+            if (questionText.includes(word)) {
+              language = 'pt';
+              break;
+            }
+          }
+          
+          const firebaseQuestion = {
+            question: questionData.question?.trim(),
+            options: [
+              questionData.optionA?.trim() || "Opção A",
+              questionData.optionB?.trim() || "Opção B",
+              questionData.optionC?.trim() || "Opção C",
+              questionData.optionD?.trim() || "Opção D"
+            ],
+            correctAnswer: correctAnswer,
+            explanation: questionData.explanation?.trim() || "Sem explicação disponível",
+            level: level,
+            difficulty: difficulty,
+            theme: questionData.topic?.toLowerCase().replace(/\s+/g, '-') || 'astronomy',
+            topics: [questionData.topic],
+            language: language,
+            active: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+          
+          const questionId = `q_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          await setDoc(doc(db, 'questions', questionId), firebaseQuestion);
+          importedCount++;
+          
+        } catch (error) {
+          console.error("❌ Erro ao processar pergunta:", error.message);
+          errorCount++;
+        }
+      }
+      
+      // Remover loading
+      document.body.removeChild(loadingDiv);
+      
+      // Mostrar resultado
+      const resultMessage = `
+🎉 Importação do Google Sheets Concluída!
+
+📊 RESULTADOS:
+✅ Total processado: ${rawQuestions.length}
+📥 Importadas com sucesso: ${importedCount}
+💥 Erros: ${errorCount}
+⏭️ Duplicatas ignoradas: ${rawQuestions.length - importedCount - errorCount}
+
+🌍 Distribuição por idioma:
+${(() => {
+  const langCount = {};
+  rawQuestions.forEach(q => {
+    const questionText = q.question?.toLowerCase() || '';
+    const portugueseWords = ['como', 'qual', 'quando', 'onde', 'porque', 'quem', 'o que', 'qual é', 'quantos', 'quantas'];
+    let language = 'en';
+    for (const word of portugueseWords) {
+      if (questionText.includes(word)) {
+        language = 'pt';
+        break;
+      }
+    }
+    langCount[language] = (langCount[language] || 0) + 1;
+  });
+  return Object.entries(langCount).map(([lang, count]) => 
+    `${lang.toUpperCase()}: ${count} perguntas`
+  ).join('\n');
+})()}
+      `;
+      
+      window.alert(resultMessage);
+      
+      // Recarregar perguntas
+      await loadQuestions();
+      
+    } catch (error) {
+      console.error('❌ Erro na importação:', error);
+      
+      // Remover loading se existir
+      const loadingDiv = document.querySelector('div[style*="position: fixed"]');
+      if (loadingDiv) {
+        document.body.removeChild(loadingDiv);
+      }
+      
+      window.alert('❌ Erro na importação: ' + error.message);
+    }
+  };
+
   // Importar CSV via upload de arquivo
   const importFromCSVFile = async () => {
     try {
@@ -640,6 +815,12 @@ const QuestionManager = () => {
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
             >
               📥 Importar CSV
+            </button>
+            <button
+              onClick={importFromGoogleSheets}
+              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+            >
+              📊 Importar Google Sheets
             </button>
         </div>
       </div>
