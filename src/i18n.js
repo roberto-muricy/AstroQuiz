@@ -23,4 +23,10 @@ i18n
     }
   });
 
+// Expor i18n globalmente para debug em produção
+if (typeof window !== 'undefined') {
+  window.i18next = i18n;
+  console.log('🌐 i18next exposto globalmente:', Object.keys(i18n.options.resources || {}));
+}
+
 export default i18n;

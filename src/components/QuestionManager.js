@@ -1446,6 +1446,53 @@ ${(() => {
     };
   }, [cleanDuplicates, validateDuplicates, analyzeLanguageDifferences, clearAllQuestions]);
 
+  // Forçar verificação de idiomas no dropdown
+  useEffect(() => {
+    const checkAndFixLanguageDropdown = () => {
+      setTimeout(() => {
+        const languageSelects = document.querySelectorAll('select');
+        languageSelects.forEach(select => {
+          const options = Array.from(select.options);
+          const hasPortuguese = options.some(opt => opt.text.includes('Português'));
+          const hasEnglish = options.some(opt => opt.text.includes('English'));
+          const hasSpanish = options.some(opt => opt.text.includes('Español'));
+          const hasFrench = options.some(opt => opt.text.includes('Français'));
+          
+          // Se é o dropdown de idiomas mas não tem todos os 4
+          if (hasPortuguese && hasEnglish && (!hasSpanish || !hasFrench)) {
+            console.log('🔧 Corrigindo dropdown de idiomas...');
+            
+            // Remover opções existentes exceto PT e EN
+            const ptOption = options.find(opt => opt.value === 'pt');
+            const enOption = options.find(opt => opt.value === 'en');
+            
+            // Limpar e recriar
+            select.innerHTML = '';
+            if (ptOption) select.appendChild(ptOption);
+            if (enOption) select.appendChild(enOption);
+            
+            // Adicionar ES e FR
+            const esOption = document.createElement('option');
+            esOption.value = 'es';
+            esOption.textContent = '🇪🇸 Español';
+            esOption.className = 'text-gray-900';
+            select.appendChild(esOption);
+            
+            const frOption = document.createElement('option');
+            frOption.value = 'fr';
+            frOption.textContent = '🇫🇷 Français';
+            frOption.className = 'text-gray-900';
+            select.appendChild(frOption);
+            
+            console.log('✅ Dropdown corrigido com 4 idiomas');
+          }
+        });
+      }, 500);
+    };
+
+    checkAndFixLanguageDropdown();
+  }, [questions]); // Executar quando as perguntas mudarem
+
 
 
 
