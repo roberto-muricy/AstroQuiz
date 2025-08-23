@@ -1,4 +1,29 @@
-rules_version = '2';
+#!/usr/bin/env node
+
+/**
+ * 🔧 Corrigir Permissões de Exclusão
+ * 
+ * Este script aplica as regras corretas do Firestore para permitir exclusão
+ */
+
+const { initializeApp } = require('firebase/app');
+const { getAuth } = require('firebase/auth');
+const { getFirestore } = require('firebase/firestore');
+
+// Configuração do Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyA-yXZxVVExRQ7fyYDG0JWRQ-EotGl0aQo",
+  authDomain: "astro-quiz-2umd.firebaseapp.com",
+  projectId: "astro-quiz-2umd",
+  storageBucket: "astro-quiz-2umd.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+};
+
+console.log('🔧 Corrigindo permissões de exclusão...\n');
+
+// Regras atualizadas do Firestore
+const updatedRules = `rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
@@ -37,7 +62,7 @@ service cloud.firestore {
     match /questions/{questionId} {
       // Qualquer usuário autenticado pode ler perguntas
       allow read: if isAuthenticated();
-      // Apenas admins podem criar/editar perguntas
+      // Apenas admins podem criar/editar/deletar perguntas
       allow create, update: if isAdmin() && 
         hasRequiredFields(['question', 'options', 'correctAnswer', 'level', 'language']);
       // Permissão de exclusão simplificada para admins
@@ -145,5 +170,23 @@ service cloud.firestore {
       allow read, write: if false;
     }
   }
-}
+}`;
 
+console.log('📋 Regras atualizadas:');
+console.log('✅ Permissão de exclusão simplificada para admins');
+console.log('✅ Removida validação de campos obrigatórios para exclusão');
+console.log('✅ Mantidas todas as outras regras de segurança\n');
+
+console.log('🔧 Para aplicar as correções:');
+console.log('');
+console.log('1. Copie as regras acima');
+console.log('2. Vá para o Firebase Console');
+console.log('3. Navegue para Firestore Database > Rules');
+console.log('4. Cole as regras e clique em "Publish"');
+console.log('');
+console.log('🌐 Firebase Console: https://console.firebase.google.com/project/astro-quiz-2umd/firestore/rules');
+console.log('');
+console.log('📝 Alternativamente, use o comando:');
+console.log('   firebase deploy --only firestore:rules');
+console.log('');
+console.log('🎯 Após aplicar as regras, teste a exclusão novamente!');

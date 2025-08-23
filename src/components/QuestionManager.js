@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { collection, getDocs, doc, setDoc, deleteDoc, query, where, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, query, where, writeBatch } from 'firebase/firestore';
 import { db } from '../firebase/index';
+import { checkAvailableLanguages } from '../utils/languageChecker';
+
 
 const QuestionManager = () => {
+  // const { t } = useTranslation(); // Removido - não utilizado
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState('all');
@@ -12,6 +15,7 @@ const QuestionManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [isCleaning, setIsCleaning] = useState(false);
   const [themes, setThemes] = useState([]);
   const [levels, setLevels] = useState([]);
   
@@ -33,8 +37,7 @@ const QuestionManager = () => {
     active: true
   });
 
-  // Adicionar estado para relacionamentos de idioma
-  const [questionRelations, setQuestionRelations] = useState({});
+  // Estado para relacionamentos de idioma (removido - não utilizado)
 
   // Carregar perguntas
   const loadQuestions = useCallback(async () => {
@@ -95,6 +98,16 @@ const QuestionManager = () => {
   // Carregar temas e níveis
   const loadThemesAndLevels = async () => {
     try {
+      // Verificar idiomas disponíveis em desenvolvimento
+      if (process.env.NODE_ENV === 'development') {
+        checkAvailableLanguages();
+      }
+      
+      // Forçar reload das traduções em produção também
+      if (window.i18next) {
+        console.log('🌐 Idiomas disponíveis no i18next:', Object.keys(window.i18next.options.resources || {}));
+      }
+      
       const themesSnapshot = await getDocs(collection(db, 'themes'));
       const levelsSnapshot = await getDocs(collection(db, 'levels'));
       
@@ -510,168 +523,833 @@ ${(() => {
     reader.readAsText(file);
   };
 
-  // Função para importar perguntas multi-idioma
-  const importMultiLanguageQuestions = async (csvData) => {
+  // Função para importar perguntas multi-idioma (COMENTADA - não utilizada)
+  // const importMultiLanguageQuestions = async (csvData) => {
+  //   try {
+  //     const questions = [];
+  //     const relations = [];
+  //     
+  //     // Agrupar por ID base
+  //     const groupedQuestions = {};
+  //     
+  //     csvData.forEach(row => {
+  //       const baseId = row.baseId || row.id;
+  //       if (!groupedQuestions[baseId]) {
+  //         groupedQuestions[baseId] = [];
+  //       }
+  //       groupedQuestions[baseId].push(row);
+  //     });
+  //     
+  //     // Processar cada grupo
+  //     for (const [baseId, translations] of Object.entries(groupedQuestions)) {
+  //       const relationTranslations = {};
+  //       
+  //       for (const translation of translations) {
+  //         const questionId = `${baseId}_${translation.language}`;
+  //         const question = {
+  //           id: questionId,
+  //           question: translation.question,
+  //           options: [
+  //           translation.optionA,
+  //           translation.optionB,
+  //           translation.optionC,
+  //           translation.optionD
+  //         ],
+  //         correctAnswer: translation.correctOption === 'A' ? 0 : 
+  //                       translation.correctOption === 'B' ? 1 : 
+  //                       translation.correctOption === 'C' ? 2 : 3,
+  //         explanation: translation.explanation,
+  //         level: parseInt(translation.level) || 1,
+  //         difficulty: translation.difficulty || 'medium',
+  //         theme: translation.theme || 'astronomy',
+  //         language: translation.language,
+  //         active: true,
+  //         createdAt: new Date(),
+  //         updatedAt: new Date()
+  //       };
+  //       
+  //       questions.push(question);
+  //       relationTranslations[translation.language] = questionId;
+  //     }
+  //     
+  //     // Criar relacionamento
+  //     relations.push({
+  //       id: `relation_${baseId}`,
+  //       originalQuestionId: baseId,
+  //       translations: relationTranslations,
+  //       createdAt: new Date(),
+  //       updatedAt: new Date()
+  //     });
+  //   }
+  //   
+  //   // Salvar perguntas
+  //   for (const question of questions) {
+  //     await setDoc(doc(db, 'questions', question.id), question);
+  //   }
+  //   
+  //   // Salvar relacionamentos
+  //   for (const relation of relations) {
+  //     await setDoc(doc(db, 'question_relations', relation.id), relation);
+  //   }
+  //   
+  //   console.log(`✅ Importadas ${questions.length} perguntas em ${relations.length} idiomas`);
+  //   await loadQuestions();
+  //   
+  // } catch (error) {
+  //   console.error('❌ Erro na importação multi-idioma:', error);
+  //   window.alert('❌ Erro na importação: ' + error.message);
+  // }
+  // };
+
+
+
+  // Função para processar arquivo CSV com idioma específico (COMENTADA - não utilizada)
+  // const parseCSVFile = (file, language) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     
+  //     reader.onload = (event) => {
+  //       try {
+  //         const csvText = event.target.result;
+  //         const lines = csvText.split('\n');
+  //         const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  //         
+  //         console.log(`📊 Processando ${file.name} (${language}):`, headers);
+  //         
+  //         const questions = [];
+  //         
+  //         for (let i = 1; i < lines.length; i++) {
+  //           const line = lines[i].trim();
+  //           if (!line) continue;
+  //             
+  //           const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+  //           const row = {};
+  //             
+  //           headers.forEach((header, index) => {
+  //             row[header] = values[index] || '';
+  //           });
+  //             
+  //           if (!row.question || !row.baseId) {
+  //             console.log('⚠️ Pergunta sem dados essenciais:', row);
+  //             continue;
+  //           }
+  //             
+  //           const questionId = `${row.baseId}_${language}`;
+  //           const level = parseInt(row.level) || 1;
+  //             
+  //           let difficulty = 'easy';
+  //           if (level >= 4) difficulty = 'hard';
+  //           else if (level >= 2) difficulty = 'medium';
+  //             
+  //           const question = {
+  //             id: questionId,
+  //             baseId: row.baseId,
+  //             question: row.question,
+  //             options: [
+  //               row.optionA || "Opção A",
+  //               row.optionB || "Opção B", 
+  //               row.optionC || "Opção C",
+  //               row.optionD || "Opção D"
+  //             ],
+  //             correctAnswer: row.correctOption === 'A' ? 0 : 
+  //                           row.correctOption === 'B' ? 1 : 
+  //                           row.correctOption === 'B' ? 2 : 3,
+  //             explanation: row.explanation || "Sem explicação disponível",
+  //             level: level,
+  //             difficulty: difficulty,
+  //             theme: row.topic?.toLowerCase().replace(/\s+/g, '-') || 'astronomy',
+  //             topics: [row.topic],
+  //             language: language,
+  //             active: true,
+  //             createdAt: new Date(),
+  //             updatedAt: new Date(),
+  //             metadata: {
+  //               source: `CSV Import - ${language}`,
+  //               verified: true,
+  //               lastReviewed: new Date(),
+  //               reviewCount: 0,
+  //               importDate: new Date()
+  //             }
+  //           };
+  //             
+  //           questions.push(question);
+  //         }
+  //           
+  //         resolve(questions);
+  //       } catch (error) {
+  //         reject(error);
+  //       }
+  //     };
+  //       
+  //     reader.onerror = reject;
+  //     reader.readAsText(file);
+  //   });
+  // };
+
+  // Limpar duplicações
+  const cleanDuplicates = useCallback(async () => {
+    if (!window.confirm('⚠️ Esta operação irá remover perguntas duplicadas. Tem certeza?')) {
+      return;
+    }
+
     try {
-      const questions = [];
-      const relations = [];
+      setLoading(true);
+      setIsCleaning(true); // Inicia o estado de limpeza
       
-      // Agrupar por ID base
-      const groupedQuestions = {};
+      // Mostrar loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px;">🧹 Limpando duplicações...</h3>
+            <p style="color: #6b7280; margin-bottom: 20px;">Analisando e removendo perguntas duplicadas</p>
+            <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+              <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #dc2626); animation: loading 2s infinite;"></div>
+            </div>
+            <style>
+              @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
+            </style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+
+      // Buscar todas as perguntas
+      const questionsRef = collection(db, 'questions');
+      const snapshot = await getDocs(questionsRef);
       
-      csvData.forEach(row => {
-        const baseId = row.baseId || row.id;
-        if (!groupedQuestions[baseId]) {
-          groupedQuestions[baseId] = [];
+      // Agrupar por idioma e texto da pergunta
+      const questionsByLanguage = {};
+      const duplicatesToRemove = [];
+      
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const language = data.language || 'unknown';
+        const questionText = data.question || '';
+        const createdAt = data.createdAt || new Date(0);
+        
+        if (!questionsByLanguage[language]) {
+          questionsByLanguage[language] = {};
         }
-        groupedQuestions[baseId].push(row);
+        
+        if (!questionsByLanguage[language][questionText]) {
+          questionsByLanguage[language][questionText] = [];
+        }
+        
+        questionsByLanguage[language][questionText].push({
+          id: doc.id,
+          createdAt: createdAt,
+          ...data
+        });
       });
       
-      // Processar cada grupo
-      for (const [baseId, translations] of Object.entries(groupedQuestions)) {
-        const relationTranslations = {};
+      // Identificar duplicações
+      Object.entries(questionsByLanguage).forEach(([language, questionsByText]) => {
+        Object.entries(questionsByText).forEach(([questionText, questions]) => {
+          if (questions.length > 1) {
+            // Ordenar por data de criação (mais antiga primeiro)
+            questions.sort((a, b) => a.createdAt - b.createdAt);
+            
+            // Manter a primeira (mais antiga) e marcar as outras para remoção
+            const toRemove = questions.slice(1);
+            duplicatesToRemove.push(...toRemove);
+          }
+        });
+      });
+      
+      if (duplicatesToRemove.length === 0) {
+        document.body.removeChild(loadingDiv);
+        window.alert('✅ Nenhuma duplicação encontrada!');
+        setIsCleaning(false); // Finaliza o estado de limpeza
+        return;
+      }
+      
+      // Remover duplicações
+      const batch = writeBatch(db);
+      
+      duplicatesToRemove.forEach(question => {
+        const questionRef = doc(db, 'questions', question.id);
+        batch.delete(questionRef);
+      });
+      
+      await batch.commit();
+      
+      // Remover loading
+      document.body.removeChild(loadingDiv);
+      
+      // Relatório
+      const removedByLanguage = {};
+      duplicatesToRemove.forEach(q => {
+        const lang = q.language || 'unknown';
+        if (!removedByLanguage[lang]) {
+          removedByLanguage[lang] = 0;
+        }
+        removedByLanguage[lang]++;
+      });
+      
+      let report = `🧹 Limpeza concluída!\n\n`;
+      Object.entries(removedByLanguage).forEach(([language, count]) => {
+        report += `🌍 ${language.toUpperCase()}: ${count} duplicações removidas\n`;
+      });
+      report += `\n📊 TOTAL: ${duplicatesToRemove.length} perguntas duplicadas removidas`;
+      
+      window.alert(report);
+      
+      // Recarregar perguntas
+      loadQuestions();
+      setIsCleaning(false); // Finaliza o estado de limpeza
+      
+    } catch (error) {
+      console.error('Erro ao limpar duplicações:', error);
+      window.alert('❌ Erro ao limpar duplicações: ' + error.message);
+      setIsCleaning(false); // Finaliza o estado de limpeza
+    } finally {
+      setLoading(false);
+    }
+  }, [loadQuestions]);
+
+  // Limpar todas as perguntas
+  const clearAllQuestions = useCallback(async () => {
+    if (!window.confirm('⚠️ ATENÇÃO: Tem certeza que deseja APAGAR TODAS as perguntas do banco de dados?\n\nEsta ação é IRREVERSÍVEL e removerá todas as perguntas de todos os idiomas!\n\nDigite "CONFIRMAR" para continuar:')) {
+      return;
+    }
+
+    const confirmation = prompt('Digite "CONFIRMAR" para apagar todas as perguntas:');
+    if (confirmation !== 'CONFIRMAR') {
+      alert('Operação cancelada.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setIsCleaning(true);
+      
+      // Mostrar loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px;">🗑️ Apagando todas as perguntas...</h3>
+            <p style="color: #6b7280; margin-bottom: 20px;">Removendo todas as perguntas do banco de dados</p>
+            <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+              <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #dc2626); animation: loading 2s infinite;"></div>
+            </div>
+            <style>
+              @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
+            </style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+
+      const questionsRef = collection(db, 'questions');
+      const snapshot = await getDocs(questionsRef);
+      
+      if (snapshot.empty) {
+        document.body.removeChild(loadingDiv);
+        alert('Não há perguntas para apagar.');
+        setIsCleaning(false);
+        return;
+      }
+
+      // Deletar todas as perguntas em lotes
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+
+      await batch.commit();
+      
+      // Remover loading
+      document.body.removeChild(loadingDiv);
+      
+      alert(`✅ ${snapshot.docs.length} perguntas removidas com sucesso!\n\nAgora você pode fazer uma nova importação limpa.`);
+      loadQuestions();
+      
+    } catch (error) {
+      console.error('Erro ao limpar todas as perguntas:', error);
+      alert('❌ Erro ao limpar perguntas: ' + error.message);
+    } finally {
+      setLoading(false);
+      setIsCleaning(false);
+    }
+  }, [loadQuestions]);
+
+  // Validar duplicações
+  const validateDuplicates = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Mostrar loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px;">🔍 Validando duplicações...</h3>
+            <p style="color: #6b7280; margin-bottom: 20px;">Analisando perguntas por idioma</p>
+            <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+              <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #3b82f6, #1d4ed8); animation: loading 2s infinite;"></div>
+            </div>
+            <style>
+              @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
+            </style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+
+      const questionsRef = collection(db, 'questions');
+      const snapshot = await getDocs(questionsRef);
+      
+      // Contar por idioma
+      const countByLanguage = {};
+      const questionsByLanguage = {};
+      
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const language = data.language || 'unknown';
+        const questionText = data.question || '';
+        const createdAt = data.createdAt || new Date(0);
         
-        for (const translation of translations) {
-          const questionId = `${baseId}_${translation.language}`;
-          const question = {
-            id: questionId,
-            question: translation.question,
-            options: [
-              translation.optionA,
-              translation.optionB,
-              translation.optionC,
-              translation.optionD
-            ],
-            correctAnswer: translation.correctOption === 'A' ? 0 : 
-                          translation.correctOption === 'B' ? 1 : 
-                          translation.correctOption === 'C' ? 2 : 3,
-            explanation: translation.explanation,
-            level: parseInt(translation.level) || 1,
-            difficulty: translation.difficulty || 'medium',
-            theme: translation.theme || 'astronomy',
-            language: translation.language,
-            active: true,
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
-          
-          questions.push(question);
-          relationTranslations[translation.language] = questionId;
+        // Contar total por idioma
+        countByLanguage[language] = (countByLanguage[language] || 0) + 1;
+        
+        // Agrupar por texto para encontrar duplicações
+        if (!questionsByLanguage[language]) {
+          questionsByLanguage[language] = {};
         }
         
-        // Criar relacionamento
-        relations.push({
-          id: `relation_${baseId}`,
-          originalQuestionId: baseId,
-          translations: relationTranslations,
-          createdAt: new Date(),
-          updatedAt: new Date()
+        if (!questionsByLanguage[language][questionText]) {
+          questionsByLanguage[language][questionText] = [];
+        }
+        
+        questionsByLanguage[language][questionText].push({
+          id: doc.id,
+          createdAt: createdAt,
+          question: questionText,
+          language: language
+        });
+      });
+      
+      // Verificar duplicações com detalhes
+      const duplicatesByLanguage = {};
+      const uniqueCountByLanguage = {};
+      const duplicateDetails = {};
+      
+      Object.entries(questionsByLanguage).forEach(([language, questionsByText]) => {
+        uniqueCountByLanguage[language] = Object.keys(questionsByText).length;
+        duplicatesByLanguage[language] = 0;
+        duplicateDetails[language] = [];
+        
+        Object.entries(questionsByText).forEach(([questionText, questions]) => {
+          if (questions.length > 1) {
+            const duplicateCount = questions.length - 1;
+            duplicatesByLanguage[language] += duplicateCount;
+            
+            // Ordenar por data de criação para identificar qual manter
+            questions.sort((a, b) => a.createdAt - b.createdAt);
+            
+            duplicateDetails[language].push({
+              questionText: questionText.substring(0, 60) + '...',
+              baseIds: questions.map(q => q.baseId || 'N/A'),
+              questionIds: questions.map(q => q.id),
+              keepId: questions[0].id, // Manter o mais antigo
+              removeIds: questions.slice(1).map(q => q.id), // Remover os mais novos
+              duplicateCount: duplicateCount
+            });
+          }
+        });
+      });
+      
+      // Remover loading
+      document.body.removeChild(loadingDiv);
+      
+      // Gerar relatório melhorado com cores
+      let report = '';
+      
+      // Cabeçalho
+      report += '🔍 RELATÓRIO DE VALIDAÇÃO DE PERGUNTAS\n';
+      report += '='.repeat(50) + '\n\n';
+      
+      // Resumo executivo
+      const totalQuestions = Object.values(countByLanguage).reduce((sum, count) => sum + count, 0);
+      const totalDuplicates = Object.values(duplicatesByLanguage).reduce((sum, count) => sum + count, 0);
+      
+      report += '📋 RESUMO EXECUTIVO:\n';
+      report += `   • Total de perguntas: ${totalQuestions}\n`;
+      report += `   • Total de duplicações: ${totalDuplicates}\n`;
+      report += `   • Idiomas analisados: ${Object.keys(countByLanguage).length}\n\n`;
+      
+      // Tabela de contagem por idioma
+      report += '📊 CONTAGEM DETALHADA POR IDIOMA:\n';
+      report += '─'.repeat(60) + '\n';
+      report += 'IDIOMA    | TOTAL | DUPLICATAS | ÚNICAS | STATUS\n';
+      report += '─'.repeat(60) + '\n';
+      
+      Object.entries(countByLanguage).forEach(([lang, count]) => {
+        const duplicates = duplicatesByLanguage[lang] || 0;
+        const unique = uniqueCountByLanguage[lang] || 0;
+        const status = duplicates > 0 ? '🚨 DUPLICATAS' : '✅ OK';
+        const langUpper = lang.toUpperCase().padEnd(8);
+        const totalStr = count.toString().padStart(5);
+        const dupStr = duplicates.toString().padStart(10);
+        const uniqueStr = unique.toString().padStart(7);
+        
+        report += `${langUpper} | ${totalStr} | ${dupStr} | ${uniqueStr} | ${status}\n`;
+      });
+      
+      report += '─'.repeat(60) + '\n\n';
+      
+      // Detalhes das duplicações
+      if (totalDuplicates > 0) {
+        report += '🚨 DETALHES DAS DUPLICAÇÕES:\n';
+        report += '─'.repeat(40) + '\n';
+        
+        Object.entries(duplicateDetails).forEach(([lang, details]) => {
+          if (details.length > 0) {
+            report += `${lang.toUpperCase()}:\n`;
+            details.forEach((dup, index) => {
+              report += `  ${index + 1}. "${dup.questionText}"\n`;
+              report += `     • BaseIds: ${dup.baseIds.join(', ')}\n`;
+              report += `     • Manter: ${dup.keepId}\n`;
+              report += `     • Remover: ${dup.removeIds.join(', ')}\n`;
+              report += `     • Duplicações: ${dup.duplicateCount}\n\n`;
+            });
+          }
         });
       }
       
-      // Salvar perguntas
-      for (const question of questions) {
-        await setDoc(doc(db, 'questions', question.id), question);
+      // Análise de balanceamento
+      const counts = Object.values(uniqueCountByLanguage);
+      const minCount = Math.min(...counts);
+      const maxCount = Math.max(...counts);
+      const difference = maxCount - minCount;
+      
+      report += '⚖️ ANÁLISE DE BALANCEAMENTO:\n';
+      report += '─'.repeat(40) + '\n';
+      
+      if (minCount === maxCount) {
+        report += '✅ PERFEITO! Todos os idiomas têm o mesmo número de perguntas únicas.\n';
+        report += `   • Quantidade por idioma: ${minCount} perguntas\n`;
+      } else {
+        report += `⚠️ DESBALANCEADO! Diferença de ${difference} perguntas entre idiomas.\n`;
+        report += `   • Menor quantidade: ${minCount} perguntas\n`;
+        report += `   • Maior quantidade: ${maxCount} perguntas\n`;
+        report += `   • Diferença: ${difference} perguntas\n\n`;
+        
+        // Detalhar quais idiomas têm problemas
+        report += '📈 DETALHAMENTO POR IDIOMA:\n';
+        Object.entries(uniqueCountByLanguage).forEach(([lang, count]) => {
+          const langUpper = lang.toUpperCase();
+          if (count === minCount) {
+            report += `   • ${langUpper}: ${count} perguntas (MÍNIMO)\n`;
+          } else if (count === maxCount) {
+            report += `   • ${langUpper}: ${count} perguntas (MÁXIMO)\n`;
+          } else {
+            report += `   • ${langUpper}: ${count} perguntas\n`;
+          }
+        });
       }
       
-      // Salvar relacionamentos
-      for (const relation of relations) {
-        await setDoc(doc(db, 'question_relations', relation.id), relation);
+      report += '\n';
+      
+      // Recomendações
+      report += '💡 RECOMENDAÇÕES:\n';
+      report += '─'.repeat(20) + '\n';
+      
+      if (totalDuplicates > 0) {
+        report += '🚨 AÇÕES URGENTES:\n';
+        report += '   • Use o botão "🧹 LIMPAR DUPLICATAS" para remover duplicações\n';
+        report += '   • Execute a limpeza antes de qualquer nova importação\n\n';
       }
       
-      console.log(`✅ Importadas ${questions.length} perguntas em ${relations.length} idiomas`);
-      await loadQuestions();
+      if (difference > 0) {
+        report += '⚠️ AÇÕES RECOMENDADAS:\n';
+        report += '   • Verifique se todas as perguntas foram importadas corretamente\n';
+        report += '   • Confirme se a planilha tem o mesmo número de linhas para cada idioma\n';
+        report += '   • Revise se há perguntas faltando em alguns idiomas\n';
+        report += '   • Considere reimportar os idiomas com menos perguntas\n\n';
+      }
+      
+      if (totalDuplicates === 0 && difference === 0) {
+        report += '✅ SITUAÇÃO IDEAL:\n';
+        report += '   • Nenhuma duplicação encontrada\n';
+        report += '   • Todos os idiomas estão balanceados\n';
+        report += '   • Sistema pronto para uso em produção\n';
+      }
+      
+      report += '\n';
+      report += '─'.repeat(50) + '\n';
+      report += `📅 Relatório gerado em: ${new Date().toLocaleString('pt-BR')}\n`;
+      
+      // Mostrar relatório melhorado com HTML colorido
+      const reportDiv = document.createElement('div');
+      
+      // Converter o relatório para HTML com cores
+      const reportHTML = report
+        .replace(/🔍/g, '<span style="color: #3b82f6; font-weight: bold;">🔍</span>')
+        .replace(/📋/g, '<span style="color: #10b981; font-weight: bold;">📋</span>')
+        .replace(/📊/g, '<span style="color: #f59e0b; font-weight: bold;">📊</span>')
+        .replace(/⚖️/g, '<span style="color: #8b5cf6; font-weight: bold;">⚖️</span>')
+        .replace(/💡/g, '<span style="color: #06b6d4; font-weight: bold;">💡</span>')
+        .replace(/📅/g, '<span style="color: #84cc16; font-weight: bold;">📅</span>')
+        .replace(/✅/g, '<span style="color: #10b981; font-weight: bold;">✅</span>')
+        .replace(/⚠️/g, '<span style="color: #f59e0b; font-weight: bold;">⚠️</span>')
+        .replace(/🚨/g, '<span style="color: #ef4444; font-weight: bold;">🚨</span>')
+        .replace(/📈/g, '<span style="color: #8b5cf6; font-weight: bold;">📈</span>')
+        .replace(/•/g, '<span style="color: #f59e0b;">•</span>')
+        .replace(/\n/g, '<br>')
+        .replace(/=/g, '<span style="color: #6b7280;">=</span>')
+        .replace(/-/g, '<span style="color: #6b7280;">-</span>')
+        .replace(/\|/g, '<span style="color: #6b7280;">|</span>');
+      
+      reportDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: #1f2937; padding: 30px; border-radius: 15px; max-width: 900px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.5); border: 1px solid #374151;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #374151; padding-bottom: 15px;">
+              <h3 style="color: #f9fafb; margin: 0; font-size: 24px; font-weight: bold;">🔍 Relatório de Validação</h3>
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;">×</button>
+            </div>
+            <div style="background: #111827; padding: 25px; border-radius: 10px; border: 1px solid #374151;">
+              <div style="background: #0f172a; color: #f1f5f9; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 15px; line-height: 1.7; border: 1px solid #1e293b; margin: 0; overflow-x: auto; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">${reportHTML}</div>
+            </div>
+            <div style="margin-top: 20px; text-align: center; padding-top: 15px; border-top: 1px solid #374151;">
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 500; transition: background-color 0.2s;">Fechar Relatório</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(reportDiv);
       
     } catch (error) {
-      console.error('❌ Erro na importação multi-idioma:', error);
-      window.alert('❌ Erro na importação: ' + error.message);
+      console.error('Erro na validação:', error);
+      window.alert('❌ Erro na validação: ' + error.message);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-
-
-  // Função para processar arquivo CSV com idioma específico
-  const parseCSVFile = (file, language) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+  // Analisar diferenças entre idiomas
+  const analyzeLanguageDifferences = useCallback(async () => {
+    try {
+      setLoading(true);
       
-      reader.onload = (event) => {
-        try {
-          const csvText = event.target.result;
-          const lines = csvText.split('\n');
-          const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-          
-          console.log(`📊 Processando ${file.name} (${language}):`, headers);
-          
-          const questions = [];
-          
-          for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            
-            const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
-            const row = {};
-            
-            headers.forEach((header, index) => {
-              row[header] = values[index] || '';
-            });
-            
-            if (!row.question || !row.baseId) {
-              console.log('⚠️ Pergunta sem dados essenciais:', row);
-              continue;
-            }
-            
-            const questionId = `${row.baseId}_${language}`;
-            const level = parseInt(row.level) || 1;
-            
-            let difficulty = 'easy';
-            if (level >= 4) difficulty = 'hard';
-            else if (level >= 2) difficulty = 'medium';
-            
-            const question = {
-              id: questionId,
-              baseId: row.baseId,
-              question: row.question,
-              options: [
-                row.optionA || "Opção A",
-                row.optionB || "Opção B", 
-                row.optionC || "Opção C",
-                row.optionD || "Opção D"
-              ],
-              correctAnswer: row.correctOption === 'A' ? 0 : 
-                            row.correctOption === 'B' ? 1 : 
-                            row.correctOption === 'C' ? 2 : 3,
-              explanation: row.explanation || "Sem explicação disponível",
-              level: level,
-              difficulty: difficulty,
-              theme: row.topic?.toLowerCase().replace(/\s+/g, '-') || 'astronomy',
-              topics: [row.topic],
-              language: language,
-              active: true,
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              metadata: {
-                source: `CSV Import - ${language}`,
-                verified: true,
-                lastReviewed: new Date(),
-                reviewCount: 0,
-                importDate: new Date()
+      const loadingDiv = document.createElement('div');
+      loadingDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 500px;">
+            <h3 style="color: #1f2937; margin-bottom: 15px;">🔍 Analisando diferenças...</h3>
+            <p style="color: #6b7280; margin-bottom: 20px;">Investigando por que os idiomas têm números diferentes</p>
+            <div style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden;">
+              <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #6d28d9); animation: loading 2s infinite;"></div>
+            </div>
+            <style>
+              @keyframes loading {
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
               }
-            };
-            
-            questions.push(question);
-          }
-          
-          resolve(questions);
-        } catch (error) {
-          reject(error);
+            </style>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(loadingDiv);
+
+      const questionsRef = collection(db, 'questions');
+      const snapshot = await getDocs(questionsRef);
+      
+      // Agrupar por baseId e idioma
+      const questionsByBaseId = {};
+      const questionsByLanguage = {};
+      
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const baseId = data.baseId || 'unknown';
+        const language = data.language || 'unknown';
+        const questionText = data.question || '';
+        
+        // Agrupar por baseId
+        if (!questionsByBaseId[baseId]) {
+          questionsByBaseId[baseId] = {};
         }
+        questionsByBaseId[baseId][language] = {
+          id: doc.id,
+          question: questionText,
+          ...data
+        };
+        
+        // Agrupar por idioma
+        if (!questionsByLanguage[language]) {
+          questionsByLanguage[language] = [];
+        }
+        questionsByLanguage[language].push({
+          id: doc.id,
+          baseId: baseId,
+          question: questionText,
+          ...data
+        });
+      });
+      
+      // Analisar diferenças
+      const analysis = {
+        totalBaseIds: Object.keys(questionsByBaseId).length,
+        languages: Object.keys(questionsByLanguage),
+        missingTranslations: {},
+        incompleteBaseIds: [],
+        completeBaseIds: []
       };
       
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
-  };
+      // Verificar quais baseIds estão incompletos
+      Object.entries(questionsByBaseId).forEach(([baseId, translations]) => {
+        const expectedLanguages = ['pt', 'en', 'es', 'fr'];
+        const missingLanguages = expectedLanguages.filter(lang => !translations[lang]);
+        
+        if (missingLanguages.length > 0) {
+          analysis.incompleteBaseIds.push({
+            baseId: baseId,
+            missing: missingLanguages,
+            present: Object.keys(translations),
+            sampleQuestion: Object.values(translations)[0]?.question || 'N/A'
+          });
+        } else {
+          analysis.completeBaseIds.push(baseId);
+        }
+        
+        // Contar idiomas faltando por idioma
+        missingLanguages.forEach(lang => {
+          if (!analysis.missingTranslations[lang]) {
+            analysis.missingTranslations[lang] = [];
+          }
+          analysis.missingTranslations[lang].push(baseId);
+        });
+      });
+      
+      // Remover loading
+      document.body.removeChild(loadingDiv);
+      
+            // Gerar relatório simplificado
+      let report = '';
+      
+      report += 'ANÁLISE DE BASEIDS - DUPLICADOS E FALTANDO TRADUÇÕES\n';
+      report += '='.repeat(60) + '\n\n';
+      
+      // Verificar duplicações por baseId
+      const duplicateBaseIds = [];
+      Object.entries(questionsByBaseId).forEach(([baseId, translations]) => {
+        const languages = Object.keys(translations);
+        const expectedLanguages = ['pt', 'en', 'es', 'fr'];
+        
+        // Verificar se há duplicações em algum idioma
+        const hasDuplicates = languages.some(lang => {
+          const questionsInLang = Object.values(questionsByLanguage[lang] || {}).filter(q => q.baseId === baseId);
+          return questionsInLang.length > 1;
+        });
+        
+        if (hasDuplicates) {
+          duplicateBaseIds.push({
+            baseId: baseId,
+            languages: languages,
+            missing: expectedLanguages.filter(lang => !languages.includes(lang))
+          });
+        }
+      });
+      
+      // Verificar baseIds faltando traduções
+      const missingTranslations = [];
+      Object.entries(questionsByBaseId).forEach(([baseId, translations]) => {
+        const languages = Object.keys(translations);
+        const expectedLanguages = ['pt', 'en', 'es', 'fr'];
+        const missing = expectedLanguages.filter(lang => !languages.includes(lang));
+        
+        if (missing.length > 0) {
+          missingTranslations.push({
+            baseId: baseId,
+            present: languages,
+            missing: missing
+          });
+        }
+      });
+      
+      // Relatório de duplicações
+      if (duplicateBaseIds.length > 0) {
+        report += 'BASEIDS DUPLICADOS:\n';
+        report += '─'.repeat(30) + '\n';
+        duplicateBaseIds.forEach((item, index) => {
+          report += `${index + 1}. ${item.baseId}\n`;
+          report += `   Idiomas: ${item.languages.join(', ')}\n`;
+          if (item.missing.length > 0) {
+            report += `   Faltando: ${item.missing.join(', ')}\n`;
+          }
+          report += '\n';
+        });
+      } else {
+        report += 'BASEIDS DUPLICADOS: Nenhum encontrado\n\n';
+      }
+      
+      // Relatório de traduções faltando
+      if (missingTranslations.length > 0) {
+        report += 'BASEIDS FALTANDO TRADUÇÕES:\n';
+        report += '─'.repeat(40) + '\n';
+        missingTranslations.forEach((item, index) => {
+          report += `${index + 1}. ${item.baseId}\n`;
+          report += `   Presente em: ${item.present.join(', ')}\n`;
+          report += `   Faltando: ${item.missing.join(', ')}\n\n`;
+        });
+      } else {
+        report += 'BASEIDS FALTANDO TRADUÇÕES: Nenhum encontrado\n\n';
+      }
+      
+      // Resumo
+      report += 'RESUMO:\n';
+      report += '─'.repeat(10) + '\n';
+      report += `Total de baseIds únicos: ${analysis.totalBaseIds}\n`;
+      report += `BaseIds duplicados: ${duplicateBaseIds.length}\n`;
+      report += `BaseIds faltando traduções: ${missingTranslations.length}\n`;
+      report += `BaseIds completos: ${analysis.completeBaseIds.length}\n\n`;
+      
+      report += '─'.repeat(60) + '\n';
+      report += `Análise gerada em: ${new Date().toLocaleString('pt-BR')}\n`;
+      
+      // Mostrar relatório simplificado
+      const reportDiv = document.createElement('div');
+      
+      // Converter quebras de linha para HTML
+      const reportHTML = report.replace(/\n/g, '<br>');
+      
+      reportDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+          <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px;">
+              <h3 style="color: #1f2937; margin: 0; font-size: 20px; font-weight: bold;">Análise de BaseIds</h3>
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #6b7280; color: white; border: none; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">×</button>
+            </div>
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb;">
+              <pre style="background: white; color: #374151; padding: 15px; border-radius: 5px; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; border: 1px solid #d1d5db; margin: 0; overflow-x: auto; white-space: pre-wrap;">${reportHTML}</pre>
+            </div>
+            <div style="margin-top: 20px; text-align: center; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+              <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">Fechar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(reportDiv);
+      
+    } catch (error) {
+      console.error('Erro na análise:', error);
+      window.alert('❌ Erro na análise: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Resetar formulário
   const resetForm = () => {
@@ -734,11 +1412,100 @@ ${(() => {
     loadThemesAndLevels();
   }, [loadQuestions]);
 
+  // Adicionar atalhos de teclado
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      // Ctrl+Shift+L ou Cmd+Shift+L para limpar duplicações
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'L') {
+        event.preventDefault();
+        cleanDuplicates();
+      }
+      
+      // Alt+Shift+V para validar duplicações
+      if (event.altKey && event.shiftKey && event.key === 'V') {
+        event.preventDefault();
+        validateDuplicates();
+      }
+      
+      // Alt+Shift+D para analisar diferenças
+      if (event.altKey && event.shiftKey && event.key === 'D') {
+        event.preventDefault();
+        analyzeLanguageDifferences();
+      }
+      
+      // Ctrl+Shift+X para limpar todas as perguntas
+      if (event.ctrlKey && event.shiftKey && event.key === 'X') {
+        event.preventDefault();
+        clearAllQuestions();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [cleanDuplicates, validateDuplicates, analyzeLanguageDifferences, clearAllQuestions]);
+
+
+
+
+
+  console.log('🔍 QuestionManager renderizando...');
+  
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-yellow-400 mb-2">❓ Gerenciador de Perguntas</h1>
-        <p className="text-gray-600">Gerencie todas as perguntas do AstroQuiz</p>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Gerenciador de Perguntas
+        </h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              console.log('🔍 Botão de validação clicado!');
+              validateDuplicates();
+            }}
+            disabled={loading}
+            className="px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold text-lg bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
+            title="Validar duplicações (Alt+Shift+V)"
+            style={{minWidth: '200px'}}
+          >
+            🔍 VALIDAR DUPLICATAS
+          </button>
+          <button
+            onClick={() => {
+              console.log('🔍 Botão de análise de diferenças clicado!');
+              analyzeLanguageDifferences();
+            }}
+            disabled={loading}
+            className="px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold text-lg bg-purple-600 hover:bg-purple-700 text-white shadow-lg"
+            title="Analisar diferenças entre idiomas (Alt+Shift+D)"
+            style={{minWidth: '200px'}}
+          >
+            🔍 ANALISAR DIFERENÇAS
+          </button>
+          <button
+            onClick={() => {
+              console.log('🧹 Botão de limpeza clicado!');
+              cleanDuplicates();
+            }}
+            disabled={isCleaning}
+            className={`px-6 py-3 rounded-lg flex items-center gap-2 transition-colors font-bold text-lg ${
+              isCleaning 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-red-600 hover:bg-red-700 text-white shadow-lg'
+            }`}
+            title="Limpar duplicações (Ctrl+Shift+L)"
+            style={{minWidth: '200px'}}
+          >
+            {isCleaning ? '⏳ Limpando...' : '🧹 LIMPAR DUPLICATAS'}
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          >
+            ➕ Adicionar Pergunta
+          </button>
+        </div>
       </div>
 
       {/* Filtros e Ações */}
@@ -792,7 +1559,9 @@ ${(() => {
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
           >
             <option value="pt" className="text-gray-900">🇧🇷 Português</option>
-            <option value="en" className="text-gray-900">🇺🇸 Inglês</option>
+            <option value="en" className="text-gray-900">🇺🇸 English</option>
+            <option value="es" className="text-gray-900">🇪🇸 Español</option>
+            <option value="fr" className="text-gray-900">🇫🇷 Français</option>
           </select>
           
           <select
@@ -808,7 +1577,7 @@ ${(() => {
         </div>
 
         {/* Segunda linha: Botões de Ação */}
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-2 justify-end flex-wrap">
           <button
             onClick={() => {
               setEditingQuestion(null);
@@ -819,18 +1588,18 @@ ${(() => {
           >
             ➕ Adicionar Pergunta
           </button>
-                      <button
-              onClick={importFromCSVFile}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-            >
-              📥 Importar CSV
-            </button>
-            <button
-              onClick={importFromGoogleSheets}
-              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
-            >
-              📊 Importar Google Sheets
-            </button>
+          <button
+            onClick={importFromCSVFile}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+          >
+            📥 Importar CSV
+          </button>
+          <button
+            onClick={importFromGoogleSheets}
+            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+          >
+            📊 Importar Google Sheets
+          </button>
         </div>
       </div>
 
@@ -838,12 +1607,30 @@ ${(() => {
       <div className="bg-white rounded-lg shadow-sm border">
         <div className="p-6 border-b">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-yellow-400">
-              Perguntas ({totalQuestions} total)
-            </h2>
-            <div className="text-sm text-gray-600">
-              Página {currentPage} de {totalPages} • 
-              Mostrando {questions.length} de {totalQuestions} perguntas
+            <div>
+              <h2 className="text-xl font-semibold text-yellow-400">
+                Perguntas ({totalQuestions} total)
+              </h2>
+              <div className="text-sm text-gray-600 mt-1">
+                Página {currentPage} de {totalPages} • 
+                Mostrando {questions.length} de {totalQuestions} perguntas
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={cleanDuplicates}
+                className="bg-red-600 text-white px-4 py-2 rounded text-sm hover:bg-red-700 transition-colors font-bold"
+                title="Limpar duplicações (Ctrl+Shift+L)"
+              >
+                🧹 Limpar Duplicatas
+              </button>
+              <button
+                onClick={clearAllQuestions}
+                className="bg-red-800 text-white px-4 py-2 rounded text-sm hover:bg-red-900 transition-colors font-bold"
+                title="Limpar todas as perguntas (Ctrl+Shift+X)"
+              >
+                🗑️ Limpar Tudo
+              </button>
             </div>
           </div>
         </div>
@@ -895,9 +1682,14 @@ ${(() => {
                       </span>
                       <span className={`px-2 py-1 text-xs rounded ${
                         question.language === 'pt' ? 'bg-orange-100 text-orange-800' :
-                        'bg-indigo-100 text-indigo-800'
+                        question.language === 'en' ? 'bg-indigo-100 text-indigo-800' :
+                        question.language === 'es' ? 'bg-green-100 text-green-800' :
+                        'bg-purple-100 text-purple-800'
                       }`}>
-                        {question.language === 'pt' ? '🇧🇷 PT' : '🇺🇸 EN'}
+                        {question.language === 'pt' ? '🇧🇷 PT' : 
+                         question.language === 'en' ? '🇺🇸 EN' :
+                         question.language === 'es' ? '🇪🇸 ES' :
+                         '🇫🇷 FR'}
                       </span>
                     </div>
 
@@ -1100,7 +1892,9 @@ ${(() => {
                     className="w-full p-2 border border-gray-300 rounded-md text-gray-900 bg-white"
                   >
                     <option value="pt">🇧🇷 Português</option>
-                    <option value="en">🇺🇸 Inglês</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="fr">🇫🇷 Français</option>
                   </select>
                 </div>
               </div>

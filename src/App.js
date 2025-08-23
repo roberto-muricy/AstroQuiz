@@ -10,6 +10,8 @@ import ThemeManager from "./components/ThemeManager";
 import DatabaseManager from "./components/DatabaseManager";
 import QuestionManager from "./components/QuestionManager";
 import Sidebar from "./components/Sidebar";
+import LanguageDebug from "./components/LanguageDebug";
+import './utils/forceReloadTranslations';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState("questions");
@@ -81,6 +83,9 @@ function AppContent() {
           console.log("Question created successfully!");
         }}
       />
+      
+      {/* Debug de idiomas (apenas em desenvolvimento) */}
+      <LanguageDebug />
     </div>
   );
 }

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Duplicações - AstroQuiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffd700;
+        }
+        .button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: #dc2626;
+        }
+        .button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Duplicações - AstroQuiz</h1>
+        
+        <div class="status">
+            <p><strong>Instruções:</strong></p>
+            <ol>
+                <li>Abra o painel admin em outra aba: <a href="https://astroquiz-admin.vercel.app" target="_blank" style="color: #ffd700;">https://astroquiz-admin.vercel.app</a></li>
+                <li>Faça login no painel admin</li>
+                <li>Volte para esta página e clique no botão abaixo</li>
+                <li>Aguarde o processamento</li>
+            </ol>
+        </div>
+
+        <button id="cleanButton" class="button" onclick="cleanDuplicates()">
+            🧹 LIMPAR DUPLICATAS
+        </button>
+
+        <div id="status" class="status" style="display: none;"></div>
+        <div id="result" class="result" style="display: none;"></div>
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function cleanDuplicates() {
+            const button = document.getElementById('cleanButton');
+            const status = document.getElementById('status');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error');
+
+            // Reset displays
+            status.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+            button.disabled = true;
+
+            try {
+                // Mostrar loading
+                status.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>🧹 Analisando duplicações...</p>
+                    </div>
+                `;
+
+                // Verificar se Firebase está disponível
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase não está disponível. Certifique-se de estar logado no painel admin.');
+                }
+
+                // Buscar todas as perguntas
+                status.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>📊 Buscando perguntas...</p>
+                    </div>
+                `;
+
+                const questionsRef = firebase.firestore().collection('questions');
+                const snapshot = await questionsRef.get();
+                
+                // Agrupar por idioma e texto da pergunta
+                status.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>🔍 Analisando duplicações...</p>
+                    </div>
+                `;
+
+                const questionsByLanguage = {};
+                const duplicatesToRemove = [];
+                
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const language = data.language || 'unknown';
+                    const questionText = data.question || '';
+                    const createdAt = data.createdAt || new Date(0);
+                    
+                    if (!questionsByLanguage[language]) {
+                        questionsByLanguage[language] = {};
+                    }
+                    
+                    if (!questionsByLanguage[language][questionText]) {
+                        questionsByLanguage[language][questionText] = [];
+                    }
+                    
+                    questionsByLanguage[language][questionText].push({
+                        id: doc.id,
+                        createdAt: createdAt,
+                        ...data
+                    });
+                });
+                
+                // Identificar duplicações
+                Object.entries(questionsByLanguage).forEach(([language, questionsByText]) => {
+                    Object.entries(questionsByText).forEach(([questionText, questions]) => {
+                        if (questions.length > 1) {
+                            // Ordenar por data de criação (mais antiga primeiro)
+                            questions.sort((a, b) => a.createdAt - b.createdAt);
+                            
+                            // Manter a primeira (mais antiga) e marcar as outras para remoção
+                            const toRemove = questions.slice(1);
+                            duplicatesToRemove.push(...toRemove);
+                        }
+                    });
+                });
+                
+                if (duplicatesToRemove.length === 0) {
+                    status.style.display = 'none';
+                    result.style.display = 'block';
+                    result.innerHTML = '<h3>✅ Nenhuma duplicação encontrada!</h3><p>Todas as perguntas estão únicas.</p>';
+                    return;
+                }
+                
+                // Remover duplicações
+                status.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>🗑️ Removendo ${duplicatesToRemove.length} duplicações...</p>
+                    </div>
+                `;
+
+                const batch = firebase.firestore().batch();
+                
+                duplicatesToRemove.forEach(question => {
+                    const questionRef = firebase.firestore().collection('questions').doc(question.id);
+                    batch.delete(questionRef);
+                });
+                
+                await batch.commit();
+                
+                // Relatório
+                const removedByLanguage = {};
+                duplicatesToRemove.forEach(q => {
+                    const lang = q.language || 'unknown';
+                    if (!removedByLanguage[lang]) {
+                        removedByLanguage[lang] = 0;
+                    }
+                    removedByLanguage[lang]++;
+                });
+                
+                status.style.display = 'none';
+                result.style.display = 'block';
+                
+                let report = '<h3>🎉 Limpeza concluída com sucesso!</h3>';
+                report += '<div style="margin: 15px 0;">';
+                Object.entries(removedByLanguage).forEach(([language, count]) => {
+                    report += `<p>🌍 <strong>${language.toUpperCase()}:</strong> ${count} duplicações removidas</p>`;
+                });
+                report += '</div>';
+                report += `<p><strong>📊 TOTAL:</strong> ${duplicatesToRemove.length} perguntas duplicadas removidas</p>`;
+                report += '<p style="margin-top: 20px;"><a href="https://astroquiz-admin.vercel.app" target="_blank" style="color: #ffd700;">↗️ Verificar no painel admin</a></p>';
+                
+                result.innerHTML = report;
+                
+            } catch (err) {
+                status.style.display = 'none';
+                error.style.display = 'block';
+                error.innerHTML = `
+                    <h3>❌ Erro durante a limpeza</h3>
+                    <p><strong>Erro:</strong> ${err.message}</p>
+                    <p style="margin-top: 15px;">
+                        <strong>Solução:</strong> Certifique-se de estar logado no painel admin e tente novamente.
+                    </p>
+                `;
+            } finally {
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

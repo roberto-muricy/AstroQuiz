@@ -1,3 +1,21 @@
+# 🔧 Guia para Corrigir Permissões de Exclusão
+
+## ❌ Problema Atual
+Você está recebendo o erro: **"Missing or insufficient permissions"** ao tentar excluir perguntas.
+
+## 🔍 Causa do Problema
+As regras do Firestore estão exigindo validação de campos obrigatórios para exclusão, mas a operação de exclusão não precisa dessa validação.
+
+## ✅ Solução
+
+### **Passo 1: Acessar o Firebase Console**
+1. Vá para: https://console.firebase.google.com/project/astro-quiz-2umd/firestore/rules
+2. Faça login com sua conta Google
+
+### **Passo 2: Atualizar as Regras**
+Substitua as regras atuais pelas seguintes:
+
+```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -146,4 +164,64 @@ service cloud.firestore {
     }
   }
 }
+```
 
+### **Passo 3: Publicar as Regras**
+1. Cole as regras acima no editor
+2. Clique em **"Publish"**
+3. Aguarde a confirmação
+
+### **Passo 4: Testar a Exclusão**
+1. Volte para o painel admin: https://astroquiz-admin.vercel.app
+2. Tente excluir uma pergunta
+3. Deve funcionar sem erros
+
+## 🔑 Principais Mudanças
+
+### **Antes:**
+```javascript
+allow create, update, delete: if isAdmin() && 
+  hasRequiredFields(['question', 'options', 'correctAnswer', 'level', 'language']);
+```
+
+### **Depois:**
+```javascript
+allow create, update: if isAdmin() && 
+  hasRequiredFields(['question', 'options', 'correctAnswer', 'level', 'language']);
+allow delete: if isAdmin();
+```
+
+## 🎯 Por que essa mudança?
+
+1. **Exclusão não precisa de validação**: Quando você exclui um documento, não há dados para validar
+2. **Simplificação**: A regra de exclusão fica mais simples e direta
+3. **Segurança mantida**: Apenas admins ainda podem excluir
+4. **Compatibilidade**: Funciona com a operação `deleteDoc()` do Firebase
+
+## 🚨 Se ainda não funcionar
+
+### **Verificar autenticação:**
+1. Faça logout do painel admin
+2. Faça login novamente
+3. Verifique se está logado com um email de admin
+
+### **Verificar console do navegador:**
+1. Abra F12 (DevTools)
+2. Vá na aba Console
+3. Tente excluir uma pergunta
+4. Veja se há erros específicos
+
+### **Verificar regras:**
+1. No Firebase Console, vá em Firestore > Rules
+2. Verifique se as regras foram publicadas corretamente
+3. Aguarde alguns minutos para propagação
+
+## ✅ Resultado Esperado
+
+Após aplicar as correções:
+- ✅ **Exclusão funciona** sem erros
+- ✅ **Segurança mantida** (apenas admins)
+- ✅ **Criação/edição** continua funcionando
+- ✅ **Leitura** continua funcionando
+
+**Teste agora a exclusão de perguntas!** 🗑️

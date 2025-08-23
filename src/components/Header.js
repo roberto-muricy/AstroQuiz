@@ -27,8 +27,10 @@ export default function Header({ onImport }) {
           defaultValue={i18n.language}
           className="bg-gray-700 text-white px-2 py-1 rounded text-sm"
         >
-          <option value="en">English</option>
-          <option value="pt">Português</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="pt">🇧🇷 Português</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="fr">🇫🇷 Français</option>
         </select>
       </div>
     </header>

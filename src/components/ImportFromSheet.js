@@ -2,9 +2,6 @@ import { useState } from "react";
 import { db } from "../firebase";
 import {
   collection,
-  addDoc,
-  query,
-  where,
   getDocs,
   writeBatch,
   doc,
@@ -53,6 +50,8 @@ export default function ImportFromSheet({ hiddenTrigger = false }) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const [analysis, setAnalysis] = useState(null);
+  const [clearBeforeImport, setClearBeforeImport] = useState(false);
+  const [showClearWarning, setShowClearWarning] = useState(false);
 
   // Função para validar dados da pergunta
   const validateQuestionData = (questionData) => {
@@ -189,7 +188,40 @@ export default function ImportFromSheet({ hiddenTrigger = false }) {
     return analysis;
   };
 
+  const clearAllQuestions = async () => {
+    try {
+      const questionsRef = collection(db, 'questions');
+      const snapshot = await getDocs(questionsRef);
+      
+      if (snapshot.empty) {
+        console.log("📭 Base já está vazia");
+        return;
+      }
+      
+      const batch = writeBatch(db);
+      snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      
+      await batch.commit();
+      console.log(`🗑️ ${snapshot.docs.length} perguntas removidas da base`);
+    } catch (error) {
+      console.error("❌ Erro ao limpar base:", error);
+      throw error;
+    }
+  };
+
   const handleImport = async () => {
+    // Verificar se precisa limpar a base
+    if (clearBeforeImport) {
+      setShowClearWarning(true);
+      return;
+    }
+    
+    await performImport();
+  };
+
+  const performImport = async () => {
     setImporting(true);
     setStatus(t("importing_questions"));
     setShowSuccess(false);
@@ -197,6 +229,15 @@ export default function ImportFromSheet({ hiddenTrigger = false }) {
     setAnalysis(null);
 
     try {
+      console.log("🚀 Iniciando importação...");
+      
+      // Limpar base se solicitado
+      if (clearBeforeImport) {
+        setStatus("🧹 Limpando base de dados...");
+        await clearAllQuestions();
+        setStatus("✅ Base limpa. Iniciando importação...");
+      }
+      
       const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
       console.log("🔗 Tentando acessar Google Sheets:", url);
       
@@ -340,14 +381,29 @@ export default function ImportFromSheet({ hiddenTrigger = false }) {
   return (
     <>
       {!hiddenTrigger && (
-        <button
-          id="importBtn"
-          onClick={handleImport}
-          disabled={importing}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          {importing ? "Importando..." : "Importar do Google Sheets"}
-        </button>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="clearBeforeImport"
+              checked={clearBeforeImport}
+              onChange={(e) => setClearBeforeImport(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            <label htmlFor="clearBeforeImport" className="text-sm font-medium text-gray-700">
+              🧹 Limpar base antes de importar
+            </label>
+          </div>
+          
+          <button
+            id="importBtn"
+            onClick={handleImport}
+            disabled={importing}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            {importing ? "Importando..." : "Importar do Google Sheets"}
+          </button>
+        </div>
       )}
 
       {importing && (
@@ -357,6 +413,41 @@ export default function ImportFromSheet({ hiddenTrigger = false }) {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <h3 className="text-lg font-semibold mb-2">Importando Perguntas</h3>
               <p className="text-gray-600">{status}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showClearWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-red-600 mb-4">⚠️ ATENÇÃO!</h3>
+              <p className="text-gray-700 mb-6">
+                Você está prestes a <strong>LIMPAR TODAS AS PERGUNTAS</strong> da base de dados antes de importar.
+                <br /><br />
+                Esta ação é <strong>IRREVERSÍVEL</strong>!
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => {
+                    setShowClearWarning(false);
+                    setClearBeforeImport(false);
+                  }}
+                  className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowClearWarning(false);
+                    performImport();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  Confirmar e Limpar
+                </button>
+              </div>
             </div>
           </div>
         </div>
