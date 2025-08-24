@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { auth } from '../firebase';
 import { 
   signInWithEmailAndPassword, 
@@ -23,11 +23,11 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Lista de emails de administradores autorizados
-  const ADMIN_EMAILS = [
+  const ADMIN_EMAILS = useMemo(() => [
     'robertomuricy@gmail.com',
     'joseanemansur@gmail.com',
     // Adicione outros emails de admin aqui
-  ];
+  ], []);
 
   const login = async (email, password) => {
     try {
@@ -89,10 +89,6 @@ export const AuthProvider = ({ children }) => {
         return 'Email inválido.';
       case 'auth/too-many-requests':
         return 'Muitas tentativas. Tente novamente mais tarde.';
-      case 'auth/user-not-found':
-        return 'Usuário não encontrado.';
-      case 'auth/invalid-email':
-        return 'Email inválido.';
       case 'auth/network-request-failed':
         return 'Erro de conexão. Verifique sua internet.';
       default:
@@ -114,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [ADMIN_EMAILS]);
 
   const value = {
     currentUser,
