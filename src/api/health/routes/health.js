@@ -31,6 +31,42 @@ module.exports = {
         middlewares: [],
         auth: false
       }
+    },
+
+    // Advanced health check with comprehensive metrics
+    {
+      method: 'GET',
+      path: '/health/advanced',
+      handler: 'advanced-health.advanced',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: []
+      }
+    },
+
+    // Real-time metrics endpoint
+    {
+      method: 'GET',
+      path: '/health/metrics',
+      handler: 'advanced-health.metrics',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: []
+      }
+    },
+
+    // Database-specific health check
+    {
+      method: 'GET',
+      path: '/health/database',
+      handler: 'advanced-health.database',
+      config: {
+        auth: false,
+        policies: [],
+        middlewares: []
+      }
     }
   ]
 };
