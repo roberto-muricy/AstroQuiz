@@ -1,0 +1,58 @@
+{
+  "migration": {
+    "startTime": "2025-08-28T02:48:22.156Z",
+    "endTime": "2025-08-28T02:48:23.412Z",
+    "duration": 1256,
+    "totalQuestions": 3,
+    "processedQuestions": 3,
+    "successfulMigrations": 3,
+    "failedMigrations": 0,
+    "skippedQuestions": 0,
+    "successRate": 100
+  },
+  "results": [
+    {
+      "firebaseId": "q_1755984901379_ub6hrp76e",
+      "strapiId": 22,
+      "baseId": "qd76877f6",
+      "locale": "pt",
+      "success": true
+    },
+    {
+      "firebaseId": "q_1755984901977_moowyybgs",
+      "strapiId": 24,
+      "baseId": "q77758aa1",
+      "locale": "pt",
+      "success": true
+    },
+    {
+      "firebaseId": "q_1755984902273_1kf9y0ge2",
+      "strapiId": 26,
+      "baseId": "qc6ec167b",
+      "locale": "pt",
+      "success": true
+    }
+  ],
+  "errors": [],
+  "config": {
+    "firebase": {
+      "serviceAccountPath": "./firebase-service-account.json",
+      "databaseURL": "https://astroquiz-3a316-default-rtdb.firebaseio.com"
+    },
+    "strapi": {
+      "baseUrl": "http://localhost:1337",
+      "endpoints": {
+        "questions": "/api/questions"
+      }
+    },
+    "migration": {
+      "batchSize": 5,
+      "delayBetweenBatches": 2000,
+      "maxRetries": 3
+    },
+    "logging": {
+      "logFile": "./migration-log.txt",
+      "reportFile": "./migration-report.json"
+    }
+  }
+}

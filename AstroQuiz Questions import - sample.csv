@@ -1,0 +1,4 @@
+baseId,topic,question,level,optionA,optionB,optionC,optionD,correctOption,explanation
+q0001,Galaxies & Cosmology,"According to recent theories, what might explain the Fermi Paradox?",5,Tectonic plates are rare,Advanced AI becomes the great filter,Civilizations destroy themselves,All of the above,D,"Recent theories suggest multiple explanations including rare tectonic plates, AI as a filter, and self-destruction of civilizations."
+q0002,Galaxies & Cosmology,Approximately how many stars are in the Milky Way galaxy?,3,100 million,1 billion,100 billion,1 trillion,C,"The Milky Way contains an estimated 100-400 billion stars, with 100 billion being a commonly cited figure."
+q0003,Stellar Objects,How are stellar-mass black holes formed?,4,From merging galaxies,From collapsing massive stars,From frozen planets,From white dwarfs cooling,B,Stellar-mass black holes form when massive stars collapse after a supernova.

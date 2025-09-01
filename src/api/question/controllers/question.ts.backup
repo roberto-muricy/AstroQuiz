@@ -1,0 +1,381 @@
+import { factories } from '@strapi/strapi'
+
+export default factories.createCoreController('api::question.question', ({ strapi }) => ({
+  // Custom method to find questions by locale
+  async findByLocale(ctx) {
+    const { locale = 'en' } = ctx.params;
+    
+    const questions = await strapi.entityService.findMany('api::question.question', {
+      filters: { locale },
+      populate: '*',
+      publicationState: 'live',
+    });
+    
+    return { data: questions };
+  },
+
+  // Override the default find method to include locale support
+  async find(ctx) {
+    const { locale = 'en' } = ctx.query;
+    
+    // Use strapi entityService instead of super
+    const questions = await strapi.entityService.findMany('api::question.question', {
+      filters: { locale },
+      populate: '*',
+    });
+    
+    return { data: questions };
+  },
+
+  // Custom method to get questions by level and locale
+  async findByLevelAndLocale(ctx) {
+    const { level, locale = 'en' } = ctx.params;
+    
+    const questions = await strapi.service('api::question.question').findByLevelAndLocale(level, locale);
+    
+    return { data: questions };
+  },
+
+  // Custom method to get questions with fallback
+  async findWithFallback(ctx) {
+    const { locale = 'en' } = ctx.params;
+    
+    const questions = await strapi.service('api::question.question').findWithFallback(locale);
+    
+    return { data: questions };
+  },
+
+  // Custom method to get questions by topic and locale
+  async findByTopicAndLocale(ctx) {
+    const { topic, locale = 'en' } = ctx.params;
+    
+    const questions = await strapi.service('api::question.question').findByTopicAndLocale(topic, locale);
+    
+    return { data: questions };
+  },
+
+  // Delete all translations except English
+  async deleteTranslations(ctx) {
+    console.log('🗑️ Deleting all translations except English...');
+    
+    try {
+      const { baseId = 'astro_001' } = ctx.query;
+      
+      // Find all questions with this baseId that are NOT English
+      const translations = await strapi.entityService.findMany('api::question.question', {
+        filters: {
+          baseId: baseId,
+          locale: { $ne: 'en' }  // Not equal to 'en'
+        }
+      });
+      
+      console.log(`Found ${translations.length} translations to delete`);
+      
+      const deleted = [];
+      for (const translation of translations) {
+        await strapi.entityService.delete('api::question.question', translation.id);
+        deleted.push({ id: translation.id, locale: translation.locale });
+        console.log(`🗑️ Deleted ${translation.locale} version (ID: ${translation.id})`);
+      }
+      
+      ctx.send({
+        success: true,
+        message: `Deleted ${deleted.length} translations. English version preserved.`,
+        deleted: deleted
+      });
+      
+    } catch (error) {
+      console.error('❌ Delete translations error:', error);
+      ctx.internalServerError('Delete translations failed: ' + error.message);
+    }
+  },
+
+  // Restore original English question
+  async restore(ctx) {
+    console.log('🔄 Restoring original English question...');
+    
+    try {
+      // Restore the original astro_001 question
+      const restored = await strapi.entityService.update('api::question.question', 1, {
+        data: {
+          question: "What is the largest planet in our solar system?",
+          optionA: "Earth",
+          optionB: "Venus",
+          optionC: "Jupiter", 
+          optionD: "Saturn",
+          explanation: "Jupiter is the largest planet in our solar system, with a mass more than twice that of Saturn.",
+          topic: "Planets and Solar System",
+          baseId: "astro_001",
+          level: 2,
+          correctOption: "C",
+          locale: "en"
+        }
+      });
+      
+      ctx.send({
+        success: true,
+        message: 'English question restored successfully!',
+        restored: {
+          id: restored.id,
+          baseId: restored.baseId,
+          locale: restored.locale,
+          question: restored.question
+        }
+      });
+      
+    } catch (error) {
+      console.error('❌ Restore error:', error);
+      ctx.internalServerError('Restore failed: ' + error.message);
+    }
+  },
+
+  // Clean corrupted data method
+  async clean(ctx) {
+    console.log('🧹 Starting data cleanup...');
+    
+    try {
+      // Get all questions
+      const allQuestions = await strapi.entityService.findMany('api::question.question', {
+        populate: '*',
+      });
+      
+      console.log(`📊 Found ${allQuestions.length} questions to check`);
+      
+      const cleaned = [];
+      
+      for (const question of allQuestions) {
+        let needsUpdate = false;
+        const updates = {};
+        
+        // Check if any field has [FR], [PT], [ES] prefixes
+        const fieldsToCheck = ['question', 'optionA', 'optionB', 'optionC', 'optionD', 'explanation', 'topic'];
+        
+        fieldsToCheck.forEach(field => {
+          if (question[field] && typeof question[field] === 'string') {
+            const cleanedValue = question[field]
+              .replace(/^\[FR\]\s*/, '')
+              .replace(/^\[PT\]\s*/, '')
+              .replace(/^\[ES\]\s*/, '');
+            
+            if (cleanedValue !== question[field]) {
+              updates[field] = cleanedValue;
+              needsUpdate = true;
+            }
+          }
+        });
+        
+        if (needsUpdate) {
+          console.log(`🔧 Cleaning question ID ${question.id} (${question.baseId})`);
+          
+          await strapi.entityService.update('api::question.question', question.id, {
+            data: updates
+          });
+          
+          cleaned.push({
+            id: question.id,
+            baseId: question.baseId,
+            locale: question.locale,
+            updates: Object.keys(updates)
+          });
+        }
+      }
+      
+      ctx.send({
+        success: true,
+        message: `Cleanup completed! ${cleaned.length} questions were cleaned.`,
+        cleaned: cleaned
+      });
+      
+    } catch (error) {
+      console.error('❌ Cleanup error:', error);
+      ctx.internalServerError('Cleanup failed: ' + error.message);
+    }
+  },
+
+  // DeepL Translation Method - Complete Implementation
+  async translate(ctx) {
+    console.log('🔧 DeepL translate method called');
+    
+    try {
+      const { id } = ctx.params;
+      
+      // Get the question with all data
+      const question = await strapi.entityService.findOne('api::question.question', id, {
+        populate: '*'
+      });
+      
+      if (!question) {
+        return ctx.notFound('Question not found');
+      }
+      
+      // Check if it's an English question
+      if (question.locale !== 'en') {
+        return ctx.badRequest('Only English questions can be translated');
+      }
+      
+      console.log('📝 Question to translate:', {
+        id: question.id,
+        locale: question.locale,
+        question: question.question?.substring(0, 50) + '...'
+      });
+      
+      // DeepL API integration inline
+      const axios = require('axios');
+      const apiKey = process.env.DEEPL_API_KEY;
+      // Always use the free API URL as instructed by DeepL
+      const apiUrl = 'https://api-free.deepl.com/v2';
+      
+      if (!apiKey) {
+        return ctx.badRequest('DEEPL_API_KEY not found in environment variables');
+      }
+      
+      // Test DeepL connection
+      console.log('🔄 Testing DeepL connection...');
+      try {
+        const usageResponse = await axios.get(`${apiUrl}/usage`, {
+          headers: {
+            'Authorization': `DeepL-Auth-Key ${apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('✅ DeepL connection successful:', usageResponse.data);
+      } catch (error) {
+        console.error('❌ DeepL connection failed:', error.response?.data || error.message);
+        return ctx.badRequest('DeepL API connection failed: ' + (error.response?.data?.message || error.message));
+      }
+      
+      // Translate the question using DeepL API
+      console.log('🌍 Starting DeepL translation...');
+      const fieldsToTranslate = ['question', 'optionA', 'optionB', 'optionC', 'optionD', 'explanation', 'topic'];
+      const sourceTexts = fieldsToTranslate.map(field => question[field] || '');
+      
+      const targetLanguages = {
+        'PT-BR': 'pt',
+        'ES': 'es', 
+        'FR': 'fr'
+      };
+      
+      const translations = {};
+      
+      for (const [deeplLang, strapiLocale] of Object.entries(targetLanguages)) {
+        try {
+          console.log(`🔄 Translating to ${deeplLang} (${strapiLocale})...`);
+          
+          const response = await axios.post(`${apiUrl}/translate`, {
+            text: sourceTexts,
+            source_lang: 'EN',
+            target_lang: deeplLang
+          }, {
+            headers: {
+              'Authorization': `DeepL-Auth-Key ${apiKey}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const translatedTexts = response.data.translations.map(t => t.text);
+          
+          translations[strapiLocale] = {
+            question: translatedTexts[0] || question.question,
+            optionA: translatedTexts[1] || question.optionA,
+            optionB: translatedTexts[2] || question.optionB,
+            optionC: translatedTexts[3] || question.optionC,
+            optionD: translatedTexts[4] || question.optionD,
+            explanation: translatedTexts[5] || question.explanation,
+            topic: translatedTexts[6] || question.topic,
+            baseId: question.baseId,
+            level: question.level,
+            correctOption: question.correctOption
+          };
+          
+          console.log(`✅ ${strapiLocale} translation completed`);
+          
+        } catch (error) {
+          console.error(`❌ Failed to translate to ${strapiLocale}:`, error.response?.data || error.message);
+          return ctx.internalServerError(`Translation failed for ${strapiLocale}: ${error.response?.data?.message || error.message}`);
+        }
+      }
+      
+      console.log('✅ All DeepL translations completed for:', Object.keys(translations));
+      
+      // Create localized versions using Strapi's i18n system
+      const createdVersions = [];
+      for (const [locale, translatedData] of Object.entries(translations)) {
+        try {
+          console.log(`🌍 Creating ${locale} version for baseId: ${question.baseId}`);
+          
+          // NEVER touch the original English version (skip if it's the same ID as original)
+          // Check if localized version already exists for this baseId and locale
+          const existing = await strapi.entityService.findMany('api::question.question', {
+            filters: {
+              baseId: question.baseId,
+              locale: locale
+            }
+          });
+          
+          // Filter out the original English question to avoid overwriting it
+          const existingTranslation = existing?.filter(item => item.id !== question.id);
+          
+          if (existingTranslation && existingTranslation.length > 0) {
+            // Update existing translation (but never the original)
+            const updated = await strapi.entityService.update('api::question.question', existingTranslation[0].id, {
+              data: translatedData as any
+            });
+            createdVersions.push({ locale, action: 'updated', id: updated.id });
+            console.log(`🔄 Updated ${locale} version with ID: ${updated.id} (original preserved: ${question.id})`);
+          } else {
+            // Create new localized version (completely separate from original)
+            const created = await strapi.entityService.create('api::question.question', {
+              data: {
+                ...(translatedData as any),
+                locale: locale,
+                publishedAt: new Date()
+              }
+            });
+            createdVersions.push({ locale, action: 'created', id: created.id });
+            console.log(`✅ Created ${locale} version with ID: ${created.id} (original preserved: ${question.id})`);
+          }
+        } catch (error) {
+          console.error(`❌ Error with ${locale} version:`, error.message);
+          createdVersions.push({ locale, action: 'error', error: error.message });
+        }
+      }
+      
+      // Get updated usage stats
+      let usage = null;
+      try {
+        const usageResponse = await axios.get(`${apiUrl}/usage`, {
+          headers: {
+            'Authorization': `DeepL-Auth-Key ${apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        usage = usageResponse.data;
+      } catch (error) {
+        console.error('❌ Failed to get usage stats:', error.message);
+      }
+      
+      ctx.send({
+        success: true,
+        message: 'Question translated successfully with DeepL API',
+        originalQuestion: {
+          id: question.id,
+          baseId: question.baseId,
+          locale: question.locale
+        },
+        translations: Object.keys(translations),
+        createdVersions,
+        deeplUsage: usage ? {
+          characterCount: usage.character_count,
+          characterLimit: usage.character_limit,
+          charactersUsed: `${usage.character_count}/${usage.character_limit}`,
+          percentageUsed: Math.round((usage.character_count / usage.character_limit) * 100)
+        } : null,
+        note: 'Real DeepL translations created successfully'
+      });
+      
+    } catch (error) {
+      console.error('❌ Translation error:', error);
+      ctx.internalServerError('Translation failed: ' + error.message);
+    }
+  },
+}));

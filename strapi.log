@@ -1,0 +1,1675 @@
+
+> quiz-cms@0.1.0 develop
+> strapi develop
+
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (116ms)
+✔ Loading Strapi (439ms)
+- Generating types
+✔ Generating types (84ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1018ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:34:19 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1546 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 81494                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:34:19.094] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:34:19.192] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd?plugins%5Bi18n%5D%5Blocale%5D=en (23 ms) 200
+🔧 DeepL translate method called
+📝 Question to translate: {
+  id: 15,
+  locale: 'en',
+  question: 'What is the largest planet in our solar system?...'
+}
+🔄 Testing DeepL connection...
+✅ DeepL connection successful: { character_count: 582, character_limit: 500000 }
+🌍 Starting DeepL translation...
+🔄 Translating to PT-BR (pt)...
+✅ pt translation completed
+🔄 Translating to ES (es)...
+✅ es translation completed
+🔄 Translating to FR (fr)...
+✅ fr translation completed
+✅ All DeepL translations completed for: [ 'pt', 'es', 'fr' ]
+🌍 Creating pt version for baseId: astro_001
+🔄 Updated pt version with ID: 18 (original preserved: 15)
+🌍 Creating es version for baseId: astro_001
+🔄 Updated es version with ID: 18 (original preserved: 15)
+🌍 Creating fr version for baseId: astro_001
+🔄 Updated fr version with ID: 18 (original preserved: 15)
+[2025-08-27 22:34:54.125] [32mhttp[39m: POST /api/questions/15/translate (3139 ms) 200
+[2025-08-27 22:35:15.077] [32mhttp[39m: GET /api/questions?locale=en (4 ms) 200
+[2025-08-27 22:35:15.088] [32mhttp[39m: GET /api/questions?locale=pt (3 ms) 200
+[2025-08-27 22:35:15.099] [32mhttp[39m: GET /api/questions?locale=es (3 ms) 200
+[2025-08-27 22:35:28.001] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/src/services/deepl.js
+[2025-08-27 22:35:28.001] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/src/api/deepl/services/deepl.js
+[2025-08-27 22:35:28.002] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/src/api/question/controllers/question.ts
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 22:35:28.841] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:35:28.843] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (28ms)
+- Creating admin
+✔ Creating admin (164ms)
+✔ Loading Strapi (469ms)
+- Generating types
+✔ Generating types (82ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (984ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:35:30 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1544 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 82794                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:35:30.991] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:35:31.901] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd?plugins%5Bi18n%5D%5Blocale%5D=en (29 ms) 200
+[2025-08-27 22:35:36.589] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd?plugins%5Bi18n%5D%5Blocale%5D=en (8 ms) 200
+[2025-08-27 22:35:36.713] [32mhttp[39m: GET /admin/project-type (5 ms) 200
+[2025-08-27 22:35:36.753] [32mhttp[39m: GET /admin/init (5 ms) 200
+[2025-08-27 22:35:36.776] [32mhttp[39m: GET /admin/users/me (22 ms) 200
+[2025-08-27 22:35:36.782] [32mhttp[39m: GET /admin/users/me/permissions (24 ms) 200
+[2025-08-27 22:35:36.784] [32mhttp[39m: POST /admin/renew-token (25 ms) 200
+[2025-08-27 22:35:36.794] [32mhttp[39m: POST /admin/renew-token (3 ms) 200
+[2025-08-27 22:35:36.798] [32mhttp[39m: GET /admin/information (14 ms) 200
+[2025-08-27 22:35:36.799] [32mhttp[39m: GET /admin/telemetry-properties (6 ms) 200
+[2025-08-27 22:35:36.815] [32mhttp[39m: GET /admin/guided-tour-meta (5 ms) 200
+[2025-08-27 22:35:36.821] [32mhttp[39m: GET /content-manager/init (4 ms) 200
+[2025-08-27 22:35:36.833] [32mhttp[39m: GET /content-manager/content-types-settings (12 ms) 200
+[2025-08-27 22:35:36.834] [32mhttp[39m: GET /admin/license-limit-information (18 ms) 200
+[2025-08-27 22:35:36.865] [32mhttp[39m: GET /content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd?locale=en (11 ms) 200
+[2025-08-27 22:35:36.869] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (3 ms) 200
+[2025-08-27 22:35:36.885] [32mhttp[39m: GET /i18n/locales (5 ms) 200
+[2025-08-27 22:35:36.889] [32mhttp[39m: GET /content-manager/preview/url/api::question.question?documentId=tcf0ilva6qnyzwrxt5j4nxbd&locale=en&status=published (4 ms) 404
+[2025-08-27 22:35:36.977] [32mhttp[39m: GET /content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd/actions/countDraftRelations?locale=en (4 ms) 200
+[2025-08-27 22:35:39.922] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=update (20 ms) 200
+[2025-08-27 22:35:39.930] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=publish (6 ms) 200
+[2025-08-27 22:35:39.936] [32mhttp[39m: GET /content-manager/homepage/count-documents (5 ms) 200
+[2025-08-27 22:35:39.942] [32mhttp[39m: GET /admin/homepage/key-statistics (6 ms) 200
+[2025-08-27 22:35:40.943] [32mhttp[39m: GET /content-manager/init (9 ms) 200
+[2025-08-27 22:35:40.976] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC (14 ms) 200
+[2025-08-27 22:35:41.034] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (12 ms) 200
+[2025-08-27 22:35:49.982] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=pt (14 ms) 200
+[2025-08-27 22:35:52.287] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=es (15 ms) 200
+[2025-08-27 22:35:55.467] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=fr (14 ms) 200
+[2025-08-27 22:44:24.460] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/package.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 22:44:24.559] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/package-lock.json
+[2025-08-27 22:44:25.660] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:44:25.662] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (31ms)
+- Creating admin
+Re-optimizing dependencies because lockfile has changed
+✔ Creating admin (173ms)
+✔ Loading Strapi (636ms)
+- Generating types
+✔ Generating types (96ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1077ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:44:28 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1817 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 86759                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:44:28.773] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:44:34.108] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (28 ms) 200
+[2025-08-27 22:44:35.331] [32mhttp[39m: GET /admin/project-type (4 ms) 200
+[2025-08-27 22:44:35.377] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2025-08-27 22:44:35.394] [32mhttp[39m: GET /admin/users/me (17 ms) 200
+[2025-08-27 22:44:35.399] [32mhttp[39m: GET /admin/users/me/permissions (20 ms) 200
+[2025-08-27 22:44:35.400] [32mhttp[39m: POST /admin/renew-token (21 ms) 200
+[2025-08-27 22:44:35.411] [32mhttp[39m: GET /admin/information (10 ms) 200
+[2025-08-27 22:44:35.411] [32mhttp[39m: GET /admin/telemetry-properties (8 ms) 200
+[2025-08-27 22:44:35.414] [32mhttp[39m: POST /admin/renew-token (4 ms) 200
+[2025-08-27 22:44:35.431] [32mhttp[39m: GET /admin/guided-tour-meta (5 ms) 200
+[2025-08-27 22:44:35.436] [32mhttp[39m: GET /content-manager/init (3 ms) 200
+[2025-08-27 22:44:35.444] [32mhttp[39m: GET /content-manager/content-types-settings (7 ms) 200
+[2025-08-27 22:44:35.447] [32mhttp[39m: GET /admin/license-limit-information (15 ms) 200
+[2025-08-27 22:44:35.478] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 22:44:35.492] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (13 ms) 200
+[2025-08-27 22:44:35.531] [32mhttp[39m: GET /i18n/locales (5 ms) 200
+[2025-08-27 22:45:33.784] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-from-firebase.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 22:45:34.854] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:45:34.855] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (128ms)
+✔ Loading Strapi (548ms)
+- Generating types
+✔ Generating types (81ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1015ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:45:37 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1648 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 87345                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:45:37.645] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:45:59.004] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/setup-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 22:45:59.878] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:45:59.880] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (116ms)
+✔ Loading Strapi (437ms)
+- Generating types
+✔ Generating types (81ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1054ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:46:02 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1575 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 87530                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:46:02.079] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:46:27.042] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (5ms)
+[2025-08-27 22:46:27.922] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:46:27.924] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (116ms)
+✔ Loading Strapi (438ms)
+- Generating types
+✔ Generating types (83ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1020ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:46:30 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1546 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 87736                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:46:30.091] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:46:34.231] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/bootstrap.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-from-firebase.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/sample-data.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/setup-migration.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-api.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-deepl-simple.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-deepl.js
+[2025-08-27 22:46:34.232] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-strapi-deepl.js
+[2025-08-27 22:46:34.233] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/translate-question.js
+✔ Cleaning dist dir (2ms)
+[2025-08-27 22:46:35.001] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:46:35.003] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (113ms)
+✔ Loading Strapi (441ms)
+- Generating types
+✔ Generating types (86ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1028ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:46:37 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1560 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 87871                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:46:37.199] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:46:46.962] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/package.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 22:46:47.841] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:46:47.842] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (117ms)
+✔ Loading Strapi (439ms)
+- Generating types
+✔ Generating types (84ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1030ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:46:50 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1557 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 87973                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:46:50.028] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:47:25.877] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/MIGRATION.md
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 22:47:26.809] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:47:26.810] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (114ms)
+✔ Loading Strapi (435ms)
+- Generating types
+✔ Generating types (83ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1031ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:47:28 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1554 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 88254                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:47:29.000] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:47:47.964] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-from-firebase.js
+[2025-08-27 22:47:47.965] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-migration.js
+[2025-08-27 22:47:47.965] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/setup-migration.js
+[2025-08-27 22:47:47.965] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/MIGRATION.md
+[2025-08-27 22:47:47.965] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/package.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 22:47:48.807] [32minfo[39m: Shutting down Strapi
+[2025-08-27 22:47:48.808] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (28ms)
+- Creating admin
+✔ Creating admin (110ms)
+✔ Loading Strapi (421ms)
+- Generating types
+✔ Generating types (79ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1064ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 22:47:50 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1569 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 88418                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 22:47:50.990] [32minfo[39m: Strapi started successfully
+[2025-08-27 22:48:37.018] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (29 ms) 200
+[2025-08-27 22:48:37.410] [32mhttp[39m: GET /admin/project-type (4 ms) 200
+[2025-08-27 22:48:37.455] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2025-08-27 22:48:37.471] [32mhttp[39m: GET /admin/users/me (15 ms) 200
+[2025-08-27 22:48:37.479] [32mhttp[39m: GET /admin/users/me/permissions (22 ms) 200
+[2025-08-27 22:48:37.480] [32mhttp[39m: POST /admin/renew-token (22 ms) 200
+[2025-08-27 22:48:37.489] [32mhttp[39m: GET /admin/information (8 ms) 200
+[2025-08-27 22:48:37.490] [32mhttp[39m: GET /admin/telemetry-properties (8 ms) 200
+[2025-08-27 22:48:37.492] [32mhttp[39m: POST /admin/renew-token (2 ms) 200
+[2025-08-27 22:48:37.508] [32mhttp[39m: GET /admin/guided-tour-meta (5 ms) 200
+[2025-08-27 22:48:37.513] [32mhttp[39m: GET /content-manager/init (4 ms) 200
+[2025-08-27 22:48:37.525] [32mhttp[39m: GET /content-manager/content-types-settings (11 ms) 200
+[2025-08-27 22:48:37.527] [32mhttp[39m: GET /admin/license-limit-information (19 ms) 200
+[2025-08-27 22:48:37.554] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 22:48:37.567] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (13 ms) 200
+[2025-08-27 22:48:37.605] [32mhttp[39m: GET /i18n/locales (6 ms) 200
+[2025-08-27 22:48:39.313] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (4 ms) 200
+[2025-08-27 22:48:39.405] [32mhttp[39m: GET /admin/project-type (2 ms) 200
+[2025-08-27 22:48:39.448] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2025-08-27 22:48:39.457] [32mhttp[39m: GET /admin/users/me (8 ms) 200
+[2025-08-27 22:48:39.461] [32mhttp[39m: GET /admin/users/me/permissions (10 ms) 200
+[2025-08-27 22:48:39.461] [32mhttp[39m: POST /admin/renew-token (8 ms) 200
+[2025-08-27 22:48:39.470] [32mhttp[39m: GET /admin/information (8 ms) 200
+[2025-08-27 22:48:39.471] [32mhttp[39m: GET /admin/telemetry-properties (9 ms) 200
+[2025-08-27 22:48:39.471] [32mhttp[39m: POST /admin/renew-token (1 ms) 200
+[2025-08-27 22:48:39.483] [32mhttp[39m: GET /admin/guided-tour-meta (3 ms) 200
+[2025-08-27 22:48:39.488] [32mhttp[39m: GET /content-manager/init (3 ms) 200
+[2025-08-27 22:48:39.493] [32mhttp[39m: GET /content-manager/content-types-settings (5 ms) 200
+[2025-08-27 22:48:39.495] [32mhttp[39m: GET /admin/license-limit-information (11 ms) 200
+[2025-08-27 22:48:39.516] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 22:48:39.522] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (6 ms) 200
+[2025-08-27 22:48:39.553] [32mhttp[39m: GET /i18n/locales (4 ms) 200
+[2025-08-27 22:51:18.293] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (4 ms) 200
+[2025-08-27 22:51:18.408] [32mhttp[39m: GET /admin/project-type (1 ms) 200
+[2025-08-27 22:51:18.435] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2025-08-27 22:51:18.444] [32mhttp[39m: GET /admin/users/me (8 ms) 200
+[2025-08-27 22:51:18.449] [32mhttp[39m: GET /admin/users/me/permissions (12 ms) 200
+[2025-08-27 22:51:18.457] [32mhttp[39m: POST /admin/renew-token (6 ms) 200
+[2025-08-27 22:51:18.457] [32mhttp[39m: GET /admin/information (7 ms) 200
+[2025-08-27 22:51:18.463] [32mhttp[39m: GET /admin/telemetry-properties (5 ms) 200
+[2025-08-27 22:51:18.464] [32mhttp[39m: POST /admin/renew-token (2 ms) 200
+[2025-08-27 22:51:18.473] [32mhttp[39m: GET /admin/guided-tour-meta (4 ms) 200
+[2025-08-27 22:51:18.479] [32mhttp[39m: GET /content-manager/init (4 ms) 200
+[2025-08-27 22:51:18.489] [32mhttp[39m: GET /content-manager/content-types-settings (10 ms) 200
+[2025-08-27 22:51:18.492] [32mhttp[39m: GET /admin/license-limit-information (18 ms) 200
+[2025-08-27 22:51:18.515] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 22:51:18.523] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (8 ms) 200
+[2025-08-27 22:51:18.555] [32mhttp[39m: GET /i18n/locales (4 ms) 200
+[2025-08-27 23:01:30.377] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (6 ms) 200
+[2025-08-27 23:01:30.569] [32mhttp[39m: GET /admin/project-type (5 ms) 200
+[2025-08-27 23:01:30.610] [32mhttp[39m: GET /admin/init (5 ms) 200
+[2025-08-27 23:01:30.619] [32mhttp[39m: GET /admin/users/me (8 ms) 200
+[2025-08-27 23:01:30.625] [32mhttp[39m: GET /admin/users/me/permissions (12 ms) 200
+[2025-08-27 23:01:30.633] [32mhttp[39m: POST /admin/renew-token (5 ms) 200
+[2025-08-27 23:01:30.634] [32mhttp[39m: GET /admin/information (9 ms) 200
+[2025-08-27 23:01:30.640] [32mhttp[39m: GET /admin/telemetry-properties (6 ms) 200
+[2025-08-27 23:01:30.641] [32mhttp[39m: POST /admin/renew-token (2 ms) 200
+[2025-08-27 23:01:30.656] [32mhttp[39m: GET /admin/guided-tour-meta (5 ms) 200
+[2025-08-27 23:01:30.662] [32mhttp[39m: GET /content-manager/init (4 ms) 200
+[2025-08-27 23:01:30.671] [32mhttp[39m: GET /content-manager/content-types-settings (8 ms) 200
+[2025-08-27 23:01:30.673] [32mhttp[39m: GET /admin/license-limit-information (16 ms) 200
+[2025-08-27 23:01:30.701] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 23:01:30.709] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (8 ms) 200
+[2025-08-27 23:01:30.746] [32mhttp[39m: GET /i18n/locales (4 ms) 200
+[2025-08-27 23:08:54.746] [32mhttp[39m: GET /api/questions (11 ms) 200
+[2025-08-27 23:09:29.131] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/firebase-service-account.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (8ms)
+[2025-08-27 23:09:30.250] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:09:30.251] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (34ms)
+- Creating admin
+✔ Creating admin (132ms)
+✔ Loading Strapi (589ms)
+- Generating types
+✔ Generating types (102ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1006ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:09:33 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1705 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 98025                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:09:33.164] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:10:27.447] [32minfo[39m: File deleted: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/firebase-service-account.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 23:10:28.337] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:10:28.338] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (32ms)
+- Creating admin
+✔ Creating admin (131ms)
+✔ Loading Strapi (570ms)
+- Generating types
+✔ Generating types (82ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1042ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:10:31 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1698 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 98450                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:10:31.112] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:10:44.723] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/firebase-service-account.json
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (4ms)
+[2025-08-27 23:10:45.692] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:10:45.694] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (126ms)
+✔ Loading Strapi (550ms)
+- Generating types
+✔ Generating types (80ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1026ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:10:48 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1660 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 98580                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:10:48.450] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:11:22.052] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/setup-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 23:11:23.093] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:11:23.096] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (128ms)
+✔ Loading Strapi (555ms)
+- Generating types
+✔ Generating types (86ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1037ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:11:25 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1682 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 99031                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:11:25.846] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:12:02.629] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/inspect-firebase.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:12:03.699] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:12:03.702] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (34ms)
+- Creating admin
+✔ Creating admin (135ms)
+✔ Loading Strapi (592ms)
+- Generating types
+✔ Generating types (85ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+✔ Compiling TS (1076ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:12:06 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1757 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 99435                                            [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:12:06.521] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:12:08.620] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (21 ms) 200
+[2025-08-27 23:12:08.836] [32mhttp[39m: GET /favicon.ico (1 ms) 200
+[2025-08-27 23:12:16.844] [32mhttp[39m: GET /admin/content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId:ASC&plugins[i18n][locale]=en (4 ms) 200
+[2025-08-27 23:12:17.009] [32mhttp[39m: GET /admin/project-type (2 ms) 200
+[2025-08-27 23:12:17.046] [32mhttp[39m: GET /admin/init (2 ms) 200
+[2025-08-27 23:12:17.057] [32mhttp[39m: GET /admin/users/me (11 ms) 200
+[2025-08-27 23:12:17.062] [32mhttp[39m: GET /admin/users/me/permissions (14 ms) 200
+[2025-08-27 23:12:17.076] [32mhttp[39m: POST /admin/renew-token (11 ms) 200
+[2025-08-27 23:12:17.077] [32mhttp[39m: GET /admin/information (14 ms) 200
+[2025-08-27 23:12:17.083] [32mhttp[39m: GET /admin/telemetry-properties (5 ms) 200
+[2025-08-27 23:12:17.085] [32mhttp[39m: POST /admin/renew-token (3 ms) 200
+[2025-08-27 23:12:17.098] [32mhttp[39m: GET /admin/guided-tour-meta (5 ms) 200
+[2025-08-27 23:12:17.104] [32mhttp[39m: GET /content-manager/init (4 ms) 200
+[2025-08-27 23:12:17.117] [32mhttp[39m: GET /content-manager/content-types-settings (12 ms) 200
+[2025-08-27 23:12:17.119] [32mhttp[39m: GET /admin/license-limit-information (20 ms) 200
+[2025-08-27 23:12:17.145] [32mhttp[39m: GET /content-manager/content-types/api::question.question/configuration (4 ms) 200
+[2025-08-27 23:12:17.157] [32mhttp[39m: GET /content-manager/collection-types/api::question.question?page=1&pageSize=10&sort=baseId%3AASC&locale=en (12 ms) 200
+[2025-08-27 23:12:17.196] [32mhttp[39m: GET /i18n/locales (5 ms) 200
+[2025-08-27 23:12:19.850] [32mhttp[39m: GET /content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd?locale=en (11 ms) 200
+[2025-08-27 23:12:19.921] [32mhttp[39m: GET /content-manager/preview/url/api::question.question?documentId=tcf0ilva6qnyzwrxt5j4nxbd&locale=en&status=published (4 ms) 404
+[2025-08-27 23:12:19.975] [32mhttp[39m: GET /content-manager/collection-types/api::question.question/tcf0ilva6qnyzwrxt5j4nxbd/actions/countDraftRelations?locale=en (4 ms) 200
+[2025-08-27 23:12:28.076] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=update (14 ms) 200
+[2025-08-27 23:12:28.083] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=publish (7 ms) 200
+[2025-08-27 23:12:28.090] [32mhttp[39m: GET /content-manager/homepage/count-documents (5 ms) 200
+[2025-08-27 23:12:28.096] [32mhttp[39m: GET /admin/homepage/key-statistics (5 ms) 200
+[2025-08-27 23:13:17.081] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-firebase-real.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (9ms)
+[2025-08-27 23:13:18.236] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:13:18.237] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (31ms)
+- Creating admin
+✔ Creating admin (133ms)
+✔ Loading Strapi (598ms)
+- Generating types
+✔ Generating types (84ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1047ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:13:21 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1734 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 250                                              [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:13:21.189] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:13:45.909] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-real-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:13:46.830] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:13:46.832] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (128ms)
+✔ Loading Strapi (538ms)
+- Generating types
+✔ Generating types (83ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1131ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:13:49 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1756 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 485                                              [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:13:49.662] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:14:40.477] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-firebase-real.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:14:41.654] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:14:41.656] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (31ms)
+- Creating admin
+✔ Creating admin (134ms)
+✔ Loading Strapi (568ms)
+- Generating types
+✔ Generating types (84ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1103ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:14:44 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1760 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 1231                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:14:44.555] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:14:49.685] [32mhttp[39m: GET /api/questions (14 ms) 200
+[2025-08-27 23:14:50.896] [32mhttp[39m: POST /api/questions (32 ms) 403
+[2025-08-27 23:14:50.905] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:50.910] [32mhttp[39m: POST /api/questions (4 ms) 403
+[2025-08-27 23:14:52.906] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:52.910] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:52.914] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:54.917] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:54.922] [32mhttp[39m: POST /api/questions (4 ms) 403
+[2025-08-27 23:14:54.924] [32mhttp[39m: POST /api/questions (1 ms) 403
+[2025-08-27 23:14:56.924] [32mhttp[39m: POST /api/questions (2 ms) 403
+[2025-08-27 23:14:56.926] [32mhttp[39m: POST /api/questions (1 ms) 403
+[2025-08-27 23:14:56.928] [32mhttp[39m: POST /api/questions (1 ms) 403
+[2025-08-27 23:14:56.935] [32mhttp[39m: GET /api/questions (4 ms) 200
+[2025-08-27 23:14:56.941] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/migration-report.json
+[2025-08-27 23:14:56.941] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/migration-log.txt
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 23:14:57.947] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:14:57.948] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (131ms)
+✔ Loading Strapi (550ms)
+- Generating types
+✔ Generating types (81ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1037ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:15:00 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1673 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 1472                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:15:00.715] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:15:23.176] [32mhttp[39m: GET /api/questions (14 ms) 200
+[2025-08-27 23:16:01.599] [32mhttp[39m: POST /api/questions (9 ms) 403
+[2025-08-27 23:16:20.277] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/inspect-firebase.js
+[2025-08-27 23:16:20.277] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-firebase-real.js
+[2025-08-27 23:16:20.277] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/test-real-migration.js
+[2025-08-27 23:16:20.277] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/setup-migration.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 23:16:21.325] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:16:21.327] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (31ms)
+- Creating admin
+✔ Creating admin (124ms)
+✔ Loading Strapi (539ms)
+- Generating types
+✔ Generating types (79ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1044ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:16:24 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1668 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 2544                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:16:24.249] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:24:09.009] [32mhttp[39m: GET /admin (32 ms) 200
+[2025-08-27 23:24:11.786] [32mhttp[39m: GET /admin (4 ms) 200
+[2025-08-27 23:24:11.951] [32mhttp[39m: GET /admin/project-type (4 ms) 200
+[2025-08-27 23:24:11.994] [32mhttp[39m: GET /admin/init (6 ms) 200
+[2025-08-27 23:24:12.015] [32mhttp[39m: GET /admin/users/me (20 ms) 200
+[2025-08-27 23:24:12.021] [32mhttp[39m: GET /admin/users/me/permissions (24 ms) 200
+[2025-08-27 23:24:12.023] [32mhttp[39m: POST /admin/renew-token (24 ms) 200
+[2025-08-27 23:24:12.033] [32mhttp[39m: POST /admin/renew-token (3 ms) 200
+[2025-08-27 23:24:12.037] [32mhttp[39m: GET /admin/information (13 ms) 200
+[2025-08-27 23:24:12.037] [32mhttp[39m: GET /admin/telemetry-properties (6 ms) 200
+[2025-08-27 23:24:12.059] [32mhttp[39m: GET /admin/guided-tour-meta (6 ms) 200
+[2025-08-27 23:24:12.063] [32mhttp[39m: GET /admin/license-limit-information (3 ms) 200
+[2025-08-27 23:24:12.112] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=update (14 ms) 200
+[2025-08-27 23:24:12.118] [32mhttp[39m: GET /content-manager/homepage/recent-documents?action=publish (5 ms) 200
+[2025-08-27 23:24:12.124] [32mhttp[39m: GET /content-manager/homepage/count-documents (5 ms) 200
+[2025-08-27 23:24:12.129] [32mhttp[39m: GET /admin/homepage/key-statistics (5 ms) 200
+[2025-08-27 23:24:20.730] [32mhttp[39m: GET /users-permissions/roles (9 ms) 200
+[2025-08-27 23:24:23.682] [32mhttp[39m: GET /users-permissions/permissions (11 ms) 200
+[2025-08-27 23:24:23.689] [32mhttp[39m: GET /users-permissions/routes (6 ms) 200
+[2025-08-27 23:24:23.711] [32mhttp[39m: GET /users-permissions/roles/2 (6 ms) 200
+[2025-08-27 23:24:41.589] [32mhttp[39m: PUT /users-permissions/roles/2 (21 ms) 200
+[2025-08-27 23:24:41.598] [32mhttp[39m: GET /users-permissions/roles/2 (6 ms) 200
+[2025-08-27 23:25:59.400] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:25:59.401] [32mhttp[39m: POST /api/questions (5 ms) 500
+[2025-08-27 23:26:10.324] [32mhttp[39m: GET /api/questions (6 ms) 200
+[2025-08-27 23:26:11.508] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:11.509] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:26:11.512] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:11.512] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:26:11.514] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:11.514] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:13.514] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:13.514] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:13.517] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:13.517] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:13.519] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:13.519] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:15.518] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:15.519] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:26:15.522] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:15.522] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:26:15.524] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:15.525] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:17.523] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:17.524] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:26:17.526] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:17.527] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:17.529] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:17.529] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:26:17.537] [32mhttp[39m: GET /api/questions (4 ms) 200
+[2025-08-27 23:26:17.744] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/migration-report.json
+[2025-08-27 23:26:17.745] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/migration-log.txt
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (6ms)
+[2025-08-27 23:26:18.893] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:26:18.895] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (33ms)
+- Creating admin
+✔ Creating admin (132ms)
+✔ Loading Strapi (598ms)
+- Generating types
+✔ Generating types (84ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1039ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:26:21 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1725 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 7379                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:26:21.865] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:26:48.223] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/debug-strapi-create.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:26:49.166] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:26:49.168] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (116ms)
+✔ Loading Strapi (437ms)
+- Generating types
+✔ Generating types (81ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1035ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:26:51 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1557 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 7600                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:26:51.454] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:26:57.594] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:57.595] [32mhttp[39m: POST /api/questions (14 ms) 500
+[2025-08-27 23:26:57.604] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:57.604] [32mhttp[39m: POST /api/questions (5 ms) 500
+[2025-08-27 23:26:57.608] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:26:57.608] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:27:18.040] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/migrate-firebase-real.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:27:19.120] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:27:19.122] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (128ms)
+✔ Loading Strapi (549ms)
+- Generating types
+✔ Generating types (81ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1066ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:27:21 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1701 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 8012                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:27:21.927] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:27:22.393] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/debug-strapi-create.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:27:23.224] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:27:23.227] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (119ms)
+✔ Loading Strapi (444ms)
+- Generating types
+✔ Generating types (85ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1086ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:27:25 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1620 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 8044                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:27:25.482] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:27:25.939] [32minfo[39m: File changed: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/debug-strapi-create.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:27:26.743] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:27:26.745] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (30ms)
+- Creating admin
+✔ Creating admin (118ms)
+✔ Loading Strapi (446ms)
+- Generating types
+✔ Generating types (85ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1097ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:27:29 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1633 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 8076                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:27:29.007] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:27:31.039] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:27:31.039] [32mhttp[39m: POST /api/questions (13 ms) 500
+[2025-08-27 23:27:31.047] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:27:31.047] [32mhttp[39m: POST /api/questions (3 ms) 500
+[2025-08-27 23:27:31.051] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:27:31.051] [32mhttp[39m: POST /api/questions (2 ms) 500
+[2025-08-27 23:27:43.268] [32minfo[39m: File created: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/scripts/debug-simple.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+[2025-08-27 23:27:44.236] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:27:44.238] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (29ms)
+- Creating admin
+✔ Creating admin (115ms)
+✔ Loading Strapi (437ms)
+- Generating types
+✔ Generating types (85ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1135ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:27:46 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1660 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 8307                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:27:46.530] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:27:48.444] [31merror[39m: Cannot read properties of undefined (reading 'create')
+TypeError: Cannot read properties of undefined (reading 'create')
+    at Object.create (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/core-api/controller/collection-type.js:45:53)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async returnBodyMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:46:20)
+    at async policiesMiddleware (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/policy.js:21:9)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/services/server/compose-endpoint.js:27:20
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/body.js:45:17
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/powered-by.js:12:9
+    at async cors (/Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@koa/cors/index.js:106:16)
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/errors.js:9:13
+    at async /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/node_modules/@strapi/core/dist/middlewares/logger.js:6:9
+[2025-08-27 23:27:48.445] [32mhttp[39m: POST /api/questions (10 ms) 500
+[2025-08-27 23:28:17.654] [32minfo[39m: File deleted: /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/src/api/question/controllers/question.js
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (3ms)
+[2025-08-27 23:28:18.795] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:28:18.797] [32minfo[39m: Strapi has been shut down
+- Loading Strapi
+- Building build context
+
+[INFO] Including the following ENV variables as part of the JS bundle:
+    - ADMIN_PATH
+    - STRAPI_ADMIN_BACKEND_URL
+    - STRAPI_TELEMETRY_DISABLED
+    - STRAPI_ANALYTICS_URL
+✔ Building build context (31ms)
+- Creating admin
+✔ Creating admin (145ms)
+✔ Loading Strapi (606ms)
+- Generating types
+✔ Generating types (83ms)
+- Compiling TS
+- Cleaning dist dir /Users/robertomuricy/Documents/AstroQuiz Project/quiz-cms/dist
+✔ Cleaning dist dir (2ms)
+✔ Compiling TS (1059ms)
+
+ Project information
+
+[90m┌────────────────────[39m[90m┬──────────────────────────────────────────────────┐[39m
+[90m│[39m Time               [90m│[39m Wed Aug 27 2025 23:28:21 GMT-0300 (Brasilia Sta… [90m│[39m
+[90m│[39m Launched in        [90m│[39m 1753 ms                                          [90m│[39m
+[90m│[39m Environment        [90m│[39m development                                      [90m│[39m
+[90m│[39m Process PID        [90m│[39m 8658                                             [90m│[39m
+[90m│[39m Version            [90m│[39m 5.23.0 (node v22.17.1)                           [90m│[39m
+[90m│[39m Edition            [90m│[39m Community                                        [90m│[39m
+[90m│[39m Database           [90m│[39m sqlite                                           [90m│[39m
+[90m│[39m Database name      [90m│[39m .tmp/data.db                                     [90m│[39m
+[90m└────────────────────[39m[90m┴──────────────────────────────────────────────────┘[39m
+
+ Actions available
+
+Welcome back!
+To access the server ⚡️, go to:
+http://localhost:1337
+
+[2025-08-27 23:28:21.706] [32minfo[39m: Strapi started successfully
+[2025-08-27 23:28:22.866] [32minfo[39m: Shutting down Strapi
+[2025-08-27 23:28:22.868] [32minfo[39m: Strapi has been shut down

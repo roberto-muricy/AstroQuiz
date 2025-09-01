@@ -1,0 +1,53 @@
+[2025-08-28T02:48:20.002Z] [TEST] 🧪 Starting dry run (validation only)...
+[2025-08-28T02:48:20.002Z] [TEST] 🔥 Initializing Firebase Admin SDK...
+[2025-08-28T02:48:20.052Z] [TEST] ✅ Firebase initialized successfully
+[2025-08-28T02:48:20.052Z] [TEST] 📥 Fetching questions from Firebase...
+[2025-08-28T02:48:22.154Z] [TEST] ✅ Fetched 1448 questions from Firebase
+[2025-08-28T02:48:22.155Z] [TEST] 🧪 Test mode: Limited to 3 questions
+[2025-08-28T02:48:22.155Z] [TEST] 
+🔍 Validating question 1: q_1755984901379_ub6hrp76e
+[2025-08-28T02:48:22.155Z] [TEST] 📝 Original: De acordo com teorias recentes, o que poderia expl...
+[2025-08-28T02:48:22.155Z] [TEST] 🔄 Transformed baseId: qd76877f6
+[2025-08-28T02:48:22.155Z] [TEST] 🌍 Language: pt → pt
+[2025-08-28T02:48:22.155Z] [TEST] 📊 Level: 5 → 5
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Options: [Placas tectônicas sã..., Filtro grande se tor..., ...]
+[2025-08-28T02:48:22.155Z] [TEST] 🎯 Correct: 3 → D
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Question 1 is valid
+[2025-08-28T02:48:22.155Z] [TEST] 
+🔍 Validating question 2: q_1755984901977_moowyybgs
+[2025-08-28T02:48:22.155Z] [TEST] 📝 Original: Aproximadamente quantas estrelas existem na Via Lá...
+[2025-08-28T02:48:22.155Z] [TEST] 🔄 Transformed baseId: q77758aa1
+[2025-08-28T02:48:22.155Z] [TEST] 🌍 Language: pt → pt
+[2025-08-28T02:48:22.155Z] [TEST] 📊 Level: 6 → 5
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Options: [100 milhões..., 1 bilhão..., ...]
+[2025-08-28T02:48:22.155Z] [TEST] 🎯 Correct: 2 → C
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Question 2 is valid
+[2025-08-28T02:48:22.155Z] [TEST] 
+🔍 Validating question 3: q_1755984902273_1kf9y0ge2
+[2025-08-28T02:48:22.155Z] [TEST] 📝 Original: Como se formam os buracos negros com massa estelar...
+[2025-08-28T02:48:22.155Z] [TEST] 🔄 Transformed baseId: qc6ec167b
+[2025-08-28T02:48:22.155Z] [TEST] 🌍 Language: pt → pt
+[2025-08-28T02:48:22.155Z] [TEST] 📊 Level: 6 → 5
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Options: [Da fusão de galáxias..., De estrelas massivas..., ...]
+[2025-08-28T02:48:22.155Z] [TEST] 🎯 Correct: 1 → B
+[2025-08-28T02:48:22.155Z] [TEST] ✅ Question 3 is valid
+[2025-08-28T02:48:22.155Z] [TEST] 
+📊 Dry run results:
+[2025-08-28T02:48:22.155Z] [TEST]    Valid questions: 3
+[2025-08-28T02:48:22.155Z] [TEST]    Invalid questions: 0
+[2025-08-28T02:48:22.155Z] [TEST]    Validation errors: 0
+[2025-08-28T02:48:22.156Z] [TEST] 🚀 Starting Firebase to Strapi migration...
+[2025-08-28T02:48:22.156Z] [TEST] 🔥 Initializing Firebase Admin SDK...
+[2025-08-28T02:48:22.156Z] [TEST] ✅ Firebase already initialized, reusing existing app
+[2025-08-28T02:48:22.156Z] [TEST] 🔗 Testing Strapi connection...
+[2025-08-28T02:48:22.175Z] [TEST] ✅ Strapi connection successful (200)
+[2025-08-28T02:48:22.175Z] [TEST] 📥 Fetching questions from Firebase...
+[2025-08-28T02:48:23.372Z] [TEST] ✅ Fetched 1448 questions from Firebase
+[2025-08-28T02:48:23.372Z] [TEST] 🧪 Test mode: Limited to 3 questions
+[2025-08-28T02:48:23.372Z] [TEST] 
+📦 Processing batch 1/1
+[2025-08-28T02:48:23.390Z] [TEST] ✅ Created question (pt) ID: 22 - De acordo com teorias recentes, o que poderia expl...
+[2025-08-28T02:48:23.402Z] [TEST] ✅ Created question (pt) ID: 24 - Aproximadamente quantas estrelas existem na Via Lá...
+[2025-08-28T02:48:23.411Z] [TEST] ✅ Created question (pt) ID: 26 - Como se formam os buracos negros com massa estelar...
+[2025-08-28T02:48:23.412Z] [TEST] 📊 Progress: 3/3 questions (100%)
+[2025-08-28T02:48:23.412Z] [TEST] 📄 Migration report saved to: ./migration-report.json

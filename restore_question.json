@@ -1,0 +1,15 @@
+{
+  "data": {
+    "question": "What is the largest planet in our solar system?",
+    "optionA": "Earth",
+    "optionB": "Venus", 
+    "optionC": "Jupiter",
+    "optionD": "Saturn",
+    "explanation": "Jupiter is the largest planet in our solar system, with a mass more than twice that of Saturn.",
+    "baseId": "astro_001",
+    "level": 2,
+    "correctOption": "C",
+    "topic": "Planets and Solar System",
+    "locale": "en"
+  }
+}

@@ -1,0 +1,811 @@
+{
+  "info": {
+    "name": "AstroQuiz API Collection",
+    "description": "Complete API collection for AstroQuiz Strapi backend",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "http://localhost:1337",
+      "type": "string"
+    },
+    {
+      "key": "apiPath",
+      "value": "/api",
+      "type": "string"
+    },
+    {
+      "key": "locale",
+      "value": "en",
+      "type": "string"
+    },
+    {
+      "key": "questionId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Questions API",
+      "item": [
+        {
+          "name": "Get All Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?locale={{locale}}&pagination[page]=1&pagination[pageSize]=10",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[page]",
+                  "value": "1"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has data array', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Response has pagination meta', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('meta');",
+                  "    pm.expect(jsonData.meta).to.have.property('pagination');",
+                  "});",
+                  "",
+                  "pm.test('Questions have required fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const question = jsonData.data[0];",
+                  "        pm.expect(question).to.have.property('baseId');",
+                  "        pm.expect(question).to.have.property('topic');",
+                  "        pm.expect(question).to.have.property('level');",
+                  "        pm.expect(question).to.have.property('question');",
+                  "        pm.expect(question).to.have.property('optionA');",
+                  "        pm.expect(question).to.have.property('correctOption');",
+                  "        pm.expect(question).to.have.property('locale');",
+                  "        ",
+                  "        // Set questionId for other requests",
+                  "        pm.collectionVariables.set('questionId', question.documentId);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Single Question",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions/{{questionId}}?locale={{locale}}",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions", "{{questionId}}"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has single question data', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data).to.have.property('documentId');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter by Topic",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?filters[topic][$eq]=Galaxies & Cosmology&locale={{locale}}&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "filters[topic][$eq]",
+                  "value": "Galaxies & Cosmology"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All questions have correct topic', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.topic).to.include('Galaxies');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter by Level",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?filters[level][$eq]=3&locale={{locale}}&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "filters[level][$eq]",
+                  "value": "3"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All questions have level 3', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.level).to.equal(3);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Filter by Level Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?filters[level][$gte]=2&filters[level][$lte]=4&locale={{locale}}&pagination[pageSize]=10",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "filters[level][$gte]",
+                  "value": "2"
+                },
+                {
+                  "key": "filters[level][$lte]",
+                  "value": "4"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All questions have level between 2-4', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.level).to.be.at.least(2);",
+                  "        pm.expect(question.level).to.be.at.most(4);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?filters[question][$containsi]=galaxy&locale={{locale}}&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "filters[question][$containsi]",
+                  "value": "galaxy"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Questions contain search term', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.question.toLowerCase()).to.include('galaxy');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Localization Tests",
+      "item": [
+        {
+          "name": "Get Portuguese Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?locale=pt&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "pt"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Questions are in Portuguese', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.locale).to.equal('pt');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Spanish Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?locale=es&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "es"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Questions are in Spanish', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.locale).to.equal('es');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get French Questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?locale=fr&pagination[pageSize]=5",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "fr"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Questions are in French', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.locale).to.equal('fr');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DeepL Translation API",
+      "item": [
+        {
+          "name": "Translate Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"What is the speed of light?\",\n  \"targetLang\": \"PT-BR\",\n  \"sourceLang\": \"EN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/deepl/translate",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "deepl", "translate"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has translated text', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('translatedText');",
+                  "    pm.expect(jsonData.data.translatedText).to.be.a('string');",
+                  "    pm.expect(jsonData.data.translatedText.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test('Response has usage information', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('usage');",
+                  "    pm.expect(jsonData.data.usage).to.have.property('characterCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Translate Question",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetLang\": \"ES\",\n  \"fields\": [\"question\", \"optionA\", \"optionB\", \"optionC\", \"optionD\", \"explanation\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/deepl/translate-question/{{questionId}}",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "deepl", "translate-question", "{{questionId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has translated fields', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('translatedFields');",
+                  "    pm.expect(jsonData.data.translatedFields).to.have.property('question');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Handling Tests",
+      "item": [
+        {
+          "name": "Invalid Question ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions/invalid-id",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions", "invalid-id"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Response has error object', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid Locale",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?locale=invalid&pagination[pageSize]=1",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "locale",
+                  "value": "invalid"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400 or returns empty data', function () {",
+                  "    const statusCode = pm.response.code;",
+                  "    if (statusCode === 200) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.data).to.be.an('array').that.is.empty;",
+                  "    } else {",
+                  "        pm.expect(statusCode).to.equal(400);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance Tests",
+      "item": [
+        {
+          "name": "Large Page Size",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?pagination[pageSize]=100&locale={{locale}}",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "100"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "pm.test('Returns up to 100 questions', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.length).to.be.at.most(100);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Complex Filter Query",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}{{apiPath}}/questions?filters[level][$gte]=2&filters[level][$lte]=4&filters[topic][$containsi]=galaxy&sort=level:asc&locale={{locale}}&pagination[pageSize]=20",
+              "host": ["{{baseURL}}"],
+              "path": ["{{apiPath}}", "questions"],
+              "query": [
+                {
+                  "key": "filters[level][$gte]",
+                  "value": "2"
+                },
+                {
+                  "key": "filters[level][$lte]",
+                  "value": "4"
+                },
+                {
+                  "key": "filters[topic][$containsi]",
+                  "value": "galaxy"
+                },
+                {
+                  "key": "sort",
+                  "value": "level:asc"
+                },
+                {
+                  "key": "locale",
+                  "value": "{{locale}}"
+                },
+                {
+                  "key": "pagination[pageSize]",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Complex query response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "pm.test('Results match all filters', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    jsonData.data.forEach(question => {",
+                  "        pm.expect(question.level).to.be.at.least(2);",
+                  "        pm.expect(question.level).to.be.at.most(4);",
+                  "        pm.expect(question.topic.toLowerCase()).to.include('galaxy');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+    "kind": "collectionType",
+    "collectionName": "questions",
+    "info": {
+        "singularName": "question",
+        "pluralName": "questions",
+        "displayName": "Question",
+        "description": "Quiz questions with multilingual support"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {
+        "i18n": {
+            "localized": true
+        }
+    },
+    "attributes": {
+        "question": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            },
+            "required": true
+        },
+        "optionA": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            },
+            "required": true
+        },
+        "optionB": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            },
+            "required": true
+        },
+        "optionC": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            },
+            "required": true
+        },
+        "optionD": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            },
+            "required": true
+        },
+        "topic": {
+            "type": "text",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            }
+        },
+        "baseId": {
+            "type": "string",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "required": false,
+            "unique": false
+        },
+        "explanation": {
+            "type": "richtext",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": true
+                }
+            }
+        },
+        "level": {
+            "type": "integer",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "min": 1,
+            "max": 5
+        },
+        "correctOption": {
+            "type": "enumeration",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "required": true,
+            "enum": [
+                "A",
+                "B",
+                "C",
+                "D"
+            ]
+        }
+    }
+}
