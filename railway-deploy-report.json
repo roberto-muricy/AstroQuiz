@@ -1,0 +1,103 @@
+{
+  "summary": {
+    "total": 13,
+    "passed": 4,
+    "failed": 8,
+    "warnings": 1,
+    "success": false
+  },
+  "tests": [
+    {
+      "name": "Health Check",
+      "status": "fail",
+      "message": "Status: 404, Error: undefined",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.125Z"
+    },
+    {
+      "name": "Quiz Engine Health",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.277Z"
+    },
+    {
+      "name": "Game Rules API",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.425Z"
+    },
+    {
+      "name": "EN Question Pool",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.574Z"
+    },
+    {
+      "name": "PT Question Pool",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.723Z"
+    },
+    {
+      "name": "ES Question Pool",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:07.870Z"
+    },
+    {
+      "name": "FR Question Pool",
+      "status": "fail",
+      "message": "Status: 404",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.020Z"
+    },
+    {
+      "name": "Questions API",
+      "status": "pass",
+      "message": "Retrieved 5 questions",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.195Z"
+    },
+    {
+      "name": "Question Structure",
+      "status": "pass",
+      "message": "All required fields present",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.195Z"
+    },
+    {
+      "name": "Question Filtering",
+      "status": "pass",
+      "message": "Level filtering functional",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.369Z"
+    },
+    {
+      "name": "DeepL Translation",
+      "status": "warn",
+      "message": "Status: 405",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.523Z"
+    },
+    {
+      "name": "Admin Panel Access",
+      "status": "pass",
+      "message": "Admin panel loads successfully",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.673Z"
+    },
+    {
+      "name": "Response Time",
+      "status": "fail",
+      "message": "Endpoint not responding",
+      "data": null,
+      "timestamp": "2025-09-01T19:17:08.818Z"
+    }
+  ],
+  "generatedAt": "2025-09-01T19:17:08.819Z"
+}

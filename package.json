@@ -15,7 +15,7 @@
     "test:performance": "jest scripts/performance.test.js",
     "test:quiz": "jest scripts/quiz-engine.test.js",
     "test:all": "jest scripts/api.test.js scripts/performance.test.js scripts/quiz-engine.test.js",
-    "railway:build": "node scripts/railway-build.js",
+    "railway:build": "NODE_ENV=production npm run build",
     "railway:start": "NODE_ENV=production npm run start",
     "postbuild": "echo 'Build completed successfully'",
     "health": "curl -f http://localhost:1337/api/health || exit 1",
