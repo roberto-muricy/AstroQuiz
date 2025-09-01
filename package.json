@@ -18,9 +18,11 @@
     "railway:build": "npm run build",
     "railway:start": "npm run start",
     "postbuild": "echo 'Build completed successfully'",
-    "health": "curl -f http://localhost:1337/api/quiz/health || exit 1",
+    "health": "curl -f http://localhost:1337/api/health || exit 1",
     "generate-keys": "node scripts/generate-keys.js",
-    "setup-env": "node scripts/generate-keys.js"
+    "setup-env": "node scripts/generate-keys.js",
+    "deploy:verify": "node scripts/verify-railway-deploy.js",
+    "deploy:production-keys": "node scripts/generate-production-env.js"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",

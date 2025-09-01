@@ -23,11 +23,18 @@ module.exports = {
 
       // Check database connectivity
       try {
-        // Simple query to test database connection
-        await strapi.db.query('api::question.question').count();
-        health.database = 'connected';
+        // Test database connection with question count
+        const questionCount = await strapi.db.query('api::question.question').count();
+        health.database = {
+          status: 'connected',
+          questionCount,
+          client: strapi.db.config?.connection?.client || 'unknown'
+        };
       } catch (error) {
-        health.database = 'disconnected';
+        health.database = {
+          status: 'disconnected',
+          error: error.message
+        };
         health.status = 'degraded';
         strapi.log.warn('Database health check failed:', error.message);
       }
@@ -54,13 +61,31 @@ module.exports = {
         strapi.log.warn('Quiz Engine health check failed:', error.message);
       }
 
-      // Memory usage
+      // Memory and system usage
       const memUsage = process.memoryUsage();
-      health.memory = {
-        rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
-        heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
-        heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`
+      health.system = {
+        memory: {
+          rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
+          heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
+          heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`
+        },
+        uptime: Math.round(process.uptime()),
+        nodeVersion: process.version,
+        platform: process.platform
       };
+
+      // DeepL integration check
+      try {
+        const deeplApiKey = process.env.DEEPL_API_KEY;
+        health.integrations = {
+          deepl: {
+            configured: !!deeplApiKey,
+            apiUrl: process.env.DEEPL_API_URL || 'not-set'
+          }
+        };
+      } catch (error) {
+        health.integrations = { error: 'Integration check failed' };
+      }
 
       // Set appropriate HTTP status
       ctx.status = health.status === 'healthy' ? 200 : 503;

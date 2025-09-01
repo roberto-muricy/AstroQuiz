@@ -39,12 +39,12 @@ module.exports = ({ env }) => ({
       config: {
         enabled: true,
         headers: '*',
-        origin: [
+        origin: env.array('CORS_ORIGINS', [
           'http://localhost:3000',
           'https://localhost:3000',
           env('STRAPI_ADMIN_BACKEND_URL', 'https://your-app.railway.app'),
-          // Add your frontend domains here
-        ],
+          // Frontend domains will be added here
+        ]),
       },
     },
     'strapi::poweredBy',
