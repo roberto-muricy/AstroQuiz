@@ -40,23 +40,27 @@ git push origin main
 Set these in Railway dashboard under "Variables":
 
 ```bash
-# 🔐 Security Keys (Generate new ones!)
-APP_KEYS=your-app-keys-comma-separated
-API_TOKEN_SALT=your-random-salt
-ADMIN_JWT_SECRET=your-jwt-secret
-TRANSFER_TOKEN_SALT=your-transfer-salt
-JWT_SECRET=your-jwt-secret
+# 🔐 Security Keys (Generate with: npm run generate-keys)
+# Copy the generated keys from your local development setup
+APP_KEYS=your-4-comma-separated-keys-here
+API_TOKEN_SALT=your-generated-salt-here
+ADMIN_JWT_SECRET=your-generated-jwt-here
+TRANSFER_TOKEN_SALT=your-generated-transfer-salt-here
+JWT_SECRET=your-generated-jwt-secret-here
 
 # 🌍 Application
 NODE_ENV=production
 ADMIN_PATH=/admin
 
 # 🔤 Translation (Optional)
-DEEPL_API_KEY=your-deepl-key
+DEEPL_API_KEY=9f331073-436a-407d-b9d8-d4076fc4415c:fx
 DEEPL_API_URL=https://api.deepl.com/v2
 
 # 📊 Analytics
 STRAPI_TELEMETRY_DISABLED=true
+
+# 🗄️ Database (Automatically provided by Railway PostgreSQL)
+# DATABASE_URL=postgresql://... (Railway provides this automatically)
 ```
 
 ### 5. **Deploy**
