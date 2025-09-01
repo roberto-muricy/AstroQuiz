@@ -13,11 +13,9 @@ module.exports = {
       path: '/health',
       handler: 'health.index',
       config: {
-        description: 'Basic health check endpoint for Railway and monitoring',
-        tags: ['Health Check'],
+        auth: false,
         policies: [],
-        middlewares: [],
-        auth: false // No authentication required
+        middlewares: []
       }
     },
 
