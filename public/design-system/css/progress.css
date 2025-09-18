@@ -1,0 +1,604 @@
+/**
+ * 📊 AstroQuiz Design System - Progress Components
+ * Progress bars, avatars e componentes de UI com valores exatos do Figma
+ */
+
+/* ========================================
+   📊 PROGRESS BAR - Valores Exatos do Figma
+   ======================================== */
+
+.progress-bar-container {
+  width: var(--progress-bar-width);
+  height: var(--progress-bar-height);
+  background: var(--tab-background);
+  box-shadow: var(--shadow-inset);
+  border-radius: var(--radius-2xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-tab);
+  border-radius: var(--radius-2xl);
+  transition: width var(--transition-slow) var(--easing-smooth);
+  position: relative;
+}
+
+.progress-bar-thumb {
+  width: var(--progress-thumb-size);
+  height: var(--progress-thumb-size);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-full);
+  border: 4px solid #FFB74D;
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  transition: all var(--transition-normal);
+}
+
+.progress-bar-fill:hover .progress-bar-thumb {
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.40);
+}
+
+/* Progress Bar com Label */
+.progress-bar-labeled {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.progress-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-bar-title {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+.progress-bar-percentage {
+  color: var(--primary-accent);
+  font-family: var(--text-secondary-content-14-family);
+  font-weight: var(--text-secondary-content-14-weight);
+  font-size: var(--text-secondary-content-14-size);
+}
+
+/* ========================================
+   🎯 CIRCULAR PROGRESS
+   ======================================== */
+
+.circular-progress {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-progress-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circular-progress-track {
+  fill: none;
+  stroke: var(--tab-background);
+  stroke-width: 6;
+}
+
+.circular-progress-fill {
+  fill: none;
+  stroke: url(#progressGradient);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--transition-slow) var(--easing-smooth);
+}
+
+.circular-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--white);
+  font-family: var(--text-main-content-16-family);
+  font-weight: var(--text-main-content-16-weight);
+  font-size: var(--text-main-content-16-size);
+  text-align: center;
+}
+
+/* ========================================
+   👤 AVATAR CIRCLE - Valores Exatos do Figma
+   ======================================== */
+
+.avatar-circle {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+  background: var(--primary-gradient);
+  box-shadow: var(--primary-shadow);
+  border-radius: var(--radius-full);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.avatar-circle:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 32px rgba(255, 184, 0, 0.40);
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.avatar-circle .avatar-initials {
+  color: var(--black-text);
+  font-family: var(--text-title-section-20-family);
+  font-weight: var(--text-title-section-20-weight);
+  font-size: var(--text-title-section-20-size);
+  text-transform: uppercase;
+}
+
+.avatar-level-badge {
+  width: var(--avatar-badge-size);
+  height: var(--avatar-badge-size);
+  background: var(--purple-accent);
+  border-radius: var(--radius-full);
+  border: 2px solid #202038;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-family: var(--text-minimum-10-family);
+  font-weight: var(--text-minimum-10-weight);
+  font-size: var(--text-minimum-10-size);
+  z-index: 1;
+}
+
+/* Avatar Sizes */
+.avatar-xs {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar-xs .avatar-level-badge {
+  width: 12px;
+  height: 12px;
+  font-size: 8px;
+  border-width: 1px;
+}
+
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-sm .avatar-level-badge {
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
+}
+
+.avatar-lg {
+  width: 80px;
+  height: 80px;
+}
+
+.avatar-lg .avatar-level-badge {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  border-width: 3px;
+}
+
+.avatar-xl {
+  width: 100px;
+  height: 100px;
+}
+
+.avatar-xl .avatar-level-badge {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  border-width: 3px;
+}
+
+/* ========================================
+   🏆 STREAK BADGE - Valores Exatos do Figma
+   ======================================== */
+
+.streak-badge {
+  background: var(--primary-gradient);
+  box-shadow: var(--shadow-tab);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-xs) var(--spacing-lg);
+  color: var(--black-text);
+  font-family: var(--text-secondary-content-14-family);
+  font-weight: var(--text-secondary-content-14-weight);
+  font-size: var(--text-secondary-content-14-size);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  transition: all var(--transition-normal);
+}
+
+.streak-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0px 6px 20px rgba(255, 184, 0, 0.40);
+}
+
+.streak-badge .streak-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.streak-badge .streak-number {
+  font-weight: 700;
+}
+
+/* ========================================
+   ⭐ RATING STARS
+   ======================================== */
+
+.rating-stars {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.rating-star {
+  width: 16px;
+  height: 16px;
+  background: var(--stars-white);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.rating-star.active {
+  background: var(--warning-yellow);
+  transform: scale(1.1);
+}
+
+.rating-star:hover {
+  transform: scale(1.2);
+}
+
+/* Rating Sizes */
+.rating-xs .rating-star {
+  width: 12px;
+  height: 12px;
+}
+
+.rating-sm .rating-star {
+  width: 14px;
+  height: 14px;
+}
+
+.rating-lg .rating-star {
+  width: 20px;
+  height: 20px;
+}
+
+.rating-xl .rating-star {
+  width: 24px;
+  height: 24px;
+}
+
+/* ========================================
+   🎯 LEVEL INDICATOR
+   ======================================== */
+
+.level-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xs) var(--spacing-md);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.level-indicator .level-icon {
+  width: 16px;
+  height: 16px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--black-text);
+  font-weight: 700;
+}
+
+.level-indicator .level-text {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+/* ========================================
+   🏅 ACHIEVEMENT BADGE
+   ======================================== */
+
+.achievement-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--purple-accent);
+  border-radius: var(--radius-full);
+  box-shadow: 0px 4px 12px rgba(140, 92, 245, 0.30);
+  transition: all var(--transition-normal);
+}
+
+.achievement-badge:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 6px 20px rgba(140, 92, 245, 0.40);
+}
+
+.achievement-badge .badge-icon {
+  font-size: 24px;
+  color: var(--white);
+}
+
+.achievement-badge .badge-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  background: var(--warning-yellow);
+  color: var(--black-text);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--text-minimum-10-family);
+  font-weight: var(--text-minimum-10-weight);
+  font-size: var(--text-minimum-10-size);
+  border: 2px solid var(--purple-accent);
+}
+
+/* ========================================
+   📈 STATS DISPLAY
+   ======================================== */
+
+.stats-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.stat-value {
+  color: var(--white);
+  font-family: var(--text-title-section-20-family);
+  font-weight: var(--text-title-section-20-weight);
+  font-size: var(--text-title-section-20-size);
+}
+
+.stat-label {
+  color: rgba(254, 254, 254, 0.7);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+  text-align: center;
+}
+
+.stat-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: var(--spacing-xs);
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--black-text);
+}
+
+/* ========================================
+   🎮 GAME STATUS INDICATOR
+   ======================================== */
+
+.game-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+.game-status.playing {
+  background: rgba(15, 181, 126, 0.2);
+  border: 1px solid var(--success-green);
+  color: var(--success-green);
+}
+
+.game-status.paused {
+  background: rgba(251, 240, 36, 0.2);
+  border: 1px solid var(--warning-yellow);
+  color: var(--warning-yellow);
+}
+
+.game-status.completed {
+  background: rgba(140, 92, 245, 0.2);
+  border: 1px solid var(--purple-accent);
+  color: var(--purple-accent);
+}
+
+.game-status .status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+/* ========================================
+   📱 RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 480px) {
+  .progress-bar-container {
+    width: var(--progress-bar-width);
+  }
+  
+  .stats-display {
+    gap: var(--spacing-lg);
+  }
+  
+  .avatar-circle {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .avatar-level-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 360px) {
+  .progress-bar-container {
+    width: var(--progress-bar-width);
+  }
+  
+  .stats-display {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .stat-item {
+    flex-direction: row;
+    gap: var(--spacing-md);
+  }
+}
+
+/* ========================================
+   🎭 ANIMATIONS
+   ======================================== */
+
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width, 0%);
+  }
+}
+
+.progress-bar-fill.animate {
+  animation: progressFill 1s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.achievement-badge.new {
+  animation: bounce 1s ease-out;
+}
+
+/* ========================================
+   ♿ ACCESSIBILITY
+   ======================================== */
+
+.progress-bar-container[role="progressbar"] {
+  outline: none;
+}
+
+.progress-bar-container[role="progressbar"]:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 2px;
+}
+
+.rating-stars[role="radiogroup"] {
+  outline: none;
+}
+
+.rating-star[role="radio"]:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-bar-fill,
+  .circular-progress-fill,
+  .avatar-circle,
+  .streak-badge,
+  .rating-star,
+  .achievement-badge {
+    transition: none;
+  }
+  
+  .progress-bar-fill.animate,
+  .achievement-badge.new,
+  .game-status .status-dot {
+    animation: none;
+  }
+  
+  .rating-star:hover,
+  .avatar-circle:hover,
+  .streak-badge:hover,
+  .achievement-badge:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroQuiz - Home</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/astroquiz-design-system.css">
+    <link rel="stylesheet" href="css/home-screen.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Garantir que o body ocupe toda a tela */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-primary);
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body class="stars-background">
+    
+    <!-- ===== HOME SCREEN CONTAINER ===== -->
+    <div class="home-screen">
+        
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar-home">
+            <div class="status-time-home">9:41</div>
+            <div class="status-icons-home">
+                <img src="/assets/icons/status/cellular-signal.svg" alt="Signal" onerror="this.style.display='none'">
+                <img src="/assets/icons/status/wifi.svg" alt="WiFi" onerror="this.style.display='none'">
+                <img src="/assets/icons/status/battery.svg" alt="Battery" onerror="this.style.display='none'">
+            </div>
+        </div>
+        
+        <!-- ===== HEADER SECTION ===== -->
+        <div class="header-section">
+            <div class="header-left">
+                <div class="welcome-text">Bem-vindo de volta, Roberto!</div>
+                <div class="streak-badge-home">
+                    🔥 12 dias seguidos
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="avatar-home">
+                    <div class="avatar-rocket-icon">🚀</div>
+                    <div class="avatar-level-badge-home">7</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ===== DAILY CHALLENGE CARD ===== -->
+        <div class="daily-challenge-home" role="button" tabindex="0">
+        <div class="daily-challenge-icon">
+            <img src="assets/images/misc/target.png" alt="Daily Challenge">
+        </div>
+            <div class="daily-challenge-content">
+                <div class="daily-challenge-title">Desafio diário</div>
+                <div class="daily-challenge-subtitle" style="font-family: 'Roboto', sans-serif; font-weight: 600;">Complete 20 perguntas</div>
+            </div>
+            <div class="daily-challenge-badge">+150 xp</div>
+        </div>
+        
+        <!-- ===== MAIN LEVEL CARD ===== -->
+        <div class="main-level-card-home">
+            <div class="main-level-header">
+                <div class="main-level-info">
+                    <h3>Nível 7 - Marés</h3>
+                    <p>Explorador Intermediário</p>
+                </div>
+                <div class="main-level-xp-badge">2.450xp</div>
+            </div>
+            
+            <div class="main-level-progress-section">
+                <div class="main-level-progress-bar">
+                    <div class="main-level-progress-fill" data-progress="60%">
+                        <div class="main-level-progress-thumb"></div>
+                    </div>
+                </div>
+                
+                <div class="main-level-stats">
+                    <div class="main-level-stat">
+                        <div class="main-level-stat-value">60%</div>
+                        <div class="main-level-stat-label">Progresso</div>
+                    </div>
+                    <div class="main-level-stat">
+                        <div class="main-level-stat-value">6/10</div>
+                        <div class="main-level-stat-label">Perguntas</div>
+                    </div>
+                    <div class="main-level-stat">
+                        <div class="main-level-stat-value">20xp</div>
+                        <div class="main-level-stat-label">Para nível 8</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="main-level-continue-btn">
+                <img src="/assets/icons/actions/action-noto_play-button.svg" alt="Play" style="width: 20px; height: 20px;" onerror="this.style.display='none'">
+                Continuar de onde parou
+            </button>
+        </div>
+        
+        <!-- ===== WEEKLY RANKING CARD ===== -->
+        <div class="weekly-ranking-home" role="button" tabindex="0">
+            <div class="weekly-ranking-badge">#20</div>
+            <div class="weekly-ranking-content">
+                <div class="weekly-ranking-title">Ranking Semanal</div>
+                <div class="weekly-ranking-subtitle">Você subiu 8 posições essa semana!</div>
+            </div>
+        </div>
+        
+        <!-- ===== PROGRESS SECTION ===== -->
+        <div class="progress-section-home">
+            <div class="progress-section-header">
+                <h2 class="progress-section-title">Progresso nos níveis</h2>
+                <a href="#" class="progress-section-link">Ver todos</a>
+            </div>
+            
+            <div class="progress-cards-row">
+                <!-- Card Nível 7 - Ativo -->
+                <div class="level-progress-card level-progress-card-active" data-level="7">
+                    <div class="level-card-header">
+                        <div class="level-card-number level-card-number-active">7</div>
+                        <div class="level-card-info">
+                            <div class="level-card-title">Marés</div>
+                            <div class="level-card-subtitle">Iniciante</div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card-content">
+                        <div class="level-card-progress-row">
+                            <span class="level-card-progress-text">6/10</span>
+                            <span class="level-card-xp-text">60xp/100xp</span>
+                        </div>
+                        
+                        <div class="level-card-stars">
+                            <span class="level-card-star level-card-star-filled">⭐</span>
+                            <span class="level-card-star level-card-star-filled">⭐</span>
+                            <span class="level-card-star level-card-star-empty">☆</span>
+                        </div>
+                    </div>
+                    
+                    <button class="level-card-button level-card-button-active">
+                        <span class="play-icon">▶</span> Continuar
+                    </button>
+                </div>
+                
+                <!-- Card Nível 8 - Bloqueado -->
+                <div class="level-progress-card level-progress-card-locked" data-level="8">
+                    <div class="level-card-header">
+                        <div class="level-card-number level-card-number-locked">8</div>
+                        <div class="level-card-info">
+                            <div class="level-card-title">Atmosfera</div>
+                            <div class="level-card-subtitle">Intermediário</div>
+                        </div>
+                    </div>
+                    
+                    <div class="level-card-content">
+                        <div class="level-card-progress-row">
+                            <span class="level-card-progress-text">0/10</span>
+                            <span class="level-card-xp-text">0xp/100xp</span>
+                        </div>
+                        
+                        <div class="level-card-stars">
+                            <span class="level-card-star level-card-star-empty">☆</span>
+                            <span class="level-card-star level-card-star-empty">☆</span>
+                            <span class="level-card-star level-card-star-empty">☆</span>
+                        </div>
+                    </div>
+                    
+                    <button class="level-card-button level-card-button-locked">
+                        <span class="lock-icon">▶</span> Desbloquear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== TAB BAR ===== -->
+    <div class="tab-bar-home">
+        <div class="tab-item-home tab-item-home-active" data-tab="home">
+            <img src="assets/images/misc/home.png" alt="Home">
+            <span>Home</span>
+        </div>
+        <div class="tab-item-home" data-tab="quiz">
+            <img src="assets/images/misc/quiz.png" alt="Quiz">
+            <span>Quiz</span>
+        </div>
+        <div class="tab-item-home" data-tab="stats">
+            <img src="assets/images/misc/stats.png" alt="Stats">
+            <span>Stats</span>
+        </div>
+        <div class="tab-item-home" data-tab="profile">
+            <img src="assets/images/misc/profile.png" alt="Profile">
+            <span>Profile</span>
+        </div>
+    </div>
+    
+    <!-- ===== SCRIPTS ===== -->
+    <script src="js/astroquiz-components.js"></script>
+    <script src="js/home-screen.js"></script>
+    
+    <script>
+        // Fallback para ícones que não carregarem
+        document.addEventListener('DOMContentLoaded', () => {
+            // Criar ícones de fallback para status bar se necessário
+            const statusIcons = document.querySelector('.status-icons-home');
+            if (statusIcons && statusIcons.children.length === 0) {
+                statusIcons.innerHTML = `
+                    <div style="width: 18px; height: 18px; background: white; border-radius: 2px; margin-right: 6px;"></div>
+                    <div style="width: 18px; height: 18px; background: white; border-radius: 2px; margin-right: 6px;"></div>
+                    <div style="width: 18px; height: 18px; background: white; border-radius: 2px;"></div>
+                `;
+            }
+            
+            console.log('🎮 AstroQuiz Home Screen carregada!');
+        });
+        
+        // Simular dados dinâmicos
+        setTimeout(() => {
+            const userData = AstroQuizHomeScreen.loadUserData();
+            console.log('📊 Dados simulados carregados:', userData);
+        }, 1000);
+    </script>
+    
+</body>
+</html>

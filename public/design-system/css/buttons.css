@@ -1,0 +1,439 @@
+/**
+ * 🧱 AstroQuiz Design System - Buttons
+ * Componentes de botões com valores exatos do Figma
+ */
+
+/* ========================================
+   🔘 BASE BUTTON STYLES
+   ======================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none !important;
+}
+
+/* ========================================
+   🟢 PRIMARY BUTTON - "Continuar"
+   ======================================== */
+
+.btn-primary-large {
+  background: var(--secondary-gradient);
+  box-shadow: var(--secondary-shadow);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-sm) var(--spacing-4xl);
+  color: var(--white);
+  font-size: var(--text-main-content-16-size);
+  font-weight: var(--text-main-content-16-weight);
+  gap: var(--spacing-sm);
+  min-width: 160px;
+  height: 48px;
+}
+
+.btn-primary-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 20px rgba(16, 185, 129, 0.40);
+}
+
+.btn-primary-large:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 8px rgba(16, 185, 129, 0.30);
+}
+
+/* ========================================
+   🟡 SECONDARY BUTTON - Streak Badge Style
+   ======================================== */
+
+.btn-secondary {
+  background: var(--primary-gradient);
+  box-shadow: var(--primary-shadow);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-xs) var(--spacing-lg);
+  color: var(--black-text);
+  font-size: var(--text-secondary-content-14-size);
+  font-weight: var(--text-secondary-content-14-weight);
+  gap: var(--spacing-sm);
+  height: 32px;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0px 6px 20px rgba(255, 184, 0, 0.40);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 8px rgba(255, 184, 0, 0.30);
+}
+
+/* ========================================
+   ⚪ GHOST BUTTON - Transparente
+   ======================================== */
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  color: var(--white);
+  font-size: var(--text-auxiliar-14-size);
+  font-weight: var(--text-auxiliar-14-weight);
+  gap: var(--spacing-sm);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(0);
+}
+
+/* ========================================
+   🟣 PURPLE BUTTON - Accent
+   ======================================== */
+
+.btn-purple {
+  background: var(--purple-accent);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  color: var(--white);
+  font-size: var(--text-auxiliar-14-size);
+  font-weight: var(--text-auxiliar-14-weight);
+  gap: var(--spacing-sm);
+  box-shadow: 0px 4px 12px rgba(140, 92, 245, 0.30);
+}
+
+.btn-purple:hover {
+  background: #9D6EF7;
+  transform: translateY(-1px);
+  box-shadow: 0px 6px 20px rgba(140, 92, 245, 0.40);
+}
+
+.btn-purple:active {
+  background: #7B4AF3;
+  transform: translateY(0);
+}
+
+/* ========================================
+   🔴 DANGER BUTTON - Para ações críticas
+   ======================================== */
+
+.btn-danger {
+  background: linear-gradient(90deg, #DE2F24 0%, #F3960C 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  color: var(--white);
+  font-size: var(--text-auxiliar-14-size);
+  font-weight: var(--text-auxiliar-14-weight);
+  gap: var(--spacing-sm);
+  box-shadow: 0px 4px 12px rgba(222, 47, 36, 0.30);
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0px 6px 20px rgba(222, 47, 36, 0.40);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0px 2px 8px rgba(222, 47, 36, 0.30);
+}
+
+/* ========================================
+   📏 BUTTON SIZES
+   ======================================== */
+
+.btn-xs {
+  padding: 4px 8px;
+  font-size: var(--text-minimum-10-size);
+  height: 24px;
+  border-radius: var(--radius-md);
+}
+
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--text-auxiliar-14-size);
+  height: 32px;
+  border-radius: var(--radius-lg);
+}
+
+.btn-md {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--text-auxiliar-14-size);
+  height: 40px;
+  border-radius: var(--radius-lg);
+}
+
+.btn-lg {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  font-size: var(--text-main-content-16-size);
+  height: 48px;
+  border-radius: var(--radius-xl);
+}
+
+.btn-xl {
+  padding: var(--spacing-xl) var(--spacing-3xl);
+  font-size: var(--text-title-section-20-size);
+  height: 56px;
+  border-radius: var(--radius-2xl);
+}
+
+/* ========================================
+   🔘 BUTTON SHAPES
+   ======================================== */
+
+.btn-circle {
+  border-radius: var(--radius-full);
+  width: 48px;
+  height: 48px;
+  padding: 0;
+}
+
+.btn-circle.btn-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.btn-circle.btn-lg {
+  width: 56px;
+  height: 56px;
+}
+
+.btn-square {
+  border-radius: var(--radius-lg);
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+/* ========================================
+   🎭 BUTTON STATES & ANIMATIONS
+   ======================================== */
+
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.btn-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ========================================
+   🌟 SPECIAL EFFECTS
+   ======================================== */
+
+.btn-glow {
+  position: relative;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--primary-gradient);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.btn-glow:hover::before {
+  opacity: 0.7;
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px var(--primary-accent); }
+  to { box-shadow: 0 0 20px var(--primary-accent), 0 0 30px var(--primary-accent); }
+}
+
+/* ========================================
+   🎯 BUTTON WITH ICONS
+   ======================================== */
+
+.btn-icon-left .icon {
+  margin-right: var(--spacing-sm);
+}
+
+.btn-icon-right .icon {
+  margin-left: var(--spacing-sm);
+}
+
+.btn-icon-only {
+  padding: var(--spacing-md);
+  aspect-ratio: 1;
+}
+
+/* Icon sizes */
+.btn .icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.btn-sm .icon {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-lg .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-xl .icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* ========================================
+   📱 RESPONSIVE BUTTON ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 480px) {
+  .btn-primary-large {
+    padding: var(--spacing-sm) var(--spacing-2xl);
+    min-width: 140px;
+    font-size: 14px;
+  }
+  
+  .btn-responsive {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .btn-primary-large {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    min-width: 120px;
+    font-size: 14px;
+  }
+}
+
+/* ========================================
+   🎨 BUTTON GROUP
+   ======================================== */
+
+.btn-group {
+  display: inline-flex;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.btn-group .btn {
+  border-radius: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  border-right: none;
+}
+
+.btn-group .btn:only-child {
+  border-radius: var(--radius-lg);
+  border-right: none;
+}
+
+/* ========================================
+   ♿ ACCESSIBILITY
+   ======================================== */
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .btn-loading::after {
+    animation: none;
+  }
+  
+  .btn-pulse {
+    animation: none;
+  }
+}
+
+/* ========================================
+   🎭 DARK MODE SUPPORT
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}

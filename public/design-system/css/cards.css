@@ -1,0 +1,573 @@
+/**
+ * 🃏 AstroQuiz Design System - Cards
+ * Componentes de cards com valores exatos do Figma
+ */
+
+/* ========================================
+   🎴 BASE CARD STYLES
+   ======================================== */
+
+.card {
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* ========================================
+   🎯 LEVEL CARD MAIN - Card Principal do Nível
+   ======================================== */
+
+.level-card-main {
+  width: var(--card-main-width);
+  height: var(--card-main-height);
+  background: var(--bg-card-gradient);
+  border: 1px solid rgba(254, 254, 254, 0.30);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.level-card-main:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 8px 32px rgba(123, 107, 168, 0.40);
+}
+
+.level-card-main .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-lg);
+}
+
+.level-card-main .card-title {
+  color: var(--white);
+  font-family: var(--text-title-section-20-family);
+  font-weight: var(--text-title-section-20-weight);
+  font-size: var(--text-title-section-20-size);
+  margin-bottom: var(--spacing-xs);
+}
+
+.level-card-main .card-subtitle {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+  opacity: 0.8;
+}
+
+.level-card-main .card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.level-card-main .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-lg);
+}
+
+/* ========================================
+   🎴 LEVEL CARD INDIVIDUAL - Cards Menores
+   ======================================== */
+
+.level-card-individual {
+  width: var(--card-individual-width);
+  height: var(--card-individual-height);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+/* Estado Ativo */
+.level-card-active {
+  background: var(--card-active-border);
+  border: 1px solid var(--card-active-border-color);
+}
+
+.level-card-active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 24px rgba(251, 191, 36, 0.40);
+  border-color: rgba(251, 191, 36, 1);
+}
+
+.level-card-active .card-title {
+  color: var(--white);
+}
+
+.level-card-active .card-subtitle {
+  color: rgba(254, 254, 254, 0.8);
+}
+
+/* Estado Bloqueado */
+.level-card-locked {
+  background: var(--card-inactive-overlay);
+  border: 1px solid var(--card-inactive-border-color);
+  cursor: not-allowed;
+}
+
+.level-card-locked:hover {
+  transform: none;
+}
+
+.level-card-locked .card-title {
+  color: rgba(254, 254, 254, 0.5);
+}
+
+.level-card-locked .card-subtitle {
+  color: rgba(254, 254, 254, 0.3);
+}
+
+.level-card-locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+/* Estado Completo */
+.level-card-completed {
+  background: linear-gradient(134deg, rgba(15, 181, 126, 0.30) 0%, rgba(6, 153, 107, 0.30) 100%);
+  border: 1px solid rgba(15, 181, 126, 0.80);
+}
+
+.level-card-completed:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 24px rgba(15, 181, 126, 0.40);
+}
+
+.level-card-completed::after {
+  content: '✓';
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  color: var(--success-green);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* ========================================
+   🔥 DAILY CHALLENGE CARD
+   ======================================== */
+
+.daily-challenge-card {
+  width: var(--card-daily-challenge-width);
+  height: var(--card-daily-challenge-height);
+  background: var(--bg-daily-challenge);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-md) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  position: relative;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.daily-challenge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 24px rgba(222, 47, 36, 0.40);
+}
+
+.daily-challenge-card .challenge-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.daily-challenge-card .challenge-content {
+  flex: 1;
+}
+
+.daily-challenge-card .challenge-title {
+  color: var(--white);
+  font-family: var(--text-main-content-16-family);
+  font-weight: var(--text-main-content-16-weight);
+  font-size: var(--text-main-content-16-size);
+  margin-bottom: 2px;
+}
+
+.daily-challenge-card .challenge-subtitle {
+  color: rgba(254, 254, 254, 0.8);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+.daily-challenge-card .challenge-reward {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--warning-yellow);
+  font-family: var(--text-secondary-content-14-family);
+  font-weight: var(--text-secondary-content-14-weight);
+  font-size: var(--text-secondary-content-14-size);
+}
+
+/* ========================================
+   📊 STATS CARD
+   ======================================== */
+
+.stats-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  text-align: center;
+  transition: all var(--transition-normal);
+}
+
+.stats-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.stats-card .stats-value {
+  color: var(--white);
+  font-family: var(--text-header-24-family);
+  font-weight: var(--text-header-24-weight);
+  font-size: var(--text-header-24-size);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stats-card .stats-label {
+  color: rgba(254, 254, 254, 0.7);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+.stats-card .stats-icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto var(--spacing-md);
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========================================
+   🏆 ACHIEVEMENT CARD
+   ======================================== */
+
+.achievement-card {
+  background: linear-gradient(134deg, rgba(140, 92, 245, 0.30) 0%, rgba(157, 110, 247, 0.30) 100%);
+  border: 1px solid rgba(140, 92, 245, 0.50);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  transition: all var(--transition-normal);
+}
+
+.achievement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 24px rgba(140, 92, 245, 0.40);
+}
+
+.achievement-card .achievement-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--purple-accent);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.achievement-card .achievement-content {
+  flex: 1;
+}
+
+.achievement-card .achievement-title {
+  color: var(--white);
+  font-family: var(--text-main-content-16-family);
+  font-weight: var(--text-main-content-16-weight);
+  font-size: var(--text-main-content-16-size);
+  margin-bottom: 2px;
+}
+
+.achievement-card .achievement-description {
+  color: rgba(254, 254, 254, 0.8);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+}
+
+/* ========================================
+   📝 QUESTION CARD
+   ======================================== */
+
+.question-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
+  transition: all var(--transition-normal);
+}
+
+.question-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.question-card .question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.question-card .question-number {
+  background: var(--primary-gradient);
+  color: var(--black-text);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-lg);
+  font-family: var(--text-secondary-content-14-family);
+  font-weight: var(--text-secondary-content-14-weight);
+  font-size: var(--text-secondary-content-14-size);
+}
+
+.question-card .question-difficulty {
+  display: flex;
+  gap: 2px;
+}
+
+.question-card .difficulty-star {
+  width: 12px;
+  height: 12px;
+  background: var(--stars-white);
+  border-radius: var(--radius-full);
+}
+
+.question-card .difficulty-star.active {
+  background: var(--warning-yellow);
+}
+
+.question-card .question-text {
+  color: var(--white);
+  font-family: var(--text-main-content-16-family);
+  font-weight: var(--text-main-content-16-weight);
+  font-size: var(--text-main-content-16-size);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-xl);
+}
+
+.question-card .question-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.question-card .option {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.question-card .option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.question-card .option.selected {
+  background: rgba(15, 181, 126, 0.2);
+  border-color: var(--success-green);
+}
+
+.question-card .option.correct {
+  background: rgba(15, 181, 126, 0.3);
+  border-color: var(--success-green);
+}
+
+.question-card .option.incorrect {
+  background: rgba(222, 47, 36, 0.3);
+  border-color: #DE2F24;
+}
+
+.question-card .option-letter {
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--text-secondary-content-14-family);
+  font-weight: var(--text-secondary-content-14-weight);
+  font-size: var(--text-secondary-content-14-size);
+  color: var(--white);
+  flex-shrink: 0;
+}
+
+.question-card .option.selected .option-letter {
+  background: var(--success-green);
+  color: var(--white);
+}
+
+.question-card .option-text {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-family);
+  font-weight: var(--text-auxiliar-14-weight);
+  font-size: var(--text-auxiliar-14-size);
+  line-height: 1.4;
+}
+
+/* ========================================
+   📱 RESPONSIVE CARD ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 480px) {
+  .level-card-main {
+    width: var(--card-main-width);
+    height: auto;
+    min-height: 200px;
+    padding: var(--spacing-lg);
+  }
+  
+  .level-card-individual {
+    width: var(--card-individual-width);
+    height: auto;
+    min-height: 140px;
+    padding: var(--spacing-md);
+  }
+  
+  .daily-challenge-card {
+    width: var(--card-daily-challenge-width);
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+  
+  .question-card {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 360px) {
+  .level-card-main {
+    width: var(--card-main-width);
+    padding: var(--spacing-md);
+  }
+  
+  .level-card-individual {
+    width: var(--card-individual-width);
+    padding: var(--spacing-md);
+  }
+  
+  .daily-challenge-card {
+    width: var(--card-daily-challenge-width);
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* ========================================
+   🎭 CARD ANIMATIONS
+   ======================================== */
+
+.card-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-slide-in {
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ========================================
+   ♿ ACCESSIBILITY
+   ======================================== */
+
+.card[tabindex] {
+  outline: none;
+}
+
+.card[tabindex]:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+  
+  .card:hover {
+    transform: none;
+  }
+  
+  .card-fade-in,
+  .card-slide-in {
+    animation: none;
+  }
+}

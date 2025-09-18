@@ -1,0 +1,669 @@
+/* AstroQuiz Home Screen - Design Exato da Designer */
+
+/* ===== BASE HOME SCREEN ===== */
+.home-screen {
+  background: var(--bg-primary-gradient);
+  min-height: 100vh;
+  padding: 0 20px 100px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--white);
+}
+
+/* ===== STATUS BAR ===== */
+.status-bar-home {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.status-time-home {
+  color: var(--white);
+  font-family: var(--text-system-17-font-family);
+  font-weight: var(--text-system-17-font-weight);
+  font-size: var(--text-system-17-font-size);
+  line-height: var(--text-system-17-line-height);
+}
+
+.status-icons-home {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-icons-home img {
+  width: 18px;
+  height: 18px;
+  filter: brightness(0) invert(1);
+}
+
+/* ===== HEADER SECTION ===== */
+.header-section {
+  padding: 20px 0 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.welcome-text {
+  color: var(--white);
+  font-family: var(--text-secondary-content-14-font-family);
+  font-weight: var(--text-secondary-content-14-font-weight);
+  font-size: var(--text-secondary-content-14-font-size);
+  margin-bottom: 12px;
+}
+
+.streak-badge-home {
+  background: var(--primary-gradient);
+  box-shadow: 0px 4px 12px rgba(255, 184, 0, 0.30);
+  border-radius: 24px;
+  padding: 4px 16px;
+  color: var(--black-text);
+  font-family: var(--text-secondary-content-14-font-family);
+  font-weight: var(--text-secondary-content-14-font-weight);
+  font-size: var(--text-secondary-content-14-font-size);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+}
+
+.header-right {
+  position: relative;
+}
+
+.avatar-home {
+  width: 60px;
+  height: 60px;
+  background: var(--primary-gradient);
+  box-shadow: var(--primary-shadow);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-rocket-icon {
+  font-size: 28px;
+  transform: rotate(-45deg);
+}
+
+.avatar-level-badge-home {
+  width: 20px;
+  height: 20px;
+  background: var(--purple-accent);
+  border-radius: 50%;
+  border: 2px solid #202038;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-family: var(--text-minimum-10-font-family);
+  font-weight: var(--text-minimum-10-font-weight);
+  font-size: var(--text-minimum-10-font-size);
+}
+
+/* ===== DAILY CHALLENGE CARD ===== */
+.daily-challenge-home {
+  width: 100%;
+  max-width: 390px;
+  height: 80px;
+  background: var(--bg-daily-challenge);
+  border-radius: 20px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 30px;
+  box-sizing: border-box;
+}
+
+.daily-challenge-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.daily-challenge-icon img {
+  width: 32px;
+  height: 32px;
+}
+
+.target-icon {
+  font-size: 32px;
+}
+
+.daily-challenge-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.daily-challenge-title {
+  color: var(--white);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+}
+
+.daily-challenge-subtitle {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+}
+
+.daily-challenge-badge {
+  background: rgba(94, 74, 139, 0.30);
+  border-radius: 12px;
+  padding: 6px 12px;
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+  white-space: nowrap;
+}
+
+/* ===== MAIN LEVEL CARD ===== */
+.main-level-card-home {
+  width: 100%;
+  max-width: 390px;
+  height: 240px;
+  background: var(--bg-card-gradient);
+  border: 1px solid rgba(254, 254, 254, 0.30);
+  border-radius: 24px;
+  padding: 16px;
+  margin: 0 auto 30px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.main-level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.main-level-info h3 {
+  color: var(--white);
+  font-family: var(--text-title-section-20-font-family);
+  font-weight: var(--text-title-section-20-font-weight);
+  font-size: var(--text-title-section-20-font-size);
+  margin: 0 0 4px 0;
+}
+
+.main-level-info p {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+  margin: 0;
+}
+
+.main-level-xp-badge {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 4px 12px;
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+}
+
+.main-level-progress-section {
+  margin-bottom: 20px;
+}
+
+.main-level-progress-bar {
+  width: 100%;
+  height: 16px;
+  background: var(--tab-background);
+  box-shadow: 0px 0px 5px rgba(254, 254, 254, 0.60) inset;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.main-level-progress-fill {
+  height: 100%;
+  background: var(--primary-gradient);
+  box-shadow: 0px 4px 12px rgba(255, 184, 0, 0.30);
+  border-radius: 24px;
+  width: 60%;
+  position: relative;
+  transition: width 0.5s ease-out;
+}
+
+.main-level-progress-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--white);
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.30);
+  border-radius: 50%;
+  border: 4px solid var(--primary-accent);
+  position: absolute;
+  top: 0;
+  right: -8px;
+  transform: translateY(0);
+}
+
+.main-level-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.main-level-stat {
+  text-align: center;
+}
+
+.main-level-stat-value {
+  color: var(--white);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  margin-bottom: 2px;
+}
+
+.main-level-stat-label {
+  color: var(--stars-white);
+  font-family: var(--text-minimum-10-font-family);
+  font-weight: var(--text-minimum-10-font-weight);
+  font-size: var(--text-minimum-10-font-size);
+}
+
+.main-level-continue-btn {
+  background: var(--secondary-gradient);
+  box-shadow: var(--secondary-shadow);
+  border-radius: 24px;
+  padding: 12px 24px;
+  color: var(--white);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  border: none;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-level-continue-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* ===== WEEKLY RANKING CARD ===== */
+.weekly-ranking-home {
+  width: 100%;
+  max-width: 390px;
+  height: 80px;
+  background: var(--bg-card-gradient);
+  border-radius: 20px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 30px;
+  box-sizing: border-box;
+}
+
+.weekly-ranking-badge {
+  width: 50px;
+  height: 50px;
+  background: var(--primary-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black-text);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  flex-shrink: 0;
+}
+
+.weekly-ranking-content {
+  flex: 1;
+}
+
+.weekly-ranking-title {
+  color: var(--white);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  margin-bottom: 4px;
+}
+
+.weekly-ranking-subtitle {
+  color: var(--white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+}
+
+/* ===== PROGRESS SECTION ===== */
+.progress-section-home {
+  margin-bottom: 40px;
+}
+
+.progress-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.progress-section-title {
+  color: var(--primary-accent);
+  font-family: var(--text-title-section-20-font-family);
+  font-weight: var(--text-title-section-20-font-weight);
+  font-size: var(--text-title-section-20-font-size);
+}
+
+.progress-section-link {
+  color: var(--primary-accent);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.progress-section-link:hover {
+  opacity: 0.8;
+}
+
+.progress-cards-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.progress-cards-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===== LEVEL PROGRESS CARDS ===== */
+.level-progress-card {
+  width: 187px;
+  height: 174px;
+  border-radius: 24px;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.level-progress-card-active {
+  background: var(--card-active-border);
+  border: 1px solid rgba(251, 191, 36, 0.80);
+}
+
+.level-progress-card-locked {
+  background: var(--card-inactive-overlay);
+  border: 1px solid rgba(166, 166, 166, 0.50);
+  opacity: 0.7;
+}
+
+.level-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.level-card-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--black-text);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  flex-shrink: 0;
+}
+
+.level-card-number-active {
+  background: var(--primary-gradient);
+}
+
+.level-card-number-locked {
+  background: var(--purple-accent);
+  color: var(--white);
+}
+
+.level-card-info {
+  flex: 1;
+}
+
+.level-card-title {
+  color: var(--white);
+  font-family: var(--text-main-content-16-font-family);
+  font-weight: var(--text-main-content-16-font-weight);
+  font-size: var(--text-main-content-16-font-size);
+  margin-bottom: 2px;
+}
+
+.level-card-subtitle {
+  color: var(--stars-white);
+  font-family: var(--text-auxiliar-14-font-family);
+  font-weight: var(--text-auxiliar-14-font-weight);
+  font-size: var(--text-auxiliar-14-font-size);
+}
+
+.level-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-card-progress-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-card-progress-text,
+.level-card-xp-text {
+  color: var(--stars-white);
+  font-family: var(--text-minimum-10-font-family);
+  font-weight: var(--text-minimum-10-font-weight);
+  font-size: var(--text-minimum-10-font-size);
+}
+
+.level-card-stars {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.level-card-star {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.level-card-star-filled {
+  color: #FFA726;
+}
+
+.level-card-star-empty {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.level-card-button {
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 16px;
+  padding: 8px 16px;
+  color: var(--black-text);
+  font-family: var(--text-minimum-10-font-family);
+  font-weight: var(--text-minimum-10-font-weight);
+  font-size: var(--text-minimum-10-font-size);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.level-card-button-active {
+  background: var(--primary-gradient);
+}
+
+.level-card-button-active:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.level-card-button-locked {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--stars-white);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.play-icon,
+.lock-icon {
+  font-size: 10px;
+}
+
+/* ===== TAB BAR HOME ===== */
+.tab-bar-home {
+  width: 100%;
+  max-width: 430px;
+  height: 71px;
+  background: var(--tab-background);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 9px 20px;
+  box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  border-radius: 0;
+}
+
+.tab-item-home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--stars-white);
+  font-family: var(--text-minimum-10-font-family);
+  font-weight: var(--text-minimum-10-font-weight);
+  font-size: var(--text-minimum-10-font-size);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 6px;
+  border-radius: 50%;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.tab-item-home img {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 2px;
+  object-fit: contain;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.tab-item-home span {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.tab-item-home-active {
+  background: rgba(255, 255, 255, 0.20);
+  color: var(--white);
+}
+
+.tab-item-home-active img {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.tab-item-home-active span {
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 430px) {
+  .home-screen {
+    padding: 0 16px 100px;
+  }
+  
+  .daily-challenge-home,
+  .main-level-card-home,
+  .weekly-ranking-home {
+    max-width: 100%;
+  }
+  
+  .progress-cards-row {
+    gap: 12px;
+  }
+  
+  .level-progress-card {
+    width: 170px;
+  }
+}
+
+@media (max-width: 375px) {
+  .home-screen {
+    padding: 0 12px 100px;
+  }
+  
+  .level-progress-card {
+    width: 160px;
+    height: 160px;
+  }
+  
+  .header-section {
+    padding: 16px 0 24px;
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "timestamp": "2025-09-14T18:37:14.821Z",
+  "summary": {
+    "totalFiles": 15,
+    "totalOriginalSize": 8402083,
+    "totalOptimizedSize": 8401848,
+    "totalSavings": "0.0",
+    "byType": {
+      ".svg": {
+        "count": 11,
+        "originalSize": 4475914,
+        "optimizedSize": 4475679
+      },
+      ".png": {
+        "count": 4,
+        "originalSize": 3926169,
+        "optimizedSize": 3926169
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "icons/actions/action-noto_play-button.svg",
+      "originalSize": 1429,
+      "optimizedSize": 1423,
+      "savings": "0.4"
+    },
+    {
+      "path": "icons/actions/action-play.svg",
+      "originalSize": 641504,
+      "optimizedSize": 641452,
+      "savings": "0.0"
+    },
+    {
+      "path": "icons/game/game-icon_rocket.svg",
+      "originalSize": 7158,
+      "optimizedSize": 7135,
+      "savings": "0.3"
+    },
+    {
+      "path": "icons/navigation/nav-home-icon.svg",
+      "originalSize": 1908680,
+      "optimizedSize": 1908628,
+      "savings": "0.0"
+    },
+    {
+      "path": "icons/navigation/nav-home.svg",
+      "originalSize": 1908680,
+      "optimizedSize": 1908628,
+      "savings": "0.0"
+    },
+    {
+      "path": "icons/status/status-noto_star-1.svg",
+      "originalSize": 1414,
+      "optimizedSize": 1409,
+      "savings": "0.4"
+    },
+    {
+      "path": "icons/status/status-noto_star-2.svg",
+      "originalSize": 1414,
+      "optimizedSize": 1409,
+      "savings": "0.4"
+    },
+    {
+      "path": "icons/status/status-noto_star-3.svg",
+      "originalSize": 1401,
+      "optimizedSize": 1391,
+      "savings": "0.7"
+    },
+    {
+      "path": "icons/status/status-noto_star-4.svg",
+      "originalSize": 1401,
+      "optimizedSize": 1391,
+      "savings": "0.7"
+    },
+    {
+      "path": "icons/status/status-noto_star-5.svg",
+      "originalSize": 1401,
+      "optimizedSize": 1391,
+      "savings": "0.7"
+    },
+    {
+      "path": "icons/status/status-noto_star.svg",
+      "originalSize": 1432,
+      "optimizedSize": 1422,
+      "savings": "0.7"
+    },
+    {
+      "path": "images/misc/achivements.png",
+      "originalSize": 492552,
+      "optimizedSize": 492552,
+      "savings": "0.0"
+    },
+    {
+      "path": "images/misc/home.png",
+      "originalSize": 1431127,
+      "optimizedSize": 1431127,
+      "savings": "0.0"
+    },
+    {
+      "path": "images/misc/play.png",
+      "originalSize": 480745,
+      "optimizedSize": 480745,
+      "savings": "0.0"
+    },
+    {
+      "path": "images/misc/target.png",
+      "originalSize": 1521745,
+      "optimizedSize": 1521745,
+      "savings": "0.0"
+    }
+  ]
+}

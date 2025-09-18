@@ -22,7 +22,17 @@
     "generate-keys": "node scripts/generate-keys.js",
     "setup-env": "node scripts/generate-keys.js",
     "deploy:verify": "node scripts/verify-railway-deploy.js",
-    "deploy:production-keys": "node scripts/generate-production-env.js"
+    "deploy:production-keys": "node scripts/generate-production-env.js",
+    "performance:report": "node scripts/generate-performance-report.js",
+    "performance:test": "node scripts/load-test.js",
+    "performance:light": "node scripts/load-test.js https://astroquiz-production.up.railway.app light",
+    "performance:heavy": "node scripts/load-test.js https://astroquiz-production.up.railway.app heavy stress",
+    "analytics:export": "curl -s https://astroquiz-production.up.railway.app/api/dashboard/metrics/export",
+    "logs:export": "node -e \"strapi.service('global::logger').exportLogs()\"",
+    "db:analyze": "node -e \"strapi.service('global::query-optimizer').analyzeQueryPerformance().then(console.log)\"",
+    "assets:organize": "node scripts/organize-assets.js",
+    "assets:optimize": "node scripts/optimize-assets.js",
+    "assets:all": "npm run assets:organize && npm run assets:optimize"
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",

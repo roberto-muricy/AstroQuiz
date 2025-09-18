@@ -1,0 +1,123 @@
+{
+  "timestamp": "2025-09-14T18:36:07.837Z",
+  "summary": {
+    "totalFiles": 17,
+    "byType": {
+      "root": 2,
+      "icons": 11,
+      "images": 4
+    },
+    "byCategory": {
+      "root": 2,
+      "icons/actions": 2,
+      "icons/game": 1,
+      "icons/navigation": 2,
+      "icons/status": 6,
+      "images/misc": 4
+    }
+  },
+  "files": [
+    {
+      "name": ".gitkeep",
+      "path": ".gitkeep",
+      "size": 189,
+      "type": ""
+    },
+    {
+      "name": "README.md",
+      "path": "README.md",
+      "size": 2088,
+      "type": ".md"
+    },
+    {
+      "name": "action-noto_play-button.svg",
+      "path": "icons/actions/action-noto_play-button.svg",
+      "size": 1429,
+      "type": ".svg"
+    },
+    {
+      "name": "action-play.svg",
+      "path": "icons/actions/action-play.svg",
+      "size": 641504,
+      "type": ".svg"
+    },
+    {
+      "name": "game-icon_rocket.svg",
+      "path": "icons/game/game-icon_rocket.svg",
+      "size": 7158,
+      "type": ".svg"
+    },
+    {
+      "name": "nav-home-icon.svg",
+      "path": "icons/navigation/nav-home-icon.svg",
+      "size": 1908680,
+      "type": ".svg"
+    },
+    {
+      "name": "nav-home.svg",
+      "path": "icons/navigation/nav-home.svg",
+      "size": 1908680,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star-1.svg",
+      "path": "icons/status/status-noto_star-1.svg",
+      "size": 1414,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star-2.svg",
+      "path": "icons/status/status-noto_star-2.svg",
+      "size": 1414,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star-3.svg",
+      "path": "icons/status/status-noto_star-3.svg",
+      "size": 1401,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star-4.svg",
+      "path": "icons/status/status-noto_star-4.svg",
+      "size": 1401,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star-5.svg",
+      "path": "icons/status/status-noto_star-5.svg",
+      "size": 1401,
+      "type": ".svg"
+    },
+    {
+      "name": "status-noto_star.svg",
+      "path": "icons/status/status-noto_star.svg",
+      "size": 1432,
+      "type": ".svg"
+    },
+    {
+      "name": "achivements.png",
+      "path": "images/misc/achivements.png",
+      "size": 492552,
+      "type": ".png"
+    },
+    {
+      "name": "home.png",
+      "path": "images/misc/home.png",
+      "size": 1431127,
+      "type": ".png"
+    },
+    {
+      "name": "play.png",
+      "path": "images/misc/play.png",
+      "size": 480745,
+      "type": ".png"
+    },
+    {
+      "name": "target.png",
+      "path": "images/misc/target.png",
+      "size": 1521745,
+      "type": ".png"
+    }
+  ]
+}

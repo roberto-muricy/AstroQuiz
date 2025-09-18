@@ -1,0 +1,6 @@
+# AstroQuiz Assets Directory
+
+Este diretório conterá os assets organizados do aplicativo.
+
+Execute `npm run assets:organize` para organizar automaticamente os assets das pastas do Figma.
+
