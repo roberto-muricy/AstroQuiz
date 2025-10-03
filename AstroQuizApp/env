@@ -1,0 +1,17 @@
+# AstroQuiz Mobile App - Environment Variables
+
+# ===== API Configuration =====
+# Para Android Emulator, use 10.0.2.2
+# Para iOS Simulator, use localhost
+# Para dispositivo físico, use o IP da sua máquina
+
+API_BASE_URL=http://10.0.2.2:1337/api
+API_TIMEOUT=30000
+
+# ===== Environment =====
+NODE_ENV=development
+
+# ===== Optional: Authentication =====
+# API_TOKEN=your_strapi_api_token_here
+
+
