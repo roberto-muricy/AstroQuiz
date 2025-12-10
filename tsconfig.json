@@ -38,6 +38,11 @@
     // Do not include test files
     "**/*.test.*",
     // Do not include plugins in the server compilation
-    "src/plugins/**"
+    "src/plugins/**",
+    // Exclude mobile app files (React Native)
+    "AstroQuizApp/**",
+    "astroquiz-mobile/**",
+    "**/screens/**",
+    "**/components/**"
   ]
 }
