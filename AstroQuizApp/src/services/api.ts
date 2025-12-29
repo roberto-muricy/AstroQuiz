@@ -5,8 +5,24 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
+import { Platform } from 'react-native';
+
 // Configuração da API
-const API_BASE_URL = 'http://localhost:1337/api'; // Ajuste conforme necessário
+// iOS Simulator usa localhost, dispositivo físico usa IP da rede
+const getApiBaseUrl = () => {
+  if (!__DEV__) {
+    return 'https://sua-api-producao.com/api'; // Produção
+  }
+  
+  // Desenvolvimento
+  if (Platform.OS === 'ios') {
+    return 'http://localhost:1337/api'; // iOS Simulator
+  } else {
+    return 'http://10.0.2.2:1337/api'; // Android Emulator
+  }
+};
+
+const API_BASE_URL = getApiBaseUrl();
 const API_TIMEOUT = 30000;
 
 class ApiService {
@@ -79,7 +95,13 @@ class ApiService {
    * GET request
    */
   async get<T>(endpoint: string, params?: any): Promise<T> {
+    if (__DEV__) {
+      console.log('📤 GET', endpoint, params);
+    }
     const response = await this.api.get<T>(endpoint, { params });
+    if (__DEV__) {
+      console.log('📥 Response', endpoint, response.data);
+    }
     return response.data;
   }
 
@@ -87,7 +109,13 @@ class ApiService {
    * POST request
    */
   async post<T>(endpoint: string, data?: any): Promise<T> {
+    if (__DEV__) {
+      console.log('📤 POST', endpoint, data);
+    }
     const response = await this.api.post<T>(endpoint, data);
+    if (__DEV__) {
+      console.log('📥 Response', endpoint, response.data);
+    }
     return response.data;
   }
 

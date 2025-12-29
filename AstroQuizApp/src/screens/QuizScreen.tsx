@@ -5,57 +5,129 @@
 
 import { Button, QuestionCard } from '@/components';
 import quizService from '@/services/quizService';
-import { CurrentQuestion } from '@/types';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import soundService from '@/services/soundService';
+import { CurrentQuestion, RootStackParamList } from '@/types';
+import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
     Alert,
+    Animated,
     StyleSheet,
     Text,
+    TouchableOpacity,
+    Vibration,
     View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 export const QuizScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'QuizGame'>>();
   const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
 
   const [currentQuestion, setCurrentQuestion] = useState<CurrentQuestion | null>(null);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [answerResult, setAnswerResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(30);
+  const [autoSubmitCountdown, setAutoSubmitCountdown] = useState<number | null>(null);
+  const [currentScore, setCurrentScore] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [questionsAnswered, setQuestionsAnswered] = useState(0);
+  const submitTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Resetar pontuação ao iniciar nova sessão
+    setCurrentScore(0);
+    setCurrentStreak(0);
     loadQuestion();
-  }, []);
+    
+    // Limpar timers ao desmontar
+    return () => {
+      if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, [sessionId]);
 
   useEffect(() => {
-    if (!showResult && timeRemaining > 0) {
+    // Não rodar timer se já mostrou resultado ou está carregando
+    if (!showResult && !loading && timeRemaining > 0) {
+      // Som de aviso nos últimos 10 segundos
+      if (timeRemaining === 10) {
+        soundService.playWarning();
+      }
+      
       const timer = setTimeout(() => {
         setTimeRemaining(time => time - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (timeRemaining === 0 && !showResult) {
+    } else if (timeRemaining === 0 && !showResult && !loading) {
       handleTimeout();
     }
-  }, [timeRemaining, showResult]);
+  }, [timeRemaining, showResult, loading]);
 
   const loadQuestion = async () => {
     try {
       setLoading(true);
+      
+      // Limpar qualquer timer ativo antes de carregar nova pergunta
+      if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      
       const question = await quizService.getCurrentQuestion(sessionId);
       setCurrentQuestion(question);
       setTimeRemaining(Math.floor(question.timePerQuestion / 1000));
       setSelectedOption(null);
       setShowResult(false);
+      setAnswerResult(null);
+      setAutoSubmitCountdown(null);
     } catch (error) {
       console.error('Erro ao carregar pergunta:', error);
       Alert.alert('Erro', 'Não foi possível carregar a pergunta');
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handler de seleção com auto-submit após 0.7s
+  const handleAnswerSelect = (option: 'A' | 'B' | 'C' | 'D') => {
+    if (showResult) return;
+
+    // Limpar timers anteriores
+    if (submitTimerRef.current) {
+      clearTimeout(submitTimerRef.current);
+    }
+    if (countdownIntervalRef.current) {
+      clearInterval(countdownIntervalRef.current);
+    }
+
+    // Som de seleção
+    soundService.playSelect();
+
+    // Atualizar seleção
+    setSelectedOption(option);
+    setAutoSubmitCountdown(null);
+
+    // Iniciar countdown visual (opcional)
+    let countdown = 700;
+    const startTime = Date.now();
+    
+    countdownIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 700 - elapsed);
+      setAutoSubmitCountdown(remaining);
+      
+      if (remaining === 0 && countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+      }
+    }, 50);
+
+    // Timer de auto-submit
+    submitTimerRef.current = setTimeout(() => {
+      handleSubmitAnswer(option);
+    }, 700);
   };
 
   const handleTimeout = async () => {
@@ -66,6 +138,7 @@ export const QuizScreen = () => {
         sessionId,
         selectedOption || 'A',
         currentQuestion.timePerQuestion,
+        currentQuestion.question.id
       );
       Alert.alert('Tempo esgotado!', 'Você não respondeu a tempo.');
       await loadNextQuestion();
@@ -74,32 +147,104 @@ export const QuizScreen = () => {
     }
   };
 
-  const handleSubmitAnswer = async () => {
-    if (!selectedOption || !currentQuestion) return;
+  const handleSubmitAnswer = async (option: 'A' | 'B' | 'C' | 'D') => {
+    if (!currentQuestion) return;
 
+    // Limpar timers
+    if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    
+    setAutoSubmitCountdown(null);
     setShowResult(true);
     
     try {
       const timeUsed = currentQuestion.timePerQuestion - (timeRemaining * 1000);
-      const result = await quizService.submitAnswer(sessionId, selectedOption, timeUsed);
+      const questionId = currentQuestion.question?.id;
       
-      // Mostrar resultado por 2 segundos
+      console.log('🔍 Debug - Question ID:', questionId);
+      console.log('🔍 Debug - Current Question:', currentQuestion);
+      
+      const result = await quizService.submitAnswer(
+        sessionId, 
+        option, 
+        timeUsed,
+        questionId
+      );
+      
+      console.log('📊 Resultado da resposta:', result);
+      console.log(`💰 Pontos desta pergunta: ${result.scoreResult.totalPoints} (Base: ${result.scoreResult.basePoints}, Speed: ${result.scoreResult.speedBonus}x${result.scoreResult.speedMultiplier})`);
+      console.log(`🔥 Streak atual: ${result.sessionStatus.streakCount}`);
+      
+      setAnswerResult(result);
+
+      // Atualizar pontuação e streak localmente
+      setCurrentScore(result.sessionStatus.score);
+      setCurrentStreak(result.sessionStatus.streakCount);
+      
+      // Incrementar contador de perguntas respondidas
+      const newQuestionsAnswered = questionsAnswered + 1;
+      setQuestionsAnswered(newQuestionsAnswered);
+
+      // Som e feedback baseado no resultado
+      if (result.answerRecord.isCorrect) {
+        soundService.playCorrect();
+        
+        // Som especial para streak
+        if (result.sessionStatus.streakCount >= 3) {
+          soundService.playStreak(result.sessionStatus.streakCount);
+        }
+      } else {
+        soundService.playIncorrect();
+      }
+      
+      // Mostrar resultado por 3 segundos
       setTimeout(async () => {
-        if (result.sessionStatus.isPhaseComplete) {
+        setShowResult(false);
+        setAnswerResult(null);
+        setSelectedOption(null);
+        
+        // Verificar se completou todas as 10 perguntas
+        if (newQuestionsAnswered >= 10 || result.sessionStatus.isPhaseComplete) {
+          console.log('🎉 Fase completada! Indo para resultados...');
+          
+          // Parar todos os timers antes de navegar
+          if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+          
+          // Navegar para resultados
           navigation.navigate('QuizResult', { sessionId });
         } else {
           await loadNextQuestion();
         }
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error('Erro ao submeter resposta:', error);
       Alert.alert('Erro', 'Não foi possível enviar a resposta');
       setShowResult(false);
+      setSelectedOption(null);
     }
   };
 
   const loadNextQuestion = async () => {
     await loadQuestion();
+  };
+
+  const handleExit = () => {
+    Alert.alert(
+      'Sair do Quiz',
+      'Tem certeza que deseja sair? Seu progresso será perdido.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sair',
+          style: 'destructive',
+          onPress: () => navigation.goBack(),
+        },
+      ],
+    );
   };
 
   if (!currentQuestion) {
@@ -114,10 +259,15 @@ export const QuizScreen = () => {
 
   return (
     <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
+      {/* Botão de Voltar */}
+      <TouchableOpacity style={styles.backButton} onPress={handleExit}>
+        <Text style={styles.backButtonText}>✕</Text>
+      </TouchableOpacity>
+
       <View style={styles.header}>
         <View style={styles.questionCounter}>
           <Text style={styles.questionCounterText}>
-            Pergunta {currentQuestion.questionIndex}/{currentQuestion.totalQuestions}
+            Pergunta {questionsAnswered + 1}/10
           </Text>
         </View>
         <View style={styles.timer}>
@@ -126,9 +276,9 @@ export const QuizScreen = () => {
           </Text>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>{currentQuestion.currentScore} pts</Text>
-          {currentQuestion.currentStreak > 0 && (
-            <Text style={styles.streakText}>🔥 {currentQuestion.currentStreak}</Text>
+          <Text style={styles.scoreText}>{currentScore} pts</Text>
+          {currentStreak > 0 && (
+            <Text style={styles.streakText}>🔥 {currentStreak}</Text>
           )}
         </View>
       </View>
@@ -137,21 +287,48 @@ export const QuizScreen = () => {
         <QuestionCard
           question={currentQuestion.question}
           selectedOption={selectedOption || undefined}
-          correctOption={showResult ? currentQuestion.question.correctOption : undefined}
+          correctOption={showResult && answerResult ? answerResult.answerRecord.correctOption : undefined}
           showResult={showResult}
-          onSelectOption={setSelectedOption}
+          onSelectOption={handleAnswerSelect}
           disabled={showResult}
         />
 
-        {!showResult && (
-          <Button
-            title="Confirmar Resposta"
-            onPress={handleSubmitAnswer}
-            disabled={!selectedOption || loading}
-            loading={loading}
-            size="large"
-            style={styles.submitButton}
-          />
+        {/* Auto-submit countdown indicator */}
+        {selectedOption && !showResult && autoSubmitCountdown !== null && (
+          <View style={styles.autoSubmitIndicator}>
+            <View style={styles.autoSubmitBar}>
+              <View 
+                style={[
+                  styles.autoSubmitProgress,
+                  { width: `${(autoSubmitCountdown / 700) * 100}%` }
+                ]} 
+              />
+            </View>
+            <Text style={styles.autoSubmitText}>
+              Auto-confirmando...
+            </Text>
+          </View>
+        )}
+
+        {/* Resultado e Pontos */}
+        {showResult && answerResult && (
+          <View style={styles.resultContainer}>
+            {answerResult.answerRecord.isCorrect ? (
+              <View style={styles.successBanner}>
+                <Text style={styles.successEmoji}>🎉</Text>
+                <Text style={styles.successTitle}>Resposta Correta!</Text>
+                <Text style={styles.pointsEarned}>+{answerResult.scoreResult.totalPoints} pontos</Text>
+              </View>
+            ) : (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorEmoji}>😔</Text>
+                <Text style={styles.errorTitle}>Resposta Incorreta</Text>
+                <Text style={styles.correctAnswerText}>
+                  Resposta correta: {answerResult.answerRecord.correctOption}
+                </Text>
+              </View>
+            )}
+          </View>
         )}
       </View>
     </LinearGradient>
@@ -161,6 +338,23 @@ export const QuizScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
   loading: {
     flex: 1,
@@ -225,6 +419,79 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 20,
+  },
+  autoSubmitIndicator: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  autoSubmitBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  autoSubmitProgress: {
+    height: '100%',
+    backgroundColor: '#FFA726',
+  },
+  autoSubmitText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontFamily: 'Poppins-Regular',
+  },
+  resultContainer: {
+    marginTop: 20,
+  },
+  successBanner: {
+    backgroundColor: 'rgba(15, 181, 126, 0.15)',
+    borderRadius: 16,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#0FB57E',
+    alignItems: 'center',
+  },
+  successEmoji: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  successTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0FB57E',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 8,
+  },
+  pointsEarned: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFA726',
+    fontFamily: 'Poppins-Bold',
+  },
+  errorBanner: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderRadius: 16,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
+    alignItems: 'center',
+  },
+  errorEmoji: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#EF4444',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 8,
+  },
+  correctAnswerText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-Medium',
   },
 });
 

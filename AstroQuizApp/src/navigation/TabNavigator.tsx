@@ -4,7 +4,7 @@
  */
 
 import { Icons } from "@/assets";
-import { HomeScreen, ProfileScreen, StatsScreen } from "@/screens";
+import { HomeScreen, QuizListScreen, ProfileScreen, StatsScreen } from "@/screens";
 import { TabParamList } from "@/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
@@ -51,7 +51,7 @@ export const TabNavigator = () => {
       />
       <Tab.Screen
         name="Quiz"
-        component={HomeScreen} // Temporário
+        component={QuizListScreen}
         options={{
           tabBarLabel: "Quiz",
           tabBarIcon: ({ focused, color }) => (

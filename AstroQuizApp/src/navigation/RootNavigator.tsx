@@ -3,7 +3,7 @@
  * Navegação principal do app com Stack
  */
 
-import { QuizScreen } from '@/screens';
+import { QuizScreen, QuizResultScreen } from '@/screens';
 import { RootStackParamList } from '@/types';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
@@ -29,7 +29,7 @@ export const RootNavigator = () => {
       />
       <Stack.Screen
         name="QuizResult"
-        component={QuizScreen} // Temporário - criar QuizResultScreen depois
+        component={QuizResultScreen}
         options={{
           animation: 'fade',
           gestureEnabled: false,

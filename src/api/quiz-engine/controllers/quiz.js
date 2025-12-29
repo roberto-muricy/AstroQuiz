@@ -1,51 +1,66 @@
-/**
- * AstroQuiz Engine Controller
- * Handles all quiz-related API endpoints
- */
-
 'use strict';
 
-const { GAME_RULES } = require('../../../../config/game-rules');
+const { GameRulesHelper } = require('../../../../config/game-rules');
 
+/**
+ * Quiz Controller
+ * Handles all quiz-related API endpoints
+ */
 module.exports = {
   /**
    * Start a new quiz session
    * POST /api/quiz/start
    */
-  async startQuiz(ctx) {
+  async start(ctx) {
     try {
-      const { phaseNumber, locale = 'en', userId = null, userPreferences = {} } = ctx.request.body;
+      const { phaseNumber, locale = 'en', userId, userPreferences = {} } = ctx.request.body;
 
-      // Validate required parameters
-      if (!phaseNumber || phaseNumber < 1 || phaseNumber > GAME_RULES.general.totalPhases) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: `Invalid phase number. Must be between 1 and ${GAME_RULES.general.totalPhases}`
-        };
-        return;
+      // Validate phase number
+      if (!phaseNumber || phaseNumber < 1 || phaseNumber > 50) {
+        return ctx.badRequest('Invalid phase number. Must be between 1 and 50.');
       }
 
       // Validate locale
-      if (!GAME_RULES.general.supportedLocales.includes(locale)) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: `Unsupported locale. Supported: ${GAME_RULES.general.supportedLocales.join(', ')}`
-        };
-        return;
+      const supportedLocales = ['en', 'pt', 'es', 'fr'];
+      if (!supportedLocales.includes(locale)) {
+        return ctx.badRequest(`Unsupported locale: ${locale}. Supported: ${supportedLocales.join(', ')}`);
       }
 
-      // Create new session
+      // Get phase configuration
+      const phaseConfig = GameRulesHelper.getPhaseConfig(phaseNumber);
+      if (!phaseConfig) {
+        return ctx.badRequest(`Invalid phase configuration for phase ${phaseNumber}`);
+      }
+
+      // Select questions
+      const selectorService = strapi.service('api::quiz-engine.selector');
+      const questions = await selectorService.selectPhaseQuestions({
+        phaseNumber,
+        locale,
+        excludeQuestions: [],
+        recentTopics: [],
+        userPerformance: {}
+      });
+
+      if (questions.length === 0) {
+        return ctx.notFound(`No questions available for phase ${phaseNumber} in locale ${locale}`);
+      }
+
+      // Create session
       const sessionService = strapi.service('api::quiz-engine.session');
-      const session = await sessionService.createSession({
+      const session = sessionService.createSession({
         phaseNumber,
         locale,
         userId,
-        userPreferences
+        questions,
+        phaseConfig: {
+          type: phaseConfig.type,
+          levels: phaseConfig.levels,
+          distribution: phaseConfig.distribution,
+          minScore: phaseConfig.minScore
+        }
       });
 
-      ctx.status = 201;
       ctx.body = {
         success: true,
         message: 'Quiz session started successfully',
@@ -55,67 +70,12 @@ module.exports = {
           totalQuestions: session.questions.length,
           timePerQuestion: session.timePerQuestion,
           phaseConfig: session.phaseConfig,
-          startTime: session.startTime
+          startedAt: session.startedAt
         }
       };
-
     } catch (error) {
-      strapi.log.error('Error starting quiz:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to start quiz session'
-      };
-    }
-  },
-
-  /**
-   * Get session status and information
-   * GET /api/quiz/session/:sessionId
-   */
-  async getSession(ctx) {
-    try {
-      const { sessionId } = ctx.params;
-
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
-      }
-
-      const sessionService = strapi.service('api::quiz-engine.session');
-      const session = await sessionService.getSession(sessionId);
-
-      if (!session) {
-        ctx.status = 404;
-        ctx.body = {
-          success: false,
-          message: 'Session not found'
-        };
-        return;
-      }
-
-      // Get session statistics
-      const stats = await sessionService.getSessionStats(sessionId);
-
-      ctx.body = {
-        success: true,
-        data: {
-          session,
-          stats
-        }
-      };
-
-    } catch (error) {
-      strapi.log.error('Error getting session:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: 'Failed to retrieve session'
-      };
+      strapi.log.error('Error starting quiz session:', error);
+      ctx.internalServerError('Failed to start quiz session');
     }
   },
 
@@ -123,510 +83,384 @@ module.exports = {
    * Get current question
    * GET /api/quiz/question/:sessionId
    */
-  async getCurrentQuestion(ctx) {
+  async getQuestion(ctx) {
     try {
       const { sessionId } = ctx.params;
+      
+      const sessionService = strapi.service('api::quiz-engine.session');
+      const session = sessionService.getSession(sessionId);
 
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
+      if (!session) {
+        return ctx.notFound('Session not found or expired');
       }
 
-      const sessionService = strapi.service('api::quiz-engine.session');
-      const questionData = await sessionService.getCurrentQuestion(sessionId);
+      if (session.status !== 'active') {
+        return ctx.badRequest(`Session is not active. Status: ${session.status}`);
+      }
+
+      const currentQuestion = session.questions[session.currentQuestionIndex];
+      if (!currentQuestion) {
+        return ctx.notFound('No more questions available');
+      }
+
+      // Format question for response (hide correct answer)
+      const questionData = {
+        id: currentQuestion.id,
+        question: currentQuestion.question,
+        options: [
+          currentQuestion.optionA,
+          currentQuestion.optionB,
+          currentQuestion.optionC,
+          currentQuestion.optionD
+        ],
+        level: currentQuestion.level,
+        topic: currentQuestion.topic,
+        questionNumber: session.currentQuestionIndex + 1,
+        totalQuestions: session.questions.length
+      };
 
       ctx.body = {
         success: true,
-        data: questionData
+        data: {
+          session: {
+            sessionId: session.sessionId,
+            phaseNumber: session.phaseNumber,
+            currentQuestionIndex: session.currentQuestionIndex,
+            totalQuestions: session.questions.length,
+            score: session.score,
+            streakCount: session.streakCount
+          },
+          question: questionData
+        }
       };
-
     } catch (error) {
-      strapi.log.error('Error getting current question:', error);
-      
-      if (error.message === 'Session not found') {
-        ctx.status = 404;
-      } else if (error.message === 'Session is not active' || error.message === 'No more questions in this phase') {
-        ctx.status = 400;
-      } else {
-        ctx.status = 500;
-      }
-
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to get current question'
-      };
+      strapi.log.error('Error getting question:', error);
+      ctx.internalServerError('Failed to get question');
     }
   },
 
   /**
-   * Submit answer for current question
+   * Submit answer
    * POST /api/quiz/answer
    */
   async submitAnswer(ctx) {
     try {
       const { sessionId, selectedOption, timeUsed } = ctx.request.body;
 
-      // Validate required parameters
       if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
+        return ctx.badRequest('sessionId is required');
       }
 
-      if (!selectedOption || !['A', 'B', 'C', 'D'].includes(selectedOption)) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Valid selectedOption (A, B, C, D) is required'
-        };
-        return;
+      if (selectedOption === undefined) {
+        return ctx.badRequest('selectedOption is required');
       }
 
-      if (typeof timeUsed !== 'number' || timeUsed < 0) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Valid timeUsed (positive number) is required'
-        };
-        return;
+      if (timeUsed === undefined || timeUsed < 0) {
+        return ctx.badRequest('timeUsed must be a positive number');
       }
 
       const sessionService = strapi.service('api::quiz-engine.session');
-      const result = await sessionService.submitAnswer(sessionId, {
+      const result = sessionService.submitAnswer(sessionId, {
         selectedOption,
         timeUsed
       });
 
       ctx.body = {
         success: true,
-        message: 'Answer submitted successfully',
-        data: result
+        data: {
+          isCorrect: result.answer.isCorrect,
+          correctAnswer: result.answer.correctOption,
+          points: result.scoreResult.points,
+          bonus: {
+            speed: result.scoreResult.speedBonus,
+            streak: result.scoreResult.streakBonus
+          },
+          nextQuestion: result.nextQuestion ? {
+            id: result.nextQuestion.id,
+            question: result.nextQuestion.question,
+            options: [
+              result.nextQuestion.optionA,
+              result.nextQuestion.optionB,
+              result.nextQuestion.optionC,
+              result.nextQuestion.optionD
+            ],
+            level: result.nextQuestion.level,
+            topic: result.nextQuestion.topic
+          } : null,
+          isComplete: result.isComplete,
+          session: {
+            sessionId: result.session.sessionId,
+            currentQuestionIndex: result.session.currentQuestionIndex,
+            totalQuestions: result.session.questions.length,
+            score: result.session.score,
+            streakCount: result.session.streakCount
+          }
+        }
       };
-
     } catch (error) {
       strapi.log.error('Error submitting answer:', error);
       
-      if (error.message === 'Session not found') {
-        ctx.status = 404;
-      } else if (error.message.includes('not active') || error.message.includes('paused')) {
-        ctx.status = 400;
-      } else {
-        ctx.status = 500;
+      if (error.message.includes('not found')) {
+        return ctx.notFound(error.message);
       }
-
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to submit answer'
-      };
+      
+      ctx.internalServerError('Failed to submit answer');
     }
   },
 
   /**
-   * Pause quiz session
-   * POST /api/quiz/pause
+   * Finish quiz session
+   * POST /api/quiz/finish/:sessionId
    */
-  async pauseQuiz(ctx) {
+  async finish(ctx) {
     try {
-      const { sessionId } = ctx.request.body;
-
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
-      }
+      const { sessionId } = ctx.params;
 
       const sessionService = strapi.service('api::quiz-engine.session');
-      const session = await sessionService.pauseSession(sessionId);
+      const session = sessionService.getSession(sessionId);
+
+      if (!session) {
+        return ctx.notFound('Session not found or expired');
+      }
+
+      // Calculate final results
+      const scoringService = strapi.service('api::quiz-engine.scoring');
+      const phaseResult = scoringService.calculatePhaseResult({
+        answers: session.answers,
+        totalQuestions: session.questions.length,
+        phaseNumber: session.phaseNumber
+      });
+
+      // Update session status
+      sessionService.updateSession(sessionId, {
+        status: 'completed',
+        completedAt: new Date().toISOString()
+      });
 
       ctx.body = {
         success: true,
-        message: 'Quiz session paused successfully',
+        data: {
+          sessionId: session.sessionId,
+          phaseNumber: session.phaseNumber,
+          totalScore: phaseResult.totalScore,
+          maxScore: phaseResult.maxScore,
+          accuracy: phaseResult.accuracy,
+          grade: phaseResult.grade,
+          passed: phaseResult.passed,
+          timeSpent: session.answers.reduce((sum, a) => sum + (a.timeUsed || 0), 0),
+          questionsAnswered: session.answers.length,
+          correctAnswers: phaseResult.correctAnswers,
+          wrongAnswers: phaseResult.wrongAnswers,
+          analytics: phaseResult.analytics,
+          recommendations: phaseResult.recommendations
+        }
+      };
+    } catch (error) {
+      strapi.log.error('Error finishing quiz:', error);
+      ctx.internalServerError('Failed to finish quiz');
+    }
+  },
+
+  /**
+   * Pause session
+   * POST /api/quiz/pause/:sessionId
+   */
+  async pause(ctx) {
+    try {
+      const { sessionId } = ctx.params;
+
+      const sessionService = strapi.service('api::quiz-engine.session');
+      const session = sessionService.pauseSession(sessionId);
+
+      ctx.body = {
+        success: true,
+        message: 'Session paused',
+        data: {
+          sessionId: session.sessionId,
+          isPaused: session.isPaused
+        }
+      };
+    } catch (error) {
+      strapi.log.error('Error pausing session:', error);
+      
+      if (error.message.includes('not found')) {
+        return ctx.notFound(error.message);
+      }
+      
+      ctx.internalServerError('Failed to pause session');
+    }
+  },
+
+  /**
+   * Resume session
+   * POST /api/quiz/resume/:sessionId
+   */
+  async resume(ctx) {
+    try {
+      const { sessionId } = ctx.params;
+
+      const sessionService = strapi.service('api::quiz-engine.session');
+      const session = sessionService.resumeSession(sessionId);
+
+      ctx.body = {
+        success: true,
+        message: 'Session resumed',
         data: {
           sessionId: session.sessionId,
           isPaused: session.isPaused,
-          pausedAt: session.pausedAt
+          currentQuestionIndex: session.currentQuestionIndex,
+          totalQuestions: session.questions.length
         }
       };
-
     } catch (error) {
-      strapi.log.error('Error pausing quiz:', error);
+      strapi.log.error('Error resuming session:', error);
       
-      if (error.message === 'Session not found') {
-        ctx.status = 404;
-      } else if (error.message.includes('not active') || error.message.includes('already paused')) {
-        ctx.status = 400;
-      } else {
-        ctx.status = 500;
+      if (error.message.includes('not found')) {
+        return ctx.notFound(error.message);
       }
-
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to pause quiz session'
-      };
+      
+      if (error.message.includes('timeout')) {
+        return ctx.badRequest(error.message);
+      }
+      
+      ctx.internalServerError('Failed to resume session');
     }
   },
 
   /**
-   * Resume paused quiz session
-   * POST /api/quiz/resume
+   * Get session status
+   * GET /api/quiz/session/:sessionId
    */
-  async resumeQuiz(ctx) {
+  async getSession(ctx) {
     try {
-      const { sessionId } = ctx.request.body;
-
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
-      }
+      const { sessionId } = ctx.params;
 
       const sessionService = strapi.service('api::quiz-engine.session');
-      const session = await sessionService.resumeSession(sessionId);
+      const session = sessionService.getSession(sessionId);
+
+      if (!session) {
+        return ctx.notFound('Session not found or expired');
+      }
+
+      const scoringService = strapi.service('api::quiz-engine.scoring');
+      const stats = scoringService.getSessionStats(session);
 
       ctx.body = {
         success: true,
-        message: 'Quiz session resumed successfully',
         data: {
-          sessionId: session.sessionId,
-          isPaused: session.isPaused,
-          currentQuestionStartTime: session.currentQuestionStartTime
-        }
-      };
-
-    } catch (error) {
-      strapi.log.error('Error resuming quiz:', error);
-      
-      if (error.message === 'Session not found') {
-        ctx.status = 404;
-      } else if (error.message.includes('not paused') || error.message.includes('expired')) {
-        ctx.status = 400;
-      } else {
-        ctx.status = 500;
-      }
-
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to resume quiz session'
-      };
-    }
-  },
-
-  /**
-   * Finish/abandon quiz session
-   * POST /api/quiz/finish
-   */
-  async finishQuiz(ctx) {
-    try {
-      const { sessionId, reason = 'completed' } = ctx.request.body;
-
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
-      }
-
-      const sessionService = strapi.service('api::quiz-engine.session');
-      let session;
-
-      if (reason === 'abandoned') {
-        session = await sessionService.abandonSession(sessionId);
-      } else {
-        // Get session for completion summary
-        session = await sessionService.getSession(sessionId);
-        if (!session) {
-          ctx.status = 404;
-          ctx.body = {
-            success: false,
-            message: 'Session not found'
-          };
-          return;
-        }
-      }
-
-      // Get final statistics
-      const stats = await sessionService.getSessionStats(sessionId);
-
-      ctx.body = {
-        success: true,
-        message: `Quiz session ${reason} successfully`,
-        data: {
-          sessionId: session.sessionId,
-          finalStatus: session.status,
-          phaseResult: session.phaseResult,
+          session: {
+            sessionId: session.sessionId,
+            phaseNumber: session.phaseNumber,
+            status: session.status,
+            currentQuestionIndex: session.currentQuestionIndex,
+            score: session.score,
+            streakCount: session.streakCount,
+            isPaused: session.isPaused
+          },
           stats
         }
       };
-
     } catch (error) {
-      strapi.log.error('Error finishing quiz:', error);
-      
-      if (error.message === 'Session not found') {
-        ctx.status = 404;
-      } else {
-        ctx.status = 500;
-      }
-
-      ctx.body = {
-        success: false,
-        message: error.message || 'Failed to finish quiz session'
-      };
+      strapi.log.error('Error getting session:', error);
+      ctx.internalServerError('Failed to get session');
     }
   },
 
   /**
-   * Get leaderboard
-   * GET /api/quiz/leaderboard
-   */
-  async getLeaderboard(ctx) {
-    try {
-      const { category = 'total_score', period = 'all_time', limit = 10 } = ctx.query;
-
-      // Validate parameters
-      const validCategories = ['total_score', 'perfect_phases', 'average_speed', 'current_streak'];
-      if (!validCategories.includes(category)) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: `Invalid category. Valid options: ${validCategories.join(', ')}`
-        };
-        return;
-      }
-
-      const limitNum = parseInt(limit);
-      if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Limit must be a number between 1 and 100'
-        };
-        return;
-      }
-
-      // TODO: Implement actual leaderboard logic
-      // For now, return mock data
-      const mockLeaderboard = [
-        { rank: 1, userId: 'user1', score: 15750, username: 'AstroMaster', perfectPhases: 12 },
-        { rank: 2, userId: 'user2', score: 14200, username: 'StarGazer', perfectPhases: 8 },
-        { rank: 3, userId: 'user3', score: 13800, username: 'CosmicExplorer', perfectPhases: 10 }
-      ];
-
-      ctx.body = {
-        success: true,
-        data: {
-          category,
-          period,
-          leaderboard: mockLeaderboard.slice(0, limitNum),
-          lastUpdated: new Date()
-        }
-      };
-
-    } catch (error) {
-      strapi.log.error('Error getting leaderboard:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: 'Failed to retrieve leaderboard'
-      };
-    }
-  },
-
-  /**
-   * Get game rules and configuration
+   * Get game rules
    * GET /api/quiz/rules
    */
-  async getGameRules(ctx) {
+  async getRules(ctx) {
     try {
-      const { section } = ctx.query;
-
-      let rules;
-      if (section) {
-        // Return specific section
-        if (GAME_RULES[section]) {
-          rules = { [section]: GAME_RULES[section] };
-        } else {
-          ctx.status = 400;
-          ctx.body = {
-            success: false,
-            message: `Invalid section. Available: ${Object.keys(GAME_RULES).join(', ')}`
-          };
-          return;
+      const { phaseNumber } = ctx.query;
+      
+      if (phaseNumber) {
+        const phaseNum = parseInt(phaseNumber);
+        const phaseConfig = GameRulesHelper.getPhaseConfig(phaseNum);
+        
+        if (!phaseConfig) {
+          return ctx.badRequest(`Invalid phase number: ${phaseNumber}`);
         }
+
+        ctx.body = {
+          success: true,
+          data: {
+            phaseNumber: phaseNum,
+            phaseConfig
+          }
+        };
       } else {
-        // Return all rules (excluding sensitive data)
-        rules = {
-          general: GAME_RULES.general,
-          phases: GAME_RULES.phases,
-          scoring: GAME_RULES.scoring,
-          achievements: GAME_RULES.achievements,
-          timing: GAME_RULES.timing,
-          competitive: GAME_RULES.competitive
+        ctx.body = {
+          success: true,
+          data: {
+            general: {
+              questionsPerPhase: 10,
+              timePerQuestion: 30000,
+              totalPhases: 50
+            },
+            scoring: {
+              basePoints: { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50 },
+              speedBonus: true,
+              streakBonus: true
+            }
+          }
         };
       }
-
-      ctx.body = {
-        success: true,
-        data: rules
-      };
-
     } catch (error) {
-      strapi.log.error('Error getting game rules:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: 'Failed to retrieve game rules'
-      };
+      strapi.log.error('Error getting rules:', error);
+      ctx.internalServerError('Failed to get rules');
     }
   },
 
   /**
-   * Get question pool statistics
+   * Get pool statistics
    * GET /api/quiz/pool-stats
    */
   async getPoolStats(ctx) {
     try {
-      const { locale = 'en' } = ctx.query;
+      const { phaseNumber, locale = 'en' } = ctx.query;
 
-      // Validate locale
-      if (!GAME_RULES.general.supportedLocales.includes(locale)) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: `Unsupported locale. Supported: ${GAME_RULES.general.supportedLocales.join(', ')}`
-        };
-        return;
+      if (!phaseNumber) {
+        return ctx.badRequest('phaseNumber is required');
       }
 
+      const phaseNum = parseInt(phaseNumber);
       const selectorService = strapi.service('api::quiz-engine.selector');
-      const stats = await selectorService.analyzeQuestionPool(locale);
+      const stats = await selectorService.analyzePool(phaseNum, locale);
 
       ctx.body = {
         success: true,
-        data: {
-          locale,
-          stats,
-          generatedAt: new Date()
-        }
+        data: stats
       };
-
     } catch (error) {
       strapi.log.error('Error getting pool stats:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: 'Failed to retrieve question pool statistics'
-      };
+      ctx.internalServerError('Failed to get pool stats');
     }
   },
 
   /**
-   * Health check endpoint
+   * Health check
    * GET /api/quiz/health
    */
-  async healthCheck(ctx) {
+  async health(ctx) {
     try {
-      // Check if services are available
       const sessionService = strapi.service('api::quiz-engine.session');
-      const scoringService = strapi.service('api::quiz-engine.scoring');
-      const selectorService = strapi.service('api::quiz-engine.selector');
+      const activeSessions = sessionService.getAllSessions().length;
 
-      const health = {
+      ctx.body = {
+        success: true,
         status: 'healthy',
-        timestamp: new Date(),
-        services: {
-          session: !!sessionService,
-          scoring: !!scoringService,
-          selector: !!selectorService
-        },
-        config: {
-          totalPhases: GAME_RULES.general.totalPhases,
-          questionsPerPhase: GAME_RULES.general.questionsPerPhase,
-          supportedLocales: GAME_RULES.general.supportedLocales
+        data: {
+          timestamp: new Date().toISOString(),
+          activeSessions,
+          version: '1.0.0'
         }
       };
-
-      // Check if any critical services are missing
-      const criticalServices = Object.values(health.services);
-      if (criticalServices.includes(false)) {
-        health.status = 'degraded';
-        ctx.status = 503;
-      }
-
-      ctx.body = {
-        success: true,
-        data: health
-      };
-
     } catch (error) {
       strapi.log.error('Error in health check:', error);
-      ctx.status = 503;
-      ctx.body = {
-        success: false,
-        message: 'Health check failed',
-        error: error.message
-      };
-    }
-  },
-
-  /**
-   * Get detailed session analytics
-   * GET /api/quiz/analytics/:sessionId
-   */
-  async getSessionAnalytics(ctx) {
-    try {
-      const { sessionId } = ctx.params;
-
-      if (!sessionId) {
-        ctx.status = 400;
-        ctx.body = {
-          success: false,
-          message: 'Session ID is required'
-        };
-        return;
-      }
-
-      const sessionService = strapi.service('api::quiz-engine.session');
-      const session = await sessionService.getSessionFromDatabase(sessionId);
-
-      if (!session) {
-        ctx.status = 404;
-        ctx.body = {
-          success: false,
-          message: 'Session not found'
-        };
-        return;
-      }
-
-      const scoringService = strapi.service('api::quiz-engine.scoring');
-      const analytics = scoringService.getDetailedBreakdown({ phases: [session] });
-
-      ctx.body = {
-        success: true,
-        data: analytics
-      };
-
-    } catch (error) {
-      strapi.log.error('Error getting session analytics:', error);
-      ctx.status = 500;
-      ctx.body = {
-        success: false,
-        message: 'Failed to retrieve session analytics'
-      };
+      ctx.internalServerError('Health check failed');
     }
   }
 };
+
+

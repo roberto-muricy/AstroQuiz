@@ -5,12 +5,30 @@
 
 import { Button, Card } from '@/components';
 import { useApp } from '@/contexts/AppContext';
-import React from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import soundService from '@/services/soundService';
+import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
+import React, { useState, useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 export const ProfileScreen = () => {
   const { user, locale, setLocale } = useApp();
+  const [settings, setSettings] = useState<AppSettings>({
+    soundEnabled: true,
+    vibrationEnabled: true,
+    musicEnabled: false,
+    notificationsEnabled: true,
+    language: 'pt',
+  });
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    const saved = await SettingsStorage.getSettings();
+    setSettings(saved);
+  };
 
   const languages = [
     { code: 'pt', name: 'Português', flag: '🇧🇷' },
@@ -21,12 +39,45 @@ export const ProfileScreen = () => {
 
   const handleChangeLanguage = (newLocale: string) => {
     setLocale(newLocale);
+    soundService.playTap();
     Alert.alert('Idioma alterado', `Idioma alterado para ${newLocale}`);
+  };
+
+  const handleToggleSound = async (value: boolean) => {
+    setSettings({ ...settings, soundEnabled: value });
+    await soundService.setSoundEnabled(value);
+    if (value) soundService.playTap();
+  };
+
+  const handleToggleVibration = async (value: boolean) => {
+    // Testar vibração antes de desligar
+    if (value) {
+      soundService.playTap();
+    }
+    setSettings({ ...settings, vibrationEnabled: value });
+    await soundService.setVibrationEnabled(value);
+  };
+
+  const handleToggleMusic = async (value: boolean) => {
+    setSettings({ ...settings, musicEnabled: value });
+    await soundService.setMusicEnabled(value);
+    if (settings.vibrationEnabled) soundService.playTap();
+  };
+
+  const handleToggleNotifications = async (value: boolean) => {
+    setSettings({ ...settings, notificationsEnabled: value });
+    await SettingsStorage.saveSettings({ notificationsEnabled: value });
+    if (settings.vibrationEnabled) soundService.playTap();
   };
 
   return (
     <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.content}
+        bounces={true}
+        scrollEventThrottle={16}
+      >
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
@@ -79,18 +130,82 @@ export const ProfileScreen = () => {
         {/* Configurações */}
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>Configurações</Text>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>🔔 Notificações</Text>
-            <Text style={styles.settingValue}>Ativadas</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>🎵 Som</Text>
-            <Text style={styles.settingValue}>Ativado</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>🌙 Modo Escuro</Text>
-            <Text style={styles.settingValue}>Sempre</Text>
-          </TouchableOpacity>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Text style={styles.settingEmoji}>🎵</Text>
+              <Text style={styles.settingText}>Sons do Jogo</Text>
+            </View>
+            <View style={styles.settingRight}>
+              <Text style={[styles.settingStatus, settings.soundEnabled && styles.settingStatusActive]}>
+                {settings.soundEnabled ? 'Ligado' : 'Desligado'}
+              </Text>
+              <Switch
+                value={settings.soundEnabled}
+                onValueChange={handleToggleSound}
+                trackColor={{ false: '#767577', true: '#4CAF50' }}
+                thumbColor={settings.soundEnabled ? '#FFFFFF' : '#f4f3f4'}
+                ios_backgroundColor="#767577"
+              />
+            </View>
+          </View>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Text style={styles.settingEmoji}>📳</Text>
+              <Text style={styles.settingText}>Vibração</Text>
+            </View>
+            <View style={styles.settingRight}>
+              <Text style={[styles.settingStatus, settings.vibrationEnabled && styles.settingStatusActive]}>
+                {settings.vibrationEnabled ? 'Ligado' : 'Desligado'}
+              </Text>
+              <Switch
+                value={settings.vibrationEnabled}
+                onValueChange={handleToggleVibration}
+                trackColor={{ false: '#767577', true: '#4CAF50' }}
+                thumbColor={settings.vibrationEnabled ? '#FFFFFF' : '#f4f3f4'}
+                ios_backgroundColor="#767577"
+              />
+            </View>
+          </View>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Text style={styles.settingEmoji}>🎼</Text>
+              <Text style={styles.settingText}>Música de Fundo</Text>
+            </View>
+            <View style={styles.settingRight}>
+              <Text style={[styles.settingStatus, settings.musicEnabled && styles.settingStatusActive]}>
+                {settings.musicEnabled ? 'Ligado' : 'Desligado'}
+              </Text>
+              <Switch
+                value={settings.musicEnabled}
+                onValueChange={handleToggleMusic}
+                trackColor={{ false: '#767577', true: '#4CAF50' }}
+                thumbColor={settings.musicEnabled ? '#FFFFFF' : '#f4f3f4'}
+                ios_backgroundColor="#767577"
+              />
+            </View>
+          </View>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingLeft}>
+              <Text style={styles.settingEmoji}>🔔</Text>
+              <Text style={styles.settingText}>Notificações</Text>
+            </View>
+            <View style={styles.settingRight}>
+              <Text style={[styles.settingStatus, settings.notificationsEnabled && styles.settingStatusActive]}>
+                {settings.notificationsEnabled ? 'Ligado' : 'Desligado'}
+              </Text>
+              <Switch
+                value={settings.notificationsEnabled}
+                onValueChange={handleToggleNotifications}
+                trackColor={{ false: '#767577', true: '#4CAF50' }}
+                thumbColor={settings.notificationsEnabled ? '#FFFFFF' : '#f4f3f4'}
+                ios_backgroundColor="#767577"
+              />
+            </View>
+          </View>
         </Card>
 
         {/* Sobre */}
@@ -131,6 +246,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 60,
+    paddingBottom: 120, // Extra espaço para bottom tab bar
   },
   profileHeader: {
     alignItems: 'center',
@@ -243,14 +359,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 4,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    minHeight: 60,
+  },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  settingEmoji: {
+    fontSize: 24,
+    marginRight: 14,
+    width: 32,
+    textAlign: 'center',
   },
   settingText: {
     fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'Poppins-Medium',
+    lineHeight: 24,
+  },
+  settingRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  settingStatus: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontFamily: 'Poppins-Medium',
+    minWidth: 75,
+    textAlign: 'right',
+    lineHeight: 20,
+  },
+  settingStatusActive: {
+    color: '#4CAF50',
+    fontWeight: 'bold',
   },
   settingValue: {
     fontSize: 14,

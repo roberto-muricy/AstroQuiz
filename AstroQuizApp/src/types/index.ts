@@ -9,10 +9,14 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
+  avatarUrl?: string | null;
   level: number;
   xp: number;
+  totalXP?: number;
   streak: number;
+  locale?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 // ===== QUESTION TYPES =====

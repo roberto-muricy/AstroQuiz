@@ -33,6 +33,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     const isCorrect = showResult && correctOption === option;
     const isWrong = showResult && isSelected && selectedOption !== correctOption;
 
+    // Determinar o ícone a mostrar
+    let icon = null;
+    if (showResult) {
+      if (isCorrect) {
+        icon = <Text style={styles.resultIcon}>✓</Text>;
+      } else if (isWrong) {
+        icon = <Text style={styles.resultIconWrong}>✗</Text>;
+      }
+    }
+
     return (
       <TouchableOpacity
         key={option}
@@ -40,7 +50,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         disabled={disabled || showResult}
         style={[
           styles.option,
-          isSelected && styles.optionSelected,
+          isSelected && !showResult && styles.optionSelected,
           isCorrect && styles.optionCorrect,
           isWrong && styles.optionWrong,
         ]}
@@ -49,14 +59,17 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         <View
           style={[
             styles.optionLetter,
-            isSelected && styles.optionLetterSelected,
+            isSelected && !showResult && styles.optionLetterSelected,
             isCorrect && styles.optionLetterCorrect,
             isWrong && styles.optionLetterWrong,
           ]}
         >
           <Text style={styles.optionLetterText}>{option}</Text>
         </View>
-        <Text style={styles.optionText}>{text}</Text>
+        <Text style={[styles.optionText, (isCorrect || isWrong) && styles.optionTextBold]}>
+          {text}
+        </Text>
+        {icon}
       </TouchableOpacity>
     );
   };
@@ -87,9 +100,15 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         {renderOption('D', question.optionD)}
       </View>
 
+      {/* Sempre mostrar explicação quando há resultado */}
       {showResult && question.explanation && (
-        <View style={styles.explanation}>
-          <Text style={styles.explanationTitle}>💡 Explicação</Text>
+        <View style={[
+          styles.explanation,
+          selectedOption === correctOption && styles.explanationSuccess
+        ]}>
+          <Text style={styles.explanationTitle}>
+            {selectedOption === correctOption ? '✨ Ótimo trabalho!' : '💡 Explicação'}
+          </Text>
           <Text style={styles.explanationText}>{question.explanation}</Text>
         </View>
       )}
@@ -183,6 +202,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     flex: 1,
   },
+  optionTextBold: {
+    fontWeight: 'bold',
+  },
+  resultIcon: {
+    fontSize: 24,
+    color: '#0FB57E',
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  resultIconWrong: {
+    fontSize: 24,
+    color: '#DE2F24',
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
   explanation: {
     marginTop: 20,
     padding: 16,
@@ -190,6 +224,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: '#FFA726',
+  },
+  explanationSuccess: {
+    backgroundColor: 'rgba(15, 181, 126, 0.1)',
+    borderLeftColor: '#0FB57E',
   },
   explanationTitle: {
     fontSize: 14,

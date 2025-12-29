@@ -7,9 +7,11 @@ import { Button, Card, LevelCard } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import { Images } from '@/assets';
 import quizService from '@/services/quizService';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '@/types';
 import React, { useState } from 'react';
 import {
+    Alert,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -21,7 +23,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 
 export const HomeScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, locale } = useApp();
   const [refreshing, setRefreshing] = useState(false);
   const [userLevel, setUserLevel] = useState(7);
@@ -31,19 +33,23 @@ export const HomeScreen = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     // Carregar dados atualizados
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise<void>(resolve => setTimeout(resolve, 1000));
     setRefreshing(false);
   };
 
   const handleStartQuiz = async (phaseNumber: number) => {
     try {
+      console.log('🎮 Iniciando quiz - Fase:', phaseNumber, 'Locale:', locale);
       const session = await quizService.startQuiz(phaseNumber, locale);
+      console.log('✅ Sessão criada:', session);
+      
       navigation.navigate('QuizGame', {
         phaseNumber,
         sessionId: session.sessionId,
       });
     } catch (error) {
-      console.error('Erro ao iniciar quiz:', error);
+      console.error('❌ Erro ao iniciar quiz:', error);
+      Alert.alert('Erro', 'Não foi possível iniciar o quiz. Verifique sua conexão.');
     }
   };
 

@@ -31,6 +31,7 @@
     "@babel/core": "^7.20.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
+    "@react-native-community/cli": "^13.6.9",
     "@react-native/eslint-config": "^0.73.1",
     "@react-native/metro-config": "^0.73.3",
     "@react-native/typescript-config": "^0.73.1",

@@ -19,11 +19,12 @@
 		274790A6407A4C9F9253CF5F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		3AA76C7604A64D8A917B42ED /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		410C9F336AE7442E9E6FDD7D /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		51F8AAFF72815FCCEBBB5CA4 /* libPods-AstroQuizApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12CB5FC39F0B8A7CDEC201C4 /* libPods-AstroQuizApp.a */; };
 		7714E4C60BF64065BF727A17 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		78D17E7B6E10047E8ADEAC23 /* libPods-AstroQuizApp-AstroQuizAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 692501C19028EA21EB22FA8E /* libPods-AstroQuizApp-AstroQuizAppTests.a */; };
 		7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		7F6A9908212448BEA6DD097A /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		88511C09BD80981FAD203986 /* libPods-AstroQuizApp-AstroQuizAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F3B3380F9B95395CA6C0B7 /* libPods-AstroQuizApp-AstroQuizAppTests.a */; };
 		8BF57E5C075943818A02AF9F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		91598AB854DB4C52835774F1 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		986E8D8149E74112BA4CB6E5 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -31,7 +32,6 @@
 		A2F014F5A1FC4B10A3211057 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
-		E0E92B880FD81372AB39D122 /* libPods-AstroQuizApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E04BA905DA729DBF2D002035 /* libPods-AstroQuizApp.a */; };
 		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
@@ -49,19 +49,19 @@
 		00E356EE1AD99517003FC87E /* AstroQuizAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AstroQuizAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* AstroQuizAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AstroQuizAppTests.m; sourceTree = "<group>"; };
+		12CB5FC39F0B8A7CDEC201C4 /* libPods-AstroQuizApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AstroQuizApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* AstroQuizApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AstroQuizApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = AstroQuizApp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = AstroQuizApp/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AstroQuizApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AstroQuizApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AstroQuizApp/main.m; sourceTree = "<group>"; };
-		692501C19028EA21EB22FA8E /* libPods-AstroQuizApp-AstroQuizAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AstroQuizApp-AstroQuizAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		65F3B3380F9B95395CA6C0B7 /* libPods-AstroQuizApp-AstroQuizAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AstroQuizApp-AstroQuizAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		67E18E9664443B6825D5C28A /* Pods-AstroQuizApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AstroQuizApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		A896AF4853ED5858A9FA0811 /* Pods-AstroQuizApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.debug.xcconfig"; sourceTree = "<group>"; };
-		B4C0612635F2F2D5C6F14E2E /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; sourceTree = "<group>"; };
-		C1A2E40F344973A2DF062396 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; sourceTree = "<group>"; };
-		D19F2CBEE864A105AC3C904C /* Pods-AstroQuizApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.release.xcconfig"; sourceTree = "<group>"; };
-		E04BA905DA729DBF2D002035 /* libPods-AstroQuizApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AstroQuizApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8C32CA1EC9A2EB595ABE05F9 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A868F0D48B673EA442A83F39 /* Pods-AstroQuizApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.debug.xcconfig"; sourceTree = "<group>"; };
+		CA01D031474FBEDA54D5BFBD /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -70,7 +70,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				78D17E7B6E10047E8ADEAC23 /* libPods-AstroQuizApp-AstroQuizAppTests.a in Frameworks */,
+				88511C09BD80981FAD203986 /* libPods-AstroQuizApp-AstroQuizAppTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,7 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0E92B880FD81372AB39D122 /* libPods-AstroQuizApp.a in Frameworks */,
+				51F8AAFF72815FCCEBBB5CA4 /* libPods-AstroQuizApp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -119,8 +119,8 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				E04BA905DA729DBF2D002035 /* libPods-AstroQuizApp.a */,
-				692501C19028EA21EB22FA8E /* libPods-AstroQuizApp-AstroQuizAppTests.a */,
+				12CB5FC39F0B8A7CDEC201C4 /* libPods-AstroQuizApp.a */,
+				65F3B3380F9B95395CA6C0B7 /* libPods-AstroQuizApp-AstroQuizAppTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -168,10 +168,10 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				A896AF4853ED5858A9FA0811 /* Pods-AstroQuizApp.debug.xcconfig */,
-				D19F2CBEE864A105AC3C904C /* Pods-AstroQuizApp.release.xcconfig */,
-				C1A2E40F344973A2DF062396 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */,
-				B4C0612635F2F2D5C6F14E2E /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */,
+				A868F0D48B673EA442A83F39 /* Pods-AstroQuizApp.debug.xcconfig */,
+				67E18E9664443B6825D5C28A /* Pods-AstroQuizApp.release.xcconfig */,
+				8C32CA1EC9A2EB595ABE05F9 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */,
+				CA01D031474FBEDA54D5BFBD /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -183,12 +183,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "AstroQuizAppTests" */;
 			buildPhases = (
-				EFCC36D35B9DD7D994D89F5A /* [CP] Check Pods Manifest.lock */,
+				12693D4A10538B0C61B278C4 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				957034F650095FBA90665800 /* [CP] Embed Pods Frameworks */,
-				4CF79F5D5D3A725427B734FD /* [CP] Copy Pods Resources */,
+				E36865187879D1BECCC0FF30 /* [CP] Embed Pods Frameworks */,
+				616960C191761972E8F3EB68 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -204,13 +204,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "AstroQuizApp" */;
 			buildPhases = (
-				B966C9C4222222881377D1F3 /* [CP] Check Pods Manifest.lock */,
+				FB7E75106FA93B03A01E63C2 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				5AD8B6F2A5C7F6452A755BFF /* [CP] Embed Pods Frameworks */,
-				9242781F49DE36E5FFF02BC1 /* [CP] Copy Pods Resources */,
+				F43E6101DDB38844B46A7913 /* [CP] Embed Pods Frameworks */,
+				992CD32BFB920B15230E437E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -312,7 +312,29 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
-		4CF79F5D5D3A725427B734FD /* [CP] Copy Pods Resources */ = {
+		12693D4A10538B0C61B278C4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AstroQuizApp-AstroQuizAppTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		616960C191761972E8F3EB68 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -329,24 +351,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5AD8B6F2A5C7F6452A755BFF /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9242781F49DE36E5FFF02BC1 /* [CP] Copy Pods Resources */ = {
+		992CD32BFB920B15230E437E /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -363,7 +368,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		957034F650095FBA90665800 /* [CP] Embed Pods Frameworks */ = {
+		E36865187879D1BECCC0FF30 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -380,7 +385,24 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B966C9C4222222881377D1F3 /* [CP] Check Pods Manifest.lock */ = {
+		F43E6101DDB38844B46A7913 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FB7E75106FA93B03A01E63C2 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -396,28 +418,6 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-AstroQuizApp-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		EFCC36D35B9DD7D994D89F5A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-AstroQuizApp-AstroQuizAppTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -457,7 +457,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C1A2E40F344973A2DF062396 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */;
+			baseConfigurationReference = 8C32CA1EC9A2EB595ABE05F9 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -484,7 +484,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B4C0612635F2F2D5C6F14E2E /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */;
+			baseConfigurationReference = CA01D031474FBEDA54D5BFBD /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -508,7 +508,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A896AF4853ED5858A9FA0811 /* Pods-AstroQuizApp.debug.xcconfig */;
+			baseConfigurationReference = A868F0D48B673EA442A83F39 /* Pods-AstroQuizApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -535,7 +535,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D19F2CBEE864A105AC3C904C /* Pods-AstroQuizApp.release.xcconfig */;
+			baseConfigurationReference = 67E18E9664443B6825D5C28A /* Pods-AstroQuizApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

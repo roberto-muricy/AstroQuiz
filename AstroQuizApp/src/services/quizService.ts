@@ -20,15 +20,15 @@ class QuizService {
     phaseNumber: number,
     locale: string = 'pt',
     userId?: string,
-  ): Promise<QuizSession> {
-    const response = await api.post<ApiResponse<QuizSession>>('/quiz/start', {
+  ): Promise<any> {
+    const response = await api.post<any>('/quiz/start', {
       phaseNumber,
       locale,
       userId,
     });
 
     if (!response.success || !response.data) {
-      throw new Error(response.error || 'Erro ao iniciar quiz');
+      throw new Error(response.message || 'Erro ao iniciar quiz');
     }
 
     return response.data;
@@ -37,28 +37,28 @@ class QuizService {
   /**
    * Obter sessão atual
    */
-  async getSession(sessionId: string): Promise<QuizSession> {
-    const response = await api.get<ApiResponse<{ session: QuizSession }>>(
+  async getSession(sessionId: string): Promise<any> {
+    const response = await api.get<any>(
       `/quiz/session/${sessionId}`,
     );
 
     if (!response.success || !response.data) {
-      throw new Error(response.error || 'Sessão não encontrada');
+      throw new Error(response.message || 'Sessão não encontrada');
     }
 
-    return response.data.session;
+    return response.data;
   }
 
   /**
    * Obter pergunta atual
    */
-  async getCurrentQuestion(sessionId: string): Promise<CurrentQuestion> {
-    const response = await api.get<ApiResponse<CurrentQuestion>>(
+  async getCurrentQuestion(sessionId: string): Promise<any> {
+    const response = await api.get<any>(
       `/quiz/question/${sessionId}`,
     );
 
     if (!response.success || !response.data) {
-      throw new Error(response.error || 'Erro ao buscar pergunta');
+      throw new Error(response.message || 'Erro ao buscar pergunta');
     }
 
     return response.data;
@@ -71,18 +71,20 @@ class QuizService {
     sessionId: string,
     selectedOption: 'A' | 'B' | 'C' | 'D',
     timeUsed: number,
-  ): Promise<AnswerResult> {
-    const response = await api.post<ApiResponse<AnswerResult>>(
+    questionId?: number,
+  ): Promise<any> {
+    const response = await api.post<any>(
       '/quiz/answer',
       {
         sessionId,
         selectedOption,
         timeUsed,
+        questionId,
       },
     );
 
     if (!response.success || !response.data) {
-      throw new Error(response.error || 'Erro ao submeter resposta');
+      throw new Error(response.message || 'Erro ao submeter resposta');
     }
 
     return response.data;
@@ -125,13 +127,12 @@ class QuizService {
     sessionId: string,
     reason: 'completed' | 'abandoned' = 'completed',
   ): Promise<any> {
-    const response = await api.post<ApiResponse<any>>('/quiz/finish', {
-      sessionId,
+    const response = await api.post<any>(`/quiz/finish/${sessionId}`, {
       reason,
     });
 
     if (!response.success || !response.data) {
-      throw new Error(response.error || 'Erro ao finalizar quiz');
+      throw new Error(response.message || 'Erro ao finalizar quiz');
     }
 
     return response.data;
