@@ -72,6 +72,7 @@ class QuizService {
     selectedOption: 'A' | 'B' | 'C' | 'D',
     timeUsed: number,
     questionId?: number,
+    isTimeout?: boolean,
   ): Promise<any> {
     const response = await api.post<any>(
       '/quiz/answer',
@@ -80,6 +81,7 @@ class QuizService {
         selectedOption,
         timeUsed,
         questionId,
+        isTimeout: !!isTimeout,
       },
     );
 

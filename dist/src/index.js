@@ -2,6 +2,33 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 // In-memory session storage
 const quizSessions = new Map();
+// Minimal phase config fallback (avoid relying on api::quiz-engine.selector which isn't loaded without content-types)
+const getPhaseConfig = (phaseNumber) => {
+    if (phaseNumber >= 1 && phaseNumber <= 10) {
+        return { type: 'beginner', levels: [1, 2], distribution: { 1: 0.7, 2: 0.3 } };
+    }
+    if (phaseNumber >= 11 && phaseNumber <= 20) {
+        return { type: 'novice', levels: [1, 2, 3], distribution: { 1: 0.4, 2: 0.4, 3: 0.2 } };
+    }
+    if (phaseNumber >= 21 && phaseNumber <= 30) {
+        return { type: 'intermediate', levels: [2, 3, 4], distribution: { 2: 0.3, 3: 0.5, 4: 0.2 } };
+    }
+    if (phaseNumber >= 31 && phaseNumber <= 40) {
+        return { type: 'advanced', levels: [3, 4, 5], distribution: { 3: 0.2, 4: 0.5, 5: 0.3 } };
+    }
+    if (phaseNumber >= 41 && phaseNumber <= 50) {
+        return { type: 'elite', levels: [4, 5], distribution: { 4: 0.3, 5: 0.7 } };
+    }
+    return null;
+};
+const shuffle = (arr) => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+};
 exports.default = {
     /**
      * An asynchronous register function that runs before
@@ -61,14 +88,91 @@ exports.default = {
                 handler: async (ctx) => {
                     try {
                         const { phaseNumber = 1, locale = 'pt' } = ctx.request.body;
-                        // Get questions from database
-                        const questions = await strapi.entityService.findMany('api::question.question', {
-                            filters: { locale },
-                            limit: 10,
-                            publicationState: 'live',
-                        });
+                        // Validate locale (keep aligned with mobile support)
+                        const supportedLocales = ['en', 'pt', 'es', 'fr'];
+                        if (!supportedLocales.includes(locale)) {
+                            return ctx.badRequest(`Unsupported locale: ${locale}. Supported: ${supportedLocales.join(', ')}`);
+                        }
+                        // Select 10 questions for this phase (avoid repeats within the session)
+                        let questions = [];
+                        const selectorService = strapi.service('api::quiz-engine.selector');
+                        if (selectorService && typeof selectorService.selectPhaseQuestions === 'function') {
+                            const selected = await selectorService.selectPhaseQuestions({
+                                phaseNumber,
+                                locale,
+                                excludeQuestions: [],
+                                recentTopics: [],
+                                userPerformance: {},
+                            });
+                            questions = (selected || []).slice(0, 10);
+                        }
+                        else {
+                            // Fallback selection (since quiz-engine has no content-type, services may not be loaded)
+                            const phaseConfig = getPhaseConfig(Number(phaseNumber));
+                            if (!phaseConfig) {
+                                return ctx.badRequest('Invalid phase number. Must be between 1 and 50.');
+                            }
+                            const pool = await strapi.entityService.findMany('api::question.question', {
+                                filters: {
+                                    locale, // i18n locale filter (simple form works reliably here)
+                                    level: { $in: phaseConfig.levels },
+                                },
+                                limit: 1500,
+                                publicationState: 'live',
+                                sort: { id: 'asc' },
+                            });
+                            const byLevel = {};
+                            for (const lvl of phaseConfig.levels)
+                                byLevel[lvl] = [];
+                            for (const q of pool || []) {
+                                if (!byLevel[q.level])
+                                    byLevel[q.level] = [];
+                                byLevel[q.level].push(q);
+                            }
+                            // Compute counts by distribution (10 questions total)
+                            const totalNeeded = 10;
+                            const levels = Object.keys(phaseConfig.distribution).map((x) => Number(x));
+                            const counts = {};
+                            let sum = 0;
+                            for (const lvl of levels) {
+                                counts[lvl] = Math.round(totalNeeded * (phaseConfig.distribution[lvl] || 0));
+                                sum += counts[lvl];
+                            }
+                            if (sum !== totalNeeded) {
+                                const maxLvl = Math.max(...levels);
+                                counts[maxLvl] = (counts[maxLvl] || 0) + (totalNeeded - sum);
+                            }
+                            const picked = [];
+                            const usedIds = new Set();
+                            for (const lvl of levels) {
+                                const candidates = shuffle(byLevel[lvl] || []);
+                                for (const q of candidates) {
+                                    if (picked.length >= totalNeeded)
+                                        break;
+                                    if (usedIds.has(q.id))
+                                        continue;
+                                    if ((picked.filter((x) => x.level === lvl).length) >= (counts[lvl] || 0))
+                                        continue;
+                                    usedIds.add(q.id);
+                                    picked.push(q);
+                                }
+                            }
+                            // Fill remaining slots from any allowed level
+                            if (picked.length < totalNeeded) {
+                                const remaining = shuffle(pool || []);
+                                for (const q of remaining) {
+                                    if (picked.length >= totalNeeded)
+                                        break;
+                                    if (usedIds.has(q.id))
+                                        continue;
+                                    usedIds.add(q.id);
+                                    picked.push(q);
+                                }
+                            }
+                            questions = picked.slice(0, totalNeeded);
+                        }
                         if (!questions || questions.length === 0) {
-                            return ctx.badRequest('No questions available for this locale');
+                            return ctx.badRequest(`No questions available for phase ${phaseNumber} in locale ${locale}`);
                         }
                         // Create simple session ID
                         const sessionId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -77,8 +181,9 @@ exports.default = {
                             sessionId,
                             phaseNumber,
                             locale,
-                            totalQuestions: 10,
+                            totalQuestions: questions.length,
                             currentQuestionIndex: 0,
+                            questions, // preselected questions to avoid repeats
                             answers: [],
                             score: 0,
                             streakCount: 0,
@@ -96,7 +201,7 @@ exports.default = {
                             data: {
                                 sessionId,
                                 phaseNumber,
-                                totalQuestions: 10,
+                                totalQuestions: questions.length,
                                 timePerQuestion: 30000,
                                 locale,
                                 startedAt: new Date().toISOString()
@@ -141,25 +246,26 @@ exports.default = {
                 method: 'GET',
                 path: '/api/quiz/question/:sessionId',
                 handler: async (ctx) => {
+                    var _a;
                     try {
                         const { sessionId } = ctx.params;
-                        // Get a random question from database
-                        const questions = await strapi.entityService.findMany('api::question.question', {
-                            filters: { locale: 'pt' },
-                            limit: 1,
-                            start: Math.floor(Math.random() * 100), // Random offset
-                            publicationState: 'live',
-                        });
-                        if (!questions || questions.length === 0) {
-                            return ctx.notFound('No questions available');
+                        const session = quizSessions.get(sessionId);
+                        if (!session) {
+                            return ctx.notFound('Session not found or expired');
                         }
-                        const question = questions[0];
+                        if (session.status !== 'active') {
+                            return ctx.badRequest(`Session is not active. Status: ${session.status}`);
+                        }
+                        const question = (_a = session.questions) === null || _a === void 0 ? void 0 : _a[session.currentQuestionIndex];
+                        if (!question) {
+                            return ctx.notFound('No more questions available');
+                        }
                         ctx.body = {
                             success: true,
                             data: {
                                 sessionId,
-                                questionIndex: 0,
-                                totalQuestions: 10,
+                                questionIndex: session.currentQuestionIndex,
+                                totalQuestions: session.totalQuestions,
                                 question: {
                                     id: question.id,
                                     documentId: question.documentId,
@@ -168,15 +274,14 @@ exports.default = {
                                     optionB: question.optionB,
                                     optionC: question.optionC,
                                     optionD: question.optionD,
-                                    correctOption: question.correctOption,
                                     explanation: question.explanation,
                                     level: question.level,
                                     topic: question.topic,
                                 },
                                 timeRemaining: 30000,
                                 timePerQuestion: 30000,
-                                currentScore: 0,
-                                currentStreak: 0
+                                currentScore: session.score || 0,
+                                currentStreak: session.streakCount || 0
                             }
                         };
                     }
@@ -192,15 +297,18 @@ exports.default = {
                 path: '/api/quiz/answer',
                 handler: async (ctx) => {
                     try {
-                        const { sessionId, selectedOption, timeUsed = 15000, questionId } = ctx.request.body;
-                        if (!sessionId || !selectedOption) {
-                            return ctx.badRequest('sessionId and selectedOption are required');
+                        const { sessionId, selectedOption, timeUsed = 15000, questionId, isTimeout = false } = ctx.request.body;
+                        if (!sessionId) {
+                            return ctx.badRequest('sessionId is required');
+                        }
+                        if (!isTimeout && !selectedOption) {
+                            return ctx.badRequest('selectedOption is required');
                         }
                         // Get the question to check correct answer
                         let isCorrect = false;
                         let correctOption = 'A'; // Default fallback
                         let questionData = null;
-                        strapi.log.info(`📝 Checking answer - QuestionID: ${questionId}, Selected: ${selectedOption}`);
+                        strapi.log.info(`📝 Checking answer - QuestionID: ${questionId}, Selected: ${selectedOption}, Timeout: ${isTimeout}`);
                         if (questionId) {
                             try {
                                 // Buscar a pergunta no banco para verificar resposta
@@ -210,7 +318,7 @@ exports.default = {
                                 });
                                 if (questionData) {
                                     correctOption = questionData.correctOption;
-                                    isCorrect = selectedOption === questionData.correctOption;
+                                    isCorrect = !isTimeout && selectedOption === questionData.correctOption;
                                     strapi.log.info(`✅ Question found - Correct: ${correctOption}, Selected: ${selectedOption}, IsCorrect: ${isCorrect}`);
                                 }
                                 else {
@@ -310,6 +418,7 @@ exports.default = {
                             selectedOption,
                             correctOption,
                             isCorrect,
+                            isTimeout,
                             timeUsed,
                             points: totalPoints
                         });
@@ -334,7 +443,7 @@ exports.default = {
                                     selectedOption,
                                     correctOption,
                                     isCorrect,
-                                    isTimeout: false,
+                                    isTimeout,
                                     timeUsed,
                                     points: totalPoints,
                                     level: questionLevel

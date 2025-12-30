@@ -30,8 +30,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     text: string,
   ) => {
     const isSelected = selectedOption === option;
-    const isCorrect = showResult && correctOption === option;
-    const isWrong = showResult && isSelected && selectedOption !== correctOption;
+    const hasCorrect = typeof correctOption !== 'undefined';
+    const isCorrect = showResult && hasCorrect && correctOption === option;
+    const isWrong = showResult && hasCorrect && isSelected && selectedOption !== correctOption;
 
     // Determinar o ícone a mostrar
     let icon = null;
@@ -101,7 +102,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       </View>
 
       {/* Sempre mostrar explicação quando há resultado */}
-      {showResult && question.explanation && (
+      {showResult && typeof correctOption !== 'undefined' && question.explanation && (
         <View style={[
           styles.explanation,
           selectedOption === correctOption && styles.explanationSuccess

@@ -10,7 +10,6 @@ import {
   StyleSheet,
   ActivityIndicator,
   ViewStyle,
-  TextStyle,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -35,6 +34,11 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   style,
 }) => {
+  const baseContainerStyle = [styles.button, styles[`button_${size}`], style];
+  const flattened = StyleSheet.flatten(baseContainerStyle) as ViewStyle | undefined;
+  const borderRadius =
+    typeof flattened?.borderRadius === 'number' ? flattened.borderRadius : styles.button.borderRadius;
+
   const renderContent = () => (
     <>
       {loading ? (
@@ -53,14 +57,15 @@ export const Button: React.FC<ButtonProps> = ({
       <TouchableOpacity
         onPress={onPress}
         disabled={disabled || loading}
-        style={[styles.button, styles[`button_${size}`], style]}
+        style={baseContainerStyle}
         activeOpacity={0.8}
       >
         <LinearGradient
           colors={['#FFA726', '#FFB74D']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={styles.gradient}
+          // iOS: garantir cantos arredondados mesmo com LinearGradient
+          style={[styles.gradient, { borderRadius }]}
         >
           {renderContent()}
         </LinearGradient>

@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
   Animated,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
@@ -27,6 +28,7 @@ export const QuizResultScreen = () => {
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [phaseUnlocked, setPhaseUnlocked] = useState(false);
+  const [startingNextPhase, setStartingNextPhase] = useState(false);
   const scaleAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -77,28 +79,50 @@ export const QuizResultScreen = () => {
 
   const handlePlayAgain = async () => {
     try {
+      if (startingNextPhase) return;
+      setStartingNextPhase(true);
       if (sessionData?.phaseNumber) {
         const newSession = await quizService.startQuiz(sessionData.phaseNumber, 'pt');
-        navigation.replace('QuizGame', {
-          phaseNumber: sessionData.phaseNumber,
-          sessionId: newSession.sessionId,
+        navigation.reset({
+          index: 1,
+          routes: [
+            { name: 'Main' },
+            {
+              name: 'QuizGame',
+              params: { phaseNumber: sessionData.phaseNumber, sessionId: newSession.sessionId },
+            },
+          ],
         });
       }
     } catch (error) {
       console.error('Erro ao iniciar novo quiz:', error);
+      Alert.alert('Erro', 'Não foi possível iniciar o quiz.');
+    } finally {
+      setStartingNextPhase(false);
     }
   };
 
   const handleNextPhase = async () => {
     try {
+      if (startingNextPhase) return;
+      setStartingNextPhase(true);
       const nextPhase = (sessionData?.phaseNumber || 1) + 1;
       const newSession = await quizService.startQuiz(nextPhase, 'pt');
-      navigation.replace('QuizGame', {
-        phaseNumber: nextPhase,
-        sessionId: newSession.sessionId,
+      navigation.reset({
+        index: 1,
+        routes: [
+          { name: 'Main' },
+          {
+            name: 'QuizGame',
+            params: { phaseNumber: nextPhase, sessionId: newSession.sessionId },
+          },
+        ],
       });
     } catch (error) {
       console.error('Erro ao iniciar próxima fase:', error);
+      Alert.alert('Erro', 'Não foi possível iniciar a próxima fase.');
+    } finally {
+      setStartingNextPhase(false);
     }
   };
 
@@ -264,6 +288,7 @@ export const QuizResultScreen = () => {
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={handleNextPhase}
+              disabled={startingNextPhase}
             >
               <LinearGradient
                 colors={['#FFA726', '#FF8A00']}
@@ -291,6 +316,7 @@ export const QuizResultScreen = () => {
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={handlePlayAgain}
+            disabled={startingNextPhase}
           >
             <Text style={styles.secondaryButtonText}>🔄 Jogar Novamente</Text>
           </TouchableOpacity>

@@ -26,6 +26,7 @@ export const QuizListScreen = () => {
   const { locale } = useApp();
   const [loading, setLoading] = useState(false);
   const [unlockedPhases, setUnlockedPhases] = useState(1); // Começar com fase 1 desbloqueada
+  const SHOW_DEBUG_UI = false;
 
   // Carregar progresso ao entrar na tela
   useFocusEffect(
@@ -125,7 +126,7 @@ export const QuizListScreen = () => {
         <Text style={styles.subtitle}>Escolha uma fase para começar</Text>
         
         {/* Botão DEBUG - Remover depois */}
-        {__DEV__ && (
+        {__DEV__ && SHOW_DEBUG_UI && (
           <TouchableOpacity
             style={styles.debugButton}
             onPress={async () => {

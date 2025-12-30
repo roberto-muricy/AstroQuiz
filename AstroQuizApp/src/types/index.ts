@@ -28,7 +28,9 @@ export interface Question {
   optionB: string;
   optionC: string;
   optionD: string;
-  correctOption: 'A' | 'B' | 'C' | 'D';
+  // OBS: a API NÃO deve enviar o gabarito junto com a pergunta (anti-cheat).
+  // O gabarito vem no resultado do endpoint POST /quiz/answer.
+  correctOption?: 'A' | 'B' | 'C' | 'D';
   explanation?: string;
   level: 1 | 2 | 3 | 4 | 5;
   topic: string;

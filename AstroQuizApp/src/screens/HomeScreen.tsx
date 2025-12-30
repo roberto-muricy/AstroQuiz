@@ -411,6 +411,7 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     width: '100%',
+    borderRadius: 20, // alinhar com o raio dos Cards (identidade mais arredondada)
   },
   weeklyRanking: {
     flexDirection: 'row',
