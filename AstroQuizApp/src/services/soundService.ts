@@ -7,9 +7,6 @@ import Sound from 'react-native-sound';
 import { Vibration } from 'react-native';
 import { SettingsStorage, type AppSettings } from '@/utils/settingsStorage';
 
-// Enable playback in silence mode (iOS)
-Sound.setCategory('Playback');
-
 type SoundKey = 'tap' | 'correct' | 'incorrect' | 'warning' | 'streak' | 'phase';
 
 const SOUND_FILES: Record<SoundKey, string> = {
@@ -35,6 +32,12 @@ class SoundService {
   private isInitialized = false;
 
   constructor() {
+    // Enable playback in silence mode (iOS)
+    try {
+      Sound.setCategory('Playback');
+    } catch (error) {
+      console.warn('[sound] Failed to set category:', error);
+    }
     this.initializeSounds();
   }
 
