@@ -1063,10 +1063,6 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-  - RNSound (0.13.0):
-    - glog
-    - RCT-Folly (= 2022.05.16.00)
-    - React-Core
   - RNSVG (14.2.0):
     - React-Core
   - SocketRocket (0.6.1)
@@ -1127,7 +1123,6 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNScreens (from `../node_modules/react-native-screens`)
-  - RNSound (from `../node_modules/react-native-sound`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1241,8 +1236,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNScreens:
     :path: "../node_modules/react-native-screens"
-  RNSound:
-    :path: "../node_modules/react-native-sound"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   Yoga:
@@ -1302,7 +1295,6 @@ SPEC CHECKSUMS:
   ReactCommon: 35e3b6a1c75d462acb0155e38e627b98d5bf586b
   RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
   RNScreens: 8d1521c6e375a79dbd4525efaf21704cc64ac0cf
-  RNSound: 97dffe6c3e4231f81fe54be2f2f681806ee97f6a
   RNSVG: 043f603fc70d48d289bc3f2ceedbb05ce2636f5c
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 13c8ef87792450193e117976337b8527b49e8c03
