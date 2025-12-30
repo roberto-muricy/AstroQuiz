@@ -52,10 +52,10 @@ export const QuizScreen = () => {
   }, [isFocused]);
 
   useEffect(() => {
-    // Música de fundo opcional (temporarily disabled)
-    // soundService.playBackgroundMusic(0.22);
+    // Música de fundo opcional
+    soundService.playBackgroundMusic(0.22);
     return () => {
-      // soundService.stopBackgroundMusic();
+      soundService.stopBackgroundMusic();
     };
   }, []);
 
