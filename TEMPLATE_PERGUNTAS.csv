@@ -1,0 +1,4 @@
+baseId,topic,question,level,optionA,optionB,optionC,optionD,correctOption,explanation
+q0001,Sistema Solar,Qual é o maior planeta do Sistema Solar?,1,Marte,Júpiter,Saturno,Terra,B,Júpiter é o maior planeta do Sistema Solar com um diâmetro de aproximadamente 142.984 km.
+q0002,Estrelas,O que é uma supernova?,2,Uma estrela nascendo,Uma explosão estelar,Um planeta rochoso,Uma galáxia distante,B,Uma supernova é a explosão violenta de uma estrela no final de sua vida.
+q0003,Universo,Qual é o elemento mais abundante no universo?,1,Oxigênio,Carbono,Hidrogênio,Ferro,C,O hidrogênio é o elemento mais abundante no universo representando cerca de 75% da matéria comum.
