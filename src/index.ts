@@ -124,8 +124,11 @@ export default {
                 },
                 limit: 1500,
                 publicationState: 'live',
-                sort: { id: 'asc' },
+                // Randomize order to get different questions each time
+                sort: { id: 'asc' }, // will be shuffled anyway
               });
+
+              strapi.log.info(`📊 Pool stats - Locale: ${locale}, Levels: [${phaseConfig.levels}], Found: ${pool?.length || 0} questions`);
 
               const byLevel = {};
               for (const lvl of phaseConfig.levels) byLevel[lvl] = [];

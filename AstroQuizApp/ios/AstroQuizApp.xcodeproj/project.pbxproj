@@ -8,31 +8,31 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* AstroQuizAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* AstroQuizAppTests.m */; };
-		096E3FAB64354E688666A8EE /* (null) in Resources */ = {isa = PBXBuildFile; };
-		0E29C3A379754D258D6BD72F /* (null) in Resources */ = {isa = PBXBuildFile; };
+		096E3FAB64354E688666A8EE /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		0E29C3A379754D258D6BD72F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		18815DC432504F3096D5C8BB /* (null) in Resources */ = {isa = PBXBuildFile; };
-		1DBF4DDE078240DB83B2D34C /* (null) in Resources */ = {isa = PBXBuildFile; };
-		1F59794CE6354B25AB261589 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		274790A6407A4C9F9253CF5F /* (null) in Resources */ = {isa = PBXBuildFile; };
-		3AA76C7604A64D8A917B42ED /* (null) in Resources */ = {isa = PBXBuildFile; };
-		410C9F336AE7442E9E6FDD7D /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18815DC432504F3096D5C8BB /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		1DBF4DDE078240DB83B2D34C /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		1F59794CE6354B25AB261589 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		274790A6407A4C9F9253CF5F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		3AA76C7604A64D8A917B42ED /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		410C9F336AE7442E9E6FDD7D /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		51F8AAFF72815FCCEBBB5CA4 /* libPods-AstroQuizApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12CB5FC39F0B8A7CDEC201C4 /* libPods-AstroQuizApp.a */; };
-		7714E4C60BF64065BF727A17 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		7A06B303A7CE45F59561C0C0 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		7F6A9908212448BEA6DD097A /* (null) in Resources */ = {isa = PBXBuildFile; };
+		7714E4C60BF64065BF727A17 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		7F6A9908212448BEA6DD097A /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		88511C09BD80981FAD203986 /* libPods-AstroQuizApp-AstroQuizAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 65F3B3380F9B95395CA6C0B7 /* libPods-AstroQuizApp-AstroQuizAppTests.a */; };
-		8BF57E5C075943818A02AF9F /* (null) in Resources */ = {isa = PBXBuildFile; };
-		91598AB854DB4C52835774F1 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		986E8D8149E74112BA4CB6E5 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		9D3A87E970974EA0A9C585BD /* (null) in Resources */ = {isa = PBXBuildFile; };
-		A2F014F5A1FC4B10A3211057 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		A62F3A557DE24A6EA9F05422 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		AF5DA3F9EAE94898B8751B32 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		FCAF4D6EA77A43ECB3F1EF9E /* (null) in Resources */ = {isa = PBXBuildFile; };
+		8BF57E5C075943818A02AF9F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		91598AB854DB4C52835774F1 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		986E8D8149E74112BA4CB6E5 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		9D3A87E970974EA0A9C585BD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		A2F014F5A1FC4B10A3211057 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -270,25 +270,25 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				9D3A87E970974EA0A9C585BD /* (null) in Resources */,
-				096E3FAB64354E688666A8EE /* (null) in Resources */,
-				410C9F336AE7442E9E6FDD7D /* (null) in Resources */,
-				91598AB854DB4C52835774F1 /* (null) in Resources */,
-				1DBF4DDE078240DB83B2D34C /* (null) in Resources */,
-				1F59794CE6354B25AB261589 /* (null) in Resources */,
-				A2F014F5A1FC4B10A3211057 /* (null) in Resources */,
-				8BF57E5C075943818A02AF9F /* (null) in Resources */,
-				AF5DA3F9EAE94898B8751B32 /* (null) in Resources */,
-				FCAF4D6EA77A43ECB3F1EF9E /* (null) in Resources */,
-				A62F3A557DE24A6EA9F05422 /* (null) in Resources */,
-				18815DC432504F3096D5C8BB /* (null) in Resources */,
-				7714E4C60BF64065BF727A17 /* (null) in Resources */,
-				3AA76C7604A64D8A917B42ED /* (null) in Resources */,
-				986E8D8149E74112BA4CB6E5 /* (null) in Resources */,
-				7F6A9908212448BEA6DD097A /* (null) in Resources */,
-				274790A6407A4C9F9253CF5F /* (null) in Resources */,
-				0E29C3A379754D258D6BD72F /* (null) in Resources */,
-				7A06B303A7CE45F59561C0C0 /* (null) in Resources */,
+				9D3A87E970974EA0A9C585BD /* BuildFile in Resources */,
+				096E3FAB64354E688666A8EE /* BuildFile in Resources */,
+				410C9F336AE7442E9E6FDD7D /* BuildFile in Resources */,
+				91598AB854DB4C52835774F1 /* BuildFile in Resources */,
+				1DBF4DDE078240DB83B2D34C /* BuildFile in Resources */,
+				1F59794CE6354B25AB261589 /* BuildFile in Resources */,
+				A2F014F5A1FC4B10A3211057 /* BuildFile in Resources */,
+				8BF57E5C075943818A02AF9F /* BuildFile in Resources */,
+				AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */,
+				FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */,
+				A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */,
+				18815DC432504F3096D5C8BB /* BuildFile in Resources */,
+				7714E4C60BF64065BF727A17 /* BuildFile in Resources */,
+				3AA76C7604A64D8A917B42ED /* BuildFile in Resources */,
+				986E8D8149E74112BA4CB6E5 /* BuildFile in Resources */,
+				7F6A9908212448BEA6DD097A /* BuildFile in Resources */,
+				274790A6407A4C9F9253CF5F /* BuildFile in Resources */,
+				0E29C3A379754D258D6BD72F /* BuildFile in Resources */,
+				7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -341,13 +341,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -362,13 +358,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -383,13 +375,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -404,13 +392,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

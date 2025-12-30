@@ -52,6 +52,14 @@ export const QuizScreen = () => {
   }, [isFocused]);
 
   useEffect(() => {
+    // Música de fundo opcional (temporarily disabled)
+    // soundService.playBackgroundMusic(0.22);
+    return () => {
+      // soundService.stopBackgroundMusic();
+    };
+  }, []);
+
+  useEffect(() => {
     isScreenActiveRef.current = true;
     // Resetar pontuação ao iniciar nova sessão
     setCurrentScore(0);
@@ -214,9 +222,6 @@ export const QuizScreen = () => {
       setCurrentScore(result.sessionStatus.score);
       setCurrentStreak(result.sessionStatus.streakCount);
 
-      const newQuestionsAnswered = questionsAnswered + 1;
-      setQuestionsAnswered(newQuestionsAnswered);
-
       soundService.playIncorrect();
 
       if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
@@ -225,6 +230,10 @@ export const QuizScreen = () => {
         setShowResult(false);
         setAnswerResult(null);
         setSelectedOption(null);
+
+        // Incrementar contador de perguntas APÓS mostrar resultado
+        const newQuestionsAnswered = questionsAnswered + 1;
+        setQuestionsAnswered(newQuestionsAnswered);
 
         if (newQuestionsAnswered >= 10 || result.sessionStatus.isPhaseComplete) {
           navigation.navigate('QuizResult', { sessionId });
@@ -273,10 +282,6 @@ export const QuizScreen = () => {
       // Atualizar pontuação e streak localmente
       setCurrentScore(result.sessionStatus.score);
       setCurrentStreak(result.sessionStatus.streakCount);
-      
-      // Incrementar contador de perguntas respondidas
-      const newQuestionsAnswered = questionsAnswered + 1;
-      setQuestionsAnswered(newQuestionsAnswered);
 
       // Som e feedback baseado no resultado
       if (result.answerRecord.isCorrect) {
@@ -290,13 +295,17 @@ export const QuizScreen = () => {
         soundService.playIncorrect();
       }
       
-      // Mostrar resultado por 3 segundos
+      // Mostrar resultado por 4 segundos
       if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
       resultDelayTimerRef.current = setTimeout(async () => {
         if (!isScreenActiveRef.current || !isFocusedRef.current) return;
         setShowResult(false);
         setAnswerResult(null);
         setSelectedOption(null);
+        
+        // Incrementar contador de perguntas APÓS mostrar resultado
+        const newQuestionsAnswered = questionsAnswered + 1;
+        setQuestionsAnswered(newQuestionsAnswered);
         
         // Verificar se completou todas as 10 perguntas
         if (newQuestionsAnswered >= 10 || result.sessionStatus.isPhaseComplete) {
@@ -455,8 +464,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 50,
-    left: 20,
+    top: 55,
+    right: 20,
     zIndex: 10,
     width: 40,
     height: 40,
