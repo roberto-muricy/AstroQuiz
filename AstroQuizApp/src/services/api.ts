@@ -12,7 +12,7 @@ import { Platform } from 'react-native';
 const PROD_API_BASE_URL = 'https://sua-api-producao.com/api';
 
 // DEV defaults
-const DEV_LAN_API_BASE_URL = 'http://192.168.68.110:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
+const DEV_LAN_API_BASE_URL = 'http://192.168.68.109:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
 const DEV_IOS_SIM_API_BASE_URL = 'http://localhost:1337/api'; // iOS Simulator
 const DEV_ANDROID_EMULATOR_API_BASE_URL = 'http://10.0.2.2:1337/api'; // Android Emulator
 

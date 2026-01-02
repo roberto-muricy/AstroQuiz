@@ -1,6 +1,7 @@
 /**
  * QuizListScreen
  * Tela para selecionar fase/nível do quiz
+ * Updated: stars display
  */
 
 import { useApp } from '@/contexts/AppContext';
@@ -9,6 +10,7 @@ import soundService from '@/services/soundService';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
+import { calculateStarRating, getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
 import React, { useState, useCallback } from 'react';
 import {
   Alert,
@@ -26,6 +28,7 @@ export const QuizListScreen = () => {
   const { locale } = useApp();
   const [loading, setLoading] = useState(false);
   const [unlockedPhases, setUnlockedPhases] = useState(1); // Começar com fase 1 desbloqueada
+  const [phaseStats, setPhaseStats] = useState<Record<number, any>>({});
   const SHOW_DEBUG_UI = false;
 
   // Carregar progresso ao entrar na tela
@@ -38,6 +41,7 @@ export const QuizListScreen = () => {
   const loadProgress = async () => {
     const progress = await ProgressStorage.getProgress();
     setUnlockedPhases(progress.unlockedPhases);
+    setPhaseStats(progress.stats?.phaseStats || {});
   };
 
   const handleStartQuiz = async (phaseNumber: number) => {
@@ -71,9 +75,33 @@ export const QuizListScreen = () => {
     }
   };
 
-  const renderPhaseCard = (phaseNumber: number, title: string, description: string) => {
-    const isLocked = phaseNumber > unlockedPhases;
-    const isCompleted = phaseNumber < unlockedPhases;
+  const getPhaseTitle = (phase: number): string => {
+    if (phase <= 10) return `Fase ${phase} - Iniciante`;
+    if (phase <= 20) return `Fase ${phase} - Novato`;
+    if (phase <= 30) return `Fase ${phase} - Intermediário`;
+    if (phase <= 40) return `Fase ${phase} - Avançado`;
+    return `Fase ${phase} - Elite`;
+  };
+
+  const getPhaseDescription = (phase: number): string => {
+    const dist = getDifficultyDistribution(phase);
+    const levels = [...new Set(dist.map(d => d.level))].sort();
+    if (levels.length === 1) return `Nível ${levels[0]} de dificuldade`;
+    return `Níveis ${levels[0]}-${levels[levels.length - 1]} de dificuldade`;
+  };
+
+  const renderPhaseCard = (phaseNumber: number, title?: string, description?: string) => {
+    const finalTitle = title || getPhaseTitle(phaseNumber);
+    const finalDescription = description || getPhaseDescription(phaseNumber);
+    const stats = phaseStats[phaseNumber];
+    const stars = stats ? stats.stars : 0;
+    const accuracy = stats ? stats.accuracy : 0;
+    const isCompleted = !!(stats && stats.completed);
+
+    // Requisito da fase anterior
+    const prevStats = phaseStats[phaseNumber - 1] || { accuracy: 0, correctAnswers: 0 };
+    const lockedByRequirement = !isPhaseUnlocked(phaseNumber, prevStats);
+    const isLocked = lockedByRequirement || phaseNumber > unlockedPhases;
 
     return (
       <TouchableOpacity
@@ -97,16 +125,25 @@ export const QuizListScreen = () => {
           <View style={styles.phaseContent}>
             <View style={styles.phaseTitleRow}>
               <Text style={[styles.phaseTitle, isLocked && styles.lockedText]}>
-                {title}
+                {finalTitle}
               </Text>
               {isCompleted && <Text style={styles.completedBadge}>✓</Text>}
             </View>
             <Text style={[styles.phaseDescription, isLocked && styles.lockedText]}>
-              {isLocked ? 'Complete a fase anterior' : description}
+              {isLocked
+                ? `Requer ${getUnlockRequirement(phaseNumber).requiredAccuracy}% de acurácia na fase anterior`
+                : finalDescription}
             </Text>
             <Text style={[styles.phaseInfo, isLocked && styles.lockedText]}>
-              10 perguntas • 30s cada
+              10 perguntas • 30s cada {isCompleted ? `• ${accuracy}%` : ''}
             </Text>
+            <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
+              {[1, 2, 3].map(s => (
+                <Text key={s} style={{ fontSize: 20, color: s <= stars ? '#FFD700' : 'rgba(255,255,255,0.25)' }}>
+                  {s <= stars ? '⭐' : '☆'}
+                </Text>
+              ))}
+            </View>
           </View>
           <Text style={[styles.playButton, isLocked && styles.lockedText]}>
             {isLocked ? '' : '▶'}
@@ -130,11 +167,13 @@ export const QuizListScreen = () => {
           <TouchableOpacity
             style={styles.debugButton}
             onPress={async () => {
-              await ProgressStorage.unlockNextPhase(unlockedPhases);
+              // Force unlock next phase for testing
+              const progress = await ProgressStorage.getProgress();
+              await ProgressStorage.saveProgress({ ...progress, unlockedPhases: progress.unlockedPhases + 1 });
               loadProgress();
             }}
           >
-            <Text style={styles.debugText}>DEBUG: Completar Fase {unlockedPhases}</Text>
+            <Text style={styles.debugText}>DEBUG: Desbloquear Fase {unlockedPhases + 1}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -147,17 +186,42 @@ export const QuizListScreen = () => {
         scrollEventThrottle={16}
         nestedScrollEnabled={true}
       >
-        {renderPhaseCard(1, 'Fase 1 - Iniciante', 'Perguntas básicas de astronomia')}
-        {renderPhaseCard(2, 'Fase 2 - Aprendiz', 'Conceitos fundamentais')}
-        {renderPhaseCard(3, 'Fase 3 - Intermediário', 'Desafios moderados')}
-        {renderPhaseCard(4, 'Fase 4 - Avançado', 'Teste seus conhecimentos')}
-        {renderPhaseCard(5, 'Fase 5 - Expert', 'Apenas para os melhores')}
-        
-        <View style={styles.comingSoon}>
-          <Text style={styles.comingSoonText}>
-            Mais fases em breve... 🌟
-          </Text>
+        {/* Iniciante (Fases 1-10) */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🌟 Iniciante</Text>
+          <Text style={styles.sectionSubtitle}>Fases 1-10 • Níveis 1-2</Text>
         </View>
+        {Array.from({ length: 10 }, (_, i) => i + 1).map(phase => renderPhaseCard(phase))}
+
+        {/* Novato (Fases 11-20) */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🔭 Novato</Text>
+          <Text style={styles.sectionSubtitle}>Fases 11-20 • Níveis 1-3</Text>
+        </View>
+        {Array.from({ length: 10 }, (_, i) => i + 11).map(phase => renderPhaseCard(phase))}
+
+        {/* Intermediário (Fases 21-30) */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>🚀 Intermediário</Text>
+          <Text style={styles.sectionSubtitle}>Fases 21-30 • Níveis 2-4</Text>
+        </View>
+        {Array.from({ length: 10 }, (_, i) => i + 21).map(phase => renderPhaseCard(phase))}
+
+        {/* Avançado (Fases 31-40) */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>⭐ Avançado</Text>
+          <Text style={styles.sectionSubtitle}>Fases 31-40 • Níveis 3-5</Text>
+        </View>
+        {Array.from({ length: 10 }, (_, i) => i + 31).map(phase => renderPhaseCard(phase))}
+
+        {/* Elite (Fases 41-50) */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>👑 Elite</Text>
+          <Text style={styles.sectionSubtitle}>Fases 41-50 • Níveis 4-5</Text>
+        </View>
+        {Array.from({ length: 10 }, (_, i) => i + 41).map(phase => renderPhaseCard(phase))}
+
+        <View style={styles.bottomSpace} />
       </ScrollView>
 
       {loading && (
@@ -262,18 +326,43 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.5)',
   },
+  starRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 8,
+    marginBottom: 4,
+    justifyContent: 'flex-start',
+  },
+  star: {
+    fontSize: 18,
+    color: '#FFD700', // amarelo vivo
+  },
+  starOff: {
+    color: '#4D4D5D', // cinza mais visível no fundo
+  },
   playButton: {
     fontSize: 28,
     color: '#FFA726',
   },
-  comingSoon: {
-    padding: 20,
-    alignItems: 'center',
+  sectionHeader: {
+    marginTop: 24,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
-  comingSoonText: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontStyle: 'italic',
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontFamily: 'Poppins-Regular',
+  },
+  bottomSpace: {
+    height: 40,
   },
   loadingOverlay: {
     position: 'absolute',

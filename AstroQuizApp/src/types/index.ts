@@ -128,6 +128,30 @@ export interface GameRules {
 }
 
 // ===== STATS TYPES =====
+export interface PhaseProgress {
+  phase: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  accuracy: number;
+  stars: number;
+  completed: boolean;
+  bestTime: number;
+  score?: number;
+}
+
+export interface GameStats {
+  totalXP: number;
+  phasesCompleted: number;
+  perfectPhases: number;
+  totalQuestionsAnswered: number;
+  totalCorrectAnswers: number;
+  maxStreak: number;
+  currentStreak: number;
+  fastAnswers: number;
+  phaseStats: Record<number, PhaseProgress>;
+  achievements: string[];
+}
+
 export interface UserStats {
   totalPhases: number;
   phasesCompleted: number;

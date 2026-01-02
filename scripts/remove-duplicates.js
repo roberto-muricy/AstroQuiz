@@ -1,77 +1,56 @@
-const axios = require('axios');
+#!/usr/bin/env node
 
-const API_URL = 'http://localhost:1337';
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
-async function findDuplicates() {
-  try {
-    console.log('🔍 Buscando todas as perguntas em português...');
-    
-    // Get all Portuguese questions
-    const response = await axios.get(`${API_URL}/api/questions?locale=pt&pagination[limit]=1000`);
-    const questions = response.data.data;
-    
-    console.log(`📊 Total de perguntas encontradas: ${questions.length}`);
-    
-    // Group by question text
-    const groups = {};
-    for (const q of questions) {
-      const text = q.attributes.questionText.trim().toLowerCase();
-      if (!groups[text]) groups[text] = [];
-      groups[text].push(q);
-    }
-    
-    // Find duplicates
-    const duplicates = [];
-    for (const [text, items] of Object.entries(groups)) {
-      if (items.length > 1) {
-        duplicates.push({ text, count: items.length, ids: items.map(i => i.id) });
-      }
-    }
-    
-    console.log(`\n🔴 Encontradas ${duplicates.length} perguntas duplicadas:\n`);
-    
-    for (const dup of duplicates) {
-      console.log(`"${dup.text.substring(0, 60)}..." (${dup.count} cópias)`);
-      console.log(`   IDs: ${dup.ids.join(', ')}`);
-    }
-    
-    // Count total duplicates to remove (keep 1 of each)
-    const toRemove = duplicates.reduce((sum, d) => sum + (d.count - 1), 0);
-    console.log(`\n📊 Total de duplicatas a remover: ${toRemove}`);
-    console.log(`✅ Perguntas únicas: ${questions.length - toRemove}`);
-    
-    // Ask for confirmation and remove
-    if (!process.argv.includes('--confirm')) {
-      console.log('\n⚠️  Para remover as duplicatas, rode:');
-      console.log('node scripts/remove-duplicates.js --confirm');
-      return;
-    }
-    
-    console.log('\n🗑️  Removendo duplicatas...');
-    let removed = 0;
-    
-    for (const dup of duplicates) {
-      // Keep first, remove others
-      const toDelete = dup.ids.slice(1);
-      for (const id of toDelete) {
-        try {
-          await axios.delete(`${API_URL}/api/questions/${id}`);
-          removed++;
-          console.log(`   ✓ Removida pergunta ID ${id}`);
-        } catch (err) {
-          console.log(`   ✗ Erro ao remover ID ${id}:`, err.message);
-        }
-      }
-    }
-    
-    console.log(`\n✅ ${removed} perguntas duplicadas removidas!`);
-    
-  } catch (error) {
-    console.error('❌ Erro:', error.message);
-    if (error.response) {
-      console.error('Response:', error.response.data);
-    }
+const dbPath = path.resolve(__dirname, '../.tmp/data.db');
+
+console.log('🗑️  Removendo duplicatas do banco...\n');
+
+const db = new sqlite3.Database(dbPath);
+
+// Para cada base_id duplicado, manter apenas o mais antigo (menor id)
+const query = `
+  DELETE FROM questions
+  WHERE id IN (
+    SELECT id 
+    FROM (
+      SELECT 
+        id,
+        ROW_NUMBER() OVER (PARTITION BY base_id, locale ORDER BY id ASC) as row_num
+      FROM questions
+      WHERE locale = 'pt' AND published_at IS NOT NULL AND base_id IS NOT NULL
+    ) 
+    WHERE row_num > 1
+  )
+`;
+
+db.run(query, [], function(err) {
+  if (err) {
+    console.error('❌ Erro ao remover duplicatas:', err);
+    process.exit(1);
   }
-}
-
-findDuplicates();
+  
+  console.log(`✅ Duplicatas removidas: ${this.changes} perguntas\n`);
+  
+  // Verificar resultado
+  db.all(`
+    SELECT locale, COUNT(*) as count 
+    FROM questions 
+    WHERE published_at IS NOT NULL 
+    GROUP BY locale 
+    ORDER BY count DESC
+  `, [], (err2, rows) => {
+    if (err2) {
+      console.error('Erro:', err2);
+    } else {
+      console.log('📊 Perguntas por idioma após limpeza:\n');
+      rows.forEach(r => {
+        const flag = r.locale === 'pt' ? '🇧🇷' : r.locale === 'en' ? '🇺🇸' : r.locale === 'es' ? '🇪🇸' : r.locale === 'fr' ? '🇫🇷' : '🌍';
+        console.log(`   ${flag} ${r.locale.toUpperCase()}: ${r.count} perguntas`);
+      });
+    }
+    
+    db.close();
+  });
+});

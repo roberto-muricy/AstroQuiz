@@ -19,8 +19,6 @@
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
     "axios": "^1.6.5",
-    "expo-asset": "^12.0.12",
-    "expo-av": "^16.0.8",
     "react": "18.2.0",
     "react-native": "0.73.2",
     "react-native-dotenv": "^3.4.9",

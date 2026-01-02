@@ -1,16 +1,44 @@
 /**
  * Progress Storage
- * Gerencia o progresso do usuário no jogo
+ * Gerencia o progresso do usuário no jogo (fases, XP, estrelas)
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  GameStats,
+  PhaseProgress,
+} from '@/types';
+import {
+  calculateStarRating,
+  getUnlockRequirement,
+  isPhaseUnlocked,
+  estimatePhaseXP,
+} from './progressionSystem';
 
-const PROGRESS_KEY = '@quiz_progress';
+const PROGRESS_KEY = '@quiz_progress_v2';
 
-interface GameProgress {
+export interface GameProgress {
   unlockedPhases: number;
   completedPhases: number[];
+  stats: GameStats;
 }
+
+const getDefaultProgress = (): GameProgress => ({
+  unlockedPhases: 1,
+  completedPhases: [],
+  stats: {
+    totalXP: 0,
+    phasesCompleted: 0,
+    perfectPhases: 0,
+    totalQuestionsAnswered: 0,
+    totalCorrectAnswers: 0,
+    maxStreak: 0,
+    currentStreak: 0,
+    fastAnswers: 0,
+    phaseStats: {},
+    achievements: [],
+  },
+});
 
 export const ProgressStorage = {
   async getProgress(): Promise<GameProgress> {
@@ -19,10 +47,10 @@ export const ProgressStorage = {
       if (saved) {
         return JSON.parse(saved);
       }
-      return { unlockedPhases: 1, completedPhases: [] };
+      return getDefaultProgress();
     } catch (error) {
       console.error('Erro ao carregar progresso:', error);
-      return { unlockedPhases: 1, completedPhases: [] };
+      return getDefaultProgress();
     }
   },
 
@@ -34,26 +62,61 @@ export const ProgressStorage = {
     }
   },
 
-  async unlockNextPhase(currentPhase: number): Promise<void> {
-    try {
-      const progress = await this.getProgress();
-      
-      // Adicionar à lista de fases completadas
-      if (!progress.completedPhases.includes(currentPhase)) {
-        progress.completedPhases.push(currentPhase);
+  /**
+   * Atualiza progresso após finalizar uma fase.
+   */
+  async updateAfterPhase(params: {
+    phaseNumber: number;
+    correctAnswers: number;
+    totalQuestions: number;
+    maxStreak: number;
+    totalTimeMs?: number;
+    score?: number;
+  }): Promise<GameProgress> {
+    const progress = await this.getProgress();
+    const { phaseNumber, correctAnswers, totalQuestions, maxStreak } = params;
+
+    const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+    const stars = calculateStarRating(correctAnswers, totalQuestions);
+    const gainedXP = estimatePhaseXP(phaseNumber, correctAnswers);
+
+    const phaseStats: PhaseProgress = {
+      phase: phaseNumber,
+      correctAnswers,
+      totalQuestions,
+      accuracy,
+      stars,
+      completed: accuracy >= 60,
+      bestTime: params.totalTimeMs || 0,
+      score: params.score ?? 0,
+    };
+
+    // salvar fase
+    progress.stats.phaseStats[phaseNumber] = phaseStats;
+    progress.stats.totalQuestionsAnswered += totalQuestions;
+    progress.stats.totalCorrectAnswers += correctAnswers;
+    progress.stats.maxStreak = Math.max(progress.stats.maxStreak, maxStreak);
+    progress.stats.totalXP += gainedXP;
+    if (phaseStats.completed) {
+      if (!progress.completedPhases.includes(phaseNumber)) {
+        progress.completedPhases.push(phaseNumber);
       }
-      
-      // Desbloquear próxima fase
-      const nextPhase = currentPhase + 1;
-      if (nextPhase > progress.unlockedPhases) {
-        progress.unlockedPhases = nextPhase;
-        console.log(`🎉 Fase ${nextPhase} desbloqueada!`);
+      progress.stats.phasesCompleted = progress.completedPhases.length;
+      if (accuracy === 100) {
+        progress.stats.perfectPhases += 1;
       }
-      
-      await this.saveProgress(progress);
-    } catch (error) {
-      console.error('Erro ao desbloquear próxima fase:', error);
     }
+
+    // desbloquear próxima se atender requisito
+    const requirement = getUnlockRequirement(phaseNumber + 1);
+    const canUnlock = phaseStats.completed && isPhaseUnlocked(phaseNumber + 1, { accuracy, correctAnswers });
+    if (canUnlock && phaseNumber + 1 > progress.unlockedPhases) {
+      progress.unlockedPhases = phaseNumber + 1;
+      console.log(`🎉 Fase ${phaseNumber + 1} desbloqueada! (req ${requirement.requiredAccuracy}%)`);
+    }
+
+    await this.saveProgress(progress);
+    return progress;
   },
 
   async resetProgress(): Promise<void> {

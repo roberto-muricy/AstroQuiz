@@ -7,9 +7,11 @@ import { Button, Card, LevelCard } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import { Images } from '@/assets';
 import quizService from '@/services/quizService';
+import { ProgressStorage } from '@/utils/progressStorage';
+import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     RefreshControl,
@@ -26,14 +28,50 @@ export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, locale } = useApp();
   const [refreshing, setRefreshing] = useState(false);
-  const [userLevel, setUserLevel] = useState(7);
-  const [userXP, setUserXP] = useState(2450);
-  const [streak, setStreak] = useState(12);
+  const [totalXP, setTotalXP] = useState(0);
+  const [levelTitle, setLevelTitle] = useState('');
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [xpToNext, setXpToNext] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
+  const [unlockedPhase, setUnlockedPhase] = useState(1);
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    loadProgress();
+  }, []);
+
+  const loadProgress = async () => {
+    try {
+      const progress = await ProgressStorage.getProgress();
+      const stats = progress.stats;
+      const xp = stats.totalXP || 0;
+      setTotalXP(xp);
+      setUnlockedPhase(progress.unlockedPhases || 1);
+      setStreak(stats.maxStreak || 0);
+
+      const level = getPlayerLevel(xp);
+      const xpNext = getXPToNextLevel(xp);
+      setCurrentLevel(level.level);
+      setLevelTitle(`${level.icon} ${level.title}`);
+      setXpToNext(xpNext);
+
+      if (xpNext === 0) {
+        setProgressPct(1);
+      } else {
+        const prevLevel = getPlayerLevel(Math.max(0, level.xpRequired - 1));
+        const prevReq = prevLevel.xpRequired;
+        const span = (level.xpRequired || 1) - prevReq;
+        const progressInLevel = xp - prevReq;
+        setProgressPct(Math.min(1, Math.max(0, span > 0 ? progressInLevel / span : 0)));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar progresso', error);
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // Carregar dados atualizados
-    await new Promise<void>(resolve => setTimeout(resolve, 1000));
+    await loadProgress();
     setRefreshing(false);
   };
 
@@ -78,7 +116,7 @@ export const HomeScreen = () => {
           <View style={styles.avatar}>
             <Text style={styles.avatarEmoji}>🚀</Text>
             <View style={styles.levelBadge}>
-              <Text style={styles.levelBadgeText}>{userLevel}</Text>
+              <Text style={styles.levelBadgeText}>{currentLevel}</Text>
             </View>
           </View>
         </View>
@@ -111,17 +149,19 @@ export const HomeScreen = () => {
         <Card style={styles.mainLevelCard}>
           <View style={styles.mainLevelHeader}>
             <View>
-              <Text style={styles.mainLevelTitle}>Nível {userLevel} - Marés</Text>
-              <Text style={styles.mainLevelSubtitle}>Explorador Intermediário</Text>
+              <Text style={styles.mainLevelTitle}>{levelTitle || `Nível ${currentLevel}`}</Text>
+              <Text style={styles.mainLevelSubtitle}>
+                {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : 'Nível máximo'}
+              </Text>
             </View>
             <View style={styles.xpBadge}>
-              <Text style={styles.xpBadgeText}>{userXP}xp</Text>
+              <Text style={styles.xpBadgeText}>{totalXP}xp</Text>
             </View>
           </View>
 
           <View style={styles.progressSection}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '60%' }]}>
+              <View style={[styles.progressFill, { width: `${Math.round(progressPct * 100)}%` }]}>
                 <LinearGradient
                   colors={['#FFA726', '#FFB74D']}
                   start={{ x: 0, y: 0 }}
@@ -135,23 +175,23 @@ export const HomeScreen = () => {
 
             <View style={styles.stats}>
               <View style={styles.stat}>
-                <Text style={styles.statValue}>60%</Text>
-                <Text style={styles.statLabel}>Progresso</Text>
+                <Text style={styles.statValue}>{Math.round(progressPct * 100)}%</Text>
+                <Text style={styles.statLabel}>No nível</Text>
               </View>
               <View style={styles.stat}>
-                <Text style={styles.statValue}>6/10</Text>
-                <Text style={styles.statLabel}>Perguntas</Text>
+                <Text style={styles.statValue}>{streak}</Text>
+                <Text style={styles.statLabel}>Maior streak</Text>
               </View>
               <View style={styles.stat}>
-                <Text style={styles.statValue}>20xp</Text>
-                <Text style={styles.statLabel}>Para nível 8</Text>
+                <Text style={styles.statValue}>{xpToNext > 0 ? `${xpToNext}xp` : 'Max'}</Text>
+                <Text style={styles.statLabel}>Próximo nível</Text>
               </View>
             </View>
           </View>
 
           <Button
             title="Continuar de onde parou"
-            onPress={() => handleStartQuiz(userLevel)}
+            onPress={() => handleStartQuiz(unlockedPhase)}
             size="large"
             style={styles.continueButton}
           />
@@ -185,21 +225,21 @@ export const HomeScreen = () => {
 
           <View style={styles.levelCardsRow}>
             <LevelCard
-              levelNumber={7}
-              levelName="Marés"
-              subtitle="Iniciante"
-              progress={60}
-              questionsCompleted={6}
+              levelNumber={unlockedPhase}
+              levelName={`Fase ${unlockedPhase}`}
+              subtitle="Disponível"
+              progress={Math.round(progressPct * 100)}
+              questionsCompleted={0}
               totalQuestions={10}
-              xp={60}
-              stars={2}
+              xp={totalXP}
+              stars={0}
               isActive
-              onPress={() => handleStartQuiz(7)}
+              onPress={() => handleStartQuiz(unlockedPhase)}
             />
             <LevelCard
-              levelNumber={8}
-              levelName="Atmosfera"
-              subtitle="Intermediário"
+              levelNumber={unlockedPhase + 1}
+              levelName={`Fase ${unlockedPhase + 1}`}
+              subtitle="Bloqueado"
               progress={0}
               questionsCompleted={0}
               totalQuestions={10}

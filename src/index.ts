@@ -1,24 +1,79 @@
 // In-memory session storage
 const quizSessions = new Map();
 
-// Minimal phase config fallback (avoid relying on api::quiz-engine.selector which isn't loaded without content-types)
-const getPhaseConfig = (phaseNumber) => {
-  if (phaseNumber >= 1 && phaseNumber <= 10) {
-    return { type: 'beginner', levels: [1, 2], distribution: { 1: 0.7, 2: 0.3 } };
+/**
+ * Get difficulty distribution for each phase (1-50)
+ * Returns array of {level, count} matching the frontend progressionSystem.ts
+ */
+const getDifficultyDistribution = (phase) => {
+  // Phases 1-3: Beginner (100% Level 1)
+  if (phase <= 3) return [{ level: 1, count: 10 }];
+  
+  // Phases 4-7: Easy mix
+  if (phase <= 7) return [{ level: 1, count: 8 }, { level: 2, count: 2 }];
+  
+  // Phases 8-10: Intro to Level 2
+  if (phase <= 10) return [{ level: 1, count: 6 }, { level: 2, count: 4 }];
+  
+  // Phases 11-15: Intermediate start
+  if (phase <= 15) return [{ level: 2, count: 5 }, { level: 3, count: 5 }];
+  
+  // Phases 16-20: More Level 3
+  if (phase <= 20) return [{ level: 2, count: 3 }, { level: 3, count: 7 }];
+  
+  // Phases 21-25: Intermediate advanced
+  if (phase <= 25) return [{ level: 3, count: 6 }, { level: 4, count: 4 }];
+  
+  // Phases 26-30: Balanced challenge
+  if (phase <= 30) return [{ level: 3, count: 5 }, { level: 4, count: 5 }];
+  
+  // Phases 31-35: More Level 4
+  if (phase <= 35) return [{ level: 3, count: 3 }, { level: 4, count: 7 }];
+  
+  // Phases 36-40: Advanced
+  if (phase <= 40) return [{ level: 4, count: 6 }, { level: 5, count: 4 }];
+  
+  // Phases 41-45: Expert mix
+  if (phase <= 45) return [{ level: 4, count: 5 }, { level: 5, count: 5 }];
+  
+  // Phases 46-50: Master (100% Level 5)
+  return [{ level: 5, count: 10 }];
+};
+
+/**
+ * Diversify questions by topic (max 3 per topic)
+ */
+const diversifyTopics = (questions, targetCount) => {
+  const selected = [];
+  const topicCount = {};
+  const shuffled = shuffle(questions);
+  
+  for (const question of shuffled) {
+    const topic = question.topic || 'General';
+    const currentCount = topicCount[topic] || 0;
+    
+    // Limit to max 3 questions per topic
+    if (currentCount < 3) {
+      selected.push(question);
+      topicCount[topic] = currentCount + 1;
+      
+      if (selected.length >= targetCount) {
+        break;
+      }
+    }
   }
-  if (phaseNumber >= 11 && phaseNumber <= 20) {
-    return { type: 'novice', levels: [1, 2, 3], distribution: { 1: 0.4, 2: 0.4, 3: 0.2 } };
+  
+  // If we didn't get enough (strict topic limit), fill remaining
+  if (selected.length < targetCount) {
+    for (const question of shuffled) {
+      if (selected.length >= targetCount) break;
+      if (!selected.find(q => q.id === question.id)) {
+        selected.push(question);
+      }
+    }
   }
-  if (phaseNumber >= 21 && phaseNumber <= 30) {
-    return { type: 'intermediate', levels: [2, 3, 4], distribution: { 2: 0.3, 3: 0.5, 4: 0.2 } };
-  }
-  if (phaseNumber >= 31 && phaseNumber <= 40) {
-    return { type: 'advanced', levels: [3, 4, 5], distribution: { 3: 0.2, 4: 0.5, 5: 0.3 } };
-  }
-  if (phaseNumber >= 41 && phaseNumber <= 50) {
-    return { type: 'elite', levels: [4, 5], distribution: { 4: 0.3, 5: 0.7 } };
-  }
-  return null;
+  
+  return selected;
 };
 
 const shuffle = (arr) => {
@@ -111,72 +166,62 @@ export default {
               });
               questions = (selected || []).slice(0, 10);
             } else {
-              // Fallback selection (since quiz-engine has no content-type, services may not be loaded)
-              const phaseConfig = getPhaseConfig(Number(phaseNumber));
-              if (!phaseConfig) {
+              // Fallback selection using precise phase distribution
+              const distribution = getDifficultyDistribution(Number(phaseNumber));
+              if (!distribution || distribution.length === 0) {
                 return ctx.badRequest('Invalid phase number. Must be between 1 and 50.');
               }
 
+              // Extract unique levels needed for this phase
+              const levels = [...new Set(distribution.map(d => d.level))];
+
+              // Fetch 2x more questions than needed to enable topic diversification
               const pool = await strapi.entityService.findMany('api::question.question', {
                 filters: {
-                  locale, // i18n locale filter (simple form works reliably here)
-                  level: { $in: phaseConfig.levels },
+                  locale,
+                  level: { $in: levels },
                 },
                 limit: 1500,
                 publicationState: 'live',
-                // Randomize order to get different questions each time
-                sort: { id: 'asc' }, // will be shuffled anyway
+                sort: { id: 'asc' },
               });
 
-              strapi.log.info(`📊 Pool stats - Locale: ${locale}, Levels: [${phaseConfig.levels}], Found: ${pool?.length || 0} questions`);
+              strapi.log.info(`📊 Phase ${phaseNumber} - Locale: ${locale}, Levels: [${levels}], Pool: ${pool?.length || 0} questions`);
 
+              // Group questions by level
               const byLevel = {};
-              for (const lvl of phaseConfig.levels) byLevel[lvl] = [];
+              for (const lvl of levels) byLevel[lvl] = [];
               for (const q of pool || []) {
-                if (!byLevel[q.level]) byLevel[q.level] = [];
-                byLevel[q.level].push(q);
+                if (byLevel[q.level]) byLevel[q.level].push(q);
               }
 
-              // Compute counts by distribution (10 questions total)
-              const totalNeeded = 10;
-              const levels = Object.keys(phaseConfig.distribution).map((x) => Number(x));
-              const counts = {};
-              let sum = 0;
-              for (const lvl of levels) {
-                counts[lvl] = Math.round(totalNeeded * (phaseConfig.distribution[lvl] || 0));
-                sum += counts[lvl];
-              }
-              if (sum !== totalNeeded) {
-                const maxLvl = Math.max(...levels);
-                counts[maxLvl] = (counts[maxLvl] || 0) + (totalNeeded - sum);
-              }
-
+              // Select questions according to distribution
               const picked = [];
               const usedIds = new Set();
 
-              for (const lvl of levels) {
-                const candidates = shuffle(byLevel[lvl] || []);
+              for (const { level, count } of distribution) {
+                const candidates = shuffle(byLevel[level] || []);
+                let addedForLevel = 0;
+                
                 for (const q of candidates) {
-                  if (picked.length >= totalNeeded) break;
+                  if (addedForLevel >= count) break;
                   if (usedIds.has(q.id)) continue;
-                  if ((picked.filter((x) => x.level === lvl).length) >= (counts[lvl] || 0)) continue;
+                  
                   usedIds.add(q.id);
                   picked.push(q);
+                  addedForLevel++;
+                }
+                
+                // Log if we couldn't fulfill the distribution
+                if (addedForLevel < count) {
+                  strapi.log.warn(`⚠️ Phase ${phaseNumber}: Only found ${addedForLevel}/${count} questions for level ${level}`);
                 }
               }
 
-              // Fill remaining slots from any allowed level
-              if (picked.length < totalNeeded) {
-                const remaining = shuffle(pool || []);
-                for (const q of remaining) {
-                  if (picked.length >= totalNeeded) break;
-                  if (usedIds.has(q.id)) continue;
-                  usedIds.add(q.id);
-                  picked.push(q);
-                }
-              }
-
-              questions = picked.slice(0, totalNeeded);
+              // Apply topic diversification (max 3 per topic)
+              questions = diversifyTopics(picked, 10);
+              
+              strapi.log.info(`✅ Selected ${questions.length} questions for phase ${phaseNumber} (distribution: ${distribution.map(d => `${d.count}xL${d.level}`).join(', ')})`);
             }
 
             if (!questions || questions.length === 0) {

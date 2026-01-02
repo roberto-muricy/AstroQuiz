@@ -19,6 +19,12 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
+import {
+  calculateStarRating,
+  getUnlockRequirement,
+  getPlayerLevel,
+  getXPToNextLevel,
+} from '@/utils/progressionSystem';
 
 export const QuizResultScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,6 +36,11 @@ export const QuizResultScreen = () => {
   const [phaseUnlocked, setPhaseUnlocked] = useState(false);
   const [startingNextPhase, setStartingNextPhase] = useState(false);
   const scaleAnim = new Animated.Value(0);
+  const [stars, setStars] = useState(0);
+  const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
+  const [totalXP, setTotalXP] = useState(0);
+  const [levelTitle, setLevelTitle] = useState('');
+  const [xpToNext, setXpToNext] = useState(0);
 
   useEffect(() => {
     loadResults();
@@ -55,11 +66,26 @@ export const QuizResultScreen = () => {
       // Calcular accuracy
       const accuracy = data.accuracy || 
         (data.totalQuestions > 0 ? Math.round((data.correctAnswers / data.totalQuestions) * 100) : 0);
+      const computedStars = calculateStarRating(data.correctAnswers || 0, data.totalQuestions || 10);
+      setStars(computedStars);
+      setUnlockRequirement(getUnlockRequirement((data.phaseNumber || 1) + 1));
       
       const isPerfect = accuracy === 100;
 
       // Se passou na fase (60%+), desbloquear próxima
       if (data.passed && data.phaseNumber) {
+        const updated = await ProgressStorage.updateAfterPhase({
+          phaseNumber: data.phaseNumber,
+          correctAnswers: data.correctAnswers || 0,
+          totalQuestions: data.totalQuestions || 10,
+          maxStreak: data.maxStreak || 0,
+          totalTimeMs: data.totalTime,
+          score: data.finalScore || data.score,
+        });
+        const currentLevel = getPlayerLevel(updated.stats.totalXP);
+        setTotalXP(updated.stats.totalXP);
+        setLevelTitle(`${currentLevel.icon} ${currentLevel.title}`);
+        setXpToNext(getXPToNextLevel(updated.stats.totalXP));
         await ProgressStorage.unlockNextPhase(data.phaseNumber);
         setPhaseUnlocked(true);
         
@@ -179,6 +205,19 @@ export const QuizResultScreen = () => {
           <Text style={styles.subtitle}>
             Fase {sessionData.phaseNumber} {passed ? 'Concluída' : 'Incompleta'}
           </Text>
+        <View style={styles.starRow}>
+          {[1,2,3].map((s)=>(
+            <Text key={s} style={styles.star}>{s <= stars ? '⭐' : '☆'}</Text>
+          ))}
+        </View>
+        {levelTitle ? (
+          <View style={styles.levelRow}>
+            <Text style={styles.levelText}>{levelTitle}</Text>
+            <Text style={styles.levelSubText}>
+              {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : 'Nível máximo alcançado'}
+            </Text>
+          </View>
+        ) : null}
           
           {/* Badge de Passou/Não Passou */}
           {passed ? (
@@ -265,6 +304,17 @@ export const QuizResultScreen = () => {
             </Text>
             <Text style={styles.achievementText}>
               Fase {sessionData.phaseNumber + 1} está disponível agora
+            </Text>
+          </View>
+        )}
+        {!phaseUnlocked && unlockRequirement && (
+          <View style={[styles.achievementCard, styles.achievementWarning]}>
+            <Text style={styles.achievementEmoji}>🔒</Text>
+            <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
+              Requisito para próxima fase
+            </Text>
+            <Text style={styles.achievementText}>
+              Precisão mínima: {unlockRequirement.requiredAccuracy}% {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
             </Text>
           </View>
         )}
@@ -373,6 +423,31 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: 'Poppins-Regular',
     marginBottom: 16,
+  },
+  starRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  star: {
+    fontSize: 22,
+    color: '#FFD700',
+    marginHorizontal: 4,
+  },
+  levelRow: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  levelText: {
+    fontSize: 16,
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  levelSubText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.7)',
+    fontFamily: 'Poppins-Regular',
+    marginTop: 2,
   },
   passedBadge: {
     backgroundColor: 'rgba(15, 181, 126, 0.2)',
