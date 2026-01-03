@@ -5,8 +5,16 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+# react-native-firebase v23+ requires iOS 15.0+ (see @react-native-firebase/app sdkVersions.ios.iosTarget).
+platform :ios, '15.0'
 prepare_react_native_project!
+
+# Needed for Firebase Swift pods when integrating as static libraries in React Native projects.
+use_modular_headers!
+
+# FirebaseAuth includes Swift; integrate pods as static frameworks to ensure Swift headers/modules are generated correctly.
+use_frameworks! :linkage => :static
+$RNFirebaseAsStaticFramework = true
 
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
@@ -39,8 +47,8 @@ target 'AstroQuizApp' do
     # Fix deployment target for all pods
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
-        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 13.4
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
+        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
         end
       end
       

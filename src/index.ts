@@ -633,8 +633,128 @@ export default {
         },
         config: { auth: false },
       },
+      // User Profile routes (Firebase UID sync)
+      {
+        method: 'POST',
+        path: '/api/user-profile/sync',
+        handler: async (ctx) => {
+          try {
+            const { firebaseUid, email, displayName, photoURL } = ctx.request.body;
+
+            if (!firebaseUid) {
+              return ctx.badRequest('Firebase UID is required');
+            }
+
+            // Try to find existing profile
+            let profile = await strapi.db.query('api::user-profile.user-profile').findOne({
+              where: { firebaseUid }
+            });
+
+            if (!profile) {
+              // Create new profile with default stats
+              profile = await strapi.db.query('api::user-profile.user-profile').create({
+                data: {
+                  firebaseUid,
+                  email,
+                  displayName,
+                  photoURL,
+                  totalXP: 0,
+                  phasesCompleted: 0,
+                  perfectPhases: 0,
+                  totalQuestionsAnswered: 0,
+                  totalCorrectAnswers: 0,
+                  maxStreak: 0,
+                  currentStreak: 0,
+                  fastAnswers: 0,
+                  achievements: [],
+                  phaseStats: {},
+                  lastSyncedAt: new Date()
+                }
+              });
+              
+              strapi.log.info(`✅ Created new user profile for ${displayName} (${firebaseUid})`);
+            } else {
+              // Update profile info if changed
+              profile = await strapi.db.query('api::user-profile.user-profile').update({
+                where: { id: profile.id },
+                data: {
+                  email,
+                  displayName,
+                  photoURL,
+                  lastSyncedAt: new Date()
+                }
+              });
+              
+              strapi.log.info(`✅ Synced user profile for ${displayName} (${firebaseUid})`);
+            }
+
+            ctx.body = { success: true, data: profile };
+          } catch (error) {
+            strapi.log.error('Error syncing user profile:', error);
+            ctx.internalServerError('Failed to sync user profile');
+          }
+        },
+        config: { auth: false },
+      },
+      {
+        method: 'GET',
+        path: '/api/user-profile/:firebaseUid/stats',
+        handler: async (ctx) => {
+          try {
+            const { firebaseUid } = ctx.params;
+
+            const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
+              where: { firebaseUid }
+            });
+
+            if (!profile) {
+              return ctx.notFound('User profile not found');
+            }
+
+            ctx.body = { success: true, data: profile };
+          } catch (error) {
+            strapi.log.error('Error getting stats:', error);
+            ctx.internalServerError('Failed to get stats');
+          }
+        },
+        config: { auth: false },
+      },
+      {
+        method: 'PUT',
+        path: '/api/user-profile/:firebaseUid/stats',
+        handler: async (ctx) => {
+          try {
+            const { firebaseUid } = ctx.params;
+            const updates = ctx.request.body;
+
+            const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
+              where: { firebaseUid }
+            });
+
+            if (!profile) {
+              return ctx.notFound('User profile not found');
+            }
+
+            const updatedProfile = await strapi.db.query('api::user-profile.user-profile').update({
+              where: { id: profile.id },
+              data: {
+                ...updates,
+                lastSyncedAt: new Date()
+              }
+            });
+
+            strapi.log.info(`✅ Updated stats for ${firebaseUid}`);
+            ctx.body = { success: true, data: updatedProfile };
+          } catch (error) {
+            strapi.log.error('Error updating stats:', error);
+            ctx.internalServerError('Failed to update stats');
+          }
+        },
+        config: { auth: false },
+      },
     ]);
     
     strapi.log.info('✅ Quiz Engine routes registered successfully');
+    strapi.log.info('✅ User Profile routes registered successfully');
   },
 };

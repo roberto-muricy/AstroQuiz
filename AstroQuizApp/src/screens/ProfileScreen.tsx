@@ -7,12 +7,15 @@ import { Button, Card } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import soundService from '@/services/soundService';
 import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
+import { ProgressStorage } from '@/utils/progressStorage';
+import { achievements } from '@/utils/progressionSystem';
 import React, { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 export const ProfileScreen = () => {
-  const { user, locale, setLocale } = useApp();
+  const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, isLoading } = useApp();
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
     vibrationEnabled: true,
@@ -20,10 +23,25 @@ export const ProfileScreen = () => {
     notificationsEnabled: true,
     language: 'pt',
   });
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [totalXP, setTotalXP] = useState(0);
+  const [authBusy, setAuthBusy] = useState(false);
 
   useEffect(() => {
     loadSettings();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProgress();
+    }, [])
+  );
+
+  const loadProgress = async () => {
+    const progress = await ProgressStorage.getProgress();
+    setUnlockedAchievements(progress.stats.achievements || []);
+    setTotalXP(progress.stats.totalXP || 0);
+  };
 
   const loadSettings = async () => {
     const saved = await SettingsStorage.getSettings();
@@ -41,6 +59,30 @@ export const ProfileScreen = () => {
     setLocale(newLocale);
     soundService.playTap();
     Alert.alert('Idioma alterado', `Idioma alterado para ${newLocale}`);
+  };
+
+  const handleGoogleLogin = async () => {
+    setAuthBusy(true);
+    try {
+      const res = await signInWithGoogle();
+      if (!res.ok) {
+        Alert.alert(
+          'Login',
+          `Não foi possível entrar com Google.\n\nMotivo: ${res.message}`
+        );
+      }
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setAuthBusy(true);
+    try {
+      await signOut();
+    } finally {
+      setAuthBusy(false);
+    }
   };
 
   const handleToggleSound = async (value: boolean) => {
@@ -87,7 +129,7 @@ export const ProfileScreen = () => {
             </View>
           </View>
           <Text style={styles.userName}>{user?.name || 'Astronauta'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'astronauta@astroquiz.com'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'guest@astroquiz.com'}</Text>
           <View style={styles.userStats}>
             <View style={styles.userStat}>
               <Text style={styles.userStatValue}>2.450</Text>
@@ -103,6 +145,88 @@ export const ProfileScreen = () => {
             </View>
           </View>
         </View>
+
+        {/* Conta / Login */}
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>Conta</Text>
+          <Text style={styles.accountHint}>
+            {isAuthenticated
+              ? 'Conectado via Google (Facebook depois).'
+              : 'Você está como convidado. Entre com Google para salvar na nuvem (em breve).'}
+          </Text>
+
+          <View style={styles.accountButtons}>
+            {isAuthenticated ? (
+              <Button
+                title="Sair"
+                variant="ghost"
+                onPress={handleLogout}
+                loading={authBusy || isLoading}
+              />
+            ) : (
+              <Button
+                title="Entrar com Google"
+                onPress={handleGoogleLogin}
+                loading={authBusy || isLoading}
+              />
+            )}
+          </View>
+        </Card>
+
+        {/* Conquistas */}
+        <Card style={styles.card}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>🏆 Conquistas</Text>
+            <Text style={styles.achievementCount}>
+              {unlockedAchievements.length}/{achievements.length}
+            </Text>
+          </View>
+          
+          <View style={styles.achievementsList}>
+            {achievements.map(achievement => {
+              const isUnlocked = unlockedAchievements.includes(achievement.id);
+              
+              return (
+                <View
+                  key={achievement.id}
+                  style={[
+                    styles.achievementItem,
+                    !isUnlocked && styles.achievementLocked,
+                  ]}
+                >
+                  <View style={styles.achievementIcon}>
+                    <Text style={styles.achievementIconText}>
+                      {isUnlocked ? achievement.icon : '🔒'}
+                    </Text>
+                  </View>
+                  <View style={styles.achievementInfo}>
+                    <Text
+                      style={[
+                        styles.achievementName,
+                        !isUnlocked && styles.achievementTextLocked,
+                      ]}
+                    >
+                      {isUnlocked ? achievement.name : '???'}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.achievementDescription,
+                        !isUnlocked && styles.achievementTextLocked,
+                      ]}
+                    >
+                      {isUnlocked ? achievement.description : 'Conquista bloqueada'}
+                    </Text>
+                  </View>
+                  {isUnlocked && (
+                    <View style={styles.achievementXP}>
+                      <Text style={styles.achievementXPText}>+{achievement.xpReward}</Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        </Card>
 
         {/* Idioma */}
         <Card>
@@ -252,6 +376,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
+  accountHint: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+  accountButtons: {
+    marginTop: 16,
+  },
   avatar: {
     width: 100,
     height: 100,
@@ -324,6 +458,76 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
     marginBottom: 16,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  achievementCount: {
+    fontSize: 16,
+    color: '#FFA726',
+    fontFamily: 'Poppins-Bold',
+  },
+  achievementsList: {
+    gap: 12,
+  },
+  achievementItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'rgba(255, 167, 38, 0.1)',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#FFA726',
+  },
+  achievementLocked: {
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    opacity: 0.5,
+  },
+  achievementIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  achievementIconText: {
+    fontSize: 24,
+  },
+  achievementInfo: {
+    flex: 1,
+  },
+  achievementName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 2,
+  },
+  achievementDescription: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: 'Poppins-Regular',
+  },
+  achievementTextLocked: {
+    color: 'rgba(255, 255, 255, 0.4)',
+  },
+  achievementXP: {
+    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  achievementXPText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFA726',
+    fontFamily: 'Poppins-Bold',
   },
   languageList: {
     gap: 12,

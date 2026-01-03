@@ -6,7 +6,9 @@
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
+import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
 import soundService from '@/services/soundService';
+import { AchievementPopup } from '@/components';
 import React, { useEffect, useState } from 'react';
 import {
   ScrollView,
@@ -19,12 +21,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
-import {
-  calculateStarRating,
-  getUnlockRequirement,
-  getPlayerLevel,
-  getXPToNextLevel,
-} from '@/utils/progressionSystem';
 
 export const QuizResultScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -35,6 +31,9 @@ export const QuizResultScreen = () => {
   const [loading, setLoading] = useState(true);
   const [phaseUnlocked, setPhaseUnlocked] = useState(false);
   const [startingNextPhase, setStartingNextPhase] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<any[]>([]);
+  const [currentAchievementIndex, setCurrentAchievementIndex] = useState(0);
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
   const scaleAnim = new Animated.Value(0);
   const [stars, setStars] = useState(0);
   const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
@@ -82,12 +81,32 @@ export const QuizResultScreen = () => {
           totalTimeMs: data.totalTime,
           score: data.finalScore || data.score,
         });
+        
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
         setTotalXP(updated.stats.totalXP);
         setLevelTitle(`${currentLevel.icon} ${currentLevel.title}`);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
-        await ProgressStorage.unlockNextPhase(data.phaseNumber);
-        setPhaseUnlocked(true);
+        setPhaseUnlocked(updated.unlockedPhases > data.phaseNumber);
+        
+        // Verificar achievements desbloqueados
+        const unlockedAchievementIds = updated.stats.achievements || [];
+        const newlyUnlocked = checkAchievements(updated.stats, unlockedAchievementIds);
+        
+        if (newlyUnlocked.length > 0) {
+          setNewAchievements(newlyUnlocked);
+          // Salvar achievements desbloqueados
+          const updatedStats = {
+            ...updated.stats,
+            achievements: [...unlockedAchievementIds, ...newlyUnlocked.map(a => a.id)],
+          };
+          await ProgressStorage.saveProgress({ ...updated, stats: updatedStats });
+          
+          // Mostrar primeiro achievement após 1s
+          setTimeout(() => {
+            setCurrentAchievementIndex(0);
+            setShowAchievementPopup(true);
+          }, 1000);
+        }
         
         // Som de desbloqueio
         setTimeout(() => soundService.playUnlock(), 500);
@@ -158,6 +177,18 @@ export const QuizResultScreen = () => {
       index: 0,
       routes: [{ name: 'Main' }],
     });
+  };
+
+  const handleAchievementClose = () => {
+    setShowAchievementPopup(false);
+    
+    // Se houver mais achievements, mostrar o próximo após 500ms
+    if (currentAchievementIndex < newAchievements.length - 1) {
+      setTimeout(() => {
+        setCurrentAchievementIndex(currentAchievementIndex + 1);
+        setShowAchievementPopup(true);
+      }, 500);
+    }
   };
 
   if (loading || !sessionData) {
@@ -381,6 +412,15 @@ export const QuizResultScreen = () => {
 
         <View style={styles.bottomSpace} />
       </ScrollView>
+
+      {/* Achievement Popup */}
+      {newAchievements.length > 0 && (
+        <AchievementPopup
+          visible={showAchievementPopup}
+          achievement={newAchievements[currentAchievementIndex]}
+          onClose={handleAchievementClose}
+        />
+      )}
     </LinearGradient>
   );
 };

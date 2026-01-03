@@ -263,16 +263,19 @@ const styles = StyleSheet.create({
   },
   phaseCard: {
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: 'hidden',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   phaseCardLocked: {
-    opacity: 0.6,
+    opacity: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.05)',
   },
   phaseGradient: {
     flexDirection: 'row',

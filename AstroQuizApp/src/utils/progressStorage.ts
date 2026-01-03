@@ -14,6 +14,8 @@ import {
   isPhaseUnlocked,
   estimatePhaseXP,
 } from './progressionSystem';
+import authService from '@/services/authService';
+import strapiSyncService from '@/services/strapiSyncService';
 
 const PROGRESS_KEY = '@quiz_progress_v2';
 
@@ -57,6 +59,15 @@ export const ProgressStorage = {
   async saveProgress(progress: GameProgress): Promise<void> {
     try {
       await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      
+      // Sync with Strapi if user is logged in
+      const fbUser = authService.getCurrentUser();
+      if (fbUser) {
+        strapiSyncService
+          .updateUserStats(fbUser.uid, progress.stats)
+          .then(() => console.log('✅ Stats synced to Strapi'))
+          .catch((err) => console.warn('⚠️ Failed to sync stats:', err));
+      }
     } catch (error) {
       console.error('Erro ao salvar progresso:', error);
     }

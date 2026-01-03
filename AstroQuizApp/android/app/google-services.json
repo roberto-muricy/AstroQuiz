@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "473888146350",
+    "project_id": "astroquiz-3a316",
+    "storage_bucket": "astroquiz-3a316.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:473888146350:android:d497afff47f363aa0dfe3f",
+        "android_client_info": {
+          "package_name": "com.astroquizapptemp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "473888146350-udqdloorhbn0tauttltuju4ud68eslih.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIFdUvJiOE6ggP0HEbfxz3BWq8oXo-UVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "473888146350-udqdloorhbn0tauttltuju4ud68eslih.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "473888146350-1esnht3cntotsqbnu6osf2ovu4ejeho8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.AstroQuizApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

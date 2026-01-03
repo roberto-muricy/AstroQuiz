@@ -8,11 +8,29 @@ import { RootNavigator } from "@/navigation/RootNavigator";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
+import firebase from '@react-native-firebase/app';
 
 const App = () => {
   useEffect(() => {
+    initializeFirebase();
     checkBackendConnection();
   }, []);
+
+  /**
+   * Inicializar Firebase
+   */
+  const initializeFirebase = async () => {
+    try {
+      if (!firebase.apps.length) {
+        console.log('⚠️ Firebase não auto-inicializou, tentando inicializar...');
+        // Se chegou aqui, há um problema - Firebase deveria auto-inicializar
+      } else {
+        console.log('✅ Firebase inicializado:', firebase.app().name);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao verificar Firebase:', error);
+    }
+  };
 
   /**
    * Verificar conexão com backend

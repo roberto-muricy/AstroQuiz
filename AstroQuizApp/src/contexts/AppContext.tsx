@@ -3,22 +3,21 @@
  * Gerenciamento de estado global do app
  */
 
+import authService from "@/services/authService";
 import quizService from "@/services/quizService";
+import strapiSyncService from "@/services/strapiSyncService";
+import { ProgressStorage } from "@/utils/progressStorage";
 import { GameRules, QuizSession, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 interface AppContextData {
   // User state
   user: User | null;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
+  signInWithGoogle: () => Promise<{ ok: true } | { ok: false; message: string }>;
+  signOut: () => Promise<void>;
 
   // Quiz state
   currentSession: QuizSession | null;
@@ -68,14 +67,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       } else {
-        // Criar usuário mock para desenvolvimento
+        // Criar usuário convidado para desenvolvimento (e permitir login social depois)
         const mockUser: User = {
-          id: "1",
+          id: "guest",
           name: "Astronauta",
-          email: "user@astroquiz.com",
-          level: 5,
-          xp: 1250,
-          totalXP: 5000,
+          email: "guest@astroquiz.com",
+          level: 1,
+          xp: 0,
+          totalXP: 0,
+          streak: 0,
           avatarUrl: null,
           locale: "pt",
           createdAt: new Date().toISOString(),
@@ -104,12 +104,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.error("Erro ao carregar dados iniciais:", error);
       // Criar usuário mock em caso de erro
       const mockUser: User = {
-        id: "1",
+        id: "guest",
         name: "Astronauta",
-        email: "user@astroquiz.com",
-        level: 5,
-        xp: 1250,
-        totalXP: 5000,
+        email: "guest@astroquiz.com",
+        level: 1,
+        xp: 0,
+        totalXP: 0,
+        streak: 0,
         avatarUrl: null,
         locale: "pt",
         createdAt: new Date().toISOString(),
@@ -162,12 +163,103 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [currentSession]);
 
+  const isAuthenticated = !!user && user.id !== "guest";
+
+  /**
+   * Login com Google (Firebase Auth)
+   */
+  const signInWithGoogle = async (): Promise<{ ok: boolean; message?: string }> => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signInWithGoogle();
+      if (!result.ok) {
+        console.log("❌ Google login failed:", result);
+        return { ok: false, message: result.message };
+      }
+
+      const fbUser = authService.getCurrentUser();
+      if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
+
+      // Sync with Strapi backend
+      console.log('📡 Syncing user with Strapi...');
+      try {
+        const serverProfile = await strapiSyncService.syncUser(
+          fbUser.uid,
+          fbUser.email,
+          fbUser.displayName,
+          fbUser.photoURL
+        );
+
+        // Merge local stats with server stats
+        const localProgress = await ProgressStorage.getProgress();
+        const mergedStats = strapiSyncService.mergeStats(localProgress.stats, serverProfile);
+
+        // Update local storage with merged data
+        await ProgressStorage.saveProgress({
+          ...localProgress,
+          stats: mergedStats,
+        });
+
+        console.log('✅ User synced with Strapi');
+      } catch (error) {
+        console.warn('⚠️ Could not sync with Strapi, continuing with local data:', error);
+        // Non-blocking: user can still play even if sync fails
+      }
+
+      const nextUser: User = {
+        id: fbUser.uid,
+        name: fbUser.displayName || "Astronauta",
+        email: fbUser.email || "google@astroquiz.com",
+        avatarUrl: fbUser.photoURL || null,
+        level: user?.level ?? 1,
+        xp: user?.xp ?? 0,
+        totalXP: user?.totalXP ?? 0,
+        streak: user?.streak ?? 0,
+        locale: user?.locale ?? "pt",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setUser(nextUser);
+      return { ok: true };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Logout
+   */
+  const signOut = async () => {
+    setIsLoading(true);
+    try {
+      await authService.signOut();
+      setUser({
+        id: "guest",
+        name: "Astronauta",
+        email: "guest@astroquiz.com",
+        level: 1,
+        xp: 0,
+        totalXP: 0,
+        streak: 0,
+        avatarUrl: null,
+        locale: locale || "pt",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AppContext.Provider
       value={{
         user,
         setUser,
-        isAuthenticated: !!user,
+        isAuthenticated,
+        signInWithGoogle,
+        signOut,
         currentSession,
         setCurrentSession,
         gameRules,

@@ -1,0 +1,73 @@
+{
+  "kind": "collectionType",
+  "collectionName": "user_profiles",
+  "info": {
+    "singularName": "user-profile",
+    "pluralName": "user-profiles",
+    "displayName": "User Profile",
+    "description": "Player profiles linked to Firebase UID with game stats"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "firebaseUid": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "email": {
+      "type": "email"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "photoURL": {
+      "type": "string"
+    },
+    "totalXP": {
+      "type": "integer",
+      "default": 0
+    },
+    "phasesCompleted": {
+      "type": "integer",
+      "default": 0
+    },
+    "perfectPhases": {
+      "type": "integer",
+      "default": 0
+    },
+    "totalQuestionsAnswered": {
+      "type": "integer",
+      "default": 0
+    },
+    "totalCorrectAnswers": {
+      "type": "integer",
+      "default": 0
+    },
+    "maxStreak": {
+      "type": "integer",
+      "default": 0
+    },
+    "currentStreak": {
+      "type": "integer",
+      "default": 0
+    },
+    "fastAnswers": {
+      "type": "integer",
+      "default": 0
+    },
+    "achievements": {
+      "type": "json",
+      "default": []
+    },
+    "phaseStats": {
+      "type": "json",
+      "default": {}
+    },
+    "lastSyncedAt": {
+      "type": "datetime"
+    }
+  }
+}
