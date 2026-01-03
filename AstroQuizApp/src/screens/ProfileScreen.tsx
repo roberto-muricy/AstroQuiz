@@ -8,10 +8,10 @@ import { useApp } from '@/contexts/AppContext';
 import soundService from '@/services/soundService';
 import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
 import { ProgressStorage } from '@/utils/progressStorage';
-import { achievements } from '@/utils/progressionSystem';
+import { achievements, getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 export const ProfileScreen = () => {
@@ -26,6 +26,9 @@ export const ProfileScreen = () => {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [totalXP, setTotalXP] = useState(0);
   const [authBusy, setAuthBusy] = useState(false);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [phasesCompleted, setPhasesCompleted] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
 
   useEffect(() => {
     loadSettings();
@@ -41,6 +44,11 @@ export const ProfileScreen = () => {
     const progress = await ProgressStorage.getProgress();
     setUnlockedAchievements(progress.stats.achievements || []);
     setTotalXP(progress.stats.totalXP || 0);
+    setPhasesCompleted(progress.stats.phasesCompleted || 0);
+    setMaxStreak(progress.stats.maxStreak || 0);
+    
+    const level = getPlayerLevel(progress.stats.totalXP || 0);
+    setCurrentLevel(level.level);
   };
 
   const loadSettings = async () => {
@@ -123,25 +131,29 @@ export const ProfileScreen = () => {
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarEmoji}>🚀</Text>
+            {user?.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarEmoji}>🚀</Text>
+            )}
             <View style={styles.levelBadge}>
-              <Text style={styles.levelBadgeText}>7</Text>
+              <Text style={styles.levelBadgeText}>{currentLevel}</Text>
             </View>
           </View>
           <Text style={styles.userName}>{user?.name || 'Astronauta'}</Text>
           <Text style={styles.userEmail}>{user?.email || 'guest@astroquiz.com'}</Text>
           <View style={styles.userStats}>
             <View style={styles.userStat}>
-              <Text style={styles.userStatValue}>2.450</Text>
+              <Text style={styles.userStatValue}>{totalXP.toLocaleString()}</Text>
               <Text style={styles.userStatLabel}>XP</Text>
             </View>
             <View style={styles.userStat}>
-              <Text style={styles.userStatValue}>12</Text>
-              <Text style={styles.userStatLabel}>Sequência</Text>
+              <Text style={styles.userStatValue}>{maxStreak}</Text>
+              <Text style={styles.userStatLabel}>Maior Streak</Text>
             </View>
             <View style={styles.userStat}>
-              <Text style={styles.userStatValue}>#20</Text>
-              <Text style={styles.userStatLabel}>Ranking</Text>
+              <Text style={styles.userStatValue}>{phasesCompleted}/50</Text>
+              <Text style={styles.userStatLabel}>Fases</Text>
             </View>
           </View>
         </View>
@@ -395,6 +407,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
     position: 'relative',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   avatarEmoji: {
     fontSize: 48,
