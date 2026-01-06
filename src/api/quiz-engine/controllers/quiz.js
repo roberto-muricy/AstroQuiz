@@ -13,7 +13,7 @@ module.exports = {
    */
   async start(ctx) {
     try {
-      const { phaseNumber, locale = 'en', userId, userPreferences = {} } = ctx.request.body;
+      const { phaseNumber, locale = 'en', userId, userPreferences = {}, excludeQuestions = [] } = ctx.request.body;
 
       // Validate phase number
       if (!phaseNumber || phaseNumber < 1 || phaseNumber > 50) {
@@ -37,7 +37,7 @@ module.exports = {
       const questions = await selectorService.selectPhaseQuestions({
         phaseNumber,
         locale,
-        excludeQuestions: [],
+        excludeQuestions: Array.isArray(excludeQuestions) ? excludeQuestions : [],
         recentTopics: [],
         userPerformance: {}
       });

@@ -59,8 +59,10 @@ export const QuizListScreen = () => {
       soundService.playTap();
       setLoading(true);
       console.log('🎮 Iniciando quiz - Fase:', phaseNumber, 'Locale:', locale);
-      
-      const session = await quizService.startQuiz(phaseNumber, locale);
+      const progress = await ProgressStorage.getProgress();
+      const excludeQuestions = progress.answeredQuestionIds || [];
+
+      const session = await quizService.startQuiz(phaseNumber, locale, undefined, excludeQuestions);
       console.log('✅ Sessão criada:', session);
       
       navigation.navigate('QuizGame', {

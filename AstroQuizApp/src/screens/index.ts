@@ -4,6 +4,7 @@
  */
 
 export { HomeScreen } from './HomeScreen';
+export { LoginScreen } from './LoginScreen';
 export { ProfileScreen } from './ProfileScreen';
 export { QuizScreen } from './QuizScreen';
 export { QuizListScreen } from './QuizListScreen';

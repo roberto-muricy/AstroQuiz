@@ -5,9 +5,8 @@
 
 import { Button, QuestionCard } from '@/components';
 import quizService from '@/services/quizService';
-import soundService from '@/services/soundService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
-import { useNavigation, useRoute, NavigationProp, RouteProp, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
     Alert,
@@ -23,7 +22,6 @@ import LinearGradient from 'react-native-linear-gradient';
 export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizGame'>>();
-  const isFocused = useIsFocused();
   const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
 
   const [currentQuestion, setCurrentQuestion] = useState<CurrentQuestion | null>(null);
@@ -31,119 +29,40 @@ export const QuizScreen = () => {
   const [showResult, setShowResult] = useState(false);
   const [answerResult, setAnswerResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [isSubmittingAnswer, setIsSubmittingAnswer] = useState(false);
-  const [initialCountdownDone, setInitialCountdownDone] = useState(false);
-  const [startCountdown, setStartCountdown] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(30);
   const [autoSubmitCountdown, setAutoSubmitCountdown] = useState<number | null>(null);
   const [currentScore, setCurrentScore] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
-  const [questionsAnswered, setQuestionsAnswered] = useState(0);
   const submitTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-  const startCountdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
-  const resultDelayTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const isScreenActiveRef = React.useRef(true);
-  const isFocusedRef = React.useRef(true);
-  const RESULT_DISPLAY_MS = 4000; // 3s -> 4s (mais tempo para ler explicação)
 
   useEffect(() => {
-    isFocusedRef.current = isFocused;
-  }, [isFocused]);
-
-  useEffect(() => {
-    // Música de fundo opcional
-    soundService.playBackgroundMusic(0.22);
-    return () => {
-      soundService.stopBackgroundMusic();
-    };
-  }, []);
-
-  useEffect(() => {
-    isScreenActiveRef.current = true;
     // Resetar pontuação ao iniciar nova sessão
     setCurrentScore(0);
     setCurrentStreak(0);
-    setQuestionsAnswered(0);
-    setInitialCountdownDone(false);
-    setStartCountdown(null);
     loadQuestion();
     
     // Limpar timers ao desmontar
     return () => {
-      isScreenActiveRef.current = false;
       if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-      if (startCountdownIntervalRef.current) clearInterval(startCountdownIntervalRef.current);
-      if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
     };
   }, [sessionId]);
 
-  // Countdown inicial (3..2..1) antes de iniciar o quiz (somente na 1ª pergunta)
   useEffect(() => {
-    if (!currentQuestion) return;
-    if (loading) return;
-    if (initialCountdownDone) return;
-    if (questionsAnswered !== 0) return;
-
-    // Evitar múltiplos intervals
-    if (startCountdownIntervalRef.current) {
-      clearInterval(startCountdownIntervalRef.current);
-      startCountdownIntervalRef.current = null;
-    }
-
-    let value = 3;
-    setStartCountdown(value);
-    startCountdownIntervalRef.current = setInterval(() => {
-      value -= 1;
-      if (value <= 0) {
-        if (startCountdownIntervalRef.current) {
-          clearInterval(startCountdownIntervalRef.current);
-          startCountdownIntervalRef.current = null;
-        }
-        setStartCountdown(null);
-        setInitialCountdownDone(true);
-      } else {
-        setStartCountdown(value);
-      }
-    }, 1000);
-
-    return () => {
-      if (startCountdownIntervalRef.current) {
-        clearInterval(startCountdownIntervalRef.current);
-        startCountdownIntervalRef.current = null;
-      }
-    };
-  }, [currentQuestion, loading, initialCountdownDone, questionsAnswered]);
-
-  useEffect(() => {
-    // Não rodar timer se já mostrou resultado ou está carregando
-    if (!isFocusedRef.current) return;
-    if (!showResult && !loading && !isSubmittingAnswer && initialCountdownDone && timeRemaining > 0) {
-      // Som de aviso nos últimos 10 segundos
-      if (timeRemaining === 10) {
-        soundService.playWarning();
-      }
-      
+    if (!showResult && timeRemaining > 0) {
       const timer = setTimeout(() => {
         setTimeRemaining(time => time - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (timeRemaining === 0 && !showResult && !loading && !isSubmittingAnswer && initialCountdownDone) {
+    } else if (timeRemaining === 0 && !showResult) {
       handleTimeout();
     }
-  }, [timeRemaining, showResult, loading, isSubmittingAnswer, initialCountdownDone]);
+  }, [timeRemaining, showResult]);
 
   const loadQuestion = async () => {
     try {
       setLoading(true);
-      setIsSubmittingAnswer(false);
-      
-      // Limpar qualquer timer ativo antes de carregar nova pergunta
-      if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-      if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
-      
       const question = await quizService.getCurrentQuestion(sessionId);
       setCurrentQuestion(question);
       setTimeRemaining(Math.floor(question.timePerQuestion / 1000));
@@ -161,8 +80,7 @@ export const QuizScreen = () => {
 
   // Handler de seleção com auto-submit após 0.7s
   const handleAnswerSelect = (option: 'A' | 'B' | 'C' | 'D') => {
-    if (!isFocusedRef.current) return;
-    if (showResult || isSubmittingAnswer || !initialCountdownDone) return;
+    if (showResult) return;
 
     // Limpar timers anteriores
     if (submitTimerRef.current) {
@@ -172,8 +90,8 @@ export const QuizScreen = () => {
       clearInterval(countdownIntervalRef.current);
     }
 
-    // Som de seleção
-    soundService.playSelect();
+    // Haptic feedback leve
+    Vibration.vibrate(30);
 
     // Atualizar seleção
     setSelectedOption(option);
@@ -200,50 +118,19 @@ export const QuizScreen = () => {
   };
 
   const handleTimeout = async () => {
-    if (!isFocusedRef.current) return;
-    if (!currentQuestion || showResult || loading || isSubmittingAnswer) return;
+    if (!currentQuestion || showResult) return;
     
     try {
-      setIsSubmittingAnswer(true);
-
-      const result = await quizService.submitAnswer(
+      await quizService.submitAnswer(
         sessionId,
         selectedOption || 'A',
         currentQuestion.timePerQuestion,
-        currentQuestion.question.id,
-        true // isTimeout
+        currentQuestion.question.id
       );
-
-      setAnswerResult(result);
-      setShowResult(true);
-      setIsSubmittingAnswer(false);
-
-      // Atualizar pontuação e streak localmente
-      setCurrentScore(result.sessionStatus.score);
-      setCurrentStreak(result.sessionStatus.streakCount);
-
-      soundService.playIncorrect();
-
-      if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
-      resultDelayTimerRef.current = setTimeout(async () => {
-        if (!isScreenActiveRef.current || !isFocusedRef.current) return;
-        setShowResult(false);
-        setAnswerResult(null);
-        setSelectedOption(null);
-
-        // Incrementar contador de perguntas APÓS mostrar resultado
-        const newQuestionsAnswered = questionsAnswered + 1;
-        setQuestionsAnswered(newQuestionsAnswered);
-
-        if (newQuestionsAnswered >= 10 || result.sessionStatus.isPhaseComplete) {
-          navigation.navigate('QuizResult', { sessionId });
-        } else {
-          await loadNextQuestion();
-        }
-      }, RESULT_DISPLAY_MS);
+      Alert.alert('Tempo esgotado!', 'Você não respondeu a tempo.');
+      await loadNextQuestion();
     } catch (error) {
       console.error('Erro ao processar timeout:', error);
-      setIsSubmittingAnswer(false);
     }
   };
 
@@ -255,7 +142,7 @@ export const QuizScreen = () => {
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     
     setAutoSubmitCountdown(null);
-    setIsSubmittingAnswer(true);
+    setShowResult(true);
     
     try {
       const timeUsed = currentQuestion.timePerQuestion - (timeRemaining * 1000);
@@ -272,61 +159,36 @@ export const QuizScreen = () => {
       );
       
       console.log('📊 Resultado da resposta:', result);
-      console.log(`💰 Pontos desta pergunta: ${result.scoreResult.totalPoints} (Base: ${result.scoreResult.basePoints}, Speed: ${result.scoreResult.speedBonus}x${result.scoreResult.speedMultiplier})`);
-      console.log(`🔥 Streak atual: ${result.sessionStatus.streakCount}`);
-      
       setAnswerResult(result);
-      setShowResult(true);
-      setIsSubmittingAnswer(false);
 
       // Atualizar pontuação e streak localmente
       setCurrentScore(result.sessionStatus.score);
       setCurrentStreak(result.sessionStatus.streakCount);
 
-      // Som e feedback baseado no resultado
+      // Haptic feedback diferenciado
       if (result.answerRecord.isCorrect) {
-        soundService.playCorrect();
-        
-        // Som especial para streak
-        if (result.sessionStatus.streakCount >= 3) {
-          soundService.playStreak(result.sessionStatus.streakCount);
-        }
+        Vibration.vibrate(100); // Vibração longa para acerto
       } else {
-        soundService.playIncorrect();
+        Vibration.vibrate([0, 100, 50, 100]); // Padrão de erro
       }
       
-      // Mostrar resultado por 4 segundos
-      if (resultDelayTimerRef.current) clearTimeout(resultDelayTimerRef.current);
-      resultDelayTimerRef.current = setTimeout(async () => {
-        if (!isScreenActiveRef.current || !isFocusedRef.current) return;
+      // Mostrar resultado por 3 segundos
+      setTimeout(async () => {
         setShowResult(false);
         setAnswerResult(null);
         setSelectedOption(null);
         
-        // Incrementar contador de perguntas APÓS mostrar resultado
-        const newQuestionsAnswered = questionsAnswered + 1;
-        setQuestionsAnswered(newQuestionsAnswered);
-        
-        // Verificar se completou todas as 10 perguntas
-        if (newQuestionsAnswered >= 10 || result.sessionStatus.isPhaseComplete) {
-          console.log('🎉 Fase completada! Indo para resultados...');
-          
-          // Parar todos os timers antes de navegar
-          if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
-          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-          
-          // Navegar para resultados
+        if (result.sessionStatus.isPhaseComplete) {
           navigation.navigate('QuizResult', { sessionId });
         } else {
           await loadNextQuestion();
         }
-      }, RESULT_DISPLAY_MS);
+      }, 3000);
     } catch (error) {
       console.error('Erro ao submeter resposta:', error);
       Alert.alert('Erro', 'Não foi possível enviar a resposta');
       setShowResult(false);
       setSelectedOption(null);
-      setIsSubmittingAnswer(false);
     }
   };
 
@@ -372,7 +234,7 @@ export const QuizScreen = () => {
       <View style={styles.header}>
         <View style={styles.questionCounter}>
           <Text style={styles.questionCounterText}>
-            Pergunta {questionsAnswered + 1}/10
+            Pergunta {currentQuestion.questionIndex}/{currentQuestion.totalQuestions}
           </Text>
         </View>
         <View style={styles.timer}>
@@ -395,11 +257,11 @@ export const QuizScreen = () => {
           correctOption={showResult && answerResult ? answerResult.answerRecord.correctOption : undefined}
           showResult={showResult}
           onSelectOption={handleAnswerSelect}
-          disabled={showResult || isSubmittingAnswer || !initialCountdownDone}
+          disabled={showResult}
         />
 
         {/* Auto-submit countdown indicator */}
-        {initialCountdownDone && selectedOption && !showResult && autoSubmitCountdown !== null && (
+        {selectedOption && !showResult && autoSubmitCountdown !== null && (
           <View style={styles.autoSubmitIndicator}>
             <View style={styles.autoSubmitBar}>
               <View 
@@ -424,14 +286,6 @@ export const QuizScreen = () => {
                 <Text style={styles.successTitle}>Resposta Correta!</Text>
                 <Text style={styles.pointsEarned}>+{answerResult.scoreResult.totalPoints} pontos</Text>
               </View>
-            ) : answerResult.answerRecord.isTimeout ? (
-              <View style={styles.errorBanner}>
-                <Text style={styles.errorEmoji}>⏰</Text>
-                <Text style={styles.errorTitle}>Tempo esgotado</Text>
-                <Text style={styles.correctAnswerText}>
-                  Resposta correta: {answerResult.answerRecord.correctOption}
-                </Text>
-              </View>
             ) : (
               <View style={styles.errorBanner}>
                 <Text style={styles.errorEmoji}>😔</Text>
@@ -444,16 +298,6 @@ export const QuizScreen = () => {
           </View>
         )}
       </View>
-
-      {/* Countdown overlay */}
-      {!initialCountdownDone && startCountdown !== null && (
-        <View style={styles.countdownOverlay} pointerEvents="none">
-          <View style={styles.countdownCard}>
-            <Text style={styles.countdownTitle}>Prepare-se</Text>
-            <Text style={styles.countdownNumber}>{startCountdown}</Text>
-          </View>
-        </View>
-      )}
     </LinearGradient>
   );
 };
@@ -464,8 +308,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 55,
-    right: 20,
+    top: 50,
+    left: 20,
     zIndex: 10,
     width: 40,
     height: 40,
@@ -615,37 +459,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     fontFamily: 'Poppins-Medium',
-  },
-  countdownOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  countdownCard: {
-    paddingVertical: 18,
-    paddingHorizontal: 28,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-  },
-  countdownTitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    fontFamily: 'Poppins-Medium',
-    marginBottom: 8,
-  },
-  countdownNumber: {
-    fontSize: 64,
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    lineHeight: 72,
   },
 });
 

@@ -10,11 +10,16 @@ import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { achievements, getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { RootStackParamList } from '@/types';
+
+type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
 export const ProfileScreen = () => {
+  const navigation = useNavigation<ProfileNav>();
   const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, isLoading } = useApp();
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
@@ -69,19 +74,9 @@ export const ProfileScreen = () => {
     Alert.alert('Idioma alterado', `Idioma alterado para ${newLocale}`);
   };
 
-  const handleGoogleLogin = async () => {
-    setAuthBusy(true);
-    try {
-      const res = await signInWithGoogle();
-      if (!res.ok) {
-        Alert.alert(
-          'Login',
-          `Não foi possível entrar com Google.\n\nMotivo: ${res.message}`
-        );
-      }
-    } finally {
-      setAuthBusy(false);
-    }
+  const handleOpenLogin = () => {
+    soundService.playTap();
+    navigation.navigate('Login');
   };
 
   const handleLogout = async () => {
@@ -163,22 +158,22 @@ export const ProfileScreen = () => {
           <Text style={styles.sectionTitle}>Conta</Text>
           <Text style={styles.accountHint}>
             {isAuthenticated
-              ? 'Conectado via Google (Facebook depois).'
-              : 'Você está como convidado. Entre com Google para salvar na nuvem (em breve).'}
+              ? `Conectado como ${user?.email}.`
+              : 'Seu progresso está salvo localmente. Entre para sincronizar na nuvem e acessar de qualquer dispositivo.'}
           </Text>
 
           <View style={styles.accountButtons}>
             {isAuthenticated ? (
               <Button
                 title="Sair"
-                variant="ghost"
+                variant="danger"
                 onPress={handleLogout}
                 loading={authBusy || isLoading}
               />
             ) : (
               <Button
-                title="Entrar com Google"
-                onPress={handleGoogleLogin}
+                title="Entrar / Criar Conta"
+                onPress={handleOpenLogin}
                 loading={authBusy || isLoading}
               />
             )}

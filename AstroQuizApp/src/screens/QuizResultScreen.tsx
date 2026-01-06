@@ -9,7 +9,7 @@ import { ProgressStorage } from '@/utils/progressStorage';
 import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
 import soundService from '@/services/soundService';
 import { AchievementPopup } from '@/components';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -25,7 +25,7 @@ import quizService from '@/services/quizService';
 export const QuizResultScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizResult'>>();
-  const { sessionId } = route.params;
+  const { sessionId, usedQuestionIds = [] } = route.params;
 
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,15 @@ export const QuizResultScreen = () => {
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
   const [currentAchievementIndex, setCurrentAchievementIndex] = useState(0);
   const [showAchievementPopup, setShowAchievementPopup] = useState(false);
-  const scaleAnim = new Animated.Value(0);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const levelUpScale = useRef(new Animated.Value(0)).current;
+  const levelUpOpacity = useRef(new Animated.Value(0)).current;
+  const [levelUpInfo, setLevelUpInfo] = useState<{
+    from: number;
+    to: number;
+    title: string;
+    icon: string;
+  } | null>(null);
   const [stars, setStars] = useState(0);
   const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
   const [totalXP, setTotalXP] = useState(0);
@@ -73,6 +81,9 @@ export const QuizResultScreen = () => {
 
       // Se passou na fase (60%+), desbloquear próxima
       if (data.passed && data.phaseNumber) {
+        const prevProgress = await ProgressStorage.getProgress();
+        const prevLevel = getPlayerLevel(prevProgress.stats.totalXP);
+
         const updated = await ProgressStorage.updateAfterPhase({
           phaseNumber: data.phaseNumber,
           correctAnswers: data.correctAnswers || 0,
@@ -80,6 +91,7 @@ export const QuizResultScreen = () => {
           maxStreak: data.maxStreak || 0,
           totalTimeMs: data.totalTime,
           score: data.finalScore || data.score,
+          questionIds: usedQuestionIds,
         });
         
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
@@ -87,6 +99,10 @@ export const QuizResultScreen = () => {
         setLevelTitle(`${currentLevel.icon} ${currentLevel.title}`);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
         setPhaseUnlocked(updated.unlockedPhases > data.phaseNumber);
+
+        if (currentLevel.level > prevLevel.level) {
+          triggerLevelUp(prevLevel.level, currentLevel);
+        }
         
         // Verificar achievements desbloqueados
         const unlockedAchievementIds = updated.stats.achievements || [];
@@ -177,6 +193,38 @@ export const QuizResultScreen = () => {
       index: 0,
       routes: [{ name: 'Main' }],
     });
+  };
+
+  const triggerLevelUp = (fromLevel: number, toLevel: { level: number; title: string; icon: string }) => {
+    setLevelUpInfo({
+      from: fromLevel,
+      to: toLevel.level,
+      title: toLevel.title,
+      icon: toLevel.icon,
+    });
+    levelUpScale.setValue(0.4);
+    levelUpOpacity.setValue(0);
+    Animated.parallel([
+      Animated.spring(levelUpScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(levelUpOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const closeLevelUp = () => {
+    Animated.timing(levelUpOpacity, {
+      toValue: 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start(() => setLevelUpInfo(null));
   };
 
   const handleAchievementClose = () => {
@@ -413,6 +461,22 @@ export const QuizResultScreen = () => {
         <View style={styles.bottomSpace} />
       </ScrollView>
 
+      {levelUpInfo && (
+        <Animated.View style={[styles.levelUpOverlay, { opacity: levelUpOpacity }]}>
+          <Animated.View style={[styles.levelUpCard, { transform: [{ scale: levelUpScale }] }]}>
+            <Text style={styles.levelUpIcon}>🎉</Text>
+            <Text style={styles.levelUpTitle}>Level Up!</Text>
+            <Text style={styles.levelUpSubtitle}>
+              Você passou do nível {levelUpInfo.from} para {levelUpInfo.to}
+            </Text>
+            <Text style={styles.levelUpBadge}>{levelUpInfo.icon} {levelUpInfo.title}</Text>
+            <TouchableOpacity style={styles.levelUpButton} onPress={closeLevelUp} activeOpacity={0.85}>
+              <Text style={styles.levelUpButtonText}>Continuar</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
+      )}
+
       {/* Achievement Popup */}
       {newAchievements.length > 0 && (
         <AchievementPopup
@@ -441,28 +505,28 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 0,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 8,
   },
   emoji: {
-    fontSize: 80,
-    marginBottom: 16,
+    fontSize: 48,
+    marginBottom: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'rgba(255, 255, 255, 0.7)',
     fontFamily: 'Poppins-Regular',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   starRow: {
     flexDirection: 'row',
@@ -668,6 +732,62 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 40,
+  },
+  levelUpOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  levelUpCard: {
+    width: '90%',
+    maxWidth: 380,
+    backgroundColor: '#1F2539',
+    borderRadius: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFA726',
+  },
+  levelUpIcon: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  levelUpTitle: {
+    fontSize: 28,
+    color: '#FFA726',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 4,
+  },
+  levelUpSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.85)',
+    fontFamily: 'Poppins-Medium',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  levelUpBadge: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontFamily: 'Poppins-Bold',
+    marginBottom: 20,
+  },
+  levelUpButton: {
+    backgroundColor: '#FFA726',
+    borderRadius: 12,
+    paddingHorizontal: 32,
+    paddingVertical: 12,
+  },
+  levelUpButtonText: {
+    color: '#1A1A2E',
+    fontSize: 16,
+    fontFamily: 'Poppins-Bold',
   },
 });
 

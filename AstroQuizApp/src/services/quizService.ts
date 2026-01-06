@@ -20,11 +20,13 @@ class QuizService {
     phaseNumber: number,
     locale: string = 'pt',
     userId?: string,
+    excludeQuestions: number[] = [],
   ): Promise<any> {
     const response = await api.post<any>('/quiz/start', {
       phaseNumber,
       locale,
       userId,
+      excludeQuestions,
     });
 
     if (!response.success || !response.data) {

@@ -152,6 +152,11 @@ export interface GameStats {
   achievements: string[];
 }
 
+// Histórico local de perguntas já usadas (para evitar repetição).
+export interface GameProgressAnswered {
+  answeredQuestionIds: number[];
+}
+
 export interface UserStats {
   totalPhases: number;
   phasesCompleted: number;
@@ -187,6 +192,7 @@ export interface DailyChallenge {
 
 // ===== NAVIGATION TYPES =====
 export type RootStackParamList = {
+  Login: undefined;
   Main: undefined;
   QuizGame: {
     phaseNumber: number;
@@ -194,6 +200,7 @@ export type RootStackParamList = {
   };
   QuizResult: {
     sessionId: string;
+    usedQuestionIds?: number[];
   };
   LevelDetail: {
     levelNumber: number;

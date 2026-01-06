@@ -111,6 +111,47 @@
                 "C",
                 "D"
             ]
+        },
+        "questionType": {
+            "type": "enumeration",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "default": "text",
+            "enum": [
+                "text",
+                "image"
+            ]
+        },
+        "imageUrl": {
+            "type": "string",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            }
+        },
+        "topicKey": {
+            "type": "enumeration",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "enum": [
+                "Galaxies & Cosmology",
+                "General Curiosities",
+                "Relativity & Fundamental Physics",
+                "Scientists",
+                "Small Solar System Bodies",
+                "Solar System",
+                "Space Missions",
+                "Space Observation",
+                "Stellar Objects",
+                "Worlds Beyond"
+            ]
         }
     }
 }

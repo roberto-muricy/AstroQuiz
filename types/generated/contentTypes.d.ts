@@ -412,6 +412,12 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    imageUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
+        };
+      }>;
     level: Schema.Attribute.Integer &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -466,10 +472,36 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    questionType: Schema.Attribute.Enumeration<['text', 'image']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'text'>;
     topic: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
+        };
+      }>;
+    topicKey: Schema.Attribute.Enumeration<
+      [
+        'Galaxies & Cosmology',
+        'General Curiosities',
+        'Relativity & Fundamental Physics',
+        'Scientists',
+        'Small Solar System Bodies',
+        'Solar System',
+        'Space Missions',
+        'Space Observation',
+        'Stellar Objects',
+        'Worlds Beyond',
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: false;
         };
       }>;
     updatedAt: Schema.Attribute.DateTime;

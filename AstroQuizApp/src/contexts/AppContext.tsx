@@ -17,6 +17,8 @@ interface AppContextData {
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
   signInWithGoogle: () => Promise<{ ok: true } | { ok: false; message: string }>;
+  signInWithEmail: (email: string, password: string) => Promise<{ ok: boolean; message?: string }>;
+  signUpWithEmail: (email: string, password: string) => Promise<{ ok: boolean; message?: string }>;
   signOut: () => Promise<void>;
 
   // Quiz state
@@ -57,6 +59,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, []);
 
   /**
+   * Gerar ID anônimo único (UUID v4 simples)
+   */
+  const generateAnonymousId = () => {
+    return 'anon_' + Date.now() + '_' + Math.random().toString(36).substring(2, 15);
+  };
+
+  /**
    * Carregar dados iniciais
    */
   const loadInitialData = async () => {
@@ -67,11 +76,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       } else {
-        // Criar usuário convidado para desenvolvimento (e permitir login social depois)
-        const mockUser: User = {
-          id: "guest",
+        // Criar usuário anônimo com ID único persistente
+        // Progresso salva localmente e migra quando fizer login
+        const anonId = generateAnonymousId();
+        const anonUser: User = {
+          id: anonId,
           name: "Astronauta",
-          email: "guest@astroquiz.com",
+          email: `${anonId}@guest.astroquiz.com`,
           level: 1,
           xp: 0,
           totalXP: 0,
@@ -81,7 +92,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        setUser(mockUser);
+        setUser(anonUser);
+        await AsyncStorage.setItem("@user", JSON.stringify(anonUser));
       }
 
       // Carregar locale salvo
@@ -130,7 +142,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const rules = await quizService.getGameRules();
       setGameRules(rules);
     } catch (error) {
-      console.error("Erro ao carregar regras:", error);
+      // Log leve para evitar tela vermelha quando estiver offline
+      console.log("⚠️ Erro ao carregar regras (offline?):", (error as any)?.message || error);
     }
   };
 
@@ -163,7 +176,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [currentSession]);
 
-  const isAuthenticated = !!user && user.id !== "guest";
+  const isAuthenticated = !!user && !user.id.startsWith("anon_") && user.id !== "guest";
 
   /**
    * Login com Google (Firebase Auth)
@@ -227,6 +240,83 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   };
 
+  const handleFirebaseUser = async (fbUser: any): Promise<User> => {
+    // Sync with Strapi backend
+    console.log('📡 Syncing user with Strapi...');
+    try {
+      const serverProfile = await strapiSyncService.syncUser(
+        fbUser.uid,
+        fbUser.email,
+        fbUser.displayName,
+        fbUser.photoURL
+      );
+
+      // Merge local stats with server stats
+      const localProgress = await ProgressStorage.getProgress();
+      const mergedStats = strapiSyncService.mergeStats(localProgress.stats, serverProfile);
+
+      // Update local storage with merged data
+      await ProgressStorage.saveProgress({
+        ...localProgress,
+        stats: mergedStats,
+      });
+
+      console.log('✅ User synced with Strapi');
+    } catch (error) {
+      console.warn('⚠️ Could not sync with Strapi, continuing with local data:', error);
+      // Non-blocking: user can still play even if sync fails
+    }
+
+    const nextUser: User = {
+      id: fbUser.uid,
+      name: fbUser.displayName || "Astronauta",
+      email: fbUser.email || "user@astroquiz.com",
+      avatarUrl: fbUser.photoURL || null,
+      level: user?.level ?? 1,
+      xp: user?.xp ?? 0,
+      totalXP: user?.totalXP ?? 0,
+      streak: user?.streak ?? 0,
+      locale: user?.locale ?? "pt",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    setUser(nextUser);
+    return nextUser;
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signInWithEmail(email, password);
+      if (!result.ok) return { ok: false, message: result.message };
+
+      const fbUser = authService.getCurrentUser();
+      if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
+
+      await handleFirebaseUser(fbUser);
+      return { ok: true };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signUpWithEmail(email, password);
+      if (!result.ok) return { ok: false, message: result.message };
+
+      const fbUser = authService.getCurrentUser();
+      if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após criar a conta." };
+
+      await handleFirebaseUser(fbUser);
+      return { ok: true };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   /**
    * Logout
    */
@@ -259,6 +349,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         setUser,
         isAuthenticated,
         signInWithGoogle,
+        signInWithEmail,
+        signUpWithEmail,
         signOut,
         currentSession,
         setCurrentSession,

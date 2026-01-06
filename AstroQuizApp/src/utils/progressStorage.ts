@@ -23,11 +23,13 @@ export interface GameProgress {
   unlockedPhases: number;
   completedPhases: number[];
   stats: GameStats;
+  answeredQuestionIds: number[];
 }
 
 const getDefaultProgress = (): GameProgress => ({
   unlockedPhases: 1,
   completedPhases: [],
+  answeredQuestionIds: [],
   stats: {
     totalXP: 0,
     phasesCompleted: 0,
@@ -47,7 +49,16 @@ export const ProgressStorage = {
     try {
       const saved = await AsyncStorage.getItem(PROGRESS_KEY);
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return {
+          ...getDefaultProgress(),
+          ...parsed,
+          answeredQuestionIds: parsed.answeredQuestionIds || [],
+          stats: {
+            ...getDefaultProgress().stats,
+            ...parsed.stats,
+          },
+        };
       }
       return getDefaultProgress();
     } catch (error) {
@@ -83,9 +94,10 @@ export const ProgressStorage = {
     maxStreak: number;
     totalTimeMs?: number;
     score?: number;
+    questionIds?: number[];
   }): Promise<GameProgress> {
     const progress = await this.getProgress();
-    const { phaseNumber, correctAnswers, totalQuestions, maxStreak } = params;
+    const { phaseNumber, correctAnswers, totalQuestions, maxStreak, questionIds } = params;
 
     const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
     const stars = calculateStarRating(correctAnswers, totalQuestions);
@@ -124,6 +136,14 @@ export const ProgressStorage = {
     if (canUnlock && phaseNumber + 1 > progress.unlockedPhases) {
       progress.unlockedPhases = phaseNumber + 1;
       console.log(`🎉 Fase ${phaseNumber + 1} desbloqueada! (req ${requirement.requiredAccuracy}%)`);
+    }
+
+    // Registrar perguntas usadas para evitar repetição em próximas fases (capar lista para 500 itens)
+    if (Array.isArray(questionIds) && questionIds.length > 0) {
+      const merged = new Set(progress.answeredQuestionIds || []);
+      questionIds.filter(Boolean).forEach((id) => merged.add(id));
+      const limited = Array.from(merged).slice(-500);
+      progress.answeredQuestionIds = limited;
     }
 
     await this.saveProgress(progress);

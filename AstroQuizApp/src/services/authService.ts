@@ -102,6 +102,35 @@ class AuthService {
   getCurrentUser() {
     return auth().currentUser;
   }
+
+  async signInWithEmail(email: string, password: string): Promise<AuthResult> {
+    try {
+      await auth().signInWithEmailAndPassword(email.trim(), password);
+      return { ok: true };
+    } catch (e: any) {
+      const code = e?.code as string | undefined;
+      let message = 'Não foi possível entrar com e-mail.';
+      if (code === 'auth/invalid-email') message = 'E-mail inválido.';
+      if (code === 'auth/user-not-found') message = 'Usuário não encontrado.';
+      if (code === 'auth/wrong-password') message = 'Senha incorreta.';
+      if (code === 'auth/too-many-requests') message = 'Muitas tentativas. Tente mais tarde.';
+      return { ok: false, code: 'UNKNOWN', message };
+    }
+  }
+
+  async signUpWithEmail(email: string, password: string): Promise<AuthResult> {
+    try {
+      await auth().createUserWithEmailAndPassword(email.trim(), password);
+      return { ok: true };
+    } catch (e: any) {
+      const code = e?.code as string | undefined;
+      let message = 'Não foi possível criar a conta.';
+      if (code === 'auth/email-already-in-use') message = 'E-mail já está em uso.';
+      if (code === 'auth/invalid-email') message = 'E-mail inválido.';
+      if (code === 'auth/weak-password') message = 'Senha muito fraca (mínimo 6 caracteres).';
+      return { ok: false, code: 'UNKNOWN', message };
+    }
+  }
 }
 
 export default new AuthService();

@@ -12,14 +12,16 @@ import { Platform } from 'react-native';
 const PROD_API_BASE_URL = 'https://sua-api-producao.com/api';
 
 // DEV defaults
-const DEV_LAN_API_BASE_URL = 'http://192.168.68.109:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
+const DEV_LAN_API_BASE_URL = 'http://192.168.68.110:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
 const DEV_IOS_SIM_API_BASE_URL = 'http://localhost:1337/api'; // iOS Simulator
 const DEV_ANDROID_EMULATOR_API_BASE_URL = 'http://10.0.2.2:1337/api'; // Android Emulator
 
 const API_BASE_URL_OVERRIDE_KEY = '@api_base_url_override';
 
-// Preferir sempre o IP da rede local em dev (funciona no device físico e também no simulador).
-const getDefaultDevBaseUrl = () => DEV_LAN_API_BASE_URL;
+const getDefaultDevBaseUrl = () => {
+  if (Platform.OS === 'ios') return DEV_IOS_SIM_API_BASE_URL;
+  return DEV_ANDROID_EMULATOR_API_BASE_URL;
+};
 
 const getInitialBaseUrl = () => {
   if (!__DEV__) return PROD_API_BASE_URL;
@@ -191,9 +193,57 @@ class ApiService {
 
   private async ensureBaseUrlResolved(): Promise<string | null> {
     if (!__DEV__) return;
-    // Forçar sempre o IP da LAN em dev para evitar cache/override antigo.
-    this.resolvedBaseUrl = DEV_LAN_API_BASE_URL;
-    this.api.defaults.baseURL = DEV_LAN_API_BASE_URL;
+    if (this.resolvedBaseUrl) return this.resolvedBaseUrl;
+    if (this.resolvingBaseUrl) {
+      await this.resolvingBaseUrl;
+      return this.resolvedBaseUrl;
+    }
+
+    this.resolvingBaseUrl = this.resolveDevBaseUrl().finally(() => {
+      this.resolvingBaseUrl = null;
+    });
+
+    const baseUrl = await this.resolvingBaseUrl;
+    this.resolvedBaseUrl = baseUrl;
+    this.api.defaults.baseURL = baseUrl;
+
+    if (__DEV__) {
+      console.log('🌐 API baseURL resolved:', baseUrl);
+    }
+
+    return baseUrl;
+  }
+
+  private async resolveDevBaseUrl(): Promise<string> {
+    // 1) Override salvo (quando o IP muda, você pode trocar sem mexer no código)
+    try {
+      const override = await AsyncStorage.getItem(API_BASE_URL_OVERRIDE_KEY);
+      if (override) return override;
+    } catch {
+      // ignore
+    }
+
+    // 2) Tenta detectar automaticamente (simulador vs device)
+    const probe = axios.create({ timeout: 1200 });
+    const probeHealth = async (baseUrl: string) => {
+      try {
+        const res = await probe.get(`${baseUrl}/quiz/health`, {
+          validateStatus: () => true,
+        });
+        return res.status >= 200 && res.status < 500;
+      } catch {
+        return false;
+      }
+    };
+
+    if (Platform.OS === 'ios') {
+      // iOS Simulator -> localhost; iPhone físico -> LAN IP
+      if (await probeHealth(DEV_IOS_SIM_API_BASE_URL)) return DEV_IOS_SIM_API_BASE_URL;
+      return DEV_LAN_API_BASE_URL;
+    }
+
+    // Android Emulator -> 10.0.2.2; device físico -> LAN IP
+    if (await probeHealth(DEV_ANDROID_EMULATOR_API_BASE_URL)) return DEV_ANDROID_EMULATOR_API_BASE_URL;
     return DEV_LAN_API_BASE_URL;
   }
 }
