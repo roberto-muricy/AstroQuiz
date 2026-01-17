@@ -9,8 +9,10 @@ import { ProgressStorage } from '@/utils/progressStorage';
 import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
 import soundService from '@/services/soundService';
 import { AchievementPopup } from '@/components';
+import { useApp } from '@/contexts/AppContext';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,11 +23,14 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
+import { useTranslation } from 'react-i18next';
 
 export const QuizResultScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizResult'>>();
   const { sessionId, usedQuestionIds = [] } = route.params;
+  const { locale } = useApp();
+  const { t } = useTranslation();
 
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -143,7 +148,7 @@ export const QuizResultScreen = () => {
       if (startingNextPhase) return;
       setStartingNextPhase(true);
       if (sessionData?.phaseNumber) {
-        const newSession = await quizService.startQuiz(sessionData.phaseNumber, 'pt');
+        const newSession = await quizService.startQuiz(sessionData.phaseNumber, locale);
         navigation.reset({
           index: 1,
           routes: [
@@ -168,7 +173,7 @@ export const QuizResultScreen = () => {
       if (startingNextPhase) return;
       setStartingNextPhase(true);
       const nextPhase = (sessionData?.phaseNumber || 1) + 1;
-      const newSession = await quizService.startQuiz(nextPhase, 'pt');
+      const newSession = await quizService.startQuiz(nextPhase, locale);
       navigation.reset({
         index: 1,
         routes: [
@@ -246,7 +251,7 @@ export const QuizResultScreen = () => {
         style={styles.container}
       >
         <View style={styles.loading}>
-          <Text style={styles.loadingText}>Calculando resultados...</Text>
+          <Text style={styles.loadingText}>{t('result.calculatingResults')}</Text>
         </View>
       </LinearGradient>
     );
@@ -267,48 +272,51 @@ export const QuizResultScreen = () => {
       colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']}
       style={styles.container}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        bounces={true}
-        scrollEventThrottle={16}
-      >
-        {/* Header com Emoji de Performance */}
-        <Animated.View style={[styles.header, { transform: [{ scale: scaleAnim }] }]}>
-          <Text style={styles.emoji}>
-            {isPerfect ? '🏆' : isGreat ? '🌟' : isGood ? '👍' : '💪'}
-          </Text>
-          <Text style={styles.title}>
-            {isPerfect ? 'Perfeito!' : isGreat ? 'Excelente!' : isGood ? 'Muito Bem!' : 'Continue Tentando!'}
-          </Text>
-          <Text style={styles.subtitle}>
-            Fase {sessionData.phaseNumber} {passed ? 'Concluída' : 'Incompleta'}
-          </Text>
-        <View style={styles.starRow}>
-          {[1,2,3].map((s)=>(
-            <Text key={s} style={styles.star}>{s <= stars ? '⭐' : '☆'}</Text>
-          ))}
-        </View>
-        {levelTitle ? (
-          <View style={styles.levelRow}>
-            <Text style={styles.levelText}>{levelTitle}</Text>
-            <Text style={styles.levelSubText}>
-              {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : 'Nível máximo alcançado'}
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          bounces={true}
+          scrollEventThrottle={16}
+        >
+          {/* Header com Emoji de Performance */}
+          <Animated.View style={[styles.header, { transform: [{ scale: scaleAnim }] }]}>
+            <Text style={styles.emoji}>
+              {isPerfect ? '🏆' : isGreat ? '🌟' : isGood ? '👍' : '💪'}
             </Text>
+            <Text style={styles.title}>
+              {isPerfect ? t('result.perfect') : isGreat ? t('result.excellent') : isGood ? t('result.veryGood') : t('result.keepTrying')}
+            </Text>
+            <Text style={styles.subtitle}>
+              {passed
+                ? t('result.phaseCompleted', { phase: sessionData.phaseNumber })
+                : t('result.phaseIncomplete', { phase: sessionData.phaseNumber })}
+            </Text>
+          <View style={styles.starRow}>
+            {[1,2,3].map((s)=>(
+              <Text key={s} style={styles.star}>{s <= stars ? '⭐' : '☆'}</Text>
+            ))}
           </View>
-        ) : null}
-          
-          {/* Badge de Passou/Não Passou */}
-          {passed ? (
-            <View style={styles.passedBadge}>
-              <Text style={styles.passedText}>✓ APROVADO</Text>
+          {levelTitle ? (
+            <View style={styles.levelRow}>
+              <Text style={styles.levelText}>{levelTitle}</Text>
+              <Text style={styles.levelSubText}>
+                {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
+              </Text>
             </View>
-          ) : (
-            <View style={styles.failedBadge}>
-              <Text style={styles.failedText}>Necessário: 60%</Text>
-            </View>
-          )}
-        </Animated.View>
+          ) : null}
+            
+            {/* Badge de Passou/Não Passou */}
+            {passed ? (
+              <View style={styles.passedBadge}>
+                <Text style={styles.passedText}>{t('result.approved')}</Text>
+              </View>
+            ) : (
+              <View style={styles.failedBadge}>
+                <Text style={styles.failedText}>{t('result.required')}</Text>
+              </View>
+            )}
+          </Animated.View>
 
         {/* Card de Pontuação Principal */}
         <View style={styles.scoreCard}>
@@ -316,9 +324,9 @@ export const QuizResultScreen = () => {
             colors={['#5A5A9C', '#4A4A7C']}
             style={styles.scoreGradient}
           >
-            <Text style={styles.scoreLabel}>Pontuação Final</Text>
+            <Text style={styles.scoreLabel}>{t('result.finalScore')}</Text>
             <Text style={styles.scoreValue}>{sessionData.finalScore || sessionData.score || 0}</Text>
-            <Text style={styles.accuracyText}>{accuracy}% de acertos</Text>
+            <Text style={styles.accuracyText}>{t('result.accuracy', { percent: accuracy })}</Text>
           </LinearGradient>
         </View>
 
@@ -328,12 +336,12 @@ export const QuizResultScreen = () => {
             <View style={styles.statItem}>
               <Text style={styles.statEmoji}>✅</Text>
               <Text style={styles.statValue}>{sessionData.correctAnswers || 0}</Text>
-              <Text style={styles.statLabel}>Acertos</Text>
+              <Text style={styles.statLabel}>{t('result.correct_plural')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statEmoji}>❌</Text>
               <Text style={styles.statValue}>{sessionData.incorrectAnswers || 0}</Text>
-              <Text style={styles.statLabel}>Erros</Text>
+              <Text style={styles.statLabel}>{t('result.incorrect_plural')}</Text>
             </View>
           </View>
 
@@ -341,14 +349,14 @@ export const QuizResultScreen = () => {
             <View style={styles.statItem}>
               <Text style={styles.statEmoji}>🔥</Text>
               <Text style={styles.statValue}>{sessionData.maxStreak || 0}</Text>
-              <Text style={styles.statLabel}>Maior Streak</Text>
+              <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statEmoji}>⏱️</Text>
               <Text style={styles.statValue}>
                 {Math.round((sessionData.totalTime || 180000) / 1000)}s
               </Text>
-              <Text style={styles.statLabel}>Tempo Total</Text>
+              <Text style={styles.statLabel}>{t('result.totalTime')}</Text>
             </View>
           </View>
         </View>
@@ -357,10 +365,10 @@ export const QuizResultScreen = () => {
         {isPerfect && (
           <View style={styles.achievementCard}>
             <Text style={styles.achievementEmoji}>👑</Text>
-            <Text style={styles.achievementTitle}>Perfect Score!</Text>
+            <Text style={styles.achievementTitle}>{t('result.perfectScore')}</Text>
             <Text style={styles.achievementText}>
-              Você acertou todas as perguntas!
-              {'\n'}+50% Bônus de Perfeição aplicado!
+              {t('result.allCorrect')}
+              {'\n'}{t('result.perfectBonus')}
             </Text>
           </View>
         )}
@@ -368,9 +376,9 @@ export const QuizResultScreen = () => {
         {sessionData.maxStreak >= 10 && (
           <View style={styles.achievementCard}>
             <Text style={styles.achievementEmoji}>🔥</Text>
-            <Text style={styles.achievementTitle}>Streak Master!</Text>
+            <Text style={styles.achievementTitle}>{t('result.streakMaster')}</Text>
             <Text style={styles.achievementText}>
-              {sessionData.maxStreak} respostas corretas seguidas!
+              {t('result.consecutiveCorrect', { count: sessionData.maxStreak })}
             </Text>
           </View>
         )}
@@ -379,10 +387,10 @@ export const QuizResultScreen = () => {
           <View style={[styles.achievementCard, styles.achievementSuccess]}>
             <Text style={styles.achievementEmoji}>🎉</Text>
             <Text style={[styles.achievementTitle, styles.achievementTitleSuccess]}>
-              Nova Fase Desbloqueada!
+              {t('result.newPhaseUnlocked')}
             </Text>
             <Text style={styles.achievementText}>
-              Fase {sessionData.phaseNumber + 1} está disponível agora
+              {t('result.phaseAvailable', { phase: sessionData.phaseNumber + 1 })}
             </Text>
           </View>
         )}
@@ -390,10 +398,10 @@ export const QuizResultScreen = () => {
           <View style={[styles.achievementCard, styles.achievementWarning]}>
             <Text style={styles.achievementEmoji}>🔒</Text>
             <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-              Requisito para próxima fase
+              {t('result.nextPhaseRequirement')}
             </Text>
             <Text style={styles.achievementText}>
-              Precisão mínima: {unlockRequirement.requiredAccuracy}% {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
+              {t('result.minAccuracy', { percent: unlockRequirement.requiredAccuracy })} {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
             </Text>
           </View>
         )}
@@ -402,11 +410,11 @@ export const QuizResultScreen = () => {
           <View style={[styles.achievementCard, styles.achievementWarning]}>
             <Text style={styles.achievementEmoji}>💪</Text>
             <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-              Continue Praticando!
+              {t('result.keepPracticing')}
             </Text>
             <Text style={styles.achievementText}>
-              Você precisa de 60% de acertos para passar.
-              {'\n'}Tente novamente e conquiste esta fase!
+              {t('result.need60')}
+              {'\n'}{t('result.tryAgainConquer')}
             </Text>
           </View>
         )}
@@ -423,7 +431,7 @@ export const QuizResultScreen = () => {
                 colors={['#FFA726', '#FF8A00']}
                 style={styles.buttonGradient}
               >
-                <Text style={styles.buttonText}>▶ Próxima Fase</Text>
+                <Text style={styles.buttonText}>{t('result.nextPhase')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -437,7 +445,7 @@ export const QuizResultScreen = () => {
                 colors={['#EF4444', '#DC2626']}
                 style={styles.buttonGradient}
               >
-                <Text style={styles.buttonText}>🔄 Tentar Novamente</Text>
+                <Text style={styles.buttonText}>{t('result.tryAgain')}</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -447,31 +455,32 @@ export const QuizResultScreen = () => {
             onPress={handlePlayAgain}
             disabled={startingNextPhase}
           >
-            <Text style={styles.secondaryButtonText}>🔄 Jogar Novamente</Text>
+            <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.tertiaryButton}
             onPress={handleBackToMenu}
           >
-            <Text style={styles.tertiaryButtonText}>← Voltar ao Menu</Text>
+            <Text style={styles.tertiaryButtonText}>{t('result.backToMenu')}</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.bottomSpace} />
-      </ScrollView>
+          <View style={styles.bottomSpace} />
+        </ScrollView>
+      </SafeAreaView>
 
       {levelUpInfo && (
         <Animated.View style={[styles.levelUpOverlay, { opacity: levelUpOpacity }]}>
           <Animated.View style={[styles.levelUpCard, { transform: [{ scale: levelUpScale }] }]}>
             <Text style={styles.levelUpIcon}>🎉</Text>
-            <Text style={styles.levelUpTitle}>Level Up!</Text>
+            <Text style={styles.levelUpTitle}>{t('result.levelUp')}</Text>
             <Text style={styles.levelUpSubtitle}>
-              Você passou do nível {levelUpInfo.from} para {levelUpInfo.to}
+              {t('result.levelUpFrom', { from: levelUpInfo.from, to: levelUpInfo.to })}
             </Text>
             <Text style={styles.levelUpBadge}>{levelUpInfo.icon} {levelUpInfo.title}</Text>
             <TouchableOpacity style={styles.levelUpButton} onPress={closeLevelUp} activeOpacity={0.85}>
-              <Text style={styles.levelUpButtonText}>Continuar</Text>
+              <Text style={styles.levelUpButtonText}>{t('common.continue')}</Text>
             </TouchableOpacity>
           </Animated.View>
         </Animated.View>
@@ -493,6 +502,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  safeArea: {
+    flex: 1,
+  },
   loading: {
     flex: 1,
     justifyContent: 'center',
@@ -505,7 +517,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingTop: 0,
+    // Extra breathing room so the trophy/emoji doesn't hug the notch even on devices with smaller safe areas.
+    paddingTop: 12,
   },
   header: {
     alignItems: 'center',

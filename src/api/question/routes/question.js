@@ -1,22 +1,35 @@
 'use strict';
 
 /**
- * question router
- * Combina rotas padrão do Strapi com suporte a i18n
+ * Custom question routes for public API access
  */
 
-const { createCoreRouter } = require('@strapi/strapi').factories;
-
-module.exports = createCoreRouter('api::question.question', {
-  config: {
-    find: {
-      policies: [],
-      middlewares: [],
+module.exports = {
+  type: 'content-api',
+  routes: [
+    {
+      method: 'GET',
+      path: '/questions',
+      handler: 'api::question.question.find',
+      config: {
+        auth: false,
+      },
     },
-    findOne: {
-      policies: [],
-      middlewares: [],
+    {
+      method: 'GET',
+      path: '/questions/:id',
+      handler: 'api::question.question.findOne',
+      config: {
+        auth: false,
+      },
     },
-  },
-});
-
+    {
+      method: 'POST',
+      path: '/questions',
+      handler: 'api::question.question.create',
+      config: {
+        auth: false,
+      },
+    },
+  ],
+};

@@ -11,9 +11,11 @@ import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useTranslation } from 'react-i18next';
 
 export const StatsScreen = () => {
   const { user } = useApp();
+  const { t } = useTranslation();
   const [stats, setStats] = useState({
     totalXP: 0,
     phasesCompleted: 0,
@@ -51,82 +53,82 @@ export const StatsScreen = () => {
   return (
     <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Minhas Estatísticas</Text>
+        <Text style={styles.title}>{t('stats.title')}</Text>
 
         {/* Resumo Geral */}
         <Card>
-          <Text style={styles.cardTitle}>Resumo Geral</Text>
+          <Text style={styles.cardTitle}>{t('stats.overview')}</Text>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{stats.totalXP.toLocaleString()}</Text>
-              <Text style={styles.statLabel}>Total XP</Text>
+              <Text style={styles.statLabel}>{t('stats.totalXp')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{currentLevel.level}</Text>
-              <Text style={styles.statLabel}>Nível Atual</Text>
+              <Text style={styles.statLabel}>{t('stats.currentLevel')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{stats.maxStreak}</Text>
-              <Text style={styles.statLabel}>Maior Streak</Text>
+              <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
             </View>
           </View>
           <View style={styles.levelInfo}>
             <Text style={styles.levelTitle}>{currentLevel.icon} {currentLevel.title}</Text>
             <Text style={styles.levelSubtext}>
-              {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : 'Nível máximo alcançado!'}
+              {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
             </Text>
           </View>
         </Card>
 
         {/* Progresso nas Fases */}
         <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Progresso nas Fases</Text>
+          <Text style={styles.cardTitle}>{t('stats.progressPhases')}</Text>
           <View style={styles.progressItem}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Fases Completadas</Text>
+              <Text style={styles.progressLabel}>{t('stats.phasesCompleted')}</Text>
               <Text style={styles.progressValue}>{stats.phasesCompleted}/50</Text>
             </View>
             <ProgressBar progress={progressPct * 100} showLabel={false} />
             <Text style={styles.progressSubtext}>
-              {Math.round(progressPct * 100)}% do jogo completo
+              {t('stats.gameComplete', { percent: Math.round(progressPct * 100) })}
             </Text>
           </View>
           <View style={styles.progressItem}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressLabel}>Fases Perfeitas</Text>
+              <Text style={styles.progressLabel}>{t('stats.perfectPhases')}</Text>
               <Text style={styles.progressValue}>{stats.perfectPhases}</Text>
             </View>
             <Text style={styles.progressSubtext}>
               {stats.phasesCompleted > 0 
-                ? `${Math.round((stats.perfectPhases / stats.phasesCompleted) * 100)}% das fases completadas`
-                : 'Nenhuma fase completa ainda'}
+                ? t('stats.percentPerfect', { percent: Math.round((stats.perfectPhases / stats.phasesCompleted) * 100) })
+                : t('stats.noneCompleted')}
             </Text>
           </View>
         </Card>
 
         {/* Desempenho */}
         <Card style={styles.card}>
-          <Text style={styles.cardTitle}>Desempenho</Text>
+          <Text style={styles.cardTitle}>{t('stats.performance')}</Text>
           <View style={styles.performanceRow}>
             <View style={styles.performanceItem}>
               <Text style={[styles.performanceValue, accuracy >= 80 && styles.performanceGood]}>
                 {accuracy}%
               </Text>
-              <Text style={styles.performanceLabel}>Taxa de Acerto</Text>
+              <Text style={styles.performanceLabel}>{t('stats.accuracyRate')}</Text>
             </View>
             <View style={styles.performanceItem}>
               <Text style={styles.performanceValue}>{averageTimePerQuestion}s</Text>
-              <Text style={styles.performanceLabel}>Tempo Médio</Text>
+              <Text style={styles.performanceLabel}>{t('stats.avgTime')}</Text>
             </View>
           </View>
           <View style={styles.statsGrid}>
             <View style={styles.statGridItem}>
               <Text style={styles.statGridValue}>{stats.totalQuestionsAnswered}</Text>
-              <Text style={styles.statGridLabel}>Total de Perguntas</Text>
+              <Text style={styles.statGridLabel}>{t('stats.totalQuestions')}</Text>
             </View>
             <View style={styles.statGridItem}>
               <Text style={styles.statGridValue}>{stats.totalCorrectAnswers}</Text>
-              <Text style={styles.statGridLabel}>Acertos</Text>
+              <Text style={styles.statGridLabel}>{t('result.correct_plural')}</Text>
             </View>
           </View>
         </Card>
@@ -134,7 +136,7 @@ export const StatsScreen = () => {
         {/* Conquistas */}
         <Card style={styles.card}>
           <View style={styles.achievementHeader}>
-            <Text style={styles.cardTitle}>🏆 Conquistas</Text>
+            <Text style={styles.cardTitle}>🏆 {t('achievements.title')}</Text>
             <Text style={styles.achievementCount}>
               {stats.achievements.length}/{achievements.length}
             </Text>
@@ -172,7 +174,7 @@ export const StatsScreen = () => {
                         !isUnlocked && styles.achievementTextLocked,
                       ]}
                     >
-                      {isUnlocked ? achievement.description : 'Conquista bloqueada'}
+                      {isUnlocked ? achievement.description : t('achievements.locked')}
                     </Text>
                   </View>
                   {isUnlocked && (

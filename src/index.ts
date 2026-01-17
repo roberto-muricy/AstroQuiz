@@ -1,6 +1,200 @@
 // In-memory session storage
 const quizSessions = new Map();
 
+// Persist quiz sessions to survive Strapi restarts/hot-reload (prevents 404 "Session not found")
+const QUIZ_SESSION_TABLE = 'quiz_sessions';
+const QUIZ_SESSION_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
+
+async function ensureQuizSessionTable(strapi) {
+  const knex = strapi.db.connection;
+  const has = await knex.schema.hasTable(QUIZ_SESSION_TABLE);
+  if (has) return;
+
+  await knex.schema.createTable(QUIZ_SESSION_TABLE, (t) => {
+    t.string('session_id').primary();
+    t.text('data').notNullable(); // JSON string
+    t.datetime('created_at').notNullable();
+    t.datetime('updated_at').notNullable();
+    t.datetime('expires_at').notNullable();
+  });
+
+  strapi.log.info(`✅ Created ${QUIZ_SESSION_TABLE} table`);
+}
+
+async function cleanupExpiredQuizSessions(strapi) {
+  const knex = strapi.db.connection;
+  const nowIso = new Date().toISOString();
+  try {
+    const deleted = await knex(QUIZ_SESSION_TABLE).where('expires_at', '<', nowIso).del();
+    if (deleted > 0) strapi.log.info(`🧹 Deleted ${deleted} expired quiz sessions`);
+  } catch (e) {
+    // ignore cleanup failures
+  }
+}
+
+async function saveQuizSession(strapi, session) {
+  const knex = strapi.db.connection;
+  const nowIso = new Date().toISOString();
+  const expiresIso = new Date(Date.now() + QUIZ_SESSION_TTL_MS).toISOString();
+  const payload = JSON.stringify(session);
+
+  await knex(QUIZ_SESSION_TABLE)
+    .insert({
+      session_id: session.sessionId,
+      data: payload,
+      created_at: session.startedAt || nowIso,
+      updated_at: nowIso,
+      expires_at: expiresIso,
+    })
+    .onConflict('session_id')
+    .merge({
+      data: payload,
+      updated_at: nowIso,
+      expires_at: expiresIso,
+    });
+}
+
+async function loadQuizSession(strapi, sessionId) {
+  const knex = strapi.db.connection;
+  const nowIso = new Date().toISOString();
+  const row = await knex(QUIZ_SESSION_TABLE)
+    .where({ session_id: sessionId })
+    .andWhere('expires_at', '>=', nowIso)
+    .first();
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data);
+  } catch {
+    return null;
+  }
+}
+
+async function fetchImageUrlsByQuestionIds(strapi, questionIds) {
+  if (!Array.isArray(questionIds) || questionIds.length === 0) return new Map();
+  const knex = strapi.db.connection;
+
+  const rows = await knex('files_related_mph as frm')
+    .join('files as f', 'f.id', 'frm.file_id')
+    .select('frm.related_id as questionId', 'f.url as imageUrl')
+    .whereIn('frm.related_id', questionIds)
+    .andWhere('frm.related_type', 'api::question.question')
+    .andWhere('frm.field', 'image');
+
+  const map = new Map();
+  for (const r of rows || []) {
+    if (r?.questionId && r?.imageUrl) map.set(r.questionId, r.imageUrl);
+  }
+  return map;
+}
+
+async function fetchImageCandidateForPhase(strapi, { locale, levels, includeDrafts }) {
+  const knex = strapi.db.connection;
+
+  let query = knex('questions as q')
+    .join('files_related_mph as frm', function (this: any) {
+      this.on('frm.related_id', '=', 'q.id')
+        .andOnVal('frm.related_type', 'api::question.question')
+        .andOnVal('frm.field', 'image');
+    })
+    .join('files as f', 'f.id', 'frm.file_id')
+    .select(
+      'q.id',
+      'q.document_id as documentId',
+      'q.question',
+      'q.option_a as optionA',
+      'q.option_b as optionB',
+      'q.option_c as optionC',
+      'q.option_d as optionD',
+      'q.explanation',
+      'q.level',
+      'q.topic',
+      'q.locale',
+      'f.url as imageUrl',
+    )
+    .where('q.locale', locale)
+    .whereIn('q.level', Array.isArray(levels) ? levels : [])
+    .orderBy('q.id', 'asc')
+    .limit(1);
+
+  if (!includeDrafts) {
+    query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
+  }
+
+  const rows = await query;
+  return rows?.[0] || null;
+}
+
+function requireWriteTokenIfConfigured(ctx) {
+  const requiredToken = process.env.STRAPI_WRITE_TOKEN;
+  if (!requiredToken) return;
+
+  const authHeader = ctx.request.headers?.authorization || '';
+  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice('Bearer '.length).trim() : null;
+  if (!bearer || bearer !== requiredToken) {
+    ctx.unauthorized('Invalid or missing write token');
+  }
+}
+
+async function fetchQuestionRowById(strapi, id) {
+  const knex = strapi.db.connection;
+  const rows = await knex('questions as q')
+    .leftJoin('files_related_mph as frm', function (this: any) {
+      this.on('frm.related_id', '=', 'q.id')
+        .andOnVal('frm.related_type', 'api::question.question')
+        .andOnVal('frm.field', 'image');
+    })
+    .leftJoin('files as f', 'f.id', 'frm.file_id')
+    .select(
+      'q.id',
+      'q.document_id as documentId',
+      'q.question',
+      'q.option_a as optionA',
+      'q.option_b as optionB',
+      'q.option_c as optionC',
+      'q.option_d as optionD',
+      'q.correct_option as correctOption',
+      'q.explanation',
+      'q.topic',
+      'q.topic_key as topicKey',
+      'q.level',
+      'q.locale',
+      'q.base_id as baseId',
+      'q.question_type as questionType',
+      'q.published_at as publishedAt',
+      'q.created_at as createdAt',
+      'q.updated_at as updatedAt',
+      'f.id as imageId',
+      'f.url as imageUrl',
+      'f.name as imageName',
+    )
+    .where('q.id', Number(id))
+    .limit(1);
+
+  const r = rows?.[0];
+  if (!r) return null;
+  return {
+    id: r.id,
+    documentId: r.documentId,
+    question: r.question,
+    optionA: r.optionA,
+    optionB: r.optionB,
+    optionC: r.optionC,
+    optionD: r.optionD,
+    correctOption: r.correctOption,
+    explanation: r.explanation,
+    topic: r.topic,
+    topicKey: r.topicKey,
+    level: r.level,
+    locale: r.locale,
+    baseId: r.baseId,
+    questionType: r.questionType || (r.imageId ? 'image' : 'text'),
+    publishedAt: r.publishedAt,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    image: r.imageId ? { id: r.imageId, url: r.imageUrl, name: r.imageName } : null,
+  };
+}
+
 /**
  * Get difficulty distribution for each phase (1-50)
  * Returns array of {level, count} matching the frontend progressionSystem.ts
@@ -102,6 +296,9 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }) {
+    await ensureQuizSessionTable(strapi);
+    await cleanupExpiredQuizSessions(strapi);
+
     // Register quiz-engine routes with inline handlers
     strapi.server.routes([
       {
@@ -117,6 +314,180 @@ export default {
               version: '1.0.0'
             }
           };
+        },
+        config: { auth: false },
+      },
+      // Questions API routes - uses raw DB query for reliable image population
+      {
+        method: 'GET',
+        path: '/api/questions',
+        handler: async (ctx) => {
+          try {
+            const {
+              locale = 'en',
+              limit = 100,
+              start = 0,
+              baseId,
+              questionType,
+              published,
+              withImage,
+            } = ctx.query;
+
+            // Use Knex raw SQL for reliable image relation lookup
+            // (Strapi entityService has issues with media populate + i18n)
+            const knex = strapi.db.connection;
+
+            let query = knex('questions as q')
+              .leftJoin('files_related_mph as frm', function(this: any) {
+                this.on('frm.related_id', '=', 'q.id')
+                  .andOnVal('frm.related_type', 'api::question.question')
+                  .andOnVal('frm.field', 'image');
+              })
+              .leftJoin('files as f', 'f.id', 'frm.file_id')
+              .select(
+                'q.id', 'q.document_id as documentId', 'q.question',
+                'q.option_a as optionA', 'q.option_b as optionB',
+                'q.option_c as optionC', 'q.option_d as optionD',
+                'q.correct_option as correctOption', 'q.explanation',
+                'q.topic', 'q.topic_key as topicKey', 'q.level', 'q.locale',
+                'q.base_id as baseId', 'q.question_type as questionType',
+                'q.published_at as publishedAt', 'q.created_at as createdAt',
+                'f.id as imageId', 'f.url as imageUrl', 'f.name as imageName'
+              )
+              .where('q.locale', locale);
+
+            if (baseId) query = query.andWhere('q.base_id', baseId);
+            if (published === 'true') query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
+            if (published === 'false') query = query.andWhereRaw("(q.published_at IS NULL OR q.published_at = '')");
+            if (withImage === 'true') query = query.whereNotNull('f.id');
+            if (withImage === 'false') query = query.whereNull('f.id');
+            if (questionType === 'image') query = query.andWhereRaw("(q.question_type = 'image' OR f.id IS NOT NULL)");
+            else if (questionType === 'text') query = query.andWhereRaw("(q.question_type IS NULL OR q.question_type = 'text') AND f.id IS NULL");
+            else if (questionType) query = query.andWhere('q.question_type', questionType);
+
+            query = query.orderBy('q.id', 'desc');
+            const rows = await query;
+
+            // Transform to API format
+            const data = rows.slice(Number(start) || 0, (Number(start) || 0) + (Number(limit) || 100)).map((r: any) => ({
+              id: r.id,
+              documentId: r.documentId,
+              question: r.question,
+              optionA: r.optionA,
+              optionB: r.optionB,
+              optionC: r.optionC,
+              optionD: r.optionD,
+              correctOption: r.correctOption,
+              explanation: r.explanation,
+              topic: r.topic,
+              topicKey: r.topicKey,
+              level: r.level,
+              locale: r.locale,
+              baseId: r.baseId,
+              questionType: r.questionType || (r.imageId ? 'image' : 'text'),
+              publishedAt: r.publishedAt,
+              createdAt: r.createdAt,
+              image: r.imageId ? { id: r.imageId, url: r.imageUrl, name: r.imageName } : null,
+            }));
+
+            ctx.body = { data, meta: { total: rows.length } };
+          } catch (error) {
+            strapi.log.error('GET /api/questions error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+        config: { auth: false },
+      },
+      {
+        method: 'GET',
+        path: '/api/questions/:id',
+        handler: async (ctx) => {
+          try {
+            const { id } = ctx.params;
+            const row = await fetchQuestionRowById(strapi, id);
+            if (!row) return ctx.notFound('Question not found');
+            ctx.body = { data: row };
+          } catch (error) {
+            strapi.log.error('GET /api/questions/:id error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+        config: { auth: false },
+      },
+      {
+        method: 'POST',
+        path: '/api/questions',
+        handler: async (ctx) => {
+          try {
+            requireWriteTokenIfConfigured(ctx);
+
+            // Accept both shapes:
+            // - { data: {...} } (Strapi-standard)
+            // - { ... } (simple)
+            const body = ctx.request.body || {};
+            const data = body?.data && typeof body.data === 'object' ? body.data : body;
+
+            // Allow publishing via ?publish=true or by passing publishedAt explicitly.
+            const publish = ctx.query?.publish === 'true';
+            const normalizedData = {
+              ...data,
+              ...(publish && !data.publishedAt ? { publishedAt: new Date().toISOString() } : {}),
+            };
+
+            const question = await strapi.entityService.create('api::question.question', {
+              data: normalizedData,
+              populate: { image: true },
+            });
+            ctx.body = { data: question };
+          } catch (error) {
+            ctx.throw(500, error.message);
+          }
+        },
+        config: { auth: false },
+      },
+      {
+        method: 'PUT',
+        path: '/api/questions/:id',
+        handler: async (ctx) => {
+          try {
+            requireWriteTokenIfConfigured(ctx);
+
+            const { id } = ctx.params;
+            const body = ctx.request.body || {};
+            const data = body?.data && typeof body.data === 'object' ? body.data : body;
+
+            // Allow editing localized text fields + (optionally) correctOption/topicKey/questionType/level
+            const patch: Record<string, any> = {};
+            const mapField = (key: string, col: string) => {
+              if (data[key] !== undefined) patch[col] = data[key];
+            };
+
+            mapField('question', 'question');
+            mapField('optionA', 'option_a');
+            mapField('optionB', 'option_b');
+            mapField('optionC', 'option_c');
+            mapField('optionD', 'option_d');
+            mapField('explanation', 'explanation');
+            mapField('topic', 'topic');
+
+            mapField('correctOption', 'correct_option');
+            mapField('topicKey', 'topic_key');
+            mapField('questionType', 'question_type');
+            mapField('level', 'level');
+
+            // Always bump updated_at
+            patch.updated_at = new Date().toISOString();
+
+            const knex = strapi.db.connection;
+            const changed = await knex('questions').where('id', Number(id)).update(patch);
+            if (!changed) return ctx.notFound('Question not found');
+
+            const row = await fetchQuestionRowById(strapi, id);
+            ctx.body = { data: row };
+          } catch (error) {
+            strapi.log.error('PUT /api/questions/:id error:', error);
+            ctx.throw(500, error.message);
+          }
         },
         config: { auth: false },
       },
@@ -144,7 +515,15 @@ export default {
         path: '/api/quiz/start',
         handler: async (ctx) => {
           try {
-            const { phaseNumber = 1, locale = 'pt' } = ctx.request.body;
+            const {
+              phaseNumber = 1,
+              locale = 'pt',
+              excludeQuestions = [],
+              forceImage = false,
+              // New default behavior: ensure at least one image question if available for the phase/locale.
+              ensureImage = true,
+              includeDrafts = false,
+            } = ctx.request.body || {};
 
             // Validate locale (keep aligned with mobile support)
             const supportedLocales = ['en', 'pt', 'es', 'fr'];
@@ -160,9 +539,12 @@ export default {
               const selected = await selectorService.selectPhaseQuestions({
                 phaseNumber,
                 locale,
-                excludeQuestions: [],
+                excludeQuestions: Array.isArray(excludeQuestions) ? excludeQuestions : [],
                 recentTopics: [],
                 userPerformance: {},
+                // Ensure at least one image question when available (can be disabled by client if needed).
+                forceImage: !!forceImage || !!ensureImage,
+                includeDrafts: process.env.NODE_ENV !== 'production' && !!includeDrafts,
               });
               questions = (selected || []).slice(0, 10);
             } else {
@@ -182,7 +564,10 @@ export default {
                   level: { $in: levels },
                 },
                 limit: 1500,
-                publicationState: 'live',
+                // NOTE: for draftAndPublish collections, this keeps only published.
+                // For dev testing, allow drafts explicitly.
+                ...(process.env.NODE_ENV !== 'production' && includeDrafts ? {} : { publicationState: 'live' }),
+                populate: { image: true },
                 sort: { id: 'asc' },
               });
 
@@ -228,11 +613,97 @@ export default {
               return ctx.badRequest(`No questions available for phase ${phaseNumber} in locale ${locale}`);
             }
 
+            // Normalize question objects and include image info for the mobile app
+            const normalizeQuestion = (q) => {
+              const imgUrl =
+                q?.imageUrl ||
+                q?.image?.url ||
+                (Array.isArray(q?.image) ? q.image?.[0]?.url : null) ||
+                null;
+
+              // Be defensive: if we have an image URL, it's an image question (even if questionType is wrong).
+              const qType = imgUrl ? 'image' : (q?.questionType || q?.question_type || 'text');
+
+              return {
+                id: q.id,
+                documentId: q.documentId,
+                question: q.question,
+                optionA: q.optionA,
+                optionB: q.optionB,
+                optionC: q.optionC,
+                optionD: q.optionD,
+                explanation: q.explanation,
+                level: q.level,
+                topic: q.topic,
+                locale: q.locale || locale,
+                questionType: qType,
+                imageUrl: imgUrl,
+              };
+            };
+
+            questions = (questions || []).map(normalizeQuestion);
+
+            // Enrich selected questions with imageUrl using DB join (entityService populate can miss it).
+            try {
+              const ids = (questions || []).map(q => q?.id).filter(Boolean);
+              const imageMap = await fetchImageUrlsByQuestionIds(strapi, ids);
+              questions = (questions || []).map((q) => {
+                const imgUrl = q?.imageUrl || imageMap.get(q?.id) || null;
+                return {
+                  ...q,
+                  imageUrl: imgUrl,
+                  questionType: imgUrl ? 'image' : (q?.questionType || 'text'),
+                };
+              });
+            } catch (e) {
+              strapi.log.warn(`⚠️ Could not enrich questions with images: ${e.message}`);
+            }
+
+            // Ensure at least one image question is present (if any exists in the pool)
+            if (forceImage || ensureImage) {
+              const hasImage = questions.some(q => !!q.imageUrl);
+              if (!hasImage) {
+                const phaseLevels = getDifficultyDistribution(Number(phaseNumber)).map(d => d.level);
+                const candidate = await fetchImageCandidateForPhase(strapi, {
+                  locale,
+                  levels: phaseLevels,
+                  includeDrafts: process.env.NODE_ENV !== 'production' && !!includeDrafts,
+                });
+
+                const imgCandidate = candidate
+                  ? {
+                      id: candidate.id,
+                      documentId: candidate.documentId,
+                      question: candidate.question,
+                      optionA: candidate.optionA,
+                      optionB: candidate.optionB,
+                      optionC: candidate.optionC,
+                      optionD: candidate.optionD,
+                      explanation: candidate.explanation,
+                      level: candidate.level,
+                      topic: candidate.topic,
+                      locale: candidate.locale || locale,
+                      questionType: 'image',
+                      imageUrl: candidate.imageUrl,
+                    }
+                  : null;
+
+                if (imgCandidate) {
+                  // Replace a question of the same level when possible
+                  const sameLevelIdx = questions.findIndex(q => q.level === imgCandidate.level);
+                  const replaceIdx = sameLevelIdx >= 0 ? sameLevelIdx : 0;
+                  questions[replaceIdx] = imgCandidate;
+                } else {
+                  strapi.log.warn(`⚠️ ensureImage=true but no image questions found (phase=${phaseNumber}, locale=${locale})`);
+                }
+              }
+            }
+
             // Create simple session ID
             const sessionId = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
             
-            // Inicializar sessão em memória
-            quizSessions.set(sessionId, {
+            // Inicializar sessão em memória + persistir no DB (survive restarts)
+            const sessionObj = {
               sessionId,
               phaseNumber,
               locale,
@@ -248,7 +719,10 @@ export default {
               totalTime: 0,
               startedAt: new Date().toISOString(),
               status: 'active'
-            });
+            };
+
+            quizSessions.set(sessionId, sessionObj);
+            await saveQuizSession(strapi, sessionObj);
             
             strapi.log.info(`🎮 Nova sessão criada: ${sessionId}, Fase: ${phaseNumber}`);
             
@@ -306,7 +780,11 @@ export default {
           try {
             const { sessionId } = ctx.params;
 
-            const session = quizSessions.get(sessionId);
+            let session = quizSessions.get(sessionId);
+            if (!session) {
+              session = await loadQuizSession(strapi, sessionId);
+              if (session) quizSessions.set(sessionId, session);
+            }
             if (!session) {
               return ctx.notFound('Session not found or expired');
             }
@@ -324,7 +802,7 @@ export default {
               success: true,
               data: {
                 sessionId,
-                questionIndex: session.currentQuestionIndex,
+                questionIndex: session.currentQuestionIndex + 1,
                 totalQuestions: session.totalQuestions,
                 question: {
                   id: question.id,
@@ -337,6 +815,9 @@ export default {
                   explanation: question.explanation,
                   level: question.level,
                   topic: question.topic,
+                  locale: question.locale,
+                  questionType: question.questionType || (question.imageUrl ? 'image' : 'text'),
+                  imageUrl: question.imageUrl || null,
                 },
                 timeRemaining: 30000,
                 timePerQuestion: 30000,
@@ -344,6 +825,9 @@ export default {
                 currentStreak: session.streakCount || 0
               }
             };
+
+            // Keep session fresh in DB
+            await saveQuizSession(strapi, session);
           } catch (error) {
             strapi.log.error('Error getting question:', error);
             ctx.internalServerError('Failed to get question');
@@ -443,6 +927,10 @@ export default {
             // Atualizar sessão em memória
             let session = quizSessions.get(sessionId);
             if (!session) {
+              session = await loadQuizSession(strapi, sessionId);
+              if (session) quizSessions.set(sessionId, session);
+            }
+            if (!session) {
               // Criar sessão se não existir
               session = {
                 sessionId,
@@ -508,6 +996,7 @@ export default {
             }
 
             quizSessions.set(sessionId, session);
+            await saveQuizSession(strapi, session);
             
             strapi.log.info(`📊 Session ${sessionId} - Score: ${session.score}, Streak: ${session.streakCount}, Progress: ${session.currentQuestionIndex}/10`);
 
@@ -556,7 +1045,11 @@ export default {
           try {
             const { sessionId } = ctx.params;
             
-            const session = quizSessions.get(sessionId);
+            let session = quizSessions.get(sessionId);
+            if (!session) {
+              session = await loadQuizSession(strapi, sessionId);
+              if (session) quizSessions.set(sessionId, session);
+            }
             
             if (!session) {
               return ctx.notFound('Session not found or expired');
@@ -580,7 +1073,11 @@ export default {
           try {
             const { sessionId } = ctx.params;
             
-            const session = quizSessions.get(sessionId);
+            let session = quizSessions.get(sessionId);
+            if (!session) {
+              session = await loadQuizSession(strapi, sessionId);
+              if (session) quizSessions.set(sessionId, session);
+            }
             
             if (!session) {
               return ctx.notFound('Session not found');
@@ -610,6 +1107,7 @@ export default {
             if (avgTime < 10000) achievements.push('speed_demon');
             
             quizSessions.set(sessionId, session);
+            await saveQuizSession(strapi, session);
             
             strapi.log.info(`🏁 Fase ${session.phaseNumber} finalizada - Score: ${session.score}, Accuracy: ${accuracy}%, Passou: ${passed}`);
 

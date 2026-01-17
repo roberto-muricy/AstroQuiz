@@ -4,9 +4,10 @@
  */
 
 import { Question } from '@/types';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { Card } from './Card';
+import api from '@/services/api';
 
 interface QuestionCardProps {
   question: Question;
@@ -25,6 +26,19 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   onSelectOption,
   disabled = false,
 }) => {
+  const [imageLoading, setImageLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const imageUri = useMemo(() => {
+    if (!question.imageUrl) return null;
+    const raw = question.imageUrl.trim();
+    if (!raw) return null;
+    if (/^https?:\/\//i.test(raw)) return raw; // already absolute
+    const base = api.getPublicBaseUrl();
+    const path = raw.startsWith('/') ? raw : `/${raw}`;
+    return `${base}${path}`;
+  }, [question.imageUrl]);
+
   const renderOption = (
     option: 'A' | 'B' | 'C' | 'D',
     text: string,
@@ -94,6 +108,28 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
       <Text style={styles.question}>{question.question}</Text>
 
+      {/* Imagem da pergunta (se questionType === 'image') */}
+      {imageUri && !imageError && (
+        <View style={styles.imageWrap}>
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.questionImage}
+            resizeMode="contain"
+            onLoadStart={() => setImageLoading(true)}
+            onLoadEnd={() => setImageLoading(false)}
+            onError={() => {
+              setImageLoading(false);
+              setImageError(true);
+            }}
+          />
+          {imageLoading && (
+            <View style={styles.imageOverlay}>
+              <ActivityIndicator color="#FFA726" />
+            </View>
+          )}
+        </View>
+      )}
+
       <View style={styles.options}>
         {renderOption('A', question.optionA)}
         {renderOption('B', question.optionB)}
@@ -148,6 +184,30 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     marginBottom: 24,
     lineHeight: 26,
+  },
+  questionImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  imageWrap: {
+    width: '100%',
+    marginBottom: 20,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
   },
   options: {
     gap: 12,

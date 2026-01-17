@@ -86,6 +86,8 @@ out/
 # ========================================
 # Keep: public/assets/
 # Ignore: temp uploads
+public/uploads/*
+!public/uploads/.gitkeep
 uploads/temp/
 temp/
 

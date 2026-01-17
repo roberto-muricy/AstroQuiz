@@ -10,6 +10,9 @@ import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import firebase from '@react-native-firebase/app';
 
+// Importar configuração de i18n (deve ser antes do App)
+import '@/i18n';
+
 const App = () => {
   useEffect(() => {
     initializeFirebase();

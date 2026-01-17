@@ -13,7 +13,7 @@ module.exports = {
    */
   async start(ctx) {
     try {
-      const { phaseNumber, locale = 'en', userId, userPreferences = {}, excludeQuestions = [] } = ctx.request.body;
+      const { phaseNumber, locale = 'en', userId, userPreferences = {}, excludeQuestions = [], forceImage = false, includeDrafts = false } = ctx.request.body;
 
       // Validate phase number
       if (!phaseNumber || phaseNumber < 1 || phaseNumber > 50) {
@@ -39,7 +39,10 @@ module.exports = {
         locale,
         excludeQuestions: Array.isArray(excludeQuestions) ? excludeQuestions : [],
         recentTopics: [],
-        userPerformance: {}
+        userPerformance: {},
+        forceImage: !!forceImage,
+        // Dev-only: allow selecting drafts for testing
+        includeDrafts: process.env.NODE_ENV !== 'production' && !!includeDrafts,
       });
 
       if (questions.length === 0) {
@@ -104,9 +107,17 @@ module.exports = {
       }
 
       // Format question for response (hide correct answer)
+      // IMPORTANT: keep optionA..D for app compatibility; also include imageUrl/questionType.
+      const inferredType = currentQuestion.questionType || (currentQuestion.imageUrl ? 'image' : 'text');
       const questionData = {
         id: currentQuestion.id,
+        documentId: currentQuestion.documentId,
         question: currentQuestion.question,
+        optionA: currentQuestion.optionA,
+        optionB: currentQuestion.optionB,
+        optionC: currentQuestion.optionC,
+        optionD: currentQuestion.optionD,
+        // legacy convenience
         options: [
           currentQuestion.optionA,
           currentQuestion.optionB,
@@ -115,6 +126,10 @@ module.exports = {
         ],
         level: currentQuestion.level,
         topic: currentQuestion.topic,
+        locale: currentQuestion.locale,
+        explanation: currentQuestion.explanation,
+        questionType: inferredType,
+        imageUrl: currentQuestion.imageUrl || null,
         questionNumber: session.currentQuestionIndex + 1,
         totalQuestions: session.questions.length
       };
@@ -130,7 +145,14 @@ module.exports = {
             score: session.score,
             streakCount: session.streakCount
           },
-          question: questionData
+          // New shape (used by the mobile app)
+          questionIndex: session.currentQuestionIndex + 1,
+          totalQuestions: session.questions.length,
+          question: questionData,
+          timeRemaining: session.timePerQuestion,
+          timePerQuestion: session.timePerQuestion,
+          currentScore: session.score,
+          currentStreak: session.streakCount
         }
       };
     } catch (error) {

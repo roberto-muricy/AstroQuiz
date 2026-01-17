@@ -15,12 +15,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { RootStackParamList } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
 export const ProfileScreen = () => {
   const navigation = useNavigation<ProfileNav>();
   const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, isLoading } = useApp();
+  const { t } = useTranslation();
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
     vibrationEnabled: true,
@@ -71,7 +73,11 @@ export const ProfileScreen = () => {
   const handleChangeLanguage = (newLocale: string) => {
     setLocale(newLocale);
     soundService.playTap();
-    Alert.alert('Idioma alterado', `Idioma alterado para ${newLocale}`);
+    // Delay para pegar a tradução nova após mudar o locale
+    setTimeout(() => {
+      const langName = languages.find(l => l.code === newLocale)?.name || newLocale;
+      Alert.alert(t('profile.languageChanged'), t('profile.languageChangedTo', { lang: langName }));
+    }, 100);
   };
 
   const handleOpenLogin = () => {
@@ -144,35 +150,35 @@ export const ProfileScreen = () => {
             </View>
             <View style={styles.userStat}>
               <Text style={styles.userStatValue}>{maxStreak}</Text>
-              <Text style={styles.userStatLabel}>Maior Streak</Text>
+              <Text style={styles.userStatLabel}>{t('result.maxStreak')}</Text>
             </View>
             <View style={styles.userStat}>
               <Text style={styles.userStatValue}>{phasesCompleted}/50</Text>
-              <Text style={styles.userStatLabel}>Fases</Text>
+              <Text style={styles.userStatLabel}>{t('quiz.phase')}s</Text>
             </View>
           </View>
         </View>
 
         {/* Conta / Login */}
         <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Conta</Text>
+          <Text style={styles.sectionTitle}>{t('profile.accountTitle')}</Text>
           <Text style={styles.accountHint}>
             {isAuthenticated
-              ? `Conectado como ${user?.email}.`
-              : 'Seu progresso está salvo localmente. Entre para sincronizar na nuvem e acessar de qualquer dispositivo.'}
+              ? t('profile.connectedAs', { email: user?.email })
+              : t('profile.progressSavedLocally')}
           </Text>
 
           <View style={styles.accountButtons}>
             {isAuthenticated ? (
               <Button
-                title="Sair"
+                title={t('profile.logout')}
                 variant="danger"
                 onPress={handleLogout}
                 loading={authBusy || isLoading}
               />
             ) : (
               <Button
-                title="Entrar / Criar Conta"
+                title={t('profile.loginOrCreate')}
                 onPress={handleOpenLogin}
                 loading={authBusy || isLoading}
               />
@@ -183,7 +189,7 @@ export const ProfileScreen = () => {
         {/* Conquistas */}
         <Card style={styles.card}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>🏆 Conquistas</Text>
+            <Text style={styles.sectionTitle}>🏆 {t('achievements.title')}</Text>
             <Text style={styles.achievementCount}>
               {unlockedAchievements.length}/{achievements.length}
             </Text>
@@ -221,7 +227,7 @@ export const ProfileScreen = () => {
                         !isUnlocked && styles.achievementTextLocked,
                       ]}
                     >
-                      {isUnlocked ? achievement.description : 'Conquista bloqueada'}
+                      {isUnlocked ? achievement.description : t('achievements.locked')}
                     </Text>
                   </View>
                   {isUnlocked && (
@@ -237,7 +243,7 @@ export const ProfileScreen = () => {
 
         {/* Idioma */}
         <Card>
-          <Text style={styles.sectionTitle}>Idioma do Quiz</Text>
+          <Text style={styles.sectionTitle}>{t('profile.language')}</Text>
           <View style={styles.languageList}>
             {languages.map(lang => (
               <TouchableOpacity
@@ -260,16 +266,16 @@ export const ProfileScreen = () => {
 
         {/* Configurações */}
         <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Configurações</Text>
+          <Text style={styles.sectionTitle}>{t('profile.settings')}</Text>
           
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <Text style={styles.settingEmoji}>🎵</Text>
-              <Text style={styles.settingText}>Sons do Jogo</Text>
+              <Text style={styles.settingText}>{t('profile.sound')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={[styles.settingStatus, settings.soundEnabled && styles.settingStatusActive]}>
-                {settings.soundEnabled ? 'Ligado' : 'Desligado'}
+                {settings.soundEnabled ? '✓' : '✕'}
               </Text>
               <Switch
                 value={settings.soundEnabled}
@@ -284,11 +290,11 @@ export const ProfileScreen = () => {
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <Text style={styles.settingEmoji}>📳</Text>
-              <Text style={styles.settingText}>Vibração</Text>
+              <Text style={styles.settingText}>{t('profile.vibration')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={[styles.settingStatus, settings.vibrationEnabled && styles.settingStatusActive]}>
-                {settings.vibrationEnabled ? 'Ligado' : 'Desligado'}
+                {settings.vibrationEnabled ? '✓' : '✕'}
               </Text>
               <Switch
                 value={settings.vibrationEnabled}
@@ -303,11 +309,11 @@ export const ProfileScreen = () => {
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <Text style={styles.settingEmoji}>🎼</Text>
-              <Text style={styles.settingText}>Música de Fundo</Text>
+              <Text style={styles.settingText}>{t('profile.music')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={[styles.settingStatus, settings.musicEnabled && styles.settingStatusActive]}>
-                {settings.musicEnabled ? 'Ligado' : 'Desligado'}
+                {settings.musicEnabled ? '✓' : '✕'}
               </Text>
               <Switch
                 value={settings.musicEnabled}
@@ -322,11 +328,11 @@ export const ProfileScreen = () => {
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <Text style={styles.settingEmoji}>🔔</Text>
-              <Text style={styles.settingText}>Notificações</Text>
+              <Text style={styles.settingText}>{t('profile.notifications')}</Text>
             </View>
             <View style={styles.settingRight}>
               <Text style={[styles.settingStatus, settings.notificationsEnabled && styles.settingStatusActive]}>
-                {settings.notificationsEnabled ? 'Ligado' : 'Desligado'}
+                {settings.notificationsEnabled ? '✓' : '✕'}
               </Text>
               <Switch
                 value={settings.notificationsEnabled}
@@ -341,23 +347,23 @@ export const ProfileScreen = () => {
 
         {/* Sobre */}
         <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>Sobre</Text>
+          <Text style={styles.sectionTitle}>{t('profile.about')}</Text>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>ℹ️ Versão</Text>
+            <Text style={styles.settingText}>ℹ️ {t('profile.version')}</Text>
             <Text style={styles.settingValue}>1.0.0</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>📖 Termos de Uso</Text>
+            <Text style={styles.settingText}>📖 {t('profile.terms')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>🔒 Privacidade</Text>
+            <Text style={styles.settingText}>🔒 {t('profile.privacy')}</Text>
           </TouchableOpacity>
         </Card>
 
         <Button
-          title="Sair"
+          title={t('profile.logout')}
           variant="danger"
-          onPress={() => Alert.alert('Sair', 'Deseja realmente sair?')}
+          onPress={() => Alert.alert(t('profile.logoutConfirmTitle'), t('profile.logoutConfirmMessage'))}
           style={styles.logoutButton}
         />
 

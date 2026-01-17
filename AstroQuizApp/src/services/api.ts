@@ -12,7 +12,7 @@ import { Platform } from 'react-native';
 const PROD_API_BASE_URL = 'https://sua-api-producao.com/api';
 
 // DEV defaults
-const DEV_LAN_API_BASE_URL = 'http://192.168.68.110:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
+const DEV_LAN_API_BASE_URL = 'http://192.168.68.109:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
 const DEV_IOS_SIM_API_BASE_URL = 'http://localhost:1337/api'; // iOS Simulator
 const DEV_ANDROID_EMULATOR_API_BASE_URL = 'http://10.0.2.2:1337/api'; // Android Emulator
 
@@ -101,6 +101,22 @@ class ApiService {
         return Promise.reject(error);
       },
     );
+  }
+
+  /**
+   * BaseURL atual (com /api). Útil para debug e para construir URLs absolutas.
+   * Observação: em runtime, isso já estará resolvido após o primeiro request em DEV.
+   */
+  getBaseUrl(): string {
+    return this.resolvedBaseUrl || this.api.defaults.baseURL || API_BASE_URL;
+  }
+
+  /**
+   * Base URL pública do Strapi (sem o sufixo /api).
+   * Ex.: http://192.168.x.x:1337
+   */
+  getPublicBaseUrl(): string {
+    return this.getBaseUrl().replace(/\/api\/?$/, '');
   }
 
 

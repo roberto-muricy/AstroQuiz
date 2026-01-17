@@ -10,6 +10,7 @@ import { ProgressStorage } from "@/utils/progressStorage";
 import { GameRules, QuizSession, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { changeLanguage } from "@/i18n";
 
 interface AppContextData {
   // User state
@@ -159,10 +160,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [user]);
 
   /**
-   * Salvar locale no storage
+   * Salvar locale no storage e sincronizar com i18n
    */
   useEffect(() => {
     AsyncStorage.setItem("@locale", locale);
+    changeLanguage(locale); // Sincroniza i18n com o locale do contexto
   }, [locale]);
 
   /**

@@ -125,14 +125,6 @@
                 "image"
             ]
         },
-        "imageUrl": {
-            "type": "string",
-            "pluginOptions": {
-                "i18n": {
-                    "localized": false
-                }
-            }
-        },
         "topicKey": {
             "type": "enumeration",
             "pluginOptions": {
@@ -151,6 +143,21 @@
                 "Space Observation",
                 "Stellar Objects",
                 "Worlds Beyond"
+            ]
+        },
+        "image": {
+            "type": "media",
+            "pluginOptions": {
+                "i18n": {
+                    "localized": false
+                }
+            },
+            "multiple": false,
+            "allowedTypes": [
+                "images",
+                "files",
+                "videos",
+                "audios"
             ]
         }
     }

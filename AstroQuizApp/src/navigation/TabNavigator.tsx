@@ -9,6 +9,7 @@ import { TabParamList } from "@/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { Image, StyleSheet, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -29,6 +30,8 @@ const TabIcon = ({ icon, focused, color }: TabIconProps) => (
 );
 
 export const TabNavigator = () => {
+  const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -43,7 +46,7 @@ export const TabNavigator = () => {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: t("tabs.home"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon icon={Icons.home} focused={focused} color={color} />
           ),
@@ -53,7 +56,7 @@ export const TabNavigator = () => {
         name="Quiz"
         component={QuizListScreen}
         options={{
-          tabBarLabel: "Quiz",
+          tabBarLabel: t("tabs.quiz"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon icon={Icons.quiz} focused={focused} color={color} />
           ),
@@ -63,7 +66,7 @@ export const TabNavigator = () => {
         name="Stats"
         component={StatsScreen}
         options={{
-          tabBarLabel: "Stats",
+          tabBarLabel: t("tabs.stats"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon icon={Icons.stats} focused={focused} color={color} />
           ),
@@ -73,7 +76,7 @@ export const TabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarLabel: "Perfil",
+          tabBarLabel: t("tabs.profile"),
           tabBarIcon: ({ focused, color }) => (
             <TabIcon icon={Icons.profile} focused={focused} color={color} />
           ),

@@ -17,19 +17,21 @@ module.exports = {
    * @param {Object} params.userPerformance - User performance data
    * @returns {Promise<Array>} Selected questions
    */
-  async selectPhaseQuestions({ phaseNumber, locale = 'en', excludeQuestions = [], recentTopics = [], userPerformance = {} }) {
+  async selectPhaseQuestions({ phaseNumber, locale = 'en', excludeQuestions = [], recentTopics = [], userPerformance = {}, forceImage = false, includeDrafts = false }) {
     // Get phase configuration
     const phaseConfig = GameRulesHelper.getPhaseConfig(phaseNumber);
     if (!phaseConfig) {
       throw new Error(`Invalid phase number: ${phaseNumber}`);
     }
 
-    // Get questions from database
+    // Get questions from database (large pool)
     const questions = await this.getAvailableQuestions({
       locale,
       levels: phaseConfig.levels,
       excludeQuestions,
-      phaseNumber
+      phaseNumber,
+      forceImage,
+      includeDrafts,
     });
 
     if (questions.length < GAME_RULES.general.questionsPerPhase) {
@@ -48,6 +50,26 @@ module.exports = {
       excludeQuestions
     });
 
+    // Debug/QA: ensure at least one image question is present (if any exists in pool)
+    if (forceImage) {
+      const hasImage = selectedQuestions.some(q => !!q.imageUrl);
+      if (!hasImage) {
+        const imageCandidate = questions.find(q => !!q.imageUrl);
+        if (imageCandidate) {
+          // Prefer replacing a question of the same level to keep difficulty distribution similar
+          const sameLevelIdx = selectedQuestions.findIndex(q => q.level === imageCandidate.level);
+          const replaceIdx = sameLevelIdx >= 0 ? sameLevelIdx : 0;
+          if (selectedQuestions.length > 0) {
+            selectedQuestions[replaceIdx] = imageCandidate;
+          } else {
+            selectedQuestions.push(imageCandidate);
+          }
+        } else {
+          strapi.log.warn(`[selector] forceImage=true but no image questions found in pool (locale=${locale}, phase=${phaseNumber}).`);
+        }
+      }
+    }
+
     // Shuffle to avoid predictable patterns
     return this.shuffleArray(selectedQuestions);
   },
@@ -55,40 +77,75 @@ module.exports = {
   /**
    * Get available questions from database
    */
-  async getAvailableQuestions({ locale, levels, excludeQuestions, phaseNumber }) {
+  async getAvailableQuestions({ locale, levels, excludeQuestions, phaseNumber, forceImage = false, includeDrafts = false }) {
     try {
-      const filters = {
-        locale: { $eq: locale },
-        level: { $in: levels },
-        publishedAt: { $notNull: true }
-      };
+      // IMPORTANT:
+      // In this project, Strapi's entityService populate for media + i18n has been unreliable.
+      // For quiz selection we need imageUrl to be correct, so we query the SQLite tables directly via knex join.
+      const knex = strapi.db.connection;
 
-      // Exclude specific questions
-      if (excludeQuestions.length > 0) {
-        filters.id = { $notIn: excludeQuestions };
+      let query = knex('questions as q')
+        .leftJoin('files_related_mph as frm', function () {
+          this.on('frm.related_id', '=', 'q.id')
+            .andOnVal('frm.related_type', 'api::question.question')
+            .andOnVal('frm.field', 'image');
+        })
+        .leftJoin('files as f', 'f.id', 'frm.file_id')
+        .select(
+          'q.id',
+          'q.document_id as documentId',
+          'q.question',
+          'q.option_a as optionA',
+          'q.option_b as optionB',
+          'q.option_c as optionC',
+          'q.option_d as optionD',
+          'q.correct_option as correctOption',
+          'q.level',
+          'q.topic',
+          'q.explanation',
+          'q.locale',
+          'q.question_type as questionTypeRaw',
+          'f.url as imageUrl',
+        )
+        .where('q.locale', locale)
+        .whereIn('q.level', Array.isArray(levels) ? levels : [])
+        .orderBy('q.level', 'asc')
+        .limit(1000);
+
+      // By default, only published questions are available (draftAndPublish=true).
+      // For dev testing, allow drafts explicitly.
+      if (!includeDrafts) {
+        query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
       }
 
-      const questions = await strapi.entityService.findMany('api::question.question', {
-        filters,
-        locale,
-        limit: 1000, // Get a large pool
-        sort: { level: 'asc' }
-      });
+      // Exclude specific questions
+      if (Array.isArray(excludeQuestions) && excludeQuestions.length > 0) {
+        query = query.whereNotIn('q.id', excludeQuestions);
+      }
 
-      return questions.map(q => ({
-        id: q.id,
-        documentId: q.documentId,
-        question: q.question,
-        optionA: q.optionA,
-        optionB: q.optionB,
-        optionC: q.optionC,
-        optionD: q.optionD,
-        correctOption: q.correctOption,
-        level: q.level,
-        topic: q.topic || 'general',
-        explanation: q.explanation,
-        locale: q.locale
-      }));
+      const rows = await query;
+
+      return (rows || []).map((r) => {
+        const imgUrl = r.imageUrl || null;
+        const qType = imgUrl ? 'image' : (r.questionTypeRaw || 'text');
+
+        return {
+          id: r.id,
+          documentId: r.documentId,
+          question: r.question,
+          optionA: r.optionA,
+          optionB: r.optionB,
+          optionC: r.optionC,
+          optionD: r.optionD,
+          correctOption: r.correctOption,
+          level: r.level,
+          topic: r.topic || 'general',
+          imageUrl: imgUrl,
+          questionType: qType,
+          explanation: r.explanation,
+          locale: r.locale,
+        };
+      });
     } catch (error) {
       strapi.log.error('Error fetching questions:', error);
       throw error;

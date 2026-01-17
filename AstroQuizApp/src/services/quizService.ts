@@ -21,12 +21,15 @@ class QuizService {
     locale: string = 'pt',
     userId?: string,
     excludeQuestions: number[] = [],
+    options?: { forceImage?: boolean; includeDrafts?: boolean },
   ): Promise<any> {
     const response = await api.post<any>('/quiz/start', {
       phaseNumber,
       locale,
       userId,
       excludeQuestions,
+      ...(options?.forceImage ? { forceImage: true } : {}),
+      ...(options?.includeDrafts ? { includeDrafts: true } : {}),
     });
 
     if (!response.success || !response.data) {

@@ -412,7 +412,7 @@ export interface ApiQuestionQuestion extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
-    imageUrl: Schema.Attribute.String &
+    image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false;

@@ -12,6 +12,7 @@ import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { calculateStarRating, getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   ScrollView,
@@ -26,10 +27,10 @@ import LinearGradient from 'react-native-linear-gradient';
 export const QuizListScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { locale } = useApp();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [unlockedPhases, setUnlockedPhases] = useState(1); // Começar com fase 1 desbloqueada
   const [phaseStats, setPhaseStats] = useState<Record<number, any>>({});
-  const SHOW_DEBUG_UI = false;
 
   // Carregar progresso ao entrar na tela
   useFocusEffect(
@@ -49,8 +50,8 @@ export const QuizListScreen = () => {
     if (phaseNumber > unlockedPhases) {
       soundService.playIncorrect();
       Alert.alert(
-        'Fase Bloqueada 🔒',
-        `Complete a Fase ${phaseNumber - 1} para desbloquear esta fase!`
+        t('quizList.lockedTitle'),
+        t('quizList.lockedMessage', { prev: phaseNumber - 1 })
       );
       return;
     }
@@ -71,25 +72,31 @@ export const QuizListScreen = () => {
       });
     } catch (error) {
       console.error('❌ Erro ao iniciar quiz:', error);
-      Alert.alert('Erro', 'Não foi possível iniciar o quiz. Verifique sua conexão.');
+      Alert.alert(t('common.error'), t('errors.quizStartError'));
     } finally {
       setLoading(false);
     }
   };
 
+  const getTierKey = (phase: number): 'beginner' | 'novice' | 'intermediate' | 'advanced' | 'elite' => {
+    if (phase <= 10) return 'beginner';
+    if (phase <= 20) return 'novice';
+    if (phase <= 30) return 'intermediate';
+    if (phase <= 40) return 'advanced';
+    return 'elite';
+  };
+
   const getPhaseTitle = (phase: number): string => {
-    if (phase <= 10) return `Fase ${phase} - Iniciante`;
-    if (phase <= 20) return `Fase ${phase} - Novato`;
-    if (phase <= 30) return `Fase ${phase} - Intermediário`;
-    if (phase <= 40) return `Fase ${phase} - Avançado`;
-    return `Fase ${phase} - Elite`;
+    const tierKey = getTierKey(phase);
+    const tier = t(`quizList.tierNames.${tierKey}`);
+    return t('quizList.phaseTitle', { phase, tier });
   };
 
   const getPhaseDescription = (phase: number): string => {
     const dist = getDifficultyDistribution(phase);
     const levels = [...new Set(dist.map(d => d.level))].sort();
-    if (levels.length === 1) return `Nível ${levels[0]} de dificuldade`;
-    return `Níveis ${levels[0]}-${levels[levels.length - 1]} de dificuldade`;
+    if (levels.length === 1) return t('quizList.difficultySingle', { level: levels[0] });
+    return t('quizList.difficultyRange', { min: levels[0], max: levels[levels.length - 1] });
   };
 
   const renderPhaseCard = (phaseNumber: number, title?: string, description?: string) => {
@@ -133,11 +140,11 @@ export const QuizListScreen = () => {
             </View>
             <Text style={[styles.phaseDescription, isLocked && styles.lockedText]}>
               {isLocked
-                ? `Requer ${getUnlockRequirement(phaseNumber).requiredAccuracy}% de acurácia na fase anterior`
+                ? t('quizList.requiresAccuracy', { accuracy: getUnlockRequirement(phaseNumber).requiredAccuracy })
                 : finalDescription}
             </Text>
             <Text style={[styles.phaseInfo, isLocked && styles.lockedText]}>
-              10 perguntas • 30s cada {isCompleted ? `• ${accuracy}%` : ''}
+              {t('quizList.phaseInfo', { seconds: 30 })} {isCompleted ? `• ${accuracy}%` : ''}
             </Text>
             <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
               {[1, 2, 3].map(s => (
@@ -161,23 +168,8 @@ export const QuizListScreen = () => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>🚀 AstroQuiz</Text>
-        <Text style={styles.subtitle}>Escolha uma fase para começar</Text>
-        
-        {/* Botão DEBUG - Remover depois */}
-        {__DEV__ && SHOW_DEBUG_UI && (
-          <TouchableOpacity
-            style={styles.debugButton}
-            onPress={async () => {
-              // Force unlock next phase for testing
-              const progress = await ProgressStorage.getProgress();
-              await ProgressStorage.saveProgress({ ...progress, unlockedPhases: progress.unlockedPhases + 1 });
-              loadProgress();
-            }}
-          >
-            <Text style={styles.debugText}>DEBUG: Desbloquear Fase {unlockedPhases + 1}</Text>
-          </TouchableOpacity>
-        )}
+        <Text style={styles.title}>{t('quizList.headerTitle')}</Text>
+        <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>
       </View>
 
       <ScrollView
@@ -190,36 +182,36 @@ export const QuizListScreen = () => {
       >
         {/* Iniciante (Fases 1-10) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>🌟 Iniciante</Text>
-          <Text style={styles.sectionSubtitle}>Fases 1-10 • Níveis 1-2</Text>
+          <Text style={styles.sectionTitle}>{t('quizList.tiers.beginner')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('quizList.tierSubtitle', { from: 1, to: 10, min: 1, max: 2 })}</Text>
         </View>
         {Array.from({ length: 10 }, (_, i) => i + 1).map(phase => renderPhaseCard(phase))}
 
         {/* Novato (Fases 11-20) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>🔭 Novato</Text>
-          <Text style={styles.sectionSubtitle}>Fases 11-20 • Níveis 1-3</Text>
+          <Text style={styles.sectionTitle}>{t('quizList.tiers.novice')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('quizList.tierSubtitle', { from: 11, to: 20, min: 1, max: 3 })}</Text>
         </View>
         {Array.from({ length: 10 }, (_, i) => i + 11).map(phase => renderPhaseCard(phase))}
 
         {/* Intermediário (Fases 21-30) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>🚀 Intermediário</Text>
-          <Text style={styles.sectionSubtitle}>Fases 21-30 • Níveis 2-4</Text>
+          <Text style={styles.sectionTitle}>{t('quizList.tiers.intermediate')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('quizList.tierSubtitle', { from: 21, to: 30, min: 2, max: 4 })}</Text>
         </View>
         {Array.from({ length: 10 }, (_, i) => i + 21).map(phase => renderPhaseCard(phase))}
 
         {/* Avançado (Fases 31-40) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>⭐ Avançado</Text>
-          <Text style={styles.sectionSubtitle}>Fases 31-40 • Níveis 3-5</Text>
+          <Text style={styles.sectionTitle}>{t('quizList.tiers.advanced')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('quizList.tierSubtitle', { from: 31, to: 40, min: 3, max: 5 })}</Text>
         </View>
         {Array.from({ length: 10 }, (_, i) => i + 31).map(phase => renderPhaseCard(phase))}
 
         {/* Elite (Fases 41-50) */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>👑 Elite</Text>
-          <Text style={styles.sectionSubtitle}>Fases 41-50 • Níveis 4-5</Text>
+          <Text style={styles.sectionTitle}>{t('quizList.tiers.elite')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('quizList.tierSubtitle', { from: 41, to: 50, min: 4, max: 5 })}</Text>
         </View>
         {Array.from({ length: 10 }, (_, i) => i + 41).map(phase => renderPhaseCard(phase))}
 
@@ -229,7 +221,7 @@ export const QuizListScreen = () => {
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#FFA726" />
-          <Text style={styles.loadingText}>Preparando quiz...</Text>
+          <Text style={styles.loadingText}>{t('quizList.preparing')}</Text>
         </View>
       )}
     </LinearGradient>

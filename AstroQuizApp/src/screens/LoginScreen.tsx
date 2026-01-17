@@ -5,12 +5,14 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 type LoginNav = NativeStackNavigationProp<RootStackParamList, "Login">;
 
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginNav>();
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, isAuthenticated, setUser, isLoading } = useApp();
+  const { t } = useTranslation();
   const [localLoading, setLocalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -23,13 +25,13 @@ export const LoginScreen: React.FC = () => {
     try {
       const result = await signInWithGoogle();
       if (!result.ok) {
-        setError(result.message || "Não foi possível entrar com Google.");
+        setError(result.message || t("login.errors.googleLoginFailed"));
         return;
       }
       // Login bem-sucedido: volta para ProfileScreen
       navigation.goBack();
     } catch (err: any) {
-      setError(err?.message || "Erro inesperado ao entrar com Google.");
+      setError(err?.message || t("login.errors.googleLoginUnexpected"));
     } finally {
       setLocalLoading(false);
     }
@@ -40,19 +42,19 @@ export const LoginScreen: React.FC = () => {
     setLocalLoading(true);
     try {
       if (!email || !password) {
-        setError("Preencha e-mail e senha.");
+        setError(t("login.errors.fillEmailPassword"));
         return;
       }
       const action = mode === "login" ? signInWithEmail : signUpWithEmail;
       const result = await action(email, password);
       if (!result.ok) {
-        setError(result.message || "Não foi possível autenticar.");
+        setError(result.message || t("login.errors.authFailed"));
         return;
       }
       // Login bem-sucedido: volta para ProfileScreen
       navigation.goBack();
     } catch (err: any) {
-      setError(err?.message || "Erro inesperado ao autenticar.");
+      setError(err?.message || t("login.errors.authUnexpected"));
     } finally {
       setLocalLoading(false);
     }
@@ -73,43 +75,43 @@ export const LoginScreen: React.FC = () => {
           <View style={styles.logoCircle}>
             <Text style={styles.logoEmoji}>🚀</Text>
           </View>
-          <Text style={styles.title}>Salvar Progresso na Nuvem</Text>
+          <Text style={styles.title}>{t("login.saveProgressTitle")}</Text>
           <Text style={styles.subtitle}>
-            Entre para sincronizar seu XP, conquistas e progresso em todos os dispositivos.
+            {t("login.saveProgressSubtitle")}
           </Text>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{mode === "login" ? "Entrar" : "Criar Conta"}</Text>
+          <Text style={styles.cardTitle}>{mode === "login" ? t("login.login") : t("login.signup")}</Text>
           {error && <Text style={styles.error}>{error}</Text>}
-          <Text style={styles.label}>E-mail</Text>
+          <Text style={styles.label}>{t("login.email")}</Text>
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="seu@email.com"
+            placeholder={t("login.emailPlaceholder")}
             placeholderTextColor="rgba(255,255,255,0.5)"
             autoCapitalize="none"
             keyboardType="email-address"
             style={styles.input}
           />
-          <Text style={styles.label}>Senha</Text>
+          <Text style={styles.label}>{t("login.password")}</Text>
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder="••••••••"
+            placeholder={t("login.passwordPlaceholder")}
             placeholderTextColor="rgba(255,255,255,0.5)"
             secureTextEntry
             style={styles.input}
           />
           <Button
-            title={mode === "login" ? "Entrar com e-mail" : "Criar conta"}
+            title={mode === "login" ? t("login.loginWithEmail") : t("login.createAccount")}
             onPress={handleEmailSubmit}
             size="large"
             loading={isLoading || localLoading}
             style={[styles.button, styles.buttonFull]}
           />
           <Button
-            title={mode === "login" ? "Criar conta" : "Já tenho conta"}
+            title={mode === "login" ? t("login.createAccountCta") : t("login.alreadyHaveAccount")}
             variant="ghost"
             onPress={() => setMode(mode === "login" ? "signup" : "login")}
             size="large"
@@ -119,23 +121,23 @@ export const LoginScreen: React.FC = () => {
           
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={styles.dividerText}>{t("login.or")}</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <Button
-            title="Entrar com Google"
+            title={t("login.loginWithGoogle")}
             onPress={handleGoogleLogin}
             size="large"
             loading={isLoading || localLoading}
             style={[styles.button, styles.buttonFull]}
           />
           <Text style={styles.helperText}>
-            Seu progresso local será sincronizado automaticamente.
+            {t("login.syncHelper")}
           </Text>
         </View>
 
-        <Text style={styles.footerText}>Pronto para decolar? 🚀</Text>
+        <Text style={styles.footerText}>{t("login.readyToLaunch")}</Text>
       </ScrollView>
     </View>
   );

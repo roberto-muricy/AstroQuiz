@@ -8,6 +8,7 @@ import quizService from '@/services/quizService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Alert,
     Animated,
@@ -23,6 +24,7 @@ export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizGame'>>();
   const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
+  const { t } = useTranslation();
 
   const [currentQuestion, setCurrentQuestion] = useState<CurrentQuestion | null>(null);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
@@ -72,7 +74,7 @@ export const QuizScreen = () => {
       setAutoSubmitCountdown(null);
     } catch (error) {
       console.error('Erro ao carregar pergunta:', error);
-      Alert.alert('Erro', 'Não foi possível carregar a pergunta');
+      Alert.alert(t('common.error'), t('errors.loadingFailed'));
     } finally {
       setLoading(false);
     }
@@ -127,7 +129,7 @@ export const QuizScreen = () => {
         currentQuestion.timePerQuestion,
         currentQuestion.question.id
       );
-      Alert.alert('Tempo esgotado!', 'Você não respondeu a tempo.');
+      Alert.alert(t('quiz.timeUp'), t('quiz.timeUpMessage'));
       await loadNextQuestion();
     } catch (error) {
       console.error('Erro ao processar timeout:', error);
@@ -186,7 +188,7 @@ export const QuizScreen = () => {
       }, 3000);
     } catch (error) {
       console.error('Erro ao submeter resposta:', error);
-      Alert.alert('Erro', 'Não foi possível enviar a resposta');
+      Alert.alert(t('common.error'), t('errors.tryAgainLater'));
       setShowResult(false);
       setSelectedOption(null);
     }
@@ -198,15 +200,15 @@ export const QuizScreen = () => {
 
   const handleExit = () => {
     Alert.alert(
-      'Sair do Quiz',
-      'Tem certeza que deseja sair? Seu progresso será perdido.',
+      t('quiz.exitTitle'),
+      t('quiz.exitMessage'),
       [
         {
-          text: 'Cancelar',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Sair',
+          text: t('profile.logout'),
           style: 'destructive',
           onPress: () => navigation.goBack(),
         },
@@ -218,7 +220,7 @@ export const QuizScreen = () => {
     return (
       <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
         <View style={styles.loading}>
-          <Text style={styles.loadingText}>Carregando...</Text>
+          <Text style={styles.loadingText}>{t('common.loading')}</Text>
         </View>
       </LinearGradient>
     );
@@ -234,7 +236,7 @@ export const QuizScreen = () => {
       <View style={styles.header}>
         <View style={styles.questionCounter}>
           <Text style={styles.questionCounterText}>
-            Pergunta {currentQuestion.questionIndex}/{currentQuestion.totalQuestions}
+            {t('quiz.questionCounter', { current: currentQuestion.questionIndex, total: currentQuestion.totalQuestions })}
           </Text>
         </View>
         <View style={styles.timer}>
@@ -243,7 +245,7 @@ export const QuizScreen = () => {
           </Text>
         </View>
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>{currentScore} pts</Text>
+          <Text style={styles.scoreText}>{currentScore} {t('quiz.pointsAbbr')}</Text>
           {currentStreak > 0 && (
             <Text style={styles.streakText}>🔥 {currentStreak}</Text>
           )}
@@ -272,7 +274,7 @@ export const QuizScreen = () => {
               />
             </View>
             <Text style={styles.autoSubmitText}>
-              Auto-confirmando...
+              {t('quiz.autoConfirming')}
             </Text>
           </View>
         )}
@@ -283,15 +285,17 @@ export const QuizScreen = () => {
             {answerResult.answerRecord.isCorrect ? (
               <View style={styles.successBanner}>
                 <Text style={styles.successEmoji}>🎉</Text>
-                <Text style={styles.successTitle}>Resposta Correta!</Text>
-                <Text style={styles.pointsEarned}>+{answerResult.scoreResult.totalPoints} pontos</Text>
+                <Text style={styles.successTitle}>{t('quiz.correctTitle')}</Text>
+                <Text style={styles.pointsEarned}>
+                  +{answerResult.scoreResult.totalPoints} {t('quiz.pointsEarned')}
+                </Text>
               </View>
             ) : (
               <View style={styles.errorBanner}>
                 <Text style={styles.errorEmoji}>😔</Text>
-                <Text style={styles.errorTitle}>Resposta Incorreta</Text>
+                <Text style={styles.errorTitle}>{t('quiz.incorrectTitle')}</Text>
                 <Text style={styles.correctAnswerText}>
-                  Resposta correta: {answerResult.answerRecord.correctOption}
+                  {t('quiz.correctAnswerLabel', { option: answerResult.answerRecord.correctOption })}
                 </Text>
               </View>
             )}

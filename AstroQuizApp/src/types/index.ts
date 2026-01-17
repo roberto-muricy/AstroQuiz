@@ -35,6 +35,8 @@ export interface Question {
   level: 1 | 2 | 3 | 4 | 5;
   topic: string;
   locale: 'en' | 'pt' | 'es' | 'fr';
+  questionType?: 'text' | 'image';
+  imageUrl?: string;
 }
 
 // ===== QUIZ SESSION TYPES =====

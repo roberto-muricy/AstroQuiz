@@ -12,6 +12,7 @@ import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Alert,
     RefreshControl,
@@ -27,6 +28,7 @@ import LinearGradient from 'react-native-linear-gradient';
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, locale } = useApp();
+  const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
   const [levelTitle, setLevelTitle] = useState('');
@@ -90,7 +92,7 @@ export const HomeScreen = () => {
       });
     } catch (error) {
       console.error('❌ Erro ao iniciar quiz:', error);
-      Alert.alert('Erro', 'Não foi possível iniciar o quiz. Verifique sua conexão.');
+      Alert.alert(t('common.error'), t('errors.quizStartError'));
     }
   };
 
@@ -110,10 +112,10 @@ export const HomeScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.welcomeText}>
-              Bem-vindo de volta, {user?.name || 'Astronauta'}!
+              {t('home.welcomeBack', { name: user?.name || t('home.astronaut') })}
             </Text>
             <View style={styles.streakBadge}>
-              <Text style={styles.streakText}>🔥 {streak} dias seguidos</Text>
+              <Text style={styles.streakText}>🔥 {t('home.streakDays', { count: streak })}</Text>
             </View>
           </View>
           <View style={styles.avatar}>
@@ -136,13 +138,13 @@ export const HomeScreen = () => {
                 />
               </View>
               <View style={styles.dailyChallengeInfo}>
-                <Text style={styles.dailyChallengeTitle}>Desafio diário</Text>
+                <Text style={styles.dailyChallengeTitle}>{t('home.dailyChallengeTitle')}</Text>
                 <Text style={styles.dailyChallengeSubtitle}>
-                  Complete 20 perguntas
+                  {t('home.dailyChallengeSubtitle')}
                 </Text>
               </View>
               <View style={styles.dailyChallengeBadge}>
-                <Text style={styles.dailyChallengeBadgeText}>+150 xp</Text>
+                <Text style={styles.dailyChallengeBadgeText}>{t('home.dailyChallengeReward')}</Text>
               </View>
             </View>
           </Card>
@@ -152,9 +154,9 @@ export const HomeScreen = () => {
         <Card style={styles.mainLevelCard}>
           <View style={styles.mainLevelHeader}>
             <View>
-              <Text style={styles.mainLevelTitle}>{levelTitle || `Nível ${currentLevel}`}</Text>
+              <Text style={styles.mainLevelTitle}>{levelTitle || t('home.levelNumber', { level: currentLevel })}</Text>
               <Text style={styles.mainLevelSubtitle}>
-                {xpToNext > 0 ? `${xpToNext} XP para o próximo nível` : 'Nível máximo'}
+                {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
               </Text>
             </View>
             <View style={styles.xpBadge}>
@@ -179,21 +181,21 @@ export const HomeScreen = () => {
             <View style={styles.stats}>
               <View style={styles.stat}>
                 <Text style={styles.statValue}>{Math.round(progressPct * 100)}%</Text>
-                <Text style={styles.statLabel}>No nível</Text>
+                <Text style={styles.statLabel}>{t('home.inLevel')}</Text>
               </View>
               <View style={styles.stat}>
                 <Text style={styles.statValue}>{streak}</Text>
-                <Text style={styles.statLabel}>Maior streak</Text>
+                <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
               </View>
               <View style={styles.stat}>
                 <Text style={styles.statValue}>{xpToNext > 0 ? `${xpToNext}xp` : 'Max'}</Text>
-                <Text style={styles.statLabel}>Próximo nível</Text>
+                <Text style={styles.statLabel}>{t('home.nextLevel')}</Text>
               </View>
             </View>
           </View>
 
           <Button
-            title="Continuar de onde parou"
+            title={t('home.continueWhereLeftOff')}
             onPress={() => handleStartQuiz(unlockedPhase)}
             size="large"
             style={styles.continueButton}
@@ -208,9 +210,9 @@ export const HomeScreen = () => {
                 <Text style={styles.rankingBadgeText}>#20</Text>
               </View>
               <View style={styles.rankingContent}>
-                <Text style={styles.rankingTitle}>Ranking Semanal</Text>
+                <Text style={styles.rankingTitle}>{t('home.weeklyRankingTitle')}</Text>
                 <Text style={styles.rankingSubtitle}>
-                  Você subiu 8 posições essa semana!
+                  {t('home.weeklyRankingSubtitle')}
                 </Text>
               </View>
             </View>
@@ -220,17 +222,17 @@ export const HomeScreen = () => {
         {/* Progress Section */}
         <View style={styles.progressLevelsSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Progresso nos níveis</Text>
+            <Text style={styles.sectionTitle}>{t('home.progressLevelsTitle')}</Text>
             <TouchableOpacity>
-              <Text style={styles.sectionLink}>Ver todos</Text>
+              <Text style={styles.sectionLink}>{t('home.seeAll')}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.levelCardsRow}>
             <LevelCard
               levelNumber={unlockedPhase}
-              levelName={`Fase ${unlockedPhase}`}
-              subtitle="Disponível"
+              levelName={t('home.phaseName', { phase: unlockedPhase })}
+              subtitle={t('home.available')}
               progress={Math.round(progressPct * 100)}
               questionsCompleted={0}
               totalQuestions={10}
@@ -241,8 +243,8 @@ export const HomeScreen = () => {
             />
             <LevelCard
               levelNumber={unlockedPhase + 1}
-              levelName={`Fase ${unlockedPhase + 1}`}
-              subtitle="Bloqueado"
+              levelName={t('home.phaseName', { phase: unlockedPhase + 1 })}
+              subtitle={t('home.locked')}
               progress={0}
               questionsCompleted={0}
               totalQuestions={10}
