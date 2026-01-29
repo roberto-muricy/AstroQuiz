@@ -19,7 +19,22 @@ export function initializeFirebase(): void {
 
   try {
     const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT;
+    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
     const projectId = process.env.FIREBASE_PROJECT_ID;
+
+    if (serviceAccountJson) {
+      // Parse credentials directly from environment variable (for Railway/Heroku/etc.)
+      try {
+        const serviceAccount = JSON.parse(serviceAccountJson);
+        firebaseApp = admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
+        console.log('Firebase Admin SDK initialized from FIREBASE_SERVICE_ACCOUNT_JSON');
+        return;
+      } catch (parseError) {
+        console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON:', parseError);
+      }
+    }
 
     if (serviceAccountPath) {
       // Resolve to absolute path from project root
@@ -37,19 +52,22 @@ export function initializeFirebase(): void {
       firebaseApp = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
-    } else if (projectId) {
-      // Use Application Default Credentials (for Cloud Run, etc.)
-      firebaseApp = admin.initializeApp({
-        projectId,
-      });
-    } else {
-      console.warn(
-        'Firebase not configured. Set FIREBASE_SERVICE_ACCOUNT or FIREBASE_PROJECT_ID env var.'
-      );
+      console.log('Firebase Admin SDK initialized from file');
       return;
     }
 
-    console.log('Firebase Admin SDK initialized');
+    if (projectId) {
+      // Use Application Default Credentials (for Google Cloud only)
+      firebaseApp = admin.initializeApp({
+        projectId,
+      });
+      console.log('Firebase Admin SDK initialized with projectId (ADC)');
+      return;
+    }
+
+    console.warn(
+      'Firebase not configured. Set FIREBASE_SERVICE_ACCOUNT_JSON, FIREBASE_SERVICE_ACCOUNT, or FIREBASE_PROJECT_ID env var.'
+    );
   } catch (error: any) {
     console.error('Failed to initialize Firebase:', error.message);
   }
