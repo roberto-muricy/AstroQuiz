@@ -1,0 +1,41 @@
+[
+  {
+    "baseId": "q_new_001",
+    "question": "What is the largest planet in the Solar System?",
+    "optionA": "Mars",
+    "optionB": "Jupiter",
+    "optionC": "Saturn",
+    "optionD": "Earth",
+    "correctOption": "B",
+    "explanation": "Jupiter is the largest planet in the Solar System with a diameter of approximately 142,984 km.",
+    "level": 1,
+    "topicKey": "Solar System",
+    "questionType": "text"
+  },
+  {
+    "baseId": "q_new_002",
+    "question": "What is a supernova?",
+    "optionA": "A star being born",
+    "optionB": "A stellar explosion",
+    "optionC": "A rocky planet",
+    "optionD": "A distant galaxy",
+    "correctOption": "B",
+    "explanation": "A supernova is the violent explosion of a star at the end of its life.",
+    "level": 2,
+    "topicKey": "Stellar Objects",
+    "questionType": "text"
+  },
+  {
+    "baseId": "q_new_003",
+    "question": "What is the most abundant element in the universe?",
+    "optionA": "Oxygen",
+    "optionB": "Carbon",
+    "optionC": "Hydrogen",
+    "optionD": "Iron",
+    "correctOption": "C",
+    "explanation": "Hydrogen is the most abundant element in the universe, representing about 75% of normal matter.",
+    "level": 1,
+    "topicKey": "Galaxies & Cosmology",
+    "questionType": "text"
+  }
+]

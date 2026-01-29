@@ -63,7 +63,7 @@ Run locally to generate secure production keys:
 npm run deploy:production-keys
 ```
 
-This creates `railway-production.env` with all required variables.
+This creates `railway-production.env` with all required variables (gitignored).
 
 ### 3.2 Set Variables in Railway Dashboard
 

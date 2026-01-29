@@ -533,6 +533,7 @@ export interface ApiUserProfileUserProfile extends Struct.CollectionTypeSchema {
     firebaseUid: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
+    isBlocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     lastSyncedAt: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -546,6 +547,8 @@ export interface ApiUserProfileUserProfile extends Struct.CollectionTypeSchema {
     phaseStats: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<{}>;
     photoURL: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    role: Schema.Attribute.Enumeration<['user', 'premium', 'admin']> &
+      Schema.Attribute.DefaultTo<'user'>;
     totalCorrectAnswers: Schema.Attribute.Integer &
       Schema.Attribute.DefaultTo<0>;
     totalQuestionsAnswered: Schema.Attribute.Integer &

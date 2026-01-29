@@ -68,6 +68,15 @@
     },
     "lastSyncedAt": {
       "type": "datetime"
+    },
+    "isBlocked": {
+      "type": "boolean",
+      "default": false
+    },
+    "role": {
+      "type": "enumeration",
+      "enum": ["user", "premium", "admin"],
+      "default": "user"
     }
   }
 }

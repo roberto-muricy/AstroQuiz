@@ -23,14 +23,19 @@ class QuizService {
     excludeQuestions: number[] = [],
     options?: { forceImage?: boolean; includeDrafts?: boolean },
   ): Promise<any> {
-    const response = await api.post<any>('/quiz/start', {
-      phaseNumber,
-      locale,
-      userId,
-      excludeQuestions,
-      ...(options?.forceImage ? { forceImage: true } : {}),
-      ...(options?.includeDrafts ? { includeDrafts: true } : {}),
-    });
+    const response = await api.post<any>(
+      '/quiz/start',
+      {
+        phaseNumber,
+        locale,
+        userId,
+        excludeQuestions,
+        ...(options?.forceImage ? { forceImage: true } : {}),
+        ...(options?.includeDrafts ? { includeDrafts: true } : {}),
+      },
+      // Evita spinner infinito em caso de backend inacessível/host errado.
+      { timeout: 10000 },
+    );
 
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Erro ao iniciar quiz');

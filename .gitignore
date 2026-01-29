@@ -65,6 +65,8 @@ lerna-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+railway-*.env
+railway-*.env.*
 
 # ========================================
 # 🧪 TESTING
@@ -137,4 +139,4 @@ mobile/build/
 
 # Ignore OS generated files
 .DS_Store?
-Icon?
+Icon?firebase-credentials.json

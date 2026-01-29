@@ -64,13 +64,17 @@ SERVE_ADMIN=true
 
 ### **Option A: Using Railway Dashboard (Recommended)**
 
-1. **Generate Production Keys Locally**:
+1. **Generate Staging/Production Keys Locally**:
    ```bash
+   # staging
+   npm run deploy:staging-keys
+
+   # production
    npm run deploy:production-keys
    ```
 
 2. **Copy Variables from Generated File**:
-   - Open `railway-production.env`
+   - Open `railway-staging.env` or `railway-production.env`
    - Copy each variable to Railway Dashboard
 
 3. **Add Variables One by One**:

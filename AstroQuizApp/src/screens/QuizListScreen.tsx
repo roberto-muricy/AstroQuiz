@@ -5,6 +5,7 @@
  */
 
 import { useApp } from '@/contexts/AppContext';
+import api from '@/services/api';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
@@ -21,6 +22,7 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -45,6 +47,41 @@ export const QuizListScreen = () => {
     setPhaseStats(progress.stats?.phaseStats || {});
   };
 
+  const openApiConfig = () => {
+    const current = api.getBaseUrl();
+
+    const setOverride = async (value: string | null) => {
+      const trimmed = (value || '').trim();
+      await api.setApiBaseUrlOverride(trimmed ? trimmed : null);
+      Alert.alert(
+        'API',
+        `Base URL atualizada para:\n${api.getBaseUrl()}\n\n(Tente iniciar o quiz novamente)`,
+      );
+    };
+
+    // iOS: prompt nativo facilita colar o IP do Mac
+    if (Platform.OS === 'ios' && typeof (Alert as any).prompt === 'function') {
+      (Alert as any).prompt(
+        'Configurar API (DEV)',
+        `Base atual:\n${current}\n\nDica (iPhone físico): use http://SEU_IP_DO_MAC:1337/api`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Limpar', style: 'destructive', onPress: () => setOverride(null) },
+          { text: 'Salvar', onPress: (value: string) => setOverride(value) },
+        ],
+        'plain-text',
+        current,
+      );
+      return;
+    }
+
+    // Fallback (Android/sem prompt)
+    Alert.alert(
+      'Configurar API (DEV)',
+      `Base atual:\n${current}\n\nSem prompt nessa plataforma.\nUse o override via AsyncStorage (@api_base_url_override) ou ajuste o fallback no código.`,
+    );
+  };
+
   const handleStartQuiz = async (phaseNumber: number) => {
     // Verificar se a fase está desbloqueada
     if (phaseNumber > unlockedPhases) {
@@ -59,6 +96,7 @@ export const QuizListScreen = () => {
     try {
       soundService.playTap();
       setLoading(true);
+      console.log('🌐 API baseURL (current):', api.getBaseUrl());
       console.log('🎮 Iniciando quiz - Fase:', phaseNumber, 'Locale:', locale);
       const progress = await ProgressStorage.getProgress();
       const excludeQuestions = progress.answeredQuestionIds || [];
@@ -72,7 +110,20 @@ export const QuizListScreen = () => {
       });
     } catch (error) {
       console.error('❌ Erro ao iniciar quiz:', error);
-      Alert.alert(t('common.error'), t('errors.quizStartError'));
+      const msg = error instanceof Error ? error.message : String(error);
+      const maybeTimeout =
+        /timeout/i.test(msg) ||
+        /ECONNABORTED/i.test(msg) ||
+        /Network Error/i.test(msg);
+
+      if (maybeTimeout) {
+        Alert.alert(
+          t('common.error'),
+          `${t('errors.quizStartError')}\n\nSem conexão com o servidor.\nBase atual: ${api.getBaseUrl()}\n\nDica: toque e segure no título para configurar a API.`,
+        );
+      } else {
+        Alert.alert(t('common.error'), t('errors.quizStartError'));
+      }
     } finally {
       setLoading(false);
     }
@@ -168,7 +219,9 @@ export const QuizListScreen = () => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.title}>{t('quizList.headerTitle')}</Text>
+        <TouchableOpacity activeOpacity={0.9} onLongPress={openApiConfig} delayLongPress={600}>
+          <Text style={styles.title}>{t('quizList.headerTitle')}</Text>
+        </TouchableOpacity>
         <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>
       </View>
 

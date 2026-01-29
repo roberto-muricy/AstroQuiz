@@ -3,20 +3,46 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 // Configuração da API
 // iOS Simulator usa localhost, dispositivo físico usa IP da rede
 const PROD_API_BASE_URL = 'https://sua-api-producao.com/api';
 
 // DEV defaults
-const DEV_LAN_API_BASE_URL = 'http://192.168.68.109:1337/api'; // Mac na mesma rede do iPhone (ajuste quando o IP mudar)
 const DEV_IOS_SIM_API_BASE_URL = 'http://localhost:1337/api'; // iOS Simulator
 const DEV_ANDROID_EMULATOR_API_BASE_URL = 'http://10.0.2.2:1337/api'; // Android Emulator
 
 const API_BASE_URL_OVERRIDE_KEY = '@api_base_url_override';
+
+/**
+ * Em DEV, tenta descobrir o host do Metro (packager) para montar a URL do Strapi.
+ * Isso evita deixar IP fixo e funciona tanto no simulador quanto em device físico.
+ */
+const getMetroHost = (): string | null => {
+  try {
+    const scriptURL: string | undefined = (NativeModules as any)?.SourceCode?.scriptURL;
+    if (!scriptURL) return null;
+
+    // Ex.: http://192.168.0.10:8081/index.bundle?platform=ios...
+    const match = scriptURL.match(/^https?:\/\/([^:/]+)(?::\d+)?\//i);
+    const host = match?.[1];
+    if (!host) return null;
+    if (host === 'localhost' || host === '127.0.0.1') return null;
+    return host;
+  } catch {
+    return null;
+  }
+};
+
+const getDevLanBaseUrl = (): string => {
+  const host = getMetroHost();
+  if (host) return `http://${host}:1337/api`;
+  // Fallback (último recurso) - se necessário, pode ser sobrescrito via AsyncStorage override.
+  return 'http://192.168.68.109:1337/api';
+};
 
 const getDefaultDevBaseUrl = () => {
   if (Platform.OS === 'ios') return DEV_IOS_SIM_API_BASE_URL;
@@ -139,11 +165,11 @@ class ApiService {
   /**
    * GET request
    */
-  async get<T>(endpoint: string, params?: any): Promise<T> {
+  async get<T>(endpoint: string, params?: any, config: AxiosRequestConfig = {}): Promise<T> {
     if (__DEV__) {
       console.log('📤 GET', endpoint, params);
     }
-    const response = await this.api.get<T>(endpoint, { params });
+    const response = await this.api.get<T>(endpoint, { params, ...config });
     if (__DEV__) {
       console.log('📥 Response', endpoint, response.data);
     }
@@ -153,11 +179,11 @@ class ApiService {
   /**
    * POST request
    */
-  async post<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, data?: any, config: AxiosRequestConfig = {}): Promise<T> {
     if (__DEV__) {
       console.log('📤 POST', endpoint, data);
     }
-    const response = await this.api.post<T>(endpoint, data);
+    const response = await this.api.post<T>(endpoint, data, config);
     if (__DEV__) {
       console.log('📥 Response', endpoint, response.data);
     }
@@ -208,7 +234,7 @@ class ApiService {
   }
 
   private async ensureBaseUrlResolved(): Promise<string | null> {
-    if (!__DEV__) return;
+    if (!__DEV__) return null;
     if (this.resolvedBaseUrl) return this.resolvedBaseUrl;
     if (this.resolvingBaseUrl) {
       await this.resolvingBaseUrl;
@@ -252,15 +278,19 @@ class ApiService {
       }
     };
 
+    const lanUrl = getDevLanBaseUrl();
+
     if (Platform.OS === 'ios') {
       // iOS Simulator -> localhost; iPhone físico -> LAN IP
       if (await probeHealth(DEV_IOS_SIM_API_BASE_URL)) return DEV_IOS_SIM_API_BASE_URL;
-      return DEV_LAN_API_BASE_URL;
+      if (await probeHealth(lanUrl)) return lanUrl;
+      return lanUrl;
     }
 
     // Android Emulator -> 10.0.2.2; device físico -> LAN IP
     if (await probeHealth(DEV_ANDROID_EMULATOR_API_BASE_URL)) return DEV_ANDROID_EMULATOR_API_BASE_URL;
-    return DEV_LAN_API_BASE_URL;
+    if (await probeHealth(lanUrl)) return lanUrl;
+    return lanUrl;
   }
 }
 
