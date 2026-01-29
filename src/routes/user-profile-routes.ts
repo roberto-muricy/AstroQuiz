@@ -136,8 +136,14 @@ export function createUserProfileRoutes(strapi: any): any[] {
         async (ctx: any) => {
           try {
             const { firebaseUid } = ctx.params;
-            const user = ctx.state.user as AuthContext;
+            const user = ctx.state.user as AuthContext | undefined;
             const updates = ctx.request.body;
+
+            // Check if user is authenticated
+            if (!user) {
+              strapi.log.warn('Stats update attempted without authentication');
+              return ctx.unauthorized('Authentication required');
+            }
 
             // Users can only update their own stats (admins can update any)
             if (user.firebaseUid !== firebaseUid && user.role !== 'admin') {
