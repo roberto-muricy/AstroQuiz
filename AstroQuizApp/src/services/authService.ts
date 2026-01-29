@@ -103,6 +103,22 @@ class AuthService {
     return auth().currentUser;
   }
 
+  /**
+   * Get Firebase ID Token for backend authentication
+   * This token should be sent as Bearer token to the backend
+   */
+  async getIdToken(): Promise<string | null> {
+    const user = auth().currentUser;
+    if (!user) return null;
+    try {
+      // forceRefresh = true ensures token is always valid
+      return await user.getIdToken(true);
+    } catch (error) {
+      console.error('Error getting Firebase ID token:', error);
+      return null;
+    }
+  }
+
   async signInWithEmail(email: string, password: string): Promise<AuthResult> {
     try {
       await auth().signInWithEmailAndPassword(email.trim(), password);

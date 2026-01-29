@@ -3,6 +3,7 @@
  * Gerenciamento de estado global do app
  */
 
+import api from "@/services/api";
 import authService from "@/services/authService";
 import quizService from "@/services/quizService";
 import strapiSyncService from "@/services/strapiSyncService";
@@ -195,6 +196,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const fbUser = authService.getCurrentUser();
       if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
 
+      // Get and save Firebase ID token for backend API authentication
+      const idToken = await authService.getIdToken();
+      if (idToken) {
+        await api.setAuthToken(idToken);
+        console.log('🔑 Firebase ID token saved for API authentication');
+      }
+
       // Sync with Strapi backend
       console.log('📡 Syncing user with Strapi...');
       try {
@@ -243,6 +251,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const handleFirebaseUser = async (fbUser: any): Promise<User> => {
+    // Get and save Firebase ID token for backend API authentication
+    const idToken = await authService.getIdToken();
+    if (idToken) {
+      await api.setAuthToken(idToken);
+      console.log('🔑 Firebase ID token saved for API authentication');
+    }
+
     // Sync with Strapi backend
     console.log('📡 Syncing user with Strapi...');
     try {
@@ -326,6 +341,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setIsLoading(true);
     try {
       await authService.signOut();
+      await api.clearAuthToken();
+      console.log('🔓 Auth token cleared');
       setUser({
         id: "guest",
         name: "Astronauta",

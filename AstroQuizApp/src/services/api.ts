@@ -3,13 +3,14 @@
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import auth from '@react-native-firebase/auth';
 
 import { NativeModules, Platform } from 'react-native';
 
 // Configuração da API
 // iOS Simulator usa localhost, dispositivo físico usa IP da rede
-const PROD_API_BASE_URL = 'https://sua-api-producao.com/api';
+const PROD_API_BASE_URL = 'https://astroquiz-production.up.railway.app/api';
 
 // DEV defaults
 const DEV_IOS_SIM_API_BASE_URL = 'http://localhost:1337/api'; // iOS Simulator
@@ -49,8 +50,11 @@ const getDefaultDevBaseUrl = () => {
   return DEV_ANDROID_EMULATOR_API_BASE_URL;
 };
 
+// Set to true to test production API in dev mode
+const USE_PROD_IN_DEV = true;
+
 const getInitialBaseUrl = () => {
-  if (!__DEV__) return PROD_API_BASE_URL;
+  if (!__DEV__ || USE_PROD_IN_DEV) return PROD_API_BASE_URL;
   // Base inicial (antes de detectar/override). Será ajustada no 1º request.
   return getDefaultDevBaseUrl();
 };
@@ -80,7 +84,7 @@ class ApiService {
         const resolvedBaseUrl = await this.ensureBaseUrlResolved();
         // IMPORTANT: axios calcula o config.baseURL ANTES do interceptor (merge de defaults).
         // Então precisamos garantir que o request atual use o baseURL resolvido.
-        if (__DEV__ && resolvedBaseUrl) {
+        if (__DEV__ && !USE_PROD_IN_DEV && resolvedBaseUrl) {
           config.baseURL = resolvedBaseUrl;
         }
 
@@ -104,11 +108,40 @@ class ApiService {
       error => Promise.reject(error),
     );
 
-    // Interceptor para tratar erros
+    // Interceptor para tratar erros (inclui refresh de token)
     this.api.interceptors.response.use(
       response => response,
-      (error: AxiosError) => {
-        // Não mostrar erro no console em desenvolvimento
+      async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+        // Se receber 401 e não for retry, tenta renovar o token
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            const user = auth().currentUser;
+            if (user) {
+              // Força refresh do token Firebase
+              const newToken = await user.getIdToken(true);
+              this.authToken = newToken;
+              await AsyncStorage.setItem('@auth_token', newToken);
+
+              if (__DEV__) {
+                console.log('🔄 Token refreshed automatically');
+              }
+
+              // Refaz a requisição original com o novo token
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return this.api(originalRequest);
+            }
+          } catch (refreshError) {
+            if (__DEV__) {
+              console.log('❌ Token refresh failed:', refreshError);
+            }
+          }
+        }
+
+        // Log de erro em desenvolvimento
         if (__DEV__) {
           const baseURL = this.api.defaults.baseURL;
           const url = error.config?.url;
@@ -234,7 +267,7 @@ class ApiService {
   }
 
   private async ensureBaseUrlResolved(): Promise<string | null> {
-    if (!__DEV__) return null;
+    if (!__DEV__ || USE_PROD_IN_DEV) return null;
     if (this.resolvedBaseUrl) return this.resolvedBaseUrl;
     if (this.resolvingBaseUrl) {
       await this.resolvingBaseUrl;

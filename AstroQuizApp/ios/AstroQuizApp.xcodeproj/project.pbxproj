@@ -18,6 +18,7 @@
 		1F59794CE6354B25AB261589 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		274790A6407A4C9F9253CF5F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		274F5DD330C0E60ACE1BB41B /* Pods_AstroQuizApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCCA0333753E0FA151AAFEC6 /* Pods_AstroQuizApp.framework */; };
+		2D11D268E33A4DF5A00521E2 /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */; };
 		33DC0EB79E92A0EF71EA6BEF /* Pods_AstroQuizApp_AstroQuizAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35937C23A1582B31C3B06669 /* Pods_AstroQuizApp_AstroQuizAppTests.framework */; };
 		3AA76C7604A64D8A917B42ED /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		410C9F336AE7442E9E6FDD7D /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -30,9 +31,12 @@
 		947025CA2F084A21009636C5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 947025C92F084A21009636C5 /* GoogleService-Info.plist */; };
 		986E8D8149E74112BA4CB6E5 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		9D3A87E970974EA0A9C585BD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		A1F50CC3235E4A10ABAA02BE /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */; };
 		A2F014F5A1FC4B10A3211057 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */; };
+		EE3D83568A92437DA8337041 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */; };
 		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
@@ -58,10 +62,14 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AstroQuizApp/main.m; sourceTree = "<group>"; };
 		292508F6D499F0E2B5BE8B1F /* Pods-AstroQuizApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.release.xcconfig"; sourceTree = "<group>"; };
 		35937C23A1582B31C3B06669 /* Pods_AstroQuizApp_AstroQuizAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AstroQuizApp_AstroQuizAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Medium.ttf"; path = "../assets/fonts/Poppins-Medium.ttf"; sourceTree = "<group>"; };
 		7024E01B825C0A39F39DF8C1 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		732EE5A568295544E84D8FBC /* Pods-AstroQuizApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AstroQuizApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		947025C92F084A21009636C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Bold.ttf"; path = "../assets/fonts/Poppins-Bold.ttf"; sourceTree = "<group>"; };
+		AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../assets/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
+		B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		BCCA0333753E0FA151AAFEC6 /* Pods_AstroQuizApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AstroQuizApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF3069B994C7F8E0087243B4 /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -131,6 +139,10 @@
 		631569FEDB6F4346BFCCB640 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */,
+				AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */,
+				A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */,
+				B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -294,6 +306,10 @@
 				947025CA2F084A21009636C5 /* GoogleService-Info.plist in Resources */,
 				0E29C3A379754D258D6BD72F /* BuildFile in Resources */,
 				7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */,
+				EE3D83568A92437DA8337041 /* Poppins-Medium.ttf in Resources */,
+				2D11D268E33A4DF5A00521E2 /* Poppins-Regular.ttf in Resources */,
+				A1F50CC3235E4A10ABAA02BE /* Poppins-Bold.ttf in Resources */,
+				D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
