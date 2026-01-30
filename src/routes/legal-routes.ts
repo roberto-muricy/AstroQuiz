@@ -125,7 +125,7 @@ export function createLegalRoutes(): any[] {
     // Privacy Policy
     {
       method: 'GET',
-      path: '/privacy-policy',
+      path: '/api/privacy-policy',
       handler: async (ctx: any) => {
         ctx.type = 'text/html';
         ctx.body = PRIVACY_POLICY_HTML;
@@ -136,7 +136,7 @@ export function createLegalRoutes(): any[] {
     // Terms of Service
     {
       method: 'GET',
-      path: '/terms-of-service',
+      path: '/api/terms-of-service',
       handler: async (ctx: any) => {
         ctx.type = 'text/html';
         ctx.body = TERMS_OF_SERVICE_HTML;
@@ -147,17 +147,17 @@ export function createLegalRoutes(): any[] {
     // Aliases
     {
       method: 'GET',
-      path: '/privacy',
+      path: '/api/privacy',
       handler: async (ctx: any) => {
-        ctx.redirect('/privacy-policy');
+        ctx.redirect('/api/privacy-policy');
       },
       config: { auth: false },
     },
     {
       method: 'GET',
-      path: '/terms',
+      path: '/api/terms',
       handler: async (ctx: any) => {
-        ctx.redirect('/terms-of-service');
+        ctx.redirect('/api/terms-of-service');
       },
       config: { auth: false },
     },
