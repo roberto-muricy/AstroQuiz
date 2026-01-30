@@ -135,16 +135,64 @@ export function createQuizRoutes(strapi: any): any[] {
 
             const levels = [...new Set(distribution.map((d) => d.level))];
 
-            const pool = await strapi.entityService.findMany('api::question.question', {
-              locale, // i18n locale as top-level parameter
-              filters: { level: { $in: levels } },
-              limit: 1500,
-              ...(process.env.NODE_ENV !== 'production' && includeDrafts
-                ? {}
-                : { publicationState: 'live' }),
-              populate: { image: true },
-              sort: { id: 'asc' },
-            });
+            // Use direct SQL query for reliable locale filtering
+            const knex = strapi.db.connection;
+            let query = knex('questions as q')
+              .leftJoin('files_related_mph as frm', function (this: any) {
+                this.on('frm.related_id', '=', 'q.id')
+                  .andOnVal('frm.related_type', 'api::question.question')
+                  .andOnVal('frm.field', 'image');
+              })
+              .leftJoin('files as f', 'f.id', 'frm.file_id')
+              .select(
+                'q.id',
+                'q.document_id as documentId',
+                'q.question',
+                'q.option_a as optionA',
+                'q.option_b as optionB',
+                'q.option_c as optionC',
+                'q.option_d as optionD',
+                'q.correct_option as correctOption',
+                'q.explanation',
+                'q.topic',
+                'q.level',
+                'q.locale',
+                'q.base_id as baseId',
+                'q.question_type as questionType',
+                'f.id as imageId',
+                'f.url as imageUrl',
+                'f.name as imageName'
+              )
+              .where('q.locale', locale)
+              .whereIn('q.level', levels);
+
+            // Only filter by published in production
+            if (process.env.NODE_ENV === 'production' || !includeDrafts) {
+              query = query.whereNotNull('q.published_at');
+            }
+
+            const rows = await query.limit(1500);
+
+            // Map to expected format
+            const pool = rows.map((r: any) => ({
+              id: r.id,
+              documentId: r.documentId,
+              question: r.question,
+              optionA: r.optionA,
+              optionB: r.optionB,
+              optionC: r.optionC,
+              optionD: r.optionD,
+              correctOption: r.correctOption,
+              explanation: r.explanation,
+              topic: r.topic,
+              level: r.level,
+              locale: r.locale,
+              baseId: r.baseId,
+              questionType: r.questionType || (r.imageId ? 'image' : 'text'),
+              image: r.imageId
+                ? { id: r.imageId, url: r.imageUrl, name: r.imageName }
+                : null,
+            }));
 
             strapi.log.info(
               `Phase ${phaseNumber} - Locale: ${locale}, Levels: [${levels}], Pool: ${pool?.length || 0} questions`
