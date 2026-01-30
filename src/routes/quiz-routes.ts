@@ -136,7 +136,8 @@ export function createQuizRoutes(strapi: any): any[] {
             const levels = [...new Set(distribution.map((d) => d.level))];
 
             const pool = await strapi.entityService.findMany('api::question.question', {
-              filters: { locale, level: { $in: levels } },
+              locale, // i18n locale as top-level parameter
+              filters: { level: { $in: levels } },
               limit: 1500,
               ...(process.env.NODE_ENV !== 'production' && includeDrafts
                 ? {}
