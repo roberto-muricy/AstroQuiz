@@ -7,7 +7,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export function createLegalRoutes(): any[] {
-  const publicDir = path.resolve(__dirname, '../../public');
+  // Use process.cwd() for production compatibility (works in both src and dist)
+  const publicDir = path.resolve(process.cwd(), 'public');
 
   return [
     // Privacy Policy
