@@ -15,6 +15,7 @@ import { createRateLimitMiddleware } from './middlewares/rate-limit';
 import { createQuizRoutes } from './routes/quiz-routes';
 import { createQuestionRoutes } from './routes/question-routes';
 import { createUserProfileRoutes } from './routes/user-profile-routes';
+import { createLegalRoutes } from './routes/legal-routes';
 
 export default {
   /**
@@ -48,6 +49,7 @@ export default {
       ...createQuizRoutes(strapi),
       ...createQuestionRoutes(strapi),
       ...createUserProfileRoutes(strapi),
+      ...createLegalRoutes(),
     ];
 
     strapi.server.routes(routes);
