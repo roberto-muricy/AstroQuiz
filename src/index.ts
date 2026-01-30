@@ -15,7 +15,6 @@ import { createRateLimitMiddleware } from './middlewares/rate-limit';
 import { createQuizRoutes } from './routes/quiz-routes';
 import { createQuestionRoutes } from './routes/question-routes';
 import { createUserProfileRoutes } from './routes/user-profile-routes';
-import { createLegalRoutes } from './routes/legal-routes';
 
 export default {
   /**
@@ -49,7 +48,6 @@ export default {
       ...createQuizRoutes(strapi),
       ...createQuestionRoutes(strapi),
       ...createUserProfileRoutes(strapi),
-      ...createLegalRoutes(),
     ];
 
     strapi.server.routes(routes);
@@ -57,6 +55,5 @@ export default {
     strapi.log.info('Quiz Engine routes registered successfully');
     strapi.log.info('Question API routes registered successfully');
     strapi.log.info('User Profile routes registered successfully');
-    strapi.log.info('Legal routes registered successfully (privacy-policy, terms-of-service)');
   },
 };
