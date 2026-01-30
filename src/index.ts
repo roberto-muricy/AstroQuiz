@@ -57,5 +57,6 @@ export default {
     strapi.log.info('Quiz Engine routes registered successfully');
     strapi.log.info('Question API routes registered successfully');
     strapi.log.info('User Profile routes registered successfully');
+    strapi.log.info('Legal routes registered successfully (privacy-policy, terms-of-service)');
   },
 };
