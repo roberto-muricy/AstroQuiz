@@ -250,5 +250,86 @@ export function createQuestionRoutes(strapi: any): any[] {
       ],
       config: { auth: false },
     },
+
+    // Bulk import questions (requires admin or write token)
+    {
+      method: 'POST',
+      path: '/api/questions/import',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const body = ctx.request.body || {};
+            const questions = Array.isArray(body.questions) ? body.questions : [];
+            const publish = ctx.query?.publish !== 'false';
+
+            if (questions.length === 0) {
+              return ctx.badRequest('No questions provided');
+            }
+
+            if (questions.length > 100) {
+              return ctx.badRequest('Maximum 100 questions per request');
+            }
+
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
+            let imported = 0;
+            const errors: { index: number; error: string }[] = [];
+
+            for (let i = 0; i < questions.length; i++) {
+              const q = questions[i];
+
+              // Validate required fields
+              if (!q.question || !q.optionA || !q.optionB || !q.optionC || !q.optionD || !q.correctOption) {
+                errors.push({ index: i, error: 'Missing required fields' });
+                continue;
+              }
+
+              // Generate document_id
+              const documentId = require('crypto').randomBytes(12).toString('base64url');
+
+              try {
+                await knex('questions').insert({
+                  document_id: documentId,
+                  question: q.question,
+                  option_a: q.optionA,
+                  option_b: q.optionB,
+                  option_c: q.optionC,
+                  option_d: q.optionD,
+                  correct_option: q.correctOption,
+                  explanation: q.explanation || null,
+                  topic: q.topic || 'Geral',
+                  topic_key: q.topicKey || null,
+                  level: q.level || 1,
+                  base_id: q.baseId || null,
+                  locale: q.locale || 'en',
+                  question_type: q.questionType || 'text',
+                  created_at: now,
+                  updated_at: now,
+                  published_at: publish ? now : null,
+                });
+                imported++;
+              } catch (insertError: any) {
+                errors.push({ index: i, error: insertError.message });
+              }
+            }
+
+            ctx.body = {
+              success: true,
+              data: {
+                imported,
+                errors: errors.length,
+                total: questions.length,
+                errorDetails: errors.slice(0, 10), // Only first 10 errors
+              },
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/import error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
   ];
 }
