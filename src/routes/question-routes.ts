@@ -332,8 +332,9 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Bulk import questions using Document Service API (v2 - proper i18n support)
-    // This endpoint creates documents correctly for Content Manager visibility
+    // Bulk import questions using SQL (v2 - proper i18n support)
+    // Workaround for Strapi v5 Document Service API bug with locales
+    // https://github.com/strapi/strapi/issues/24445
     {
       method: 'POST',
       path: '/api/questions/import-v2',
@@ -352,7 +353,8 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('Maximum 100 question groups per request');
             }
 
-            const documents = strapi.documents('api::question.question');
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
             let imported = 0;
             const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
 
@@ -362,51 +364,34 @@ export function createQuestionRoutes(strapi: any): any[] {
               const locales = group.locales || {};
               const baseId = group.baseId;
 
-              // Get locale order - create default locale first
-              const localeOrder = ['en', 'pt', 'es', 'fr'].filter(l => locales[l]);
-              if (localeOrder.length === 0) continue;
+              // Generate a single documentId for all locales
+              const documentId = require('crypto').randomBytes(12).toString('base64url');
 
-              let documentId: string | null = null;
-
-              for (const locale of localeOrder) {
-                const q = locales[locale];
-                if (!q) continue;
+              // Insert each locale
+              for (const [locale, q] of Object.entries(locales)) {
+                if (!q || typeof q !== 'object') continue;
 
                 try {
-                  const questionData = {
+                  await knex('questions').insert({
+                    document_id: documentId,
                     question: q.question,
-                    optionA: q.optionA,
-                    optionB: q.optionB,
-                    optionC: q.optionC,
-                    optionD: q.optionD,
-                    correctOption: q.correctOption,
+                    option_a: q.optionA,
+                    option_b: q.optionB,
+                    option_c: q.optionC,
+                    option_d: q.optionD,
+                    correct_option: q.correctOption,
                     explanation: q.explanation || '',
                     topic: q.topic || 'Geral',
-                    topicKey: q.topicKey || null,
+                    topic_key: q.topicKey || null,
                     level: q.level || 1,
-                    baseId: baseId || null,
-                    questionType: q.questionType || 'text',
-                  };
-
-                  if (!documentId) {
-                    // Create the first locale (creates the document)
-                    const result = await documents.create({
-                      data: questionData,
-                      locale,
-                      status: 'published',
-                    });
-                    documentId = result.documentId;
-                    imported++;
-                  } else {
-                    // Update with new locale (creates translation)
-                    await documents.update({
-                      documentId,
-                      data: questionData,
-                      locale,
-                      status: 'published',
-                    });
-                    imported++;
-                  }
+                    base_id: baseId || null,
+                    locale: locale,
+                    question_type: q.questionType || 'text',
+                    created_at: now,
+                    updated_at: now,
+                    published_at: now,
+                  });
+                  imported++;
                 } catch (err: any) {
                   errors.push({
                     index: i,
