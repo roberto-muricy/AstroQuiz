@@ -435,5 +435,38 @@ export function createQuestionRoutes(strapi: any): any[] {
       ],
       config: { auth: false },
     },
+
+    // Delete question (requires admin or write token)
+    {
+      method: 'DELETE',
+      path: '/api/questions/:id',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const { id } = ctx.params;
+            const { locale } = ctx.query;
+
+            // If locale=* delete all localizations
+            if (locale === '*') {
+              // Delete by documentId (all locales)
+              const documents = strapi.documents('api::question.question');
+              await documents.delete({ documentId: id });
+              ctx.body = { data: { deleted: true, documentId: id } };
+            } else {
+              // Delete single row by id
+              const knex = strapi.db.connection;
+              const deleted = await knex('questions').where('id', Number(id)).del();
+              if (!deleted) return ctx.notFound('Question not found');
+              ctx.body = { data: { deleted: true, id } };
+            }
+          } catch (error: any) {
+            strapi.log.error('DELETE /api/questions/:id error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
   ];
 }
