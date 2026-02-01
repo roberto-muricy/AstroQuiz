@@ -98,9 +98,9 @@ export function createQuestionRoutes(strapi: any): any[] {
 
           if (baseId) query = query.andWhere('q.base_id', baseId);
           if (published === 'true')
-            query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
+            query = query.andWhereRaw("q.published_at IS NOT NULL");
           if (published === 'false')
-            query = query.andWhereRaw("(q.published_at IS NULL OR q.published_at = '')");
+            query = query.andWhereRaw("q.published_at IS NULL");
           if (withImage === 'true') query = query.whereNotNull('f.id');
           if (withImage === 'false') query = query.whereNull('f.id');
           if (questionType === 'image')
@@ -325,6 +325,110 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/import error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
+    // Bulk import questions using Document Service API (v2 - proper i18n support)
+    // This endpoint creates documents correctly for Content Manager visibility
+    {
+      method: 'POST',
+      path: '/api/questions/import-v2',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const body = ctx.request.body || {};
+            const questionGroups = Array.isArray(body.questions) ? body.questions : [];
+
+            if (questionGroups.length === 0) {
+              return ctx.badRequest('No questions provided');
+            }
+
+            if (questionGroups.length > 100) {
+              return ctx.badRequest('Maximum 100 question groups per request');
+            }
+
+            const documents = strapi.documents('api::question.question');
+            let imported = 0;
+            const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
+
+            // Process each question group (grouped by baseId with all locales)
+            for (let i = 0; i < questionGroups.length; i++) {
+              const group = questionGroups[i];
+              const locales = group.locales || {};
+              const baseId = group.baseId;
+
+              // Get locale order - create default locale first
+              const localeOrder = ['en', 'pt', 'es', 'fr'].filter(l => locales[l]);
+              if (localeOrder.length === 0) continue;
+
+              let documentId: string | null = null;
+
+              for (const locale of localeOrder) {
+                const q = locales[locale];
+                if (!q) continue;
+
+                try {
+                  const questionData = {
+                    question: q.question,
+                    optionA: q.optionA,
+                    optionB: q.optionB,
+                    optionC: q.optionC,
+                    optionD: q.optionD,
+                    correctOption: q.correctOption,
+                    explanation: q.explanation || '',
+                    topic: q.topic || 'Geral',
+                    topicKey: q.topicKey || null,
+                    level: q.level || 1,
+                    baseId: baseId || null,
+                    questionType: q.questionType || 'text',
+                  };
+
+                  if (!documentId) {
+                    // Create the first locale (creates the document)
+                    const result = await documents.create({
+                      data: questionData,
+                      locale,
+                      status: 'published',
+                    });
+                    documentId = result.documentId;
+                    imported++;
+                  } else {
+                    // Update with new locale (creates translation)
+                    await documents.update({
+                      documentId,
+                      data: questionData,
+                      locale,
+                      status: 'published',
+                    });
+                    imported++;
+                  }
+                } catch (err: any) {
+                  errors.push({
+                    index: i,
+                    baseId: baseId || 'unknown',
+                    locale,
+                    error: err.message,
+                  });
+                }
+              }
+            }
+
+            ctx.body = {
+              success: true,
+              data: {
+                imported,
+                errors: errors.length,
+                total: questionGroups.length,
+                errorDetails: errors.slice(0, 10),
+              },
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/import-v2 error:', error);
             ctx.throw(500, error.message);
           }
         },
