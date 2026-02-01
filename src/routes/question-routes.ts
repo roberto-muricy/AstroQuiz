@@ -371,22 +371,24 @@ export function createQuestionRoutes(strapi: any): any[] {
               for (const [locale, q] of Object.entries(locales)) {
                 if (!q || typeof q !== 'object') continue;
 
+                const questionData = q as any; // Type assertion for dynamic locale data
+
                 try {
                   await knex('questions').insert({
                     document_id: documentId,
-                    question: q.question,
-                    option_a: q.optionA,
-                    option_b: q.optionB,
-                    option_c: q.optionC,
-                    option_d: q.optionD,
-                    correct_option: q.correctOption,
-                    explanation: q.explanation || '',
-                    topic: q.topic || 'Geral',
-                    topic_key: q.topicKey || null,
-                    level: q.level || 1,
+                    question: questionData.question,
+                    option_a: questionData.optionA,
+                    option_b: questionData.optionB,
+                    option_c: questionData.optionC,
+                    option_d: questionData.optionD,
+                    correct_option: questionData.correctOption,
+                    explanation: questionData.explanation || '',
+                    topic: questionData.topic || 'Geral',
+                    topic_key: questionData.topicKey || null,
+                    level: questionData.level || 1,
                     base_id: baseId || null,
                     locale: locale,
-                    question_type: q.questionType || 'text',
+                    question_type: questionData.questionType || 'text',
                     created_at: now,
                     updated_at: now,
                     published_at: now,
