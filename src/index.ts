@@ -39,9 +39,9 @@ export default {
     strapi.server.use(createRateLimitMiddleware({
       windowMs: 60 * 1000,    // 1 minute
       maxRequests: 100,       // 100 requests per minute
-      skipPaths: ['/api/quiz/health', '/_health', '/admin'],
+      skipPaths: ['/api/quiz/health', '/_health', '/admin', '/api/questions/import-v2'],
     }));
-    strapi.log.info('Rate limiting enabled: 100 req/min per IP');
+    strapi.log.info('Rate limiting enabled: 100 req/min per IP (import excluded)');
 
     // Register all custom routes
     const routes = [

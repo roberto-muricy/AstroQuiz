@@ -332,9 +332,8 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Bulk import questions using SQL (v2 - proper i18n support)
-    // Workaround for Strapi v5 Document Service API bug with locales
-    // https://github.com/strapi/strapi/issues/24445
+    // Bulk import questions using Entity Service (v2 - proper i18n support)
+    // Uses entityService for Content Manager visibility
     {
       method: 'POST',
       path: '/api/questions/import-v2',
@@ -353,8 +352,6 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('Maximum 100 question groups per request');
             }
 
-            const knex = strapi.db.connection;
-            const now = new Date().toISOString();
             let imported = 0;
             const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
 
@@ -364,34 +361,30 @@ export function createQuestionRoutes(strapi: any): any[] {
               const locales = group.locales || {};
               const baseId = group.baseId;
 
-              // Generate a single documentId for all locales
-              const documentId = require('crypto').randomBytes(12).toString('base64url');
-
-              // Insert each locale
+              // Create each locale separately via entityService
               for (const [locale, q] of Object.entries(locales)) {
                 if (!q || typeof q !== 'object') continue;
 
-                const questionData = q as any; // Type assertion for dynamic locale data
+                const questionData = q as any;
 
                 try {
-                  await knex('questions').insert({
-                    document_id: documentId,
-                    question: questionData.question,
-                    option_a: questionData.optionA,
-                    option_b: questionData.optionB,
-                    option_c: questionData.optionC,
-                    option_d: questionData.optionD,
-                    correct_option: questionData.correctOption,
-                    explanation: questionData.explanation || '',
-                    topic: questionData.topic || 'Geral',
-                    topic_key: questionData.topicKey || null,
-                    level: questionData.level || 1,
-                    base_id: baseId || null,
-                    locale: locale,
-                    question_type: questionData.questionType || 'text',
-                    created_at: now,
-                    updated_at: now,
-                    published_at: now,
+                  await strapi.entityService.create('api::question.question', {
+                    data: {
+                      question: questionData.question,
+                      optionA: questionData.optionA,
+                      optionB: questionData.optionB,
+                      optionC: questionData.optionC,
+                      optionD: questionData.optionD,
+                      correctOption: questionData.correctOption,
+                      explanation: questionData.explanation || '',
+                      topic: questionData.topic || 'Geral',
+                      topicKey: questionData.topicKey || null,
+                      level: questionData.level || 1,
+                      baseId: baseId || null,
+                      questionType: questionData.questionType || 'text',
+                      locale: locale,
+                      publishedAt: new Date().toISOString(),
+                    },
                   });
                   imported++;
                 } catch (err: any) {
