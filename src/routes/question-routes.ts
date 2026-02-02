@@ -504,6 +504,81 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Add localization to existing question via SQL insert
+    {
+      method: 'POST',
+      path: '/api/questions/add-localization',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const body = ctx.request.body || {};
+            const {
+              documentId,
+              locale,
+              question,
+              optionA,
+              optionB,
+              optionC,
+              optionD,
+              correctOption,
+              explanation,
+              topic,
+              level,
+              baseId,
+              questionType,
+            } = body;
+
+            if (!documentId || !locale) {
+              return ctx.badRequest('documentId and locale are required');
+            }
+
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
+
+            // Check if localization already exists
+            const existing = await knex('questions')
+              .where({ document_id: documentId, locale })
+              .first();
+
+            if (existing) {
+              return ctx.badRequest(`Localization ${locale} already exists for document ${documentId}`);
+            }
+
+            // Insert new localization
+            await knex('questions').insert({
+              document_id: documentId,
+              question: question,
+              option_a: optionA,
+              option_b: optionB,
+              option_c: optionC,
+              option_d: optionD,
+              correct_option: correctOption,
+              explanation: explanation || '',
+              topic: topic || 'Geral',
+              topic_key: null,
+              level: level || 1,
+              base_id: baseId || null,
+              locale: locale,
+              question_type: questionType || 'text',
+              created_at: now,
+              updated_at: now,
+              published_at: now,
+            });
+
+            ctx.body = {
+              success: true,
+              message: `Added ${locale} localization to document ${documentId}`,
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/add-localization error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // Truncate questions table (DANGER - requires admin or write token)
     {
       method: 'POST',
