@@ -140,3 +140,4 @@ mobile/build/
 # Ignore OS generated files
 .DS_Store?
 Icon?firebase-credentials.json
+firebase-credentials.json

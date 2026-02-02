@@ -50,6 +50,18 @@ export function createQuizRoutes(strapi: any): any[] {
       method: 'GET',
       path: '/api/quiz/health',
       handler: async (ctx: any) => {
+        // Debug: Check database configuration
+        const knex = strapi.db.connection;
+        const clientName = knex?.client?.constructor?.name || 'unknown';
+
+        let questionCount = 0;
+        try {
+          const result = await knex('questions').count('* as count');
+          questionCount = parseInt(result[0]?.count || '0', 10);
+        } catch (err) {
+          questionCount = -1;
+        }
+
         ctx.body = {
           success: true,
           message: 'Quiz service is healthy',
@@ -57,6 +69,15 @@ export function createQuizRoutes(strapi: any): any[] {
             status: 'ok',
             timestamp: new Date().toISOString(),
             version: '1.0.0',
+            debug: {
+              databaseClient: clientName,
+              questionCount: questionCount,
+              env: {
+                DATABASE_CLIENT: process.env.DATABASE_CLIENT || 'not set',
+                DATABASE_URL_SET: !!process.env.DATABASE_URL,
+                NODE_ENV: process.env.NODE_ENV,
+              },
+            },
           },
         };
       },
