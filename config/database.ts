@@ -9,8 +9,8 @@ export default ({ env }) => {
   console.log('  env("DATABASE_CLIENT"):', env('DATABASE_CLIENT', 'NOT_SET'));
 
   // CRITICAL FIX: Railway env vars not being read by Strapi's env() function
-  // Use process.env directly to bypass Strapi's env loader
-  const client = process.env.DATABASE_CLIENT || env('DATABASE_CLIENT', 'sqlite');
+  // TEMPORARY: Hardcode postgres for production to test
+  const client = process.env.NODE_ENV === 'production' ? 'postgres' : (process.env.DATABASE_CLIENT || env('DATABASE_CLIENT', 'sqlite'));
   console.log('  FINAL CLIENT:', client);
 
   const connections = {
@@ -34,7 +34,10 @@ export default ({ env }) => {
     },
     postgres: {
       connection: {
-        connectionString: process.env.DATABASE_URL || env('DATABASE_URL'),
+        // TEMPORARY: Hardcode for Railway production
+        connectionString: process.env.NODE_ENV === 'production'
+          ? 'postgresql://postgres:XfVRLiChCkBGaRTdftyYCXIJfWBDHKAr@yamabiko.proxy.rlwy.net:55170/railway'
+          : (process.env.DATABASE_URL || env('DATABASE_URL')),
         host: env('DATABASE_HOST', 'localhost'),
         port: env.int('DATABASE_PORT', 5432),
         database: env('DATABASE_NAME', 'strapi'),
