@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "npm run railway:build && echo 'Build completed at' $(date)"
+    "buildCommand": "npm run railway:build"
   },
   "deploy": {
     "startCommand": "npm run railway:start",
