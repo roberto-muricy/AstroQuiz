@@ -30,6 +30,15 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }) {
+    // DEBUG: Check database configuration at runtime
+    strapi.log.info('🔍 ENV VARS AT RUNTIME:');
+    strapi.log.info(`  DATABASE_CLIENT: ${process.env.DATABASE_CLIENT || 'NOT SET'}`);
+    strapi.log.info(`  DATABASE_URL: ${process.env.DATABASE_URL ? 'SET (length: ' + process.env.DATABASE_URL.length + ')' : 'NOT SET'}`);
+    strapi.log.info(`  NODE_ENV: ${process.env.NODE_ENV}`);
+
+    const dbConfig = strapi.config.get('database');
+    strapi.log.info(`  Strapi DB Client: ${dbConfig?.connection?.client || 'unknown'}`);
+
     // Initialize Firebase Admin SDK
     initializeFirebase();
 
