@@ -342,8 +342,8 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Bulk import questions using Entity Service
-    // Appears in Content Manager with proper i18n locale support
+    // Bulk import questions using Entity Service with proper i18n linking
+    // Creates EN first, then links other locales to same documentId
     {
       method: 'POST',
       path: '/api/questions/import-v2',
@@ -362,6 +362,8 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('Maximum 100 question groups per request');
             }
 
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
             let imported = 0;
             const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
 
@@ -371,30 +373,73 @@ export function createQuestionRoutes(strapi: any): any[] {
               const locales = group.locales || {};
               const baseId = group.baseId;
 
-              // Create each locale using Entity Service (appears in Content Manager)
-              for (const [locale, q] of Object.entries(locales)) {
-                if (!q || typeof q !== 'object') continue;
+              // Priority order: en, pt, es, fr
+              const localeOrder = ['en', 'pt', 'es', 'fr'];
+              const sortedLocales = localeOrder.filter(loc => locales[loc]);
 
-                const questionData = q as any;
+              if (sortedLocales.length === 0) continue;
+
+              let documentId: string | null = null;
+
+              // Create first locale via Entity Service (appears in Content Manager)
+              const firstLocale = sortedLocales[0];
+              const firstData = locales[firstLocale] as any;
+
+              try {
+                const created = await strapi.entityService.create('api::question.question', {
+                  data: {
+                    question: firstData.question,
+                    optionA: firstData.optionA,
+                    optionB: firstData.optionB,
+                    optionC: firstData.optionC,
+                    optionD: firstData.optionD,
+                    correctOption: firstData.correctOption,
+                    explanation: firstData.explanation || '',
+                    topic: firstData.topic || 'Geral',
+                    topicKey: firstData.topicKey || null,
+                    level: firstData.level || 1,
+                    baseId: baseId || null,
+                    questionType: firstData.questionType || 'text',
+                    publishedAt: now,
+                  },
+                  locale: firstLocale,
+                });
+                documentId = created.documentId;
+                imported++;
+              } catch (err: any) {
+                errors.push({
+                  index: i,
+                  baseId: baseId || 'unknown',
+                  locale: firstLocale,
+                  error: err.message,
+                });
+                continue; // Skip other locales if first fails
+              }
+
+              // Create remaining locales with same documentId (SQL insert)
+              for (let j = 1; j < sortedLocales.length; j++) {
+                const locale = sortedLocales[j];
+                const questionData = locales[locale] as any;
 
                 try {
-                  await strapi.entityService.create('api::question.question', {
-                    data: {
-                      question: questionData.question,
-                      optionA: questionData.optionA,
-                      optionB: questionData.optionB,
-                      optionC: questionData.optionC,
-                      optionD: questionData.optionD,
-                      correctOption: questionData.correctOption,
-                      explanation: questionData.explanation || '',
-                      topic: questionData.topic || 'Geral',
-                      topicKey: questionData.topicKey || null,
-                      level: questionData.level || 1,
-                      baseId: baseId || null,
-                      questionType: questionData.questionType || 'text',
-                      publishedAt: new Date().toISOString(),
-                    },
-                    locale: locale, // Pass locale as parameter for proper i18n
+                  await knex('questions').insert({
+                    document_id: documentId,
+                    question: questionData.question,
+                    option_a: questionData.optionA,
+                    option_b: questionData.optionB,
+                    option_c: questionData.optionC,
+                    option_d: questionData.optionD,
+                    correct_option: questionData.correctOption,
+                    explanation: questionData.explanation || '',
+                    topic: questionData.topic || 'Geral',
+                    topic_key: questionData.topicKey || null,
+                    level: questionData.level || 1,
+                    base_id: baseId || null,
+                    locale: locale,
+                    question_type: questionData.questionType || 'text',
+                    created_at: now,
+                    updated_at: now,
+                    published_at: now,
                   });
                   imported++;
                 } catch (err: any) {
