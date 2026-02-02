@@ -188,8 +188,13 @@ export function createQuestionRoutes(strapi: any): any[] {
             }
 
             const publish = ctx.query?.publish === 'true';
+            const locale = data.locale || 'en'; // Extract locale from data
+
+            // Remove locale from data (will be passed as parameter)
+            const { locale: _, ...dataWithoutLocale } = data;
+
             const normalizedData = {
-              ...data,
+              ...dataWithoutLocale,
               ...(publish && !data.publishedAt
                 ? { publishedAt: new Date().toISOString() }
                 : {}),
@@ -197,6 +202,7 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             const question = await strapi.entityService.create('api::question.question', {
               data: normalizedData,
+              locale: locale, // Pass locale as parameter for i18n
               populate: { image: true },
             });
             ctx.body = { data: question };
