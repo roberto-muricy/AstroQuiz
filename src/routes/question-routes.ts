@@ -336,8 +336,8 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Bulk import questions using Document Service API (v2 - proper i18n support)
-    // Uses Strapi v5 Document Service API for Content Manager visibility
+    // Bulk import questions using SQL with proper Strapi v5 structure
+    // Creates only published versions (no drafts) with correct locale linking
     {
       method: 'POST',
       path: '/api/questions/import-v2',
@@ -356,40 +356,45 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('Maximum 100 question groups per request');
             }
 
-            const documents = strapi.documents('api::question.question');
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
             let imported = 0;
             const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
 
-            // Process each question group (grouped by baseId with all locales)
+            // Process each question group
             for (let i = 0; i < questionGroups.length; i++) {
               const group = questionGroups[i];
               const locales = group.locales || {};
               const baseId = group.baseId;
 
-              // Create each locale using Document Service API
+              // Generate a single documentId for all locales
+              const documentId = require('crypto').randomBytes(12).toString('base64url');
+
+              // Insert each locale as PUBLISHED ONLY (no draft)
               for (const [locale, q] of Object.entries(locales)) {
                 if (!q || typeof q !== 'object') continue;
 
                 const questionData = q as any;
 
                 try {
-                  await documents.create({
-                    data: {
-                      question: questionData.question,
-                      optionA: questionData.optionA,
-                      optionB: questionData.optionB,
-                      optionC: questionData.optionC,
-                      optionD: questionData.optionD,
-                      correctOption: questionData.correctOption,
-                      explanation: questionData.explanation || '',
-                      topic: questionData.topic || 'Geral',
-                      topicKey: questionData.topicKey || null,
-                      level: questionData.level || 1,
-                      baseId: baseId || null,
-                      questionType: questionData.questionType || 'text',
-                    },
+                  await knex('questions').insert({
+                    document_id: documentId,
+                    question: questionData.question,
+                    option_a: questionData.optionA,
+                    option_b: questionData.optionB,
+                    option_c: questionData.optionC,
+                    option_d: questionData.optionD,
+                    correct_option: questionData.correctOption,
+                    explanation: questionData.explanation || '',
+                    topic: questionData.topic || 'Geral',
+                    topic_key: questionData.topicKey || null,
+                    level: questionData.level || 1,
+                    base_id: baseId || null,
                     locale: locale,
-                    status: 'published',
+                    question_type: questionData.questionType || 'text',
+                    created_at: now,
+                    updated_at: now,
+                    published_at: Date.now(), // Use timestamp for published
                   });
                   imported++;
                 } catch (err: any) {
