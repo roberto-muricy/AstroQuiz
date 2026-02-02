@@ -97,10 +97,14 @@ export function createQuestionRoutes(strapi: any): any[] {
             .where('q.locale', locale);
 
           if (baseId) query = query.andWhere('q.base_id', baseId);
-          if (published === 'true')
-            query = query.andWhereRaw("q.published_at IS NOT NULL");
-          if (published === 'false')
+
+          // By default, only return published questions
+          if (published === 'false') {
             query = query.andWhereRaw("q.published_at IS NULL");
+          } else if (published !== 'all') {
+            // published='true' or undefined (default)
+            query = query.andWhereRaw("q.published_at IS NOT NULL");
+          }
           if (withImage === 'true') query = query.whereNotNull('f.id');
           if (withImage === 'false') query = query.whereNull('f.id');
           if (questionType === 'image')
