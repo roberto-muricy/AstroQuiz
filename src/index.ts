@@ -16,6 +16,7 @@ import { createQuizRoutes } from './routes/quiz-routes';
 import { createQuestionRoutes } from './routes/question-routes';
 import { createUserProfileRoutes } from './routes/user-profile-routes';
 import { createI18nSetupRoutes } from './routes/i18n-setup-routes';
+import { createDebugRoutes } from './routes/debug-routes';
 
 export default {
   /**
@@ -50,6 +51,7 @@ export default {
       ...createQuestionRoutes(strapi),
       ...createUserProfileRoutes(strapi),
       ...createI18nSetupRoutes(strapi),
+      ...createDebugRoutes(strapi),
     ];
 
     strapi.server.routes(routes);
@@ -57,6 +59,7 @@ export default {
     strapi.log.info('Quiz Engine routes registered successfully');
     strapi.log.info('Question API routes registered successfully');
     strapi.log.info('User Profile routes registered successfully');
+    strapi.log.info('Debug routes registered successfully');
     strapi.log.info('I18n Setup routes registered successfully');
   },
 };
