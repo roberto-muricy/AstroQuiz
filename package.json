@@ -19,7 +19,7 @@
     "test:routes": "jest --testPathPattern=src/routes",
     "test:middlewares": "jest --testPathPattern=src/middlewares",
     "test:unit": "jest --testPathPattern=src/",
-    "railway:build": "rm -rf dist build .cache && npm run build",
+    "railway:build": "rm -rf dist build .cache node_modules/.cache && npm run build && echo \"BUILD COMPLETE - TIMESTAMP: $(date)\"",
     "railway:start": "NODE_ENV=production npm run start",
     "postbuild": "echo 'Build completed successfully'",
     "health": "curl -f http://localhost:1337/api/health || exit 1",
