@@ -1,9 +1,17 @@
 import path from 'path';
 
 export default ({ env }) => {
+  // DEBUG: Log environment variables to see what's being received
+  console.log('🔍 DATABASE CONFIG DEBUG:');
+  console.log('  process.env.DATABASE_CLIENT:', process.env.DATABASE_CLIENT);
+  console.log('  process.env.DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+  console.log('  process.env.NODE_ENV:', process.env.NODE_ENV);
+  console.log('  env("DATABASE_CLIENT"):', env('DATABASE_CLIENT', 'NOT_SET'));
+
   // CRITICAL FIX: Railway env vars not being read by Strapi's env() function
   // Use process.env directly to bypass Strapi's env loader
   const client = process.env.DATABASE_CLIENT || env('DATABASE_CLIENT', 'sqlite');
+  console.log('  FINAL CLIENT:', client);
 
   const connections = {
     mysql: {
