@@ -332,8 +332,8 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Bulk import questions using Entity Service (v2 - proper i18n support)
-    // Uses entityService for Content Manager visibility
+    // Bulk import questions using Document Service API (v2 - proper i18n support)
+    // Uses Strapi v5 Document Service API for Content Manager visibility
     {
       method: 'POST',
       path: '/api/questions/import-v2',
@@ -352,6 +352,7 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('Maximum 100 question groups per request');
             }
 
+            const documents = strapi.documents('api::question.question');
             let imported = 0;
             const errors: { index: number; baseId: string; locale: string; error: string }[] = [];
 
@@ -361,14 +362,14 @@ export function createQuestionRoutes(strapi: any): any[] {
               const locales = group.locales || {};
               const baseId = group.baseId;
 
-              // Create each locale separately via entityService
+              // Create each locale using Document Service API
               for (const [locale, q] of Object.entries(locales)) {
                 if (!q || typeof q !== 'object') continue;
 
                 const questionData = q as any;
 
                 try {
-                  await strapi.entityService.create('api::question.question', {
+                  await documents.create({
                     data: {
                       question: questionData.question,
                       optionA: questionData.optionA,
@@ -382,9 +383,9 @@ export function createQuestionRoutes(strapi: any): any[] {
                       level: questionData.level || 1,
                       baseId: baseId || null,
                       questionType: questionData.questionType || 'text',
-                      locale: locale,
-                      publishedAt: new Date().toISOString(),
                     },
+                    locale: locale,
+                    status: 'published',
                   });
                   imported++;
                 } catch (err: any) {
