@@ -449,5 +449,25 @@ export function createQuestionRoutes(strapi: any): any[] {
       ],
       config: { auth: false },
     },
+
+    // Truncate questions table (DANGER - requires admin or write token)
+    {
+      method: 'POST',
+      path: '/api/questions/truncate',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const knex = strapi.db.connection;
+            await knex.raw('TRUNCATE TABLE questions RESTART IDENTITY CASCADE');
+            ctx.body = { success: true, message: 'Questions table truncated' };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/truncate error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
   ];
 }
