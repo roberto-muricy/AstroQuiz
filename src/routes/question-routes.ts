@@ -589,15 +589,20 @@ export function createQuestionRoutes(strapi: any): any[] {
         async (ctx: any) => {
           try {
             const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
-            // Force default URL to avoid misconfiguration
-            const DEEPL_API_URL = 'https://api-free.deepl.com/v2';
-
-            strapi.log.info(`🔍 DeepL URL: ${DEEPL_API_URL}`);
-            strapi.log.info(`🔍 DeepL Key configured: ${!!DEEPL_API_KEY}`);
 
             if (!DEEPL_API_KEY) {
               return ctx.badRequest('DEEPL_API_KEY not configured');
             }
+
+            // Auto-detect API URL based on key type
+            // Free keys end with :fx or :f, Pro keys don't have suffix
+            const isFreeKey = DEEPL_API_KEY.endsWith(':fx') || DEEPL_API_KEY.endsWith(':f');
+            const DEEPL_API_URL = isFreeKey
+              ? 'https://api-free.deepl.com/v2'
+              : 'https://api.deepl.com/v2';
+
+            strapi.log.info(`🔍 DeepL Key type: ${isFreeKey ? 'Free' : 'Pro'}`);
+            strapi.log.info(`🔍 DeepL URL: ${DEEPL_API_URL}`);
 
             // Get all EN questions
             const enQuestions = await strapi.entityService.findMany('api::question.question', {
