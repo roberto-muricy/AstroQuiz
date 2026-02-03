@@ -505,7 +505,7 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // Add localization to existing question via SQL insert
+    // Add localization to existing question using Document Service
     {
       method: 'POST',
       path: '/api/questions/add-localization',
@@ -534,42 +534,37 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('documentId and locale are required');
             }
 
-            const knex = strapi.db.connection;
-            const now = new Date().toISOString();
+            strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
-            // Check if localization already exists
-            const existing = await knex('questions')
-              .where({ document_id: documentId, locale })
-              .first();
+            // Use Document Service to create localization
+            const documents = strapi.documents('api::question.question');
 
-            if (existing) {
-              return ctx.badRequest(`Localization ${locale} already exists for document ${documentId}`);
-            }
-
-            // Insert new localization
-            await knex('questions').insert({
-              document_id: documentId,
-              question: question,
-              option_a: optionA,
-              option_b: optionB,
-              option_c: optionC,
-              option_d: optionD,
-              correct_option: correctOption,
-              explanation: explanation || '',
-              topic: topic || 'Geral',
-              topic_key: null,
-              level: level || 1,
-              base_id: baseId || null,
+            const created = await documents.create({
+              documentId: documentId,
               locale: locale,
-              question_type: questionType || 'text',
-              created_at: now,
-              updated_at: now,
-              published_at: now,
+              data: {
+                question: question,
+                optionA: optionA,
+                optionB: optionB,
+                optionC: optionC,
+                optionD: optionD,
+                correctOption: correctOption,
+                explanation: explanation || '',
+                topic: topic || 'Geral',
+                topicKey: null,
+                level: level || 1,
+                baseId: baseId || null,
+                questionType: questionType || 'text',
+              },
+              status: 'published',
             });
+
+            strapi.log.info(`Created ${locale} localization with id ${created.id}`);
 
             ctx.body = {
               success: true,
               message: `Added ${locale} localization to document ${documentId}`,
+              data: created,
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/add-localization error:', error);
