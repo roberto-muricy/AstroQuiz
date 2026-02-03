@@ -572,20 +572,19 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('documentId and locale are required');
             }
 
-            // Check if localization already exists
-            const documents = strapi.documents('api::question.question');
+            // Check if localization already exists (use SQL for reliability)
+            const knex = strapi.db.connection;
+            const existing = await knex('questions')
+              .where('document_id', documentId)
+              .where('locale', locale)
+              .first();
 
-            const existing = await documents.findMany({
-              filters: { documentId: documentId },
-              locale: locale,
-            });
-
-            if (existing && existing.length > 0) {
-              strapi.log.info(`${locale} localization already exists for document ${documentId}`);
+            if (existing) {
+              strapi.log.info(`${locale} localization already exists for document ${documentId} (id: ${existing.id})`);
               return ctx.body = {
                 success: true,
                 message: `${locale} localization already exists for document ${documentId}`,
-                data: existing[0],
+                data: existing,
                 skipped: true,
               };
             }
