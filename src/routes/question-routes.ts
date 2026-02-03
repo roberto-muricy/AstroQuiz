@@ -579,6 +579,157 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Translate all EN questions to PT using DeepL
+    {
+      method: 'POST',
+      path: '/api/questions/translate-to-pt',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const axios = require('axios');
+            const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
+            const DEEPL_API_URL = process.env.DEEPL_API_URL || 'https://api-free.deepl.com/v2';
+
+            if (!DEEPL_API_KEY) {
+              return ctx.badRequest('DEEPL_API_KEY not configured');
+            }
+
+            // Get all EN questions
+            const enQuestions = await strapi.entityService.findMany('api::question.question', {
+              filters: { locale: 'en' },
+              limit: 10000,
+            });
+
+            // Get all PT questions to check what's already translated
+            const ptQuestions = await strapi.entityService.findMany('api::question.question', {
+              filters: { locale: 'pt' },
+              limit: 10000,
+            });
+
+            const ptDocIds = new Set(ptQuestions.map((q: any) => q.documentId));
+            const questionsToTranslate = enQuestions.filter((q: any) => !ptDocIds.has(q.documentId));
+
+            strapi.log.info(`Found ${enQuestions.length} EN questions, ${ptQuestions.length} PT, need to translate ${questionsToTranslate.length}`);
+
+            if (questionsToTranslate.length === 0) {
+              return ctx.body = {
+                success: true,
+                message: 'All questions already translated to PT',
+                stats: { total: enQuestions.length, alreadyTranslated: ptQuestions.length, translated: 0 },
+              };
+            }
+
+            const knex = strapi.db.connection;
+            const now = new Date().toISOString();
+            let success = 0;
+            let errors = 0;
+            const errorLog: any[] = [];
+
+            // Translate in batches to avoid timeout
+            const batchSize = 10;
+            for (let i = 0; i < questionsToTranslate.length; i += batchSize) {
+              const batch = questionsToTranslate.slice(i, i + batchSize);
+
+              for (const enQuestion of batch) {
+                try {
+                  // Prepare texts to translate
+                  const textsToTranslate = [
+                    enQuestion.question,
+                    enQuestion.optionA || '',
+                    enQuestion.optionB || '',
+                    enQuestion.optionC || '',
+                    enQuestion.optionD || '',
+                    enQuestion.explanation || '',
+                    enQuestion.topic || '',
+                  ];
+
+                  // Call DeepL API
+                  const response = await axios.post(
+                    `${DEEPL_API_URL}/translate`,
+                    {
+                      text: textsToTranslate,
+                      source_lang: 'EN',
+                      target_lang: 'PT',
+                    },
+                    {
+                      headers: {
+                        Authorization: `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+                        'Content-Type': 'application/json',
+                      },
+                      timeout: 30000,
+                    }
+                  );
+
+                  const translations = response.data.translations.map((t: any) => t.text);
+
+                  // Check if PT localization already exists
+                  const existing = await knex('questions')
+                    .where({ document_id: enQuestion.documentId, locale: 'pt' })
+                    .first();
+
+                  if (existing) {
+                    strapi.log.warn(`PT already exists for ${enQuestion.baseId}, skipping`);
+                    continue;
+                  }
+
+                  // Insert PT localization
+                  await knex('questions').insert({
+                    document_id: enQuestion.documentId,
+                    question: translations[0],
+                    option_a: translations[1],
+                    option_b: translations[2],
+                    option_c: translations[3],
+                    option_d: translations[4],
+                    correct_option: enQuestion.correctOption,
+                    explanation: translations[5],
+                    topic: translations[6],
+                    topic_key: null,
+                    level: enQuestion.level,
+                    base_id: enQuestion.baseId || null,
+                    locale: 'pt',
+                    question_type: enQuestion.questionType || 'text',
+                    created_at: now,
+                    updated_at: now,
+                    published_at: now,
+                  });
+
+                  success++;
+                  strapi.log.info(`Translated ${enQuestion.baseId} to PT (${success}/${questionsToTranslate.length})`);
+
+                  // Small delay to respect rate limits
+                  await new Promise((resolve) => setTimeout(resolve, 500));
+                } catch (error: any) {
+                  errors++;
+                  errorLog.push({
+                    baseId: enQuestion.baseId,
+                    error: error.message,
+                  });
+                  strapi.log.error(`Failed to translate ${enQuestion.baseId}:`, error.message);
+                }
+              }
+            }
+
+            ctx.body = {
+              success: true,
+              message: 'Translation completed',
+              stats: {
+                total: enQuestions.length,
+                alreadyTranslated: ptQuestions.length,
+                translated: success,
+                errors: errors,
+              },
+              errorLog: errorLog.slice(0, 10),
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/translate-to-pt error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // Truncate questions table (DANGER - requires admin or write token)
     {
       method: 'POST',
