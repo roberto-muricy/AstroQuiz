@@ -505,6 +505,35 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Debug endpoint to check question structure
+    {
+      method: 'GET',
+      path: '/api/questions/debug-structure',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const knex = strapi.db.connection;
+
+            // Get one EN question to see its structure
+            const sample = await knex('questions')
+              .where('locale', 'en')
+              .first();
+
+            ctx.body = {
+              success: true,
+              columns: sample ? Object.keys(sample) : [],
+              sampleData: sample,
+            };
+          } catch (error: any) {
+            strapi.log.error('GET /api/questions/debug-structure error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // Delete all questions of a specific locale (including drafts)
     {
       method: 'POST',
@@ -652,7 +681,15 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/add-localization error:', error);
-            ctx.throw(500, error.message);
+            strapi.log.error('Error stack:', error.stack);
+            strapi.log.error('Error details:', JSON.stringify(error, null, 2));
+            ctx.status = 500;
+            ctx.body = {
+              success: false,
+              error: error.message,
+              stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+              details: error,
+            };
           }
         },
       ],
