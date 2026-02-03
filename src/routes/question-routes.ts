@@ -605,28 +605,34 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
-            // Use Document Service to create localization
-            const created = await documents.create({
-              documentId: documentId,
+            // Use SQL to create localization (Document Service creates new documentId)
+            const now = new Date();
+            const insertData = {
+              document_id: documentId,
               locale: locale,
-              data: {
-                question: question,
-                optionA: optionA,
-                optionB: optionB,
-                optionC: optionC,
-                optionD: optionD,
-                correctOption: correctOption,
-                explanation: explanation || '',
-                topic: topic || 'Geral',
-                topicKey: null,
-                level: level || 1,
-                baseId: baseId || null,
-                questionType: questionType || 'text',
-              },
-              status: 'published',
-            });
+              question: question,
+              option_a: optionA,
+              option_b: optionB,
+              option_c: optionC,
+              option_d: optionD,
+              correct_option: correctOption,
+              explanation: explanation || '',
+              topic: topic || 'Geral',
+              topic_key: null,
+              level: level || 1,
+              base_id: baseId || null,
+              question_type: questionType || 'text',
+              published_at: now,
+              created_at: now,
+              updated_at: now,
+              created_by_id: null,
+              updated_by_id: null,
+            };
 
-            strapi.log.info(`Created ${locale} localization with id ${created.id}`);
+            const [insertedId] = await knex('questions').insert(insertData).returning('id');
+            const created = await knex('questions').where('id', insertedId.id || insertedId).first();
+
+            strapi.log.info(`Created ${locale} localization with id ${created.id} for documentId ${documentId}`);
 
             ctx.body = {
               success: true,
