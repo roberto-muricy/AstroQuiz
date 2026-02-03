@@ -3,6 +3,7 @@
  * CRUD API endpoints for questions
  */
 
+import axios from 'axios';
 import {
   fetchQuestionRowById,
   requireWriteTokenIfConfigured,
@@ -587,7 +588,6 @@ export function createQuestionRoutes(strapi: any): any[] {
         adminOrToken,
         async (ctx: any) => {
           try {
-            const axios = require('axios');
             const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
             const DEEPL_API_URL = process.env.DEEPL_API_URL || 'https://api-free.deepl.com/v2';
 
