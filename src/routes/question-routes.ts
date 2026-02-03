@@ -580,6 +580,67 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Test DeepL connection
+    {
+      method: 'GET',
+      path: '/api/questions/test-deepl',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
+
+            if (!DEEPL_API_KEY) {
+              return ctx.body = {
+                success: false,
+                error: 'DEEPL_API_KEY not configured',
+              };
+            }
+
+            const isFreeKey = DEEPL_API_KEY.endsWith(':fx') || DEEPL_API_KEY.endsWith(':f');
+            const DEEPL_API_URL = isFreeKey
+              ? 'https://api-free.deepl.com/v2'
+              : 'https://api.deepl.com/v2';
+
+            strapi.log.info(`Testing DeepL connection...`);
+            strapi.log.info(`Key type: ${isFreeKey ? 'Free' : 'Pro'}`);
+            strapi.log.info(`URL: ${DEEPL_API_URL}`);
+            strapi.log.info(`Key (first 10 chars): ${DEEPL_API_KEY.substring(0, 10)}...`);
+
+            try {
+              // Test with usage endpoint
+              const response = await axios.get(`${DEEPL_API_URL}/usage`, {
+                headers: {
+                  Authorization: `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+                },
+                timeout: 10000,
+              });
+
+              ctx.body = {
+                success: true,
+                keyType: isFreeKey ? 'Free' : 'Pro',
+                url: DEEPL_API_URL,
+                usage: response.data,
+              };
+            } catch (error: any) {
+              strapi.log.error('DeepL test failed:', error.response?.data || error.message);
+              ctx.body = {
+                success: false,
+                keyType: isFreeKey ? 'Free' : 'Pro',
+                url: DEEPL_API_URL,
+                error: error.response?.data || error.message,
+                status: error.response?.status,
+              };
+            }
+          } catch (error: any) {
+            strapi.log.error('Test endpoint error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // Translate all EN questions to PT using DeepL
     {
       method: 'POST',
