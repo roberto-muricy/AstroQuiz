@@ -574,10 +574,24 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             // Check if localization already exists (use SQL for reliability)
             const knex = strapi.db.connection;
-            const existing = await knex('questions')
+
+            strapi.log.info(`Checking if ${locale} localization exists for documentId: ${documentId}`);
+
+            // Try both column name formats (camelCase and snake_case)
+            let existing = await knex('questions')
               .where('document_id', documentId)
               .where('locale', locale)
               .first();
+
+            if (!existing) {
+              // Try camelCase column name
+              existing = await knex('questions')
+                .where('documentId', documentId)
+                .where('locale', locale)
+                .first();
+            }
+
+            strapi.log.info(`Duplicate check result: ${existing ? 'FOUND (will skip)' : 'NOT FOUND (will create)'}`);
 
             if (existing) {
               strapi.log.info(`${locale} localization already exists for document ${documentId} (id: ${existing.id})`);
