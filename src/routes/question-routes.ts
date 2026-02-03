@@ -505,6 +505,44 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Delete all questions of a specific locale (including drafts)
+    {
+      method: 'POST',
+      path: '/api/questions/delete-locale',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const { locale } = ctx.request.body || {};
+
+            if (!locale) {
+              return ctx.badRequest('locale is required');
+            }
+
+            strapi.log.info(`Deleting all questions with locale: ${locale}`);
+
+            // Delete directly from database (includes drafts and published)
+            const knex = strapi.db.connection;
+            const deleted = await knex('questions')
+              .where('locale', locale)
+              .del();
+
+            strapi.log.info(`Deleted ${deleted} questions with locale ${locale}`);
+
+            ctx.body = {
+              success: true,
+              message: `Deleted ${deleted} questions with locale ${locale}`,
+              deleted,
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/delete-locale error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // Add localization to existing question using Document Service
     {
       method: 'POST',
