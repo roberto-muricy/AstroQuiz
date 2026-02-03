@@ -534,11 +534,27 @@ export function createQuestionRoutes(strapi: any): any[] {
               return ctx.badRequest('documentId and locale are required');
             }
 
+            // Check if localization already exists
+            const documents = strapi.documents('api::question.question');
+
+            const existing = await documents.findMany({
+              filters: { documentId: documentId },
+              locale: locale,
+            });
+
+            if (existing && existing.length > 0) {
+              strapi.log.info(`${locale} localization already exists for document ${documentId}`);
+              return ctx.body = {
+                success: true,
+                message: `${locale} localization already exists for document ${documentId}`,
+                data: existing[0],
+                skipped: true,
+              };
+            }
+
             strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
             // Use Document Service to create localization
-            const documents = strapi.documents('api::question.question');
-
             const created = await documents.create({
               documentId: documentId,
               locale: locale,
