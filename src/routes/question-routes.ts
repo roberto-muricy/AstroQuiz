@@ -605,32 +605,43 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
-            // Use SQL to create localization (Document Service creates new documentId)
+            // Get the EN question to copy its structure
+            const enQuestion = await knex('questions')
+              .where('document_id', documentId)
+              .where('locale', 'en')
+              .first();
+
+            if (!enQuestion) {
+              return ctx.badRequest(`EN question with documentId ${documentId} not found`);
+            }
+
+            // Copy EN question and override with new locale and translations
             const now = new Date();
             const insertData = {
-              document_id: documentId,
-              locale: locale,
-              question: question,
+              ...enQuestion,
+              id: undefined, // Let DB generate new id
+              document_id: documentId, // Keep same documentId
+              locale: locale, // Change locale
+              question: question, // Translated fields
               option_a: optionA,
               option_b: optionB,
               option_c: optionC,
               option_d: optionD,
               correct_option: correctOption,
               explanation: explanation || '',
-              topic: topic || 'Geral',
-              topic_key: null,
-              level: level || 1,
-              base_id: baseId || null,
-              question_type: questionType || 'text',
-              published_at: now,
+              topic: topic || enQuestion.topic,
+              level: level || enQuestion.level,
+              base_id: baseId || enQuestion.base_id,
+              question_type: questionType || enQuestion.question_type,
               created_at: now,
               updated_at: now,
-              created_by_id: null,
-              updated_by_id: null,
+              published_at: now,
             };
 
             const [insertedId] = await knex('questions').insert(insertData).returning('id');
-            const created = await knex('questions').where('id', insertedId.id || insertedId).first();
+            const created = await knex('questions')
+              .where('id', insertedId.id || insertedId)
+              .first();
 
             strapi.log.info(`Created ${locale} localization with id ${created.id} for documentId ${documentId}`);
 
