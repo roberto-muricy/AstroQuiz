@@ -589,7 +589,11 @@ export function createQuestionRoutes(strapi: any): any[] {
         async (ctx: any) => {
           try {
             const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
-            const DEEPL_API_URL = process.env.DEEPL_API_URL || 'https://api-free.deepl.com/v2';
+            // Force default URL to avoid misconfiguration
+            const DEEPL_API_URL = 'https://api-free.deepl.com/v2';
+
+            strapi.log.info(`🔍 DeepL URL: ${DEEPL_API_URL}`);
+            strapi.log.info(`🔍 DeepL Key configured: ${!!DEEPL_API_KEY}`);
 
             if (!DEEPL_API_KEY) {
               return ctx.badRequest('DEEPL_API_KEY not configured');
@@ -645,8 +649,11 @@ export function createQuestionRoutes(strapi: any): any[] {
                   ];
 
                   // Call DeepL API
+                  const translateUrl = `${DEEPL_API_URL}/translate`;
+                  strapi.log.debug(`Translating ${enQuestion.baseId} - URL: ${translateUrl}`);
+
                   const response = await axios.post(
-                    `${DEEPL_API_URL}/translate`,
+                    translateUrl,
                     {
                       text: textsToTranslate,
                       source_lang: 'EN',
@@ -701,11 +708,13 @@ export function createQuestionRoutes(strapi: any): any[] {
                   await new Promise((resolve) => setTimeout(resolve, 500));
                 } catch (error: any) {
                   errors++;
+                  const errorMsg = error.response?.data?.message || error.message || String(error);
                   errorLog.push({
                     baseId: enQuestion.baseId,
-                    error: error.message,
+                    error: errorMsg,
                   });
-                  strapi.log.error(`Failed to translate ${enQuestion.baseId}:`, error.message);
+                  strapi.log.error(`Failed to translate ${enQuestion.baseId}:`, errorMsg);
+                  strapi.log.error('Full error:', error);
                 }
               }
             }
