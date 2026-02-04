@@ -923,5 +923,41 @@ export function createQuestionRoutes(strapi: any): any[] {
       ],
       config: { auth: false },
     },
+
+    // DEBUG: Check raw question_type field in database
+    {
+      method: 'GET',
+      path: '/api/questions/debug-questiontype',
+      handler: async (ctx: any) => {
+        try {
+          const knex = strapi.db.connection;
+
+          // Get questions with baseId starting with astro_img_
+          const rows = await knex('questions')
+            .select('id', 'document_id', 'base_id', 'question_type', 'locale', 'question')
+            .where('base_id', 'like', 'astro_img_%')
+            .andWhere('locale', 'en')
+            .orderBy('base_id')
+            .limit(10);
+
+          ctx.body = {
+            success: true,
+            count: rows.length,
+            questions: rows.map((r: any) => ({
+              id: r.id,
+              documentId: r.document_id,
+              baseId: r.base_id,
+              questionType: r.question_type,
+              locale: r.locale,
+              question: r.question.substring(0, 60),
+            })),
+          };
+        } catch (error: any) {
+          strapi.log.error('GET /api/questions/debug-questiontype error:', error);
+          ctx.throw(500, error.message);
+        }
+      },
+      config: { auth: false },
+    },
   ];
 }
