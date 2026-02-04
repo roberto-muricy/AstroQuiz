@@ -626,34 +626,30 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
-            // Simple SQL insert with minimal fields
-            const now = new Date();
+            // Use Document Service to create localization (same as PT which works)
+            const documents = strapi.documents('api::question.question');
 
-            strapi.log.info(`About to INSERT with document_id: ${documentId}`);
-
-            const [created] = await knex('questions')
-              .insert({
-                document_id: documentId,
-                locale: locale,
+            const created = await documents.create({
+              documentId: documentId,
+              locale: locale,
+              data: {
                 question: question,
-                option_a: optionA,
-                option_b: optionB,
-                option_c: optionC,
-                option_d: optionD,
-                correct_option: correctOption,
+                optionA: optionA,
+                optionB: optionB,
+                optionC: optionC,
+                optionD: optionD,
+                correctOption: correctOption,
                 explanation: explanation || '',
                 topic: topic || 'Geral',
+                topicKey: null,
                 level: level || 1,
-                base_id: baseId,
-                question_type: questionType || 'text',
-                published_at: now,
-                created_at: now,
-                updated_at: now,
-              })
-              .returning('*');
+                baseId: baseId || null,
+                questionType: questionType || 'text',
+              },
+              status: 'published',
+            });
 
-            strapi.log.info(`INSERT returned id ${created.id}, document_id: ${created.document_id}`);
-            strapi.log.info(`Expected documentId: ${documentId}, Got: ${created.document_id}`);
+            strapi.log.info(`Created ${locale} localization with id ${created.id}`);
 
             ctx.body = {
               success: true,
