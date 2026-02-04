@@ -629,6 +629,8 @@ export function createQuestionRoutes(strapi: any): any[] {
             // Simple SQL insert with minimal fields
             const now = new Date();
 
+            strapi.log.info(`About to INSERT with document_id: ${documentId}`);
+
             const [created] = await knex('questions')
               .insert({
                 document_id: documentId,
@@ -650,7 +652,8 @@ export function createQuestionRoutes(strapi: any): any[] {
               })
               .returning('*');
 
-            strapi.log.info(`Created ${locale} localization with id ${created.id} for documentId ${documentId}`);
+            strapi.log.info(`INSERT returned id ${created.id}, document_id: ${created.document_id}`);
+            strapi.log.info(`Expected documentId: ${documentId}, Got: ${created.document_id}`);
 
             ctx.body = {
               success: true,
