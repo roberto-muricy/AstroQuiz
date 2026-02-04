@@ -626,10 +626,11 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             strapi.log.info(`Creating ${locale} localization for document ${documentId}`);
 
-            // Use Document Service to create localization (same as PT which works)
+            // Use Document Service update with locale parameter (Strapi v5 correct method)
+            // This creates a new locale for existing documentId
             const documents = strapi.documents('api::question.question');
 
-            const created = await documents.create({
+            const created = await documents.update({
               documentId: documentId,
               locale: locale,
               data: {
@@ -646,10 +647,15 @@ export function createQuestionRoutes(strapi: any): any[] {
                 baseId: baseId || null,
                 questionType: questionType || 'text',
               },
-              status: 'published',
             });
 
-            strapi.log.info(`Created ${locale} localization with id ${created.id}`);
+            // Publish the new locale
+            await documents.publish({
+              documentId: documentId,
+              locale: locale,
+            });
+
+            strapi.log.info(`Created ${locale} localization for documentId ${documentId}`);
 
             ctx.body = {
               success: true,
