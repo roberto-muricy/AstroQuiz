@@ -1006,6 +1006,83 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Fix questionType for image questions (astro_img pattern)
+    {
+      method: 'POST',
+      path: '/api/questions/fix-image-question-type',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const { pattern = 'astro_img', locale = 'en' } = ctx.request.body || {};
+            const knex = strapi.db.connection;
+
+            // Get questions matching the pattern with question_type='image' in DB
+            const rows = await knex('questions')
+              .select('id', 'document_id', 'base_id', 'question_type', 'locale')
+              .where('locale', locale)
+              .where('base_id', 'like', `%${pattern}%`)
+              .whereNotNull('document_id')
+              .orderBy('id', 'asc');
+
+            const results = {
+              total: rows.length,
+              updated: 0,
+              errors: 0,
+              details: [] as any[],
+            };
+
+            for (const row of rows) {
+              try {
+                // Force update questionType via Documents API
+                await strapi.documents('api::question.question').update({
+                  documentId: row.document_id,
+                  locale: row.locale,
+                  data: {
+                    questionType: 'image',
+                  },
+                });
+
+                results.updated++;
+                results.details.push({
+                  id: row.id,
+                  baseId: row.base_id,
+                  documentId: row.document_id,
+                  success: true,
+                });
+              } catch (e: any) {
+                results.errors++;
+                results.details.push({
+                  id: row.id,
+                  baseId: row.base_id,
+                  documentId: row.document_id,
+                  success: false,
+                  error: e.message,
+                });
+              }
+            }
+
+            ctx.body = {
+              success: true,
+              message: `Fixed questionType for ${results.updated} questions matching "${pattern}"`,
+              pattern,
+              locale,
+              stats: {
+                total: results.total,
+                updated: results.updated,
+                errors: results.errors,
+              },
+              details: results.details.slice(0, 10),
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/fix-image-question-type error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // DEBUG: Check how different APIs read the data
     {
       method: 'GET',
