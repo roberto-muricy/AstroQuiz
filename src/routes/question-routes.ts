@@ -937,7 +937,7 @@ export function createQuestionRoutes(strapi: any): any[] {
 
             // Get questions with topic_key from raw DB (with pagination)
             const rows = await knex('questions')
-              .select('id', 'document_id', 'base_id', 'topic_key', 'locale')
+              .select('id', 'document_id', 'base_id', 'topic_key', 'question_type', 'locale')
               .where('locale', locale)
               .whereNotNull('topic_key')
               .andWhere('topic_key', '!=', '')
@@ -952,11 +952,13 @@ export function createQuestionRoutes(strapi: any): any[] {
             for (const row of rows) {
               try {
                 // Use Documents API to update (this will properly sync with Admin)
+                // Include both topicKey and questionType
                 await strapi.documents('api::question.question').update({
                   documentId: row.document_id,
                   locale: row.locale,
                   data: {
                     topicKey: row.topic_key,
+                    questionType: row.question_type || 'text',
                   },
                 });
 
