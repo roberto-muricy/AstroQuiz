@@ -924,6 +924,56 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
+    // Fix topicKey using Documents API (Strapi v5)
+    {
+      method: 'POST',
+      path: '/api/questions/fix-topickey-documents-api',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const knex = strapi.db.connection;
+
+            // Get all questions with topic_key from raw DB
+            const rows = await knex('questions')
+              .select('id', 'document_id', 'base_id', 'topic_key', 'locale')
+              .whereNotNull('topic_key')
+              .andWhere('topic_key', '!=', '')
+              .limit(50);
+
+            const results = [];
+
+            for (const row of rows) {
+              try {
+                // Use Documents API to update (this will properly sync with Admin)
+                await strapi.documents('api::question.question').update({
+                  documentId: row.document_id,
+                  locale: row.locale,
+                  data: {
+                    topicKey: row.topic_key,
+                  },
+                });
+
+                results.push({ documentId: row.document_id, locale: row.locale, success: true });
+              } catch (e: any) {
+                results.push({ documentId: row.document_id, locale: row.locale, success: false, error: e.message });
+              }
+            }
+
+            ctx.body = {
+              success: true,
+              message: `Processed ${rows.length} questions`,
+              results: results.slice(0, 10),
+            };
+          } catch (error: any) {
+            strapi.log.error('POST /api/questions/fix-topickey-documents-api error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
     // DEBUG: Check how Entity Service reads the data
     {
       method: 'GET',
