@@ -924,50 +924,35 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // DEBUG: Check and fix question_type field in database
+    // DEBUG: Check raw database fields
     {
-      method: 'POST',
-      path: '/api/questions/fix-image-type',
-      handler: [
-        adminOrToken,
-        async (ctx: any) => {
-          try {
-            const knex = strapi.db.connection;
+      method: 'GET',
+      path: '/api/questions/debug-raw-db/:id',
+      handler: async (ctx: any) => {
+        try {
+          const { id } = ctx.params;
+          const knex = strapi.db.connection;
 
-            // First, check current state
-            const before = await knex('questions')
-              .select('id', 'base_id', 'question_type', 'locale')
-              .where('base_id', 'like', 'astro_img_%')
-              .andWhere('locale', 'en')
-              .limit(5);
+          // Raw SQL query to see actual database values
+          const rows = await knex.raw(`
+            SELECT id, base_id, topic, topic_key, question_type, locale, question
+            FROM questions
+            WHERE id = ?
+            LIMIT 1
+          `, [Number(id)]);
 
-            // Update all questions with baseId starting with astro_img_ to questionType='image'
-            const updated = await knex('questions')
-              .where('base_id', 'like', 'astro_img_%')
-              .update({
-                question_type: 'image',
-                updated_at: new Date().toISOString(),
-              });
+          const row = rows.rows?.[0] || rows[0];
 
-            // Check after update
-            const after = await knex('questions')
-              .select('id', 'base_id', 'question_type', 'locale')
-              .where('base_id', 'like', 'astro_img_%')
-              .andWhere('locale', 'en')
-              .limit(5);
-
-            ctx.body = {
-              success: true,
-              message: `Updated ${updated} questions`,
-              before: before,
-              after: after,
-            };
-          } catch (error: any) {
-            strapi.log.error('POST /api/questions/fix-image-type error:', error);
-            ctx.throw(500, error.message);
-          }
-        },
-      ],
+          ctx.body = {
+            success: true,
+            rawDatabaseRow: row,
+            note: 'This shows the actual values in the PostgreSQL database',
+          };
+        } catch (error: any) {
+          strapi.log.error('GET /api/questions/debug-raw-db error:', error);
+          ctx.throw(500, error.message);
+        }
+      },
       config: { auth: false },
     },
   ];
