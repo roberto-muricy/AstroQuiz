@@ -924,32 +924,56 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // DEBUG: Check raw database fields
+    // DEBUG: Check how Entity Service reads the data
     {
       method: 'GET',
-      path: '/api/questions/debug-raw-db/:id',
+      path: '/api/questions/debug-entity-service/:id',
       handler: async (ctx: any) => {
         try {
           const { id } = ctx.params;
           const knex = strapi.db.connection;
 
-          // Raw SQL query to see actual database values
-          const rows = await knex.raw(`
+          // 1. Raw SQL
+          const sqlRows = await knex.raw(`
             SELECT id, base_id, topic, topic_key, question_type, locale, question
             FROM questions
             WHERE id = ?
             LIMIT 1
           `, [Number(id)]);
+          const sqlRow = sqlRows.rows?.[0] || sqlRows[0];
 
-          const row = rows.rows?.[0] || rows[0];
+          // 2. Entity Service (what Admin uses)
+          let entityServiceResult = null;
+          try {
+            entityServiceResult = await strapi.entityService.findOne('api::question.question', id, {
+              populate: '*',
+            });
+          } catch (e: any) {
+            entityServiceResult = { error: e.message };
+          }
+
+          // 3. Documents API (Strapi v5)
+          let documentsResult = null;
+          try {
+            const results = await strapi.documents('api::question.question').findMany({
+              filters: { id: Number(id) },
+              populate: '*',
+            });
+            documentsResult = results?.[0] || null;
+          } catch (e: any) {
+            documentsResult = { error: e.message };
+          }
 
           ctx.body = {
             success: true,
-            rawDatabaseRow: row,
-            note: 'This shows the actual values in the PostgreSQL database',
+            comparison: {
+              rawSQL: sqlRow,
+              entityService: entityServiceResult,
+              documentsAPI: documentsResult,
+            },
           };
         } catch (error: any) {
-          strapi.log.error('GET /api/questions/debug-raw-db error:', error);
+          strapi.log.error('GET /api/questions/debug-entity-service error:', error);
           ctx.throw(500, error.message);
         }
       },
