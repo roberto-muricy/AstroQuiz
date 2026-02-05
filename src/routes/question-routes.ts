@@ -1033,7 +1033,7 @@ export function createQuestionRoutes(strapi: any): any[] {
       },
       config: { auth: false },
     },
-    // DIAGNOSE: Check document_id status
+    // DIAGNOSE: Check document_id status (simplified)
     {
       method: 'GET',
       path: '/api/questions/diagnose-document-id',
@@ -1041,89 +1041,56 @@ export function createQuestionRoutes(strapi: any): any[] {
         try {
           const knex = strapi.db.connection;
 
-          // Query 1: Verificar coluna
-          const columnInfo = await knex.raw(`
-            SELECT column_name, data_type, is_nullable
-            FROM information_schema.columns
-            WHERE table_name = 'questions'
-              AND column_name = 'document_id'
-          `);
+          // Simple count query
+          const rows = await knex('questions')
+            .select('id', 'document_id', 'topic_key', 'question_type', 'locale')
+            .limit(10);
 
-          // Query 2: Contar problemas
-          const counts = await knex.raw(`
-            SELECT
-              COUNT(*) as total_records,
-              COUNT(CASE WHEN document_id IS NULL THEN 1 END) as null_document_id,
-              COUNT(CASE WHEN document_id = '' THEN 1 END) as empty_document_id,
-              COUNT(CASE WHEN LENGTH(document_id) != 24 THEN 1 END) as invalid_length,
-              COUNT(CASE WHEN document_id IS NOT NULL AND document_id != '' AND LENGTH(document_id) = 24 THEN 1 END) as valid_document_id
-            FROM questions
-          `);
+          const totalCount = await knex('questions').count('* as count').first();
 
-          // Query 3: Amostra
-          const sample = await knex.raw(`
-            SELECT
-              id,
-              document_id,
-              LENGTH(document_id) as doc_id_length,
-              topic_key,
-              question_type,
-              locale
-            FROM questions
-            ORDER BY id
-            LIMIT 10
-          `);
+          const analysis = {
+            total: totalCount?.count || 0,
+            withDocumentId: 0,
+            withoutDocumentId: 0,
+            withTopicKey: 0,
+            withoutTopicKey: 0,
+            sample: [],
+          };
 
-          // Query 4: Registro específico
-          const specific = await knex.raw(`
-            SELECT
-              id,
-              document_id,
-              LENGTH(document_id) as doc_id_length,
-              topic_key,
-              question_type,
-              locale,
-              base_id
-            FROM questions
-            WHERE id = 12231
-          `);
+          for (const row of rows) {
+            if (row.document_id && row.document_id.length === 24) {
+              analysis.withDocumentId++;
+            } else {
+              analysis.withoutDocumentId++;
+            }
 
-          // Query 5: Distribuição topic_key
-          const topicDist = await knex.raw(`
-            SELECT
-              COALESCE(topic_key, 'NULL') as topic_key_value,
-              COUNT(*) as quantidade
-            FROM questions
-            GROUP BY topic_key
-            ORDER BY quantidade DESC
-          `);
+            if (row.topic_key) {
+              analysis.withTopicKey++;
+            } else {
+              analysis.withoutTopicKey++;
+            }
 
-          // Query 6: Duplicatas
-          const duplicates = await knex.raw(`
-            SELECT
-              document_id,
-              COUNT(*) as duplicatas
-            FROM questions
-            WHERE document_id IS NOT NULL AND document_id != ''
-            GROUP BY document_id
-            HAVING COUNT(*) > 1
-            LIMIT 10
-          `);
+            analysis.sample.push({
+              id: row.id,
+              documentId: row.document_id,
+              documentIdLength: row.document_id ? row.document_id.length : 0,
+              topicKey: row.topic_key,
+              questionType: row.question_type,
+              locale: row.locale,
+            });
+          }
 
           ctx.body = {
             success: true,
-            diagnosis: {
-              columnInfo: columnInfo.rows || columnInfo,
-              counts: counts.rows?.[0] || counts[0],
-              sample: sample.rows || sample,
-              specificRecord: specific.rows?.[0] || specific[0],
-              topicKeyDistribution: topicDist.rows || topicDist,
-              duplicates: duplicates.rows || duplicates,
-            },
+            diagnosis: analysis,
           };
         } catch (error: any) {
           strapi.log.error('Diagnose document_id error:', error);
-          ctx.throw(500, error.message);
+          ctx.body = {
+            success: false,
+            error: error.message,
+            stack: error.stack,
+          };
         }
       },
       config: { auth: false },
