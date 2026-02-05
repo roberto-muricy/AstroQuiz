@@ -1033,5 +1033,186 @@ export function createQuestionRoutes(strapi: any): any[] {
       },
       config: { auth: false },
     },
+    // DIAGNOSE: Check document_id status
+    {
+      method: 'GET',
+      path: '/api/questions/diagnose-document-id',
+      handler: async (ctx: any) => {
+        try {
+          const knex = strapi.db.connection;
+
+          // Query 1: Verificar coluna
+          const columnInfo = await knex.raw(`
+            SELECT column_name, data_type, is_nullable
+            FROM information_schema.columns
+            WHERE table_name = 'questions'
+              AND column_name = 'document_id'
+          `);
+
+          // Query 2: Contar problemas
+          const counts = await knex.raw(`
+            SELECT
+              COUNT(*) as total_records,
+              COUNT(CASE WHEN document_id IS NULL THEN 1 END) as null_document_id,
+              COUNT(CASE WHEN document_id = '' THEN 1 END) as empty_document_id,
+              COUNT(CASE WHEN LENGTH(document_id) != 24 THEN 1 END) as invalid_length,
+              COUNT(CASE WHEN document_id IS NOT NULL AND document_id != '' AND LENGTH(document_id) = 24 THEN 1 END) as valid_document_id
+            FROM questions
+          `);
+
+          // Query 3: Amostra
+          const sample = await knex.raw(`
+            SELECT
+              id,
+              document_id,
+              LENGTH(document_id) as doc_id_length,
+              topic_key,
+              question_type,
+              locale
+            FROM questions
+            ORDER BY id
+            LIMIT 10
+          `);
+
+          // Query 4: Registro específico
+          const specific = await knex.raw(`
+            SELECT
+              id,
+              document_id,
+              LENGTH(document_id) as doc_id_length,
+              topic_key,
+              question_type,
+              locale,
+              base_id
+            FROM questions
+            WHERE id = 12231
+          `);
+
+          // Query 5: Distribuição topic_key
+          const topicDist = await knex.raw(`
+            SELECT
+              COALESCE(topic_key, 'NULL') as topic_key_value,
+              COUNT(*) as quantidade
+            FROM questions
+            GROUP BY topic_key
+            ORDER BY quantidade DESC
+          `);
+
+          // Query 6: Duplicatas
+          const duplicates = await knex.raw(`
+            SELECT
+              document_id,
+              COUNT(*) as duplicatas
+            FROM questions
+            WHERE document_id IS NOT NULL AND document_id != ''
+            GROUP BY document_id
+            HAVING COUNT(*) > 1
+            LIMIT 10
+          `);
+
+          ctx.body = {
+            success: true,
+            diagnosis: {
+              columnInfo: columnInfo.rows || columnInfo,
+              counts: counts.rows?.[0] || counts[0],
+              sample: sample.rows || sample,
+              specificRecord: specific.rows?.[0] || specific[0],
+              topicKeyDistribution: topicDist.rows || topicDist,
+              duplicates: duplicates.rows || duplicates,
+            },
+          };
+        } catch (error: any) {
+          strapi.log.error('Diagnose document_id error:', error);
+          ctx.throw(500, error.message);
+        }
+      },
+      config: { auth: false },
+    },
+
+    // FIX: Corrigir document_id inválidos
+    {
+      method: 'POST',
+      path: '/api/questions/fix-document-id',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const knex = strapi.db.connection;
+
+            // Contar quantos serão corrigidos
+            const toFix = await knex.raw(`
+              SELECT COUNT(*) as count
+              FROM questions
+              WHERE document_id IS NULL
+                 OR document_id = ''
+                 OR LENGTH(document_id) != 24
+            `);
+
+            const countToFix = toFix.rows?.[0]?.count || toFix[0]?.count || 0;
+
+            if (countToFix === 0) {
+              return ctx.body = {
+                success: true,
+                message: 'No records need fixing',
+                fixed: 0,
+              };
+            }
+
+            // Executar correção
+            await knex.raw(`
+              UPDATE questions
+              SET
+                document_id = LOWER(
+                  SUBSTRING(
+                    REGEXP_REPLACE(
+                      ENCODE(GEN_RANDOM_BYTES(16), 'base64'),
+                      '[^a-zA-Z0-9]',
+                      '',
+                      'g'
+                    ),
+                    1,
+                    24
+                  )
+                ),
+                updated_at = NOW()
+              WHERE document_id IS NULL
+                 OR document_id = ''
+                 OR LENGTH(document_id) != 24
+            `);
+
+            // Verificar resultado
+            const afterFix = await knex.raw(`
+              SELECT
+                COUNT(*) as total,
+                COUNT(CASE WHEN document_id IS NOT NULL AND LENGTH(document_id) = 24 THEN 1 END) as valid,
+                COUNT(CASE WHEN document_id IS NULL OR document_id = '' OR LENGTH(document_id) != 24 THEN 1 END) as still_invalid
+              FROM questions
+            `);
+
+            // Verificar duplicatas
+            const dupes = await knex.raw(`
+              SELECT document_id, COUNT(*) as count
+              FROM questions
+              GROUP BY document_id
+              HAVING COUNT(*) > 1
+              LIMIT 5
+            `);
+
+            ctx.body = {
+              success: true,
+              message: `Fixed ${countToFix} records`,
+              beforeFix: { toFix: countToFix },
+              afterFix: afterFix.rows?.[0] || afterFix[0],
+              duplicates: dupes.rows || dupes,
+            };
+
+          } catch (error: any) {
+            strapi.log.error('Fix document_id error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
   ];
 }
