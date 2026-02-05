@@ -932,16 +932,22 @@ export function createQuestionRoutes(strapi: any): any[] {
         adminOrToken,
         async (ctx: any) => {
           try {
+            const { locale = 'en', limit = 100, offset = 0 } = ctx.request.body || {};
             const knex = strapi.db.connection;
 
-            // Get all questions with topic_key from raw DB
+            // Get questions with topic_key from raw DB (with pagination)
             const rows = await knex('questions')
               .select('id', 'document_id', 'base_id', 'topic_key', 'locale')
+              .where('locale', locale)
               .whereNotNull('topic_key')
               .andWhere('topic_key', '!=', '')
-              .limit(50);
+              .orderBy('id', 'asc')
+              .limit(limit)
+              .offset(offset);
 
             const results = [];
+            let successCount = 0;
+            let errorCount = 0;
 
             for (const row of rows) {
               try {
@@ -954,15 +960,41 @@ export function createQuestionRoutes(strapi: any): any[] {
                   },
                 });
 
+                successCount++;
                 results.push({ documentId: row.document_id, locale: row.locale, success: true });
               } catch (e: any) {
+                errorCount++;
                 results.push({ documentId: row.document_id, locale: row.locale, success: false, error: e.message });
               }
             }
 
+            // Get total count for this locale
+            const totalCount = await knex('questions')
+              .where('locale', locale)
+              .whereNotNull('topic_key')
+              .andWhere('topic_key', '!=', '')
+              .count('* as count')
+              .first();
+
+            const total = Number(totalCount?.count || 0);
+            const remaining = Math.max(0, total - (offset + rows.length));
+
             ctx.body = {
               success: true,
-              message: `Processed ${rows.length} questions`,
+              message: `Processed ${rows.length} questions for locale ${locale}`,
+              stats: {
+                processed: rows.length,
+                success: successCount,
+                errors: errorCount,
+                total,
+                remaining,
+              },
+              pagination: {
+                locale,
+                offset,
+                limit,
+                nextOffset: remaining > 0 ? offset + limit : null,
+              },
               results: results.slice(0, 10),
             };
           } catch (error: any) {
@@ -1175,6 +1207,119 @@ export function createQuestionRoutes(strapi: any): any[] {
 
           } catch (error: any) {
             strapi.log.error('Fix document_id error:', error);
+            ctx.throw(500, error.message);
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
+    // PHASE 4: Force update all questions via Document Service
+    // This ensures Strapi creates proper metadata structures for enum fields
+    {
+      method: 'POST',
+      path: '/api/questions/force-sync-document-service',
+      handler: [
+        adminOrToken,
+        async (ctx: any) => {
+          try {
+            const { locale = 'en', limit = 50, offset = 0 } = ctx.request.body || {};
+            const knex = strapi.db.connection;
+
+            strapi.log.info(`Force sync: locale=${locale}, limit=${limit}, offset=${offset}`);
+
+            // Get questions from database with valid documentId
+            const rows = await knex('questions')
+              .select('id', 'document_id', 'topic_key', 'question_type', 'locale', 'base_id')
+              .where('locale', locale)
+              .whereNotNull('document_id')
+              .andWhere('document_id', '!=', '')
+              .orderBy('id', 'asc')
+              .limit(limit)
+              .offset(offset);
+
+            if (rows.length === 0) {
+              return ctx.body = {
+                success: true,
+                message: 'No more questions to process',
+                processed: 0,
+                errors: 0,
+              };
+            }
+
+            const results = {
+              processed: 0,
+              success: 0,
+              errors: 0,
+              errorDetails: [] as any[],
+            };
+
+            // Process each question via Document Service
+            for (const row of rows) {
+              try {
+                results.processed++;
+
+                // Use Documents API to force update the enum fields
+                await strapi.documents('api::question.question').update({
+                  documentId: row.document_id,
+                  locale: row.locale,
+                  data: {
+                    topicKey: row.topic_key,
+                    questionType: row.question_type || 'text',
+                  },
+                });
+
+                results.success++;
+
+                if (results.processed % 10 === 0) {
+                  strapi.log.info(`Progress: ${results.processed}/${rows.length} (${results.success} success, ${results.errors} errors)`);
+                }
+
+              } catch (error: any) {
+                results.errors++;
+                results.errorDetails.push({
+                  id: row.id,
+                  documentId: row.document_id,
+                  baseId: row.base_id,
+                  error: error.message,
+                });
+                strapi.log.error(`Failed to update question ${row.id} (${row.base_id}):`, error.message);
+              }
+            }
+
+            // Get total count for this locale
+            const totalCount = await knex('questions')
+              .where('locale', locale)
+              .whereNotNull('document_id')
+              .andWhere('document_id', '!=', '')
+              .count('* as count')
+              .first();
+
+            const total = Number(totalCount?.count || 0);
+            const remaining = Math.max(0, total - (offset + limit));
+            const nextOffset = offset + limit;
+
+            ctx.body = {
+              success: true,
+              message: `Processed ${results.processed} questions for locale ${locale}`,
+              locale,
+              stats: {
+                processed: results.processed,
+                success: results.success,
+                errors: results.errors,
+                total,
+                remaining,
+              },
+              pagination: {
+                offset,
+                limit,
+                nextOffset: remaining > 0 ? nextOffset : null,
+              },
+              errorDetails: results.errorDetails.slice(0, 5),
+            };
+
+          } catch (error: any) {
+            strapi.log.error('Force sync error:', error);
             ctx.throw(500, error.message);
           }
         },
