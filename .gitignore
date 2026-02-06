@@ -141,3 +141,4 @@ mobile/build/
 .DS_Store?
 Icon?firebase-credentials.json
 firebase-credentials.json
+.env.production
