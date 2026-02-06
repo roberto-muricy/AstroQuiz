@@ -13,6 +13,11 @@ export function createDebugRoutes(strapi: any): any[] {
         try {
           const uploadConfig = strapi.config.get('plugin.upload') || {};
 
+          // List all env vars containing CLOUD
+          const cloudVars = Object.keys(process.env)
+            .filter(k => k.toUpperCase().includes('CLOUD'))
+            .map(k => `${k}=${process.env[k]?.substring(0, 8)}...`);
+
           ctx.body = {
             success: true,
             data: {
@@ -22,6 +27,13 @@ export function createDebugRoutes(strapi: any): any[] {
               hasCloudinarySecret: !!process.env.CLOUDINARY_SECRET,
               cloudinaryName: process.env.CLOUDINARY_NAME || 'not set',
               nodeEnv: process.env.NODE_ENV,
+              // Show all CLOUD* vars found
+              cloudVarsFound: cloudVars,
+              // Show total env var count
+              totalEnvVars: Object.keys(process.env).length,
+              // Check if Railway vars exist
+              hasRailwayEnv: !!process.env.RAILWAY_ENVIRONMENT,
+              railwayEnv: process.env.RAILWAY_ENVIRONMENT || 'not set',
             },
           };
         } catch (error: any) {
