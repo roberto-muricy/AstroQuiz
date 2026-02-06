@@ -5,6 +5,31 @@
 
 export function createDebugRoutes(strapi: any): any[] {
   return [
+    // Check upload/Cloudinary configuration
+    {
+      method: 'GET',
+      path: '/api/debug/upload-config',
+      handler: async (ctx: any) => {
+        try {
+          const uploadConfig = strapi.config.get('plugin.upload') || {};
+
+          ctx.body = {
+            success: true,
+            data: {
+              provider: uploadConfig.config?.provider || 'local (default)',
+              hasCloudinaryName: !!process.env.CLOUDINARY_NAME,
+              hasCloudinaryKey: !!process.env.CLOUDINARY_KEY,
+              hasCloudinarySecret: !!process.env.CLOUDINARY_SECRET,
+              cloudinaryName: process.env.CLOUDINARY_NAME || 'not set',
+              nodeEnv: process.env.NODE_ENV,
+            },
+          };
+        } catch (error: any) {
+          ctx.throw(500, error.message);
+        }
+      },
+      config: { auth: false },
+    },
     {
       method: 'GET',
       path: '/api/debug/db-config',
