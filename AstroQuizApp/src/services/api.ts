@@ -41,8 +41,9 @@ const getMetroHost = (): string | null => {
 const getDevLanBaseUrl = (): string => {
   const host = getMetroHost();
   if (host) return `http://${host}:1337/api`;
-  // Fallback (último recurso) - se necessário, pode ser sobrescrito via AsyncStorage override.
-  return 'http://192.168.68.109:1337/api';
+  // Fallback: usa localhost (funcionará apenas em simulador)
+  // Para device físico, configure via AsyncStorage override ou use produção
+  return 'http://localhost:1337/api';
 };
 
 const getDefaultDevBaseUrl = () => {
@@ -172,7 +173,7 @@ class ApiService {
 
   /**
    * Base URL pública do Strapi (sem o sufixo /api).
-   * Ex.: http://192.168.x.x:1337
+   * Ex.: https://astroquiz-production.up.railway.app
    */
   getPublicBaseUrl(): string {
     return this.getBaseUrl().replace(/\/api\/?$/, '');
