@@ -10,7 +10,7 @@ import * as Sentry from '@sentry/react-native';
 
 // TODO: Substitua pelo seu DSN do Sentry.io
 // Obtenha em: https://sentry.io -> Projeto -> Settings -> Client Keys (DSN)
-const SENTRY_DSN = '__YOUR_SENTRY_DSN_HERE__';
+const SENTRY_DSN = 'https://a1e8b0afe9a647085d43329aaf5fb745@o4510846491623424.ingest.us.sentry.io/4510846493720577';
 
 // Configuração do ambiente
 const getEnvironment = (): string => {
@@ -29,11 +29,6 @@ export const initSentry = () => {
     return;
   }
 
-  // Verifica se o DSN foi configurado
-  if (SENTRY_DSN === '__YOUR_SENTRY_DSN_HERE__') {
-    console.warn('⚠️ Sentry DSN not configured. Crash reporting disabled.');
-    return;
-  }
 
   Sentry.init({
     dsn: SENTRY_DSN,
