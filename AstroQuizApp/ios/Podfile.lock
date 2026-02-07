@@ -1142,8 +1142,16 @@ PODS:
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNSentry (7.12.0):
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - React-hermes
+    - Sentry/HybridSDK (= 8.58.0)
   - RNSVG (14.2.0):
     - React-Core
+  - Sentry/HybridSDK (8.58.0)
   - SocketRocket (0.6.1)
   - Yoga (1.14.0)
 
@@ -1205,6 +1213,7 @@ DEPENDENCIES:
   - "RNFBAuth (from `../node_modules/@react-native-firebase/auth`)"
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNSVG (from `../node_modules/react-native-svg`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1227,6 +1236,7 @@ SPEC REPOS:
     - libevent
     - PromisesObjC
     - RecaptchaInterop
+    - Sentry
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1339,6 +1349,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-google-signin/google-signin"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   Yoga:
@@ -1416,7 +1428,9 @@ SPEC CHECKSUMS:
   RNFBAuth: 8fdddaa3d34cbdd918f4c708c6fc591598549810
   RNGoogleSignin: 5782dd7dad559608a06f3c6b1d4142c395fb5308
   RNScreens: 587841d29ca90ccdb0416bf9ac9a48e12e850222
+  RNSentry: ddcc931b364f6f8818bfe29c0035b09754a2fdbf
   RNSVG: 043f603fc70d48d289bc3f2ceedbb05ce2636f5c
+  Sentry: d587a8fe91ca13503ecd69a1905f3e8a0fcf61be
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 13c8ef87792450193e117976337b8527b49e8c03
 

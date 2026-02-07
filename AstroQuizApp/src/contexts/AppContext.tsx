@@ -12,6 +12,7 @@ import { GameRules, QuizSession, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { changeLanguage } from "@/i18n";
+import { setSentryUser } from "@/config/sentry";
 
 interface AppContextData {
   // User state
@@ -150,13 +151,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   /**
-   * Salvar usuário no storage
+   * Salvar usuário no storage e atualizar Sentry
    */
   useEffect(() => {
     if (user) {
       AsyncStorage.setItem("@user", JSON.stringify(user));
+      // Atualiza contexto do Sentry para crash reporting
+      setSentryUser({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      });
     } else {
       AsyncStorage.removeItem("@user");
+      setSentryUser(null);
     }
   }, [user]);
 

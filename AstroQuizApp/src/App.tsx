@@ -10,8 +10,14 @@ import React, { useEffect } from "react";
 import { StatusBar } from "react-native";
 import firebase from '@react-native-firebase/app';
 
+// Sentry - Crash Reporting
+import { initSentry, SentryWrap } from "@/config/sentry";
+
 // Importar configuração de i18n (deve ser antes do App)
 import '@/i18n';
+
+// Inicializa Sentry antes de qualquer coisa
+initSentry();
 
 const App = () => {
   useEffect(() => {
@@ -66,4 +72,5 @@ const App = () => {
   );
 };
 
-export default App;
+// Wrap com Sentry para capturar crashes não tratados
+export default SentryWrap(App);
