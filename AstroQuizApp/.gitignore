@@ -56,6 +56,10 @@ fastlane/test_output
 .env
 .env.local
 
+# Android keystore (senhas)
+android/keystore.properties
+android/app/keystore/
+
 # TypeScript
 *.tsbuildinfo
 
