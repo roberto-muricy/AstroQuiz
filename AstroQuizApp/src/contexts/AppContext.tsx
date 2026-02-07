@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { changeLanguage } from "@/i18n";
 import { setSentryUser } from "@/config/sentry";
+import analyticsService from "@/services/analyticsService";
 
 interface AppContextData {
   // User state
@@ -151,7 +152,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   /**
-   * Salvar usuário no storage e atualizar Sentry
+   * Salvar usuário no storage, atualizar Sentry e Analytics
    */
   useEffect(() => {
     if (user) {
@@ -162,9 +163,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         email: user.email,
         name: user.name,
       });
+      // Atualiza Analytics
+      analyticsService.setUserId(user.id);
+      analyticsService.setUserProperties({
+        user_level: String(user.level || 1),
+        locale: user.locale || 'pt',
+      });
     } else {
       AsyncStorage.removeItem("@user");
       setSentryUser(null);
+      analyticsService.setUserId(null);
     }
   }, [user]);
 
@@ -252,6 +260,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       };
 
       setUser(nextUser);
+      analyticsService.logLogin('google');
       return { ok: true };
     } finally {
       setIsLoading(false);
@@ -320,6 +329,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
 
       await handleFirebaseUser(fbUser);
+      analyticsService.logLogin('email');
       return { ok: true };
     } finally {
       setIsLoading(false);
@@ -336,6 +346,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após criar a conta." };
 
       await handleFirebaseUser(fbUser);
+      analyticsService.logSignUp('email');
       return { ok: true };
     } finally {
       setIsLoading(false);
@@ -348,6 +359,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const signOut = async () => {
     setIsLoading(true);
     try {
+      analyticsService.logLogout();
       await authService.signOut();
       await api.clearAuthToken();
       console.log('🔓 Auth token cleared');
