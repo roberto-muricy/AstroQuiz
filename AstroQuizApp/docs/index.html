@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstroQuiz - Documentos Legais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1A1A2E 0%, #3D3D6B 100%);
+            min-height: 100vh;
+            color: #FFFFFF;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo h1 {
+            font-size: 2.5rem;
+            color: #FFA726;
+            margin-bottom: 8px;
+        }
+        .logo p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: #FFFFFF;
+        }
+        .card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+        .card a {
+            display: inline-block;
+            color: #FFA726;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 2px solid #FFA726;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .card a:hover {
+            background: #FFA726;
+            color: #1A1A2E;
+        }
+        .languages {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .languages a {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+        .footer a {
+            color: #FFA726;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>AstroQuiz</h1>
+            <p>Quiz de Astronomia</p>
+        </div>
+
+        <div class="card">
+            <h2>Política de Privacidade</h2>
+            <p>Saiba como coletamos, usamos e protegemos suas informações pessoais.</p>
+            <div class="languages">
+                <a href="privacy-policy.md">Português</a>
+                <a href="privacy-policy-en.md">English</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Termos de Uso</h2>
+            <p>Regras e condições para utilização do aplicativo AstroQuiz.</p>
+            <a href="terms-of-service.md">Ler Termos</a>
+        </div>
+
+        <div class="card">
+            <h2>Contato</h2>
+            <p>Dúvidas sobre privacidade ou termos de uso?</p>
+            <a href="mailto:robertomuricy@gmail.com">robertomuricy@gmail.com</a>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Roberto Muricy. Todos os direitos reservados.</p>
+            <p style="margin-top: 8px;">
+                <a href="https://github.com/robertomuricy/astroquiz">GitHub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

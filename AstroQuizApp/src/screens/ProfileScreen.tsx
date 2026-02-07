@@ -12,7 +12,7 @@ import { achievements, getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
 import { useTranslation } from 'react-i18next';
@@ -367,7 +367,10 @@ export const ProfileScreen = () => {
             </View>
             <Text style={styles.settingValue}>1.0.0</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/terms-of-service')}
+          >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
                 <InfoIcon size={IconSizes.md} color={IconColors.white} />
@@ -375,7 +378,10 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.terms')}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/privacy-policy')}
+          >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
                 <LockIcon size={IconSizes.md} color={IconColors.white} />
