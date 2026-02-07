@@ -10,4 +10,7 @@ export { LevelCard } from './LevelCard';
 export { ProgressBar } from './ProgressBar';
 export { QuestionCard } from './QuestionCard';
 
+// Icons
+export * from './Icons';
+
 

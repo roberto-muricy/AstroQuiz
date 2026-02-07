@@ -1,11 +1,25 @@
+/**
+ * LoginScreen - Refatorada
+ * Tela de login/cadastro
+ *
+ * Refatoração: Usa design-system para consistência
+ */
+
 import { Button } from "@/components/Button";
 import { useApp } from "@/contexts/AppContext";
 import { RootStackParamList } from "@/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+  SIZES,
+} from "@/constants/design-system";
 
 type LoginNav = NativeStackNavigationProp<RootStackParamList, "Login">;
 
@@ -28,7 +42,6 @@ export const LoginScreen: React.FC = () => {
         setError(result.message || t("login.errors.googleLoginFailed"));
         return;
       }
-      // Login bem-sucedido: volta para ProfileScreen
       navigation.goBack();
     } catch (err: any) {
       setError(err?.message || t("login.errors.googleLoginUnexpected"));
@@ -51,7 +64,6 @@ export const LoginScreen: React.FC = () => {
         setError(result.message || t("login.errors.authFailed"));
         return;
       }
-      // Login bem-sucedido: volta para ProfileScreen
       navigation.goBack();
     } catch (err: any) {
       setError(err?.message || t("login.errors.authUnexpected"));
@@ -89,7 +101,7 @@ export const LoginScreen: React.FC = () => {
             value={email}
             onChangeText={setEmail}
             placeholder={t("login.emailPlaceholder")}
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor={COLORS.textTertiary}
             autoCapitalize="none"
             keyboardType="email-address"
             style={styles.input}
@@ -99,7 +111,7 @@ export const LoginScreen: React.FC = () => {
             value={password}
             onChangeText={setPassword}
             placeholder={t("login.passwordPlaceholder")}
-            placeholderTextColor="rgba(255,255,255,0.5)"
+            placeholderTextColor={COLORS.textTertiary}
             secureTextEntry
             style={styles.input}
           />
@@ -118,20 +130,30 @@ export const LoginScreen: React.FC = () => {
             disabled={isLoading || localLoading}
             style={[styles.button, styles.buttonFull, styles.buttonGhostFix]}
           />
-          
+
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>{t("login.or")}</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          <Button
-            title={t("login.loginWithGoogle")}
+          <TouchableOpacity
             onPress={handleGoogleLogin}
-            size="large"
-            loading={isLoading || localLoading}
-            style={[styles.button, styles.buttonFull]}
-          />
+            disabled={isLoading || localLoading}
+            style={styles.googleButton}
+            activeOpacity={0.8}
+          >
+            {(isLoading || localLoading) ? (
+              <ActivityIndicator color="#1F1F1F" />
+            ) : (
+              <>
+                <View style={styles.googleLogoContainer}>
+                  <Text style={styles.googleLogoG}>G</Text>
+                </View>
+                <Text style={styles.googleButtonText}>{t("login.loginWithGoogle")}</Text>
+              </>
+            )}
+          </TouchableOpacity>
           <Text style={styles.helperText}>
             {t("login.syncHelper")}
           </Text>
@@ -151,29 +173,29 @@ const styles = StyleSheet.create({
   closeButton: {
     position: "absolute",
     top: 50,
-    right: 20,
+    right: SIZES.screenPadding,
     zIndex: 10,
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.backgroundHighlight,
     alignItems: "center",
     justifyContent: "center",
   },
   closeButtonText: {
-    color: "#FFFFFF",
-    fontSize: 24,
+    ...TYPOGRAPHY.h1,
+    color: COLORS.text,
     fontFamily: "Poppins-Regular",
   },
   scroll: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: SPACING.lg,
     paddingTop: 80,
-    paddingBottom: 32,
+    paddingBottom: SPACING.xl,
   },
   hero: {
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: SPACING.xl,
   },
   logoCircle: {
     width: 90,
@@ -182,88 +204,78 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 167, 38, 0.15)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: SPACING.md,
   },
   logoEmoji: {
     fontSize: 42,
   },
   title: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontFamily: "Poppins-Bold",
+    ...TYPOGRAPHY.h1,
+    color: COLORS.text,
     textAlign: "center",
   },
   subtitle: {
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 15,
-    fontFamily: "Poppins-Regular",
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
     textAlign: "center",
-    marginTop: 8,
+    marginTop: SPACING.sm,
     lineHeight: 22,
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
-    borderRadius: 20,
-    padding: 20,
+    backgroundColor: COLORS.backgroundMuted,
+    borderRadius: RADIUS.lg,
+    padding: SIZES.screenPadding,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.08)",
   },
   cardTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontFamily: "Poppins-SemiBold",
-    marginBottom: 12,
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
+    marginBottom: SPACING.md,
   },
   error: {
-    color: "#FF6B6B",
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
-    marginBottom: 12,
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.danger,
+    marginBottom: SPACING.md,
   },
   button: {
-    marginTop: 12,
+    marginTop: SPACING.md,
   },
   buttonFull: {
     width: "100%",
     alignSelf: "stretch",
-    height: 56, // Forçar altura fixa para todos os botões (large)
+    height: SIZES.buttonHeight,
   },
   buttonGhostFix: {
-    // Compensar borderWidth: 2 do variant ghost (2px topo + 2px baixo = 4px)
-    paddingVertical: 12, // 16 - 4 = 12
+    paddingVertical: SPACING.md,
   },
   helperText: {
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: 13,
-    fontFamily: "Poppins-Regular",
-    marginTop: 16,
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.md,
     textAlign: "center",
     lineHeight: 18,
   },
-  footer: {
-    marginTop: 28,
-    alignItems: "center",
-  },
   footerText: {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: 14,
-    fontFamily: "Poppins-Medium",
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textTertiary,
     textAlign: "center",
-    marginTop: 28,
+    marginTop: SPACING.xl,
+    fontFamily: "Poppins-Medium",
   },
   label: {
-    color: "#FFFFFF",
-    fontSize: 14,
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.text,
     fontFamily: "Poppins-Medium",
-    marginTop: 12,
-    marginBottom: 6,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm - 2,
   },
   input: {
     backgroundColor: "rgba(255, 255, 255, 0.08)",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    color: "#FFFFFF",
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    color: COLORS.text,
     fontFamily: "Poppins-Regular",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.12)",
@@ -271,17 +283,47 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: SIZES.screenPadding,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: COLORS.backgroundHighlight,
   },
   dividerText: {
-    color: "rgba(255, 255, 255, 0.5)",
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
-    marginHorizontal: 12,
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textTertiary,
+    marginHorizontal: SPACING.md,
+  },
+  googleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: RADIUS.lg,
+    height: SIZES.buttonHeight,
+    marginTop: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderWidth: 1,
+    borderColor: "#DADCE0",
+  },
+  googleLogoContainer: {
+    width: 24,
+    height: 24,
+    marginRight: SPACING.sm,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleLogoG: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#4285F4",
+    fontFamily: "Poppins-Bold",
+  },
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#1F1F1F",
+    fontFamily: "Poppins-Medium",
   },
 });

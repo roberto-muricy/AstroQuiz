@@ -12,6 +12,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SIZES } from '@/constants/design-system';
 
 interface ButtonProps {
   title: string;
@@ -46,7 +47,14 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <>
           {icon}
-          <Text style={[styles.text, styles[`text_${size}`]]}>{title}</Text>
+          <Text
+            style={[styles.text, styles[`text_${size}`]]}
+            numberOfLines={1}
+            adjustsFontSizeToFit={true}
+            minimumFontScale={0.8}
+          >
+            {title}
+          </Text>
         </>
       )}
     </>
@@ -61,10 +69,9 @@ export const Button: React.FC<ButtonProps> = ({
         activeOpacity={0.8}
       >
         <LinearGradient
-          colors={['#FFA726', '#FFB74D']}
+          colors={COLORS.primaryGradient as unknown as string[]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          // iOS: garantir cantos arredondados mesmo com LinearGradient
           style={[styles.gradient, { borderRadius }]}
         >
           {renderContent()}
@@ -93,49 +100,52 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
   gradient: {
-    width: '100%',
-    height: '100%',
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    gap: 8,
+    gap: SPACING.sm,
   },
   button_small: {
-    height: 40,
-    paddingHorizontal: 16,
+    height: SIZES.buttonHeightSmall - 8,
+    paddingHorizontal: SIZES.buttonPaddingH - 12,
+    minWidth: 80,
   },
   button_medium: {
-    height: 48,
-    paddingHorizontal: 24,
+    height: SIZES.buttonHeightSmall,
+    paddingHorizontal: SIZES.buttonPaddingH - 4,
+    minWidth: 100,
   },
   button_large: {
-    height: 56,
-    paddingHorizontal: 32,
+    height: SIZES.buttonHeight,
+    paddingHorizontal: SIZES.buttonPaddingH + 4,
+    minWidth: 120,
   },
   button_secondary: {
-    backgroundColor: '#0FB57E',
+    backgroundColor: COLORS.success,
   },
   button_ghost: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#FFA726',
+    borderColor: COLORS.primary,
   },
   button_danger: {
-    backgroundColor: '#DE2F24',
+    backgroundColor: COLORS.danger,
   },
   button_disabled: {
     opacity: 0.5,
   },
   text: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.button,
+    color: COLORS.text,
+    textAlign: 'center',
+    flexShrink: 1,
   },
   text_small: {
     fontSize: 14,

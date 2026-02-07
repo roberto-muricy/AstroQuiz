@@ -1,6 +1,8 @@
 /**
- * QuizResultScreen
+ * QuizResultScreen - Refatorada
  * Tela de resultados após completar uma fase do quiz
+ *
+ * Refatoração: Usa design-system para consistência
  */
 
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
@@ -24,6 +26,28 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
 import { useTranslation } from 'react-i18next';
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+  SIZES,
+} from '@/constants/design-system';
+import {
+  TrophyIcon,
+  SparkleIcon,
+  ThumbsUpIcon,
+  StrengthIcon,
+  StarsRating,
+  CheckIcon,
+  ErrorIcon,
+  FireIcon,
+  TimerIcon,
+  AwardIcon,
+  LockIcon,
+  IconSizes,
+  IconColors,
+} from '@/components/Icons';
 
 export const QuizResultScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -56,8 +80,7 @@ export const QuizResultScreen = () => {
 
   useEffect(() => {
     loadResults();
-    
-    // Animação de entrada
+
     Animated.spring(scaleAnim, {
       toValue: 1,
       friction: 8,
@@ -68,23 +91,20 @@ export const QuizResultScreen = () => {
 
   const loadResults = async () => {
     try {
-      // Finalizar a sessão no backend
       const finishResponse = await quizService.finishQuiz(sessionId);
       console.log('🏁 Quiz finalizado:', finishResponse);
-      
+
       const data = finishResponse;
       setSessionData(data);
-      
-      // Calcular accuracy
-      const accuracy = data.accuracy || 
+
+      const accuracy = data.accuracy ||
         (data.totalQuestions > 0 ? Math.round((data.correctAnswers / data.totalQuestions) * 100) : 0);
       const computedStars = calculateStarRating(data.correctAnswers || 0, data.totalQuestions || 10);
       setStars(computedStars);
       setUnlockRequirement(getUnlockRequirement((data.phaseNumber || 1) + 1));
-      
+
       const isPerfect = accuracy === 100;
 
-      // Se passou na fase (60%+), desbloquear próxima
       if (data.passed && data.phaseNumber) {
         const prevProgress = await ProgressStorage.getProgress();
         const prevLevel = getPlayerLevel(prevProgress.stats.totalXP);
@@ -98,7 +118,7 @@ export const QuizResultScreen = () => {
           score: data.finalScore || data.score,
           questionIds: usedQuestionIds,
         });
-        
+
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
         setTotalXP(updated.stats.totalXP);
         setLevelTitle(`${currentLevel.icon} ${currentLevel.title}`);
@@ -108,34 +128,29 @@ export const QuizResultScreen = () => {
         if (currentLevel.level > prevLevel.level) {
           triggerLevelUp(prevLevel.level, currentLevel);
         }
-        
-        // Verificar achievements desbloqueados
+
         const unlockedAchievementIds = updated.stats.achievements || [];
         const newlyUnlocked = checkAchievements(updated.stats, unlockedAchievementIds);
-        
+
         if (newlyUnlocked.length > 0) {
           setNewAchievements(newlyUnlocked);
-          // Salvar achievements desbloqueados
           const updatedStats = {
             ...updated.stats,
             achievements: [...unlockedAchievementIds, ...newlyUnlocked.map(a => a.id)],
           };
           await ProgressStorage.saveProgress({ ...updated, stats: updatedStats });
-          
-          // Mostrar primeiro achievement após 1s
+
           setTimeout(() => {
             setCurrentAchievementIndex(0);
             setShowAchievementPopup(true);
           }, 1000);
         }
-        
-        // Som de desbloqueio
+
         setTimeout(() => soundService.playUnlock(), 500);
       }
-      
-      // Som de fase completada
+
       soundService.playPhaseComplete(isPerfect);
-      
+
     } catch (error) {
       console.error('Erro ao carregar resultados:', error);
     } finally {
@@ -193,7 +208,6 @@ export const QuizResultScreen = () => {
   };
 
   const handleBackToMenu = () => {
-    // Voltar para a tela principal (tabs)
     navigation.reset({
       index: 0,
       routes: [{ name: 'Main' }],
@@ -234,8 +248,7 @@ export const QuizResultScreen = () => {
 
   const handleAchievementClose = () => {
     setShowAchievementPopup(false);
-    
-    // Se houver mais achievements, mostrar o próximo após 500ms
+
     if (currentAchievementIndex < newAchievements.length - 1) {
       setTimeout(() => {
         setCurrentAchievementIndex(currentAchievementIndex + 1);
@@ -247,7 +260,7 @@ export const QuizResultScreen = () => {
   if (loading || !sessionData) {
     return (
       <LinearGradient
-        colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']}
+        colors={COLORS.backgroundGradient}
         style={styles.container}
       >
         <View style={styles.loading}>
@@ -257,7 +270,7 @@ export const QuizResultScreen = () => {
     );
   }
 
-  const accuracy = sessionData.accuracy || 
+  const accuracy = sessionData.accuracy ||
     (sessionData.totalQuestions > 0
       ? Math.round((sessionData.correctAnswers / sessionData.totalQuestions) * 100)
       : 0);
@@ -269,7 +282,7 @@ export const QuizResultScreen = () => {
 
   return (
     <LinearGradient
-      colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']}
+      colors={COLORS.backgroundGradient}
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
@@ -279,11 +292,14 @@ export const QuizResultScreen = () => {
           bounces={true}
           scrollEventThrottle={16}
         >
-          {/* Header com Emoji de Performance */}
+          {/* Header com Ícone de Performance */}
           <Animated.View style={[styles.header, { transform: [{ scale: scaleAnim }] }]}>
-            <Text style={styles.emoji}>
-              {isPerfect ? '🏆' : isGreat ? '🌟' : isGood ? '👍' : '💪'}
-            </Text>
+            <View style={styles.performanceIcon}>
+              {isPerfect ? <TrophyIcon size={64} color={IconColors.gold} /> :
+               isGreat ? <SparkleIcon size={64} color={IconColors.gold} /> :
+               isGood ? <ThumbsUpIcon size={64} color={IconColors.success} /> :
+               <StrengthIcon size={64} color={IconColors.primary} />}
+            </View>
             <Text style={styles.title}>
               {isPerfect ? t('result.perfect') : isGreat ? t('result.excellent') : isGood ? t('result.veryGood') : t('result.keepTrying')}
             </Text>
@@ -292,20 +308,18 @@ export const QuizResultScreen = () => {
                 ? t('result.phaseCompleted', { phase: sessionData.phaseNumber })
                 : t('result.phaseIncomplete', { phase: sessionData.phaseNumber })}
             </Text>
-          <View style={styles.starRow}>
-            {[1,2,3].map((s)=>(
-              <Text key={s} style={styles.star}>{s <= stars ? '⭐' : '☆'}</Text>
-            ))}
-          </View>
-          {levelTitle ? (
-            <View style={styles.levelRow}>
-              <Text style={styles.levelText}>{levelTitle}</Text>
-              <Text style={styles.levelSubText}>
-                {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
-              </Text>
+            <View style={styles.starRow}>
+              <StarsRating stars={stars} size={IconSizes.lg} gap={8} />
             </View>
-          ) : null}
-            
+            {levelTitle ? (
+              <View style={styles.levelRow}>
+                <Text style={styles.levelText}>{levelTitle}</Text>
+                <Text style={styles.levelSubText}>
+                  {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
+                </Text>
+              </View>
+            ) : null}
+
             {/* Badge de Passou/Não Passou */}
             {passed ? (
               <View style={styles.passedBadge}>
@@ -318,153 +332,153 @@ export const QuizResultScreen = () => {
             )}
           </Animated.View>
 
-        {/* Card de Pontuação Principal */}
-        <View style={styles.scoreCard}>
-          <LinearGradient
-            colors={['#5A5A9C', '#4A4A7C']}
-            style={styles.scoreGradient}
-          >
-            <Text style={styles.scoreLabel}>{t('result.finalScore')}</Text>
-            <Text style={styles.scoreValue}>{sessionData.finalScore || sessionData.score || 0}</Text>
-            <Text style={styles.accuracyText}>{t('result.accuracy', { percent: accuracy })}</Text>
-          </LinearGradient>
-        </View>
+          {/* Card de Pontuação Principal */}
+          <View style={styles.scoreCard}>
+            <LinearGradient
+              colors={['#5A5A9C', '#4A4A7C']}
+              style={styles.scoreGradient}
+            >
+              <Text style={styles.scoreLabel}>{t('result.finalScore')}</Text>
+              <Text style={styles.scoreValue}>{sessionData.finalScore || sessionData.score || 0}</Text>
+              <Text style={styles.accuracyText}>{t('result.accuracy', { percent: accuracy })}</Text>
+            </LinearGradient>
+          </View>
 
-        {/* Estatísticas Detalhadas */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statEmoji}>✅</Text>
-              <Text style={styles.statValue}>{sessionData.correctAnswers || 0}</Text>
-              <Text style={styles.statLabel}>{t('result.correct_plural')}</Text>
+          {/* Estatísticas Detalhadas */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <CheckIcon size={IconSizes.lg} color={IconColors.success} />
+                <Text style={styles.statValue}>{sessionData.correctAnswers || 0}</Text>
+                <Text style={styles.statLabel}>{t('result.correct_plural')}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <ErrorIcon size={IconSizes.lg} color={IconColors.error} />
+                <Text style={styles.statValue}>{sessionData.incorrectAnswers || 0}</Text>
+                <Text style={styles.statLabel}>{t('result.incorrect_plural')}</Text>
+              </View>
             </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statEmoji}>❌</Text>
-              <Text style={styles.statValue}>{sessionData.incorrectAnswers || 0}</Text>
-              <Text style={styles.statLabel}>{t('result.incorrect_plural')}</Text>
+
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <FireIcon size={IconSizes.lg} color={IconColors.primary} />
+                <Text style={styles.statValue}>{sessionData.maxStreak || 0}</Text>
+                <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
+              </View>
+              <View style={styles.statItem}>
+                <TimerIcon size={IconSizes.lg} color={IconColors.white} />
+                <Text style={styles.statValue}>
+                  {Math.round((sessionData.totalTime || 180000) / 1000)}s
+                </Text>
+                <Text style={styles.statLabel}>{t('result.totalTime')}</Text>
+              </View>
             </View>
           </View>
 
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statEmoji}>🔥</Text>
-              <Text style={styles.statValue}>{sessionData.maxStreak || 0}</Text>
-              <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statEmoji}>⏱️</Text>
-              <Text style={styles.statValue}>
-                {Math.round((sessionData.totalTime || 180000) / 1000)}s
+          {/* Performance Breakdown */}
+          {isPerfect && (
+            <View style={styles.achievementCard}>
+              <AwardIcon size={IconSizes.xl} color={IconColors.gold} />
+              <Text style={styles.achievementTitle}>{t('result.perfectScore')}</Text>
+              <Text style={styles.achievementText}>
+                {t('result.allCorrect')}
+                {'\n'}{t('result.perfectBonus')}
               </Text>
-              <Text style={styles.statLabel}>{t('result.totalTime')}</Text>
             </View>
-          </View>
-        </View>
+          )}
 
-        {/* Performance Breakdown */}
-        {isPerfect && (
-          <View style={styles.achievementCard}>
-            <Text style={styles.achievementEmoji}>👑</Text>
-            <Text style={styles.achievementTitle}>{t('result.perfectScore')}</Text>
-            <Text style={styles.achievementText}>
-              {t('result.allCorrect')}
-              {'\n'}{t('result.perfectBonus')}
-            </Text>
-          </View>
-        )}
-        
-        {sessionData.maxStreak >= 10 && (
-          <View style={styles.achievementCard}>
-            <Text style={styles.achievementEmoji}>🔥</Text>
-            <Text style={styles.achievementTitle}>{t('result.streakMaster')}</Text>
-            <Text style={styles.achievementText}>
-              {t('result.consecutiveCorrect', { count: sessionData.maxStreak })}
-            </Text>
-          </View>
-        )}
+          {sessionData.maxStreak >= 10 && (
+            <View style={styles.achievementCard}>
+              <FireIcon size={IconSizes.xl} color={IconColors.primary} />
+              <Text style={styles.achievementTitle}>{t('result.streakMaster')}</Text>
+              <Text style={styles.achievementText}>
+                {t('result.consecutiveCorrect', { count: sessionData.maxStreak })}
+              </Text>
+            </View>
+          )}
 
-        {phaseUnlocked && passed && (
-          <View style={[styles.achievementCard, styles.achievementSuccess]}>
-            <Text style={styles.achievementEmoji}>🎉</Text>
-            <Text style={[styles.achievementTitle, styles.achievementTitleSuccess]}>
-              {t('result.newPhaseUnlocked')}
-            </Text>
-            <Text style={styles.achievementText}>
-              {t('result.phaseAvailable', { phase: sessionData.phaseNumber + 1 })}
-            </Text>
-          </View>
-        )}
-        {!phaseUnlocked && unlockRequirement && (
-          <View style={[styles.achievementCard, styles.achievementWarning]}>
-            <Text style={styles.achievementEmoji}>🔒</Text>
-            <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-              {t('result.nextPhaseRequirement')}
-            </Text>
-            <Text style={styles.achievementText}>
-              {t('result.minAccuracy', { percent: unlockRequirement.requiredAccuracy })} {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
-            </Text>
-          </View>
-        )}
+          {phaseUnlocked && passed && (
+            <View style={[styles.achievementCard, styles.achievementSuccess]}>
+              <SparkleIcon size={IconSizes.xl} color={IconColors.success} />
+              <Text style={[styles.achievementTitle, styles.achievementTitleSuccess]}>
+                {t('result.newPhaseUnlocked')}
+              </Text>
+              <Text style={styles.achievementText}>
+                {t('result.phaseAvailable', { phase: sessionData.phaseNumber + 1 })}
+              </Text>
+            </View>
+          )}
+          {!phaseUnlocked && unlockRequirement && (
+            <View style={[styles.achievementCard, styles.achievementWarning]}>
+              <LockIcon size={IconSizes.xl} color={IconColors.muted} />
+              <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
+                {t('result.nextPhaseRequirement')}
+              </Text>
+              <Text style={styles.achievementText}>
+                {t('result.minAccuracy', { percent: unlockRequirement.requiredAccuracy })} {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
+              </Text>
+            </View>
+          )}
 
-        {!passed && (
-          <View style={[styles.achievementCard, styles.achievementWarning]}>
-            <Text style={styles.achievementEmoji}>💪</Text>
-            <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-              {t('result.keepPracticing')}
-            </Text>
-            <Text style={styles.achievementText}>
-              {t('result.need60')}
-              {'\n'}{t('result.tryAgainConquer')}
-            </Text>
-          </View>
-        )}
+          {!passed && (
+            <View style={[styles.achievementCard, styles.achievementWarning]}>
+              <StrengthIcon size={IconSizes.xl} color={IconColors.primary} />
+              <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
+                {t('result.keepPracticing')}
+              </Text>
+              <Text style={styles.achievementText}>
+                {t('result.need60')}
+                {'\n'}{t('result.tryAgainConquer')}
+              </Text>
+            </View>
+          )}
 
-        {/* Botões de Ação */}
-        <View style={styles.actions}>
-          {passed && phaseUnlocked && (
+          {/* Botões de Ação */}
+          <View style={styles.actions}>
+            {passed && phaseUnlocked && (
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={handleNextPhase}
+                disabled={startingNextPhase}
+              >
+                <LinearGradient
+                  colors={COLORS.primaryGradient}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>{t('result.nextPhase')}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
+            {!passed && (
+              <TouchableOpacity
+                style={styles.primaryButton}
+                onPress={handlePlayAgain}
+              >
+                <LinearGradient
+                  colors={['#EF4444', '#DC2626']}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>{t('result.tryAgain')}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handleNextPhase}
+              style={styles.secondaryButton}
+              onPress={handlePlayAgain}
               disabled={startingNextPhase}
             >
-              <LinearGradient
-                colors={['#FFA726', '#FF8A00']}
-                style={styles.buttonGradient}
-              >
-                <Text style={styles.buttonText}>{t('result.nextPhase')}</Text>
-              </LinearGradient>
+              <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
             </TouchableOpacity>
-          )}
-          
-          {!passed && (
+
             <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handlePlayAgain}
+              style={styles.tertiaryButton}
+              onPress={handleBackToMenu}
             >
-              <LinearGradient
-                colors={['#EF4444', '#DC2626']}
-                style={styles.buttonGradient}
-              >
-                <Text style={styles.buttonText}>{t('result.tryAgain')}</Text>
-              </LinearGradient>
+              <Text style={styles.tertiaryButtonText}>{t('result.backToMenu')}</Text>
             </TouchableOpacity>
-          )}
-
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={handlePlayAgain}
-            disabled={startingNextPhase}
-          >
-            <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.tertiaryButton}
-            onPress={handleBackToMenu}
-          >
-            <Text style={styles.tertiaryButtonText}>{t('result.backToMenu')}</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
 
           <View style={styles.bottomSpace} />
         </ScrollView>
@@ -473,7 +487,9 @@ export const QuizResultScreen = () => {
       {levelUpInfo && (
         <Animated.View style={[styles.levelUpOverlay, { opacity: levelUpOpacity }]}>
           <Animated.View style={[styles.levelUpCard, { transform: [{ scale: levelUpScale }] }]}>
-            <Text style={styles.levelUpIcon}>🎉</Text>
+            <View style={styles.levelUpIcon}>
+              <SparkleIcon size={64} color={IconColors.gold} />
+            </View>
             <Text style={styles.levelUpTitle}>{t('result.levelUp')}</Text>
             <Text style={styles.levelUpSubtitle}>
               {t('result.levelUpFrom', { from: levelUpInfo.from, to: levelUpInfo.to })}
@@ -511,92 +527,82 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Medium',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   scrollContent: {
-    padding: 20,
-    // Extra breathing room so the trophy/emoji doesn't hug the notch even on devices with smaller safe areas.
+    padding: SIZES.screenPadding,
     paddingTop: 12,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
-  emoji: {
-    fontSize: 48,
-    marginBottom: 8,
+  performanceIcon: {
+    marginBottom: SPACING.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 6,
+    ...TYPOGRAPHY.h1,
+    color: COLORS.text,
+    marginBottom: SPACING.xs + 2,
   },
   subtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: 8,
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
   },
   starRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 8,
-  },
-  star: {
-    fontSize: 22,
-    color: '#FFD700',
-    marginHorizontal: 4,
+    marginBottom: SPACING.sm,
   },
   levelRow: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
   levelText: {
-    fontSize: 16,
-    color: '#FFFFFF',
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
     fontFamily: 'Poppins-SemiBold',
   },
   levelSubText: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.7)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   passedBadge: {
     backgroundColor: 'rgba(15, 181, 126, 0.2)',
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
     borderWidth: 2,
-    borderColor: '#0FB57E',
+    borderColor: COLORS.success,
   },
   passedText: {
-    fontSize: 14,
+    ...TYPOGRAPHY.bodySmall,
     fontWeight: 'bold',
-    color: '#0FB57E',
+    color: COLORS.success,
     fontFamily: 'Poppins-Bold',
   },
   failedBadge: {
     backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    paddingHorizontal: 24,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.lg,
     borderWidth: 2,
     borderColor: '#EF4444',
   },
   failedText: {
-    fontSize: 14,
+    ...TYPOGRAPHY.bodySmall,
     fontWeight: 'bold',
     color: '#EF4444',
     fontFamily: 'Poppins-Bold',
   },
   scoreCard: {
-    marginBottom: 24,
-    borderRadius: 20,
+    marginBottom: SPACING.lg,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
     elevation: 8,
     shadowColor: '#000',
@@ -605,104 +611,90 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   scoreGradient: {
-    padding: 32,
+    padding: SPACING.xl,
     alignItems: 'center',
   },
   scoreLabel: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontFamily: 'Poppins-Medium',
-    marginBottom: 8,
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
   },
   scoreValue: {
     fontSize: 64,
     fontWeight: 'bold',
-    color: '#FFA726',
+    color: COLORS.primary,
     fontFamily: 'Poppins-Bold',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   accuracyText: {
-    fontSize: 18,
-    color: '#0FB57E',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.success,
   },
   statsContainer: {
-    marginBottom: 24,
+    marginBottom: SPACING.lg,
   },
   statRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
+    gap: SPACING.md,
+    marginBottom: SPACING.md,
   },
   statItem: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: COLORS.backgroundHighlight,
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
     alignItems: 'center',
-  },
-  statEmoji: {
-    fontSize: 32,
-    marginBottom: 8,
+    gap: SPACING.sm,
   },
   statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
+    ...TYPOGRAPHY.h1,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
   },
   statLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
   },
   achievementCard: {
     backgroundColor: 'rgba(255, 167, 38, 0.15)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
+    marginBottom: SPACING.md,
     borderLeftWidth: 4,
-    borderLeftColor: '#FFA726',
+    borderLeftColor: COLORS.primary,
     alignItems: 'center',
+    gap: SPACING.sm,
   },
   achievementSuccess: {
     backgroundColor: 'rgba(15, 181, 126, 0.15)',
-    borderLeftColor: '#0FB57E',
+    borderLeftColor: COLORS.success,
   },
   achievementWarning: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
     borderLeftColor: '#EF4444',
   },
   achievementTitleSuccess: {
-    color: '#0FB57E',
+    color: COLORS.success,
   },
   achievementTitleWarning: {
     color: '#EF4444',
   },
-  achievementEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
   achievementTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 8,
+    ...TYPOGRAPHY.h3,
+    color: COLORS.primary,
+    marginBottom: SPACING.sm,
   },
   achievementText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.text,
     textAlign: 'center',
   },
   actions: {
-    marginTop: 24,
-    gap: 12,
+    marginTop: SPACING.lg,
+    gap: SPACING.md,
   },
   primaryButton: {
-    borderRadius: 16,
+    borderRadius: RADIUS.md,
     overflow: 'hidden',
     elevation: 4,
     shadowColor: '#000',
@@ -711,36 +703,34 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   buttonGradient: {
-    paddingVertical: 18,
+    paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    paddingVertical: 18,
+    backgroundColor: COLORS.backgroundHighlight,
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: COLORS.backgroundHighlight,
   },
   secondaryButtonText: {
-    fontSize: 16,
+    ...TYPOGRAPHY.body,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: COLORS.text,
     fontFamily: 'Poppins-Bold',
   },
   tertiaryButton: {
-    paddingVertical: 16,
+    paddingVertical: SPACING.md,
     alignItems: 'center',
   },
   tertiaryButtonText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textTertiary,
     fontFamily: 'Poppins-Medium',
   },
   bottomSpace: {
@@ -752,55 +742,51 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: SPACING.lg,
   },
   levelUpCard: {
     width: '90%',
     maxWidth: 380,
-    backgroundColor: '#1F2539',
-    borderRadius: 20,
-    paddingVertical: 24,
-    paddingHorizontal: 20,
+    backgroundColor: COLORS.backgroundElevated,
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.lg,
+    paddingHorizontal: SIZES.screenPadding,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#FFA726',
+    borderColor: COLORS.primary,
   },
   levelUpIcon: {
-    fontSize: 48,
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
+    alignItems: 'center',
   },
   levelUpTitle: {
-    fontSize: 28,
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
+    ...TYPOGRAPHY.h1,
+    color: COLORS.primary,
+    marginBottom: SPACING.xs,
   },
   levelUpSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.85)',
-    fontFamily: 'Poppins-Medium',
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: SPACING.sm,
   },
   levelUpBadge: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 20,
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
+    marginBottom: SPACING.lg,
   },
   levelUpButton: {
-    backgroundColor: '#FFA726',
-    borderRadius: 12,
-    paddingHorizontal: 32,
-    paddingVertical: 12,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.sm,
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: SPACING.md,
   },
   levelUpButtonText: {
-    color: '#1A1A2E',
-    fontSize: 16,
+    color: COLORS.background,
+    ...TYPOGRAPHY.body,
     fontFamily: 'Poppins-Bold',
   },
 });
-

@@ -1,7 +1,8 @@
 /**
- * QuizListScreen
+ * QuizListScreen - Refatorada
  * Tela para selecionar fase/nível do quiz
- * Updated: stars display
+ *
+ * Refatoração: Usa design-system para consistência com StatsScreen
  */
 
 import { useApp } from '@/contexts/AppContext';
@@ -24,17 +25,23 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+  SIZES,
+} from '@/constants/design-system';
+import { StarsRating, LockIcon, PlayIcon, IconSizes, IconColors } from '@/components/Icons';
 
 export const QuizListScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { locale } = useApp();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
-  const [unlockedPhases, setUnlockedPhases] = useState(1); // Começar com fase 1 desbloqueada
+  const [unlockedPhases, setUnlockedPhases] = useState(1);
   const [phaseStats, setPhaseStats] = useState<Record<number, any>>({});
 
-  // Carregar progresso ao entrar na tela
   useFocusEffect(
     useCallback(() => {
       loadProgress();
@@ -59,7 +66,6 @@ export const QuizListScreen = () => {
       );
     };
 
-    // iOS: prompt nativo facilita colar o IP do Mac
     if (Platform.OS === 'ios' && typeof (Alert as any).prompt === 'function') {
       (Alert as any).prompt(
         'Configurar API (DEV)',
@@ -75,7 +81,6 @@ export const QuizListScreen = () => {
       return;
     }
 
-    // Fallback (Android/sem prompt)
     Alert.alert(
       'Configurar API (DEV)',
       `Base atual:\n${current}\n\nSem prompt nessa plataforma.\nUse o override via AsyncStorage (@api_base_url_override) ou ajuste o fallback no código.`,
@@ -83,7 +88,6 @@ export const QuizListScreen = () => {
   };
 
   const handleStartQuiz = async (phaseNumber: number) => {
-    // Verificar se a fase está desbloqueada
     if (phaseNumber > unlockedPhases) {
       soundService.playIncorrect();
       Alert.alert(
@@ -103,7 +107,7 @@ export const QuizListScreen = () => {
 
       const session = await quizService.startQuiz(phaseNumber, locale, undefined, excludeQuestions);
       console.log('✅ Sessão criada:', session);
-      
+
       navigation.navigate('QuizGame', {
         phaseNumber,
         sessionId: session.sessionId,
@@ -158,73 +162,59 @@ export const QuizListScreen = () => {
     const accuracy = stats ? stats.accuracy : 0;
     const isCompleted = !!(stats && stats.completed);
 
-    // Requisito da fase anterior
     const prevStats = phaseStats[phaseNumber - 1] || { accuracy: 0, correctAnswers: 0 };
     const lockedByRequirement = !isPhaseUnlocked(phaseNumber, prevStats);
     const isLocked = lockedByRequirement || phaseNumber > unlockedPhases;
+
+    const isCurrentPhase = phaseNumber === unlockedPhases && !isLocked;
 
     return (
       <TouchableOpacity
         key={phaseNumber}
         onPress={() => handleStartQuiz(phaseNumber)}
         disabled={loading || isLocked}
-        style={[styles.phaseCard, isLocked && styles.phaseCardLocked]}
+        style={[
+          styles.phaseCard,
+          isLocked && styles.phaseCardLocked,
+          isCurrentPhase && styles.phaseCardActive,
+        ]}
+        activeOpacity={0.7}
       >
-        <LinearGradient
-          colors={isLocked 
-            ? ['#2A2A3E', '#35354F', '#404060']
-            : ['#3D3D6B', '#4A4A7C', '#5A5A9C']
-          }
-          style={styles.phaseGradient}
-        >
-          <View style={[styles.phaseNumber, isLocked && styles.phaseNumberLocked]}>
-            <Text style={styles.phaseNumberText}>
-              {isLocked ? '🔒' : phaseNumber}
+        <View style={[styles.phaseNumber, isLocked && styles.phaseNumberLocked]}>
+          {isLocked ? (
+            <LockIcon size={IconSizes.lg} color={IconColors.muted} />
+          ) : (
+            <Text style={styles.phaseNumberText}>{phaseNumber}</Text>
+          )}
+        </View>
+        <View style={styles.phaseContent}>
+          <View style={styles.phaseTitleRow}>
+            <Text style={[styles.phaseTitle, isLocked && styles.lockedText]}>
+              {finalTitle}
             </Text>
+            {isCompleted && <Text style={styles.completedBadge}>✓</Text>}
           </View>
-          <View style={styles.phaseContent}>
-            <View style={styles.phaseTitleRow}>
-              <Text style={[styles.phaseTitle, isLocked && styles.lockedText]}>
-                {finalTitle}
-              </Text>
-              {isCompleted && <Text style={styles.completedBadge}>✓</Text>}
-            </View>
-            <Text style={[styles.phaseDescription, isLocked && styles.lockedText]}>
-              {isLocked
-                ? t('quizList.requiresAccuracy', { accuracy: getUnlockRequirement(phaseNumber).requiredAccuracy })
-                : finalDescription}
-            </Text>
-            <Text style={[styles.phaseInfo, isLocked && styles.lockedText]}>
-              {t('quizList.phaseInfo', { seconds: 30 })} {isCompleted ? `• ${accuracy}%` : ''}
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 6, marginTop: 8 }}>
-              {[1, 2, 3].map(s => (
-                <Text key={s} style={{ fontSize: 20, color: s <= stars ? '#FFD700' : 'rgba(255,255,255,0.25)' }}>
-                  {s <= stars ? '⭐' : '☆'}
-                </Text>
-              ))}
-            </View>
-          </View>
-          <Text style={[styles.playButton, isLocked && styles.lockedText]}>
-            {isLocked ? '' : '▶'}
+          <Text style={[styles.phaseDescription, isLocked && styles.lockedText]}>
+            {isLocked
+              ? t('quizList.requiresAccuracy', { accuracy: getUnlockRequirement(phaseNumber).requiredAccuracy })
+              : finalDescription}
           </Text>
-        </LinearGradient>
+          <Text style={[styles.phaseInfo, isLocked && styles.lockedText]}>
+            {t('quizList.phaseInfo', { seconds: 30 })} {isCompleted ? `• ${accuracy}%` : ''}
+          </Text>
+          <View style={styles.starRow}>
+            <StarsRating stars={stars} size={IconSizes.md} gap={6} />
+          </View>
+        </View>
+        <View style={styles.playButton}>
+          {!isLocked && <PlayIcon size={IconSizes.lg} color={IconColors.primary} />}
+        </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']}
-      style={styles.container}
-    >
-      <View style={styles.header}>
-        <TouchableOpacity activeOpacity={0.9} onLongPress={openApiConfig} delayLongPress={600}>
-          <Text style={styles.title}>{t('quizList.headerTitle')}</Text>
-        </TouchableOpacity>
-        <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>
-      </View>
-
+    <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -233,6 +223,12 @@ export const QuizListScreen = () => {
         scrollEventThrottle={16}
         nestedScrollEnabled={true}
       >
+        {/* Header */}
+        <TouchableOpacity activeOpacity={0.9} onLongPress={openApiConfig} delayLongPress={600}>
+          <Text style={styles.pageTitle}>{t('quizList.headerTitle')}</Text>
+        </TouchableOpacity>
+        <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>
+
         {/* Iniciante (Fases 1-10) */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{t('quizList.tiers.beginner')}</Text>
@@ -273,78 +269,69 @@ export const QuizListScreen = () => {
 
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#FFA726" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>{t('quizList.preparing')}</Text>
         </View>
       )}
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    paddingTop: 60,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
-    paddingTop: 10,
-    paddingBottom: 100, // Extra espaço no final
+    padding: SIZES.screenPadding,
+    paddingTop: 60,
+    gap: SPACING.md,
+    paddingBottom: 100,
+  },
+  pageTitle: {
+    ...TYPOGRAPHY.h1,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
+  },
+  subtitle: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.sm,
   },
   phaseCard: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: 'hidden',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  phaseCardLocked: {
-    opacity: 0.5,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  phaseGradient: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: SIZES.cardPadding,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.backgroundElevated,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  phaseCardLocked: {
+    opacity: 0.6,
+  },
+  phaseCardActive: {
+    borderColor: COLORS.primary,
+    borderWidth: 2,
   },
   phaseNumber: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+    backgroundColor: COLORS.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: SPACING.md,
   },
   phaseNumberLocked: {
     backgroundColor: 'rgba(128, 128, 128, 0.2)',
   },
   phaseNumberText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFA726',
+    ...TYPOGRAPHY.h2,
+    color: COLORS.primary,
   },
   phaseContent: {
     flex: 1,
@@ -352,64 +339,48 @@ const styles = StyleSheet.create({
   phaseTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: SPACING.xs,
   },
   phaseTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   completedBadge: {
-    marginLeft: 8,
+    marginLeft: SPACING.sm,
     fontSize: 18,
-    color: '#4CAF50',
+    color: COLORS.success,
   },
   lockedText: {
-    color: 'rgba(255, 255, 255, 0.4)',
+    color: COLORS.textTertiary,
   },
   phaseDescription: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 8,
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
   },
   phaseInfo: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.5)',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
   },
   starRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginTop: 8,
-    marginBottom: 4,
-    justifyContent: 'flex-start',
-  },
-  star: {
-    fontSize: 18,
-    color: '#FFD700', // amarelo vivo
-  },
-  starOff: {
-    color: '#4D4D5D', // cinza mais visível no fundo
+    marginTop: SPACING.sm,
   },
   playButton: {
-    fontSize: 28,
-    color: '#FFA726',
+    width: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sectionHeader: {
-    marginTop: 24,
-    marginBottom: 12,
-    paddingHorizontal: 4,
+    marginTop: SPACING.md,
   },
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 4,
+    ...TYPOGRAPHY.h2,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
   },
   sectionSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
   },
   bottomSpace: {
     height: 40,
@@ -425,23 +396,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  debugButton: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: 'rgba(255, 0, 0, 0.3)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 0, 0, 0.5)',
-  },
-  debugText: {
-    color: '#FF6B6B',
-    fontSize: 12,
-    textAlign: 'center',
-    fontWeight: 'bold',
+    marginTop: SPACING.md,
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
   },
 });
-

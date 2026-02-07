@@ -1,12 +1,19 @@
 /**
- * LevelCard Component
- * Card de nível do quiz
+ * LevelCard Component - Corrigido
+ * Card de nível do quiz com layout compacto
  */
 
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Card } from './Card';
+import LinearGradient from 'react-native-linear-gradient';
 import { ProgressBar } from './ProgressBar';
+import { StarsRating, PlayIcon, LockIcon, IconSizes } from './Icons';
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+} from '@/constants/design-system';
 
 interface LevelCardProps {
   levelNumber: number;
@@ -40,156 +47,186 @@ export const LevelCard: React.FC<LevelCardProps> = ({
       onPress={onPress}
       disabled={isLocked}
       activeOpacity={0.8}
-      style={styles.container}
+      style={[styles.container, isLocked && styles.containerLocked]}
     >
-      <Card style={isActive && styles.activeCard}>
-        <View style={styles.header}>
-          <View
-            style={[
-              styles.levelBadge,
-              isActive && styles.levelBadgeActive,
-              isLocked && styles.levelBadgeLocked,
-            ]}
-          >
-            <Text style={styles.levelNumber}>{levelNumber}</Text>
-          </View>
-          <View style={styles.headerInfo}>
+      <View style={[styles.cardOuter, isActive && styles.cardActive]}>
+        <LinearGradient
+          colors={COLORS.cardGradient as unknown as string[]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradient}
+        >
+          <View style={styles.cardContent}>
+            {/* Badge */}
+            <View
+              style={[
+                styles.levelBadge,
+                isActive && styles.levelBadgeActive,
+                isLocked && styles.levelBadgeLocked,
+              ]}
+            >
+              <Text style={styles.levelNumber}>{levelNumber}</Text>
+            </View>
+
+            {/* Título e subtítulo */}
             <Text style={styles.levelName}>{levelName}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
-          </View>
-        </View>
 
-        {!isLocked && (
-          <>
-            <View style={styles.stats}>
-              <Text style={styles.statText}>
-                {questionsCompleted}/{totalQuestions}
+            {!isLocked && (
+              <>
+                {/* Stats */}
+                <View style={styles.stats}>
+                  <Text style={styles.statText}>
+                    {questionsCompleted}/{totalQuestions}
+                  </Text>
+                  <Text style={styles.statText}>{xp}xp</Text>
+                </View>
+
+                {/* Progress bar */}
+                <View style={styles.progressContainer}>
+                  <ProgressBar progress={progress} height={5} showLabel={false} />
+                </View>
+
+                {/* Stars */}
+                <View style={styles.stars}>
+                  <StarsRating stars={stars} size={IconSizes.sm} gap={2} />
+                </View>
+              </>
+            )}
+
+            {/* Botão */}
+            <TouchableOpacity
+              onPress={onPress}
+              disabled={isLocked}
+              style={[
+                styles.button,
+                isActive && styles.buttonActive,
+                isLocked && styles.buttonLocked,
+              ]}
+            >
+              <View style={styles.buttonIcon}>
+                {isLocked ? <LockIcon size={14} /> : <PlayIcon size={12} />}
+              </View>
+              <Text style={styles.buttonText} numberOfLines={1}>
+                {isLocked ? 'Bloqueado' : 'Continuar'}
               </Text>
-              <Text style={styles.statText}>{xp}xp</Text>
-            </View>
-
-            <ProgressBar
-              progress={progress}
-              height={8}
-              showLabel={false}
-            />
-
-            <View style={styles.stars}>
-              {[1, 2, 3].map(star => (
-                <Text key={star} style={styles.star}>
-                  {star <= stars ? '⭐' : '☆'}
-                </Text>
-              ))}
-            </View>
-          </>
-        )}
-
-        <TouchableOpacity
-          onPress={onPress}
-          disabled={isLocked}
-          style={[
-            styles.button,
-            isActive && styles.buttonActive,
-            isLocked && styles.buttonLocked,
-          ]}
-        >
-          <Text style={styles.buttonText}>
-            {isLocked ? '🔒 Bloqueado' : isActive ? '▶ Continuar' : '🎯 Começar'}
-          </Text>
-        </TouchableOpacity>
-      </Card>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    width: '48%',
+    flex: 1,
+    minWidth: 140,
   },
-  activeCard: {
-    borderColor: '#FFA726',
+  containerLocked: {
+    opacity: 0.6,
+  },
+  cardOuter: {
+    borderRadius: RADIUS.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+  },
+  cardActive: {
+    borderColor: COLORS.primary,
     borderWidth: 2,
   },
-  header: {
-    flexDirection: 'row',
+  gradient: {
+    padding: 1,
+  },
+  cardContent: {
+    padding: 12,
+    borderRadius: RADIUS.lg - 1,
+    backgroundColor: COLORS.backgroundElevated,
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 12,
   },
   levelBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.backgroundHighlight,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 6,
   },
   levelBadgeActive: {
-    backgroundColor: '#FFA726',
+    backgroundColor: COLORS.primary,
   },
   levelBadgeLocked: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: COLORS.backgroundMuted,
   },
   levelNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-  },
-  headerInfo: {
-    flex: 1,
+    ...TYPOGRAPHY.h2,
+    color: COLORS.text,
+    fontSize: 18,
   },
   levelName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.body,
+    fontWeight: '600',
+    color: COLORS.text,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 14,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
+    fontSize: 11,
+    textAlign: 'center',
+    marginBottom: 6,
   },
   stats: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    width: '100%',
+    marginBottom: 4,
   },
   statText: {
-    fontSize: 14,
-    color: '#FFA726',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
     fontFamily: 'Poppins-Medium',
+    fontSize: 12,
+  },
+  progressContainer: {
+    width: '100%',
+    marginBottom: 4,
   },
   stars: {
-    flexDirection: 'row',
     justifyContent: 'center',
-    gap: 8,
-    marginTop: 12,
-    marginBottom: 12,
-  },
-  star: {
-    fontSize: 20,
+    alignItems: 'center',
+    marginVertical: 6,
   },
   button: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    backgroundColor: COLORS.backgroundHighlight,
+    borderRadius: RADIUS.md,
+    width: '100%',
+    gap: 4,
   },
   buttonActive: {
-    backgroundColor: '#FFA726',
+    backgroundColor: COLORS.primary,
   },
   buttonLocked: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: COLORS.backgroundMuted,
+  },
+  buttonIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.bodySmall,
+    fontWeight: '600',
+    color: COLORS.text,
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 12,
   },
 });
-
-

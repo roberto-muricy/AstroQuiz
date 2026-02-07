@@ -1,30 +1,34 @@
 /**
  * Tab Navigator
- * Navegação principal com bottom tabs
+ * Navegação principal com bottom tabs usando ícones Lucide
  */
 
-import { Icons } from "@/assets";
 import { HomeScreen, QuizListScreen, ProfileScreen, StatsScreen } from "@/screens";
 import { TabParamList } from "@/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { Home, Gamepad2, BarChart3, User } from "lucide-react-native";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
+const ICON_SIZE = 24;
+const ACTIVE_COLOR = "#FFA726";
+const INACTIVE_COLOR = "rgba(255, 255, 255, 0.5)";
+
 interface TabIconProps {
-  icon: any;
+  IconComponent: React.ComponentType<{ size: number; color: string; strokeWidth: number }>;
   focused: boolean;
   color: string;
 }
 
-const TabIcon = ({ icon, focused, color }: TabIconProps) => (
+const TabIcon = ({ IconComponent, focused, color }: TabIconProps) => (
   <View style={[styles.tabIcon, focused && styles.tabIconActive]}>
-    <Image
-      source={icon}
-      style={[styles.iconImage]}
-      resizeMode="contain"
+    <IconComponent
+      size={ICON_SIZE}
+      color={focused ? ACTIVE_COLOR : color}
+      strokeWidth={2}
     />
   </View>
 );
@@ -37,8 +41,8 @@ export const TabNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: "#FFA726",
-        tabBarInactiveTintColor: "rgba(255, 255, 255, 0.5)",
+        tabBarActiveTintColor: ACTIVE_COLOR,
+        tabBarInactiveTintColor: INACTIVE_COLOR,
         tabBarLabelStyle: styles.tabBarLabel,
       }}
     >
@@ -48,7 +52,7 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: t("tabs.home"),
           tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={Icons.home} focused={focused} color={color} />
+            <TabIcon IconComponent={Home} focused={focused} color={color} />
           ),
         }}
       />
@@ -58,7 +62,7 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: t("tabs.quiz"),
           tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={Icons.quiz} focused={focused} color={color} />
+            <TabIcon IconComponent={Gamepad2} focused={focused} color={color} />
           ),
         }}
       />
@@ -68,7 +72,7 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: t("tabs.stats"),
           tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={Icons.stats} focused={focused} color={color} />
+            <TabIcon IconComponent={BarChart3} focused={focused} color={color} />
           ),
         }}
       />
@@ -78,7 +82,7 @@ export const TabNavigator = () => {
         options={{
           tabBarLabel: t("tabs.profile"),
           tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon={Icons.profile} focused={focused} color={color} />
+            <TabIcon IconComponent={User} focused={focused} color={color} />
           ),
         }}
       />
@@ -101,9 +105,9 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   tabBarLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Poppins-Medium",
-    marginTop: 4,
+    marginTop: 2,
   },
   tabIcon: {
     width: 40,
@@ -114,10 +118,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   tabIconActive: {
-    backgroundColor: "rgba(255, 167, 38, 0.2)",
-  },
-  iconImage: {
-    width: 24,
-    height: 24,
+    backgroundColor: "rgba(255, 167, 38, 0.15)",
   },
 });

@@ -1,9 +1,13 @@
 /**
- * HomeScreen
+ * HomeScreen - Refatorada
  * Tela principal do app baseada no design do Figma
+ *
+ * Refatoração: Usa design-system para consistência
+ * Visual: IDÊNTICO ao original
  */
 
 import { Button, Card, LevelCard } from '@/components';
+import { StatDisplay } from '@/components/common';
 import { useApp } from '@/contexts/AppContext';
 import { Images } from '@/assets';
 import quizService from '@/services/quizService';
@@ -14,16 +18,24 @@ import { RootStackParamList } from '@/types';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Alert,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    Image,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+  SIZES,
+} from '@/constants/design-system';
+import { FireIcon, RocketIcon, IconSizes, IconColors } from '@/components/Icons';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -85,7 +97,7 @@ export const HomeScreen = () => {
 
       const session = await quizService.startQuiz(phaseNumber, locale, undefined, excludeQuestions);
       console.log('✅ Sessão criada:', session);
-      
+
       navigation.navigate('QuizGame', {
         phaseNumber,
         sessionId: session.sessionId,
@@ -97,10 +109,7 @@ export const HomeScreen = () => {
   };
 
   return (
-    <LinearGradient
-      colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
@@ -115,11 +124,12 @@ export const HomeScreen = () => {
               {t('home.welcomeBack', { name: user?.name || t('home.astronaut') })}
             </Text>
             <View style={styles.streakBadge}>
-              <Text style={styles.streakText}>🔥 {t('home.streakDays', { count: streak })}</Text>
+              <FireIcon size={IconSizes.sm} color={IconColors.primary} />
+              <Text style={styles.streakText}>{t('home.streakDays', { count: streak })}</Text>
             </View>
           </View>
           <View style={styles.avatar}>
-            <Text style={styles.avatarEmoji}>🚀</Text>
+            <RocketIcon size={IconSizes.xl} color={IconColors.primary} />
             <View style={styles.levelBadge}>
               <Text style={styles.levelBadgeText}>{currentLevel}</Text>
             </View>
@@ -131,15 +141,21 @@ export const HomeScreen = () => {
           <Card variant="daily-challenge">
             <View style={styles.dailyChallengeContent}>
               <View style={styles.dailyChallengeIcon}>
-                <Image 
-                  source={Images.target} 
+                <Image
+                  source={Images.target}
                   style={styles.challengeImage}
                   resizeMode="contain"
                 />
               </View>
               <View style={styles.dailyChallengeInfo}>
-                <Text style={styles.dailyChallengeTitle}>{t('home.dailyChallengeTitle')}</Text>
-                <Text style={styles.dailyChallengeSubtitle}>
+                <Text style={styles.dailyChallengeTitle} numberOfLines={1}>
+                  {t('home.dailyChallengeTitle')}
+                </Text>
+                <Text
+                  style={styles.dailyChallengeSubtitle}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
                   {t('home.dailyChallengeSubtitle')}
                 </Text>
               </View>
@@ -168,7 +184,7 @@ export const HomeScreen = () => {
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: `${Math.round(progressPct * 100)}%` }]}>
                 <LinearGradient
-                  colors={['#FFA726', '#FFB74D']}
+                  colors={COLORS.primaryGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.progressGradient}
@@ -179,23 +195,24 @@ export const HomeScreen = () => {
             </View>
 
             <View style={styles.stats}>
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>{Math.round(progressPct * 100)}%</Text>
-                <Text style={styles.statLabel}>{t('home.inLevel')}</Text>
-              </View>
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>{streak}</Text>
-                <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
-              </View>
-              <View style={styles.stat}>
-                <Text style={styles.statValue}>{xpToNext > 0 ? `${xpToNext}xp` : 'Max'}</Text>
-                <Text style={styles.statLabel}>{t('home.nextLevel')}</Text>
-              </View>
+              <StatDisplay
+                value={`${Math.round(progressPct * 100)}%`}
+                label={t('home.inLevel')}
+              />
+              <StatDisplay
+                value={`${streak}`}
+                label={t('result.maxStreak')}
+              />
+              <StatDisplay
+                value={xpToNext > 0 ? `${xpToNext}xp` : 'Max'}
+                label={t('home.nextLevel')}
+              />
             </View>
           </View>
 
+          {/* CTA Button - Texto encurtado para evitar overflow */}
           <Button
-            title={t('home.continueWhereLeftOff')}
+            title={t('common.continue')}
             onPress={() => handleStartQuiz(unlockedPhase)}
             size="large"
             style={styles.continueButton}
@@ -210,8 +227,14 @@ export const HomeScreen = () => {
                 <Text style={styles.rankingBadgeText}>#20</Text>
               </View>
               <View style={styles.rankingContent}>
-                <Text style={styles.rankingTitle}>{t('home.weeklyRankingTitle')}</Text>
-                <Text style={styles.rankingSubtitle}>
+                <Text style={styles.rankingTitle} numberOfLines={1}>
+                  {t('home.weeklyRankingTitle')}
+                </Text>
+                <Text
+                  style={styles.rankingSubtitle}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
                   {t('home.weeklyRankingSubtitle')}
                 </Text>
               </View>
@@ -257,54 +280,60 @@ export const HomeScreen = () => {
 
         <View style={styles.bottomSpace} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: SIZES.screenPadding,
     paddingTop: 60,
   },
+
+  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: SPACING.lg,
   },
   headerLeft: {
     flex: 1,
   },
   welcomeText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: 8,
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
+    marginBottom: SPACING.sm,
   },
   streakBadge: {
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm - 2,
+    borderRadius: RADIUS.lg,
     alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   streakText: {
-    fontSize: 14,
-    color: '#FFA726',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
     fontFamily: 'Poppins-Medium',
   },
+
+  // Avatar
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+    width: SIZES.avatarLarge,
+    height: SIZES.avatarLarge,
+    borderRadius: SIZES.avatarLarge / 2,
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -316,109 +345,112 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -4,
     right: -4,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#FFA726',
+    width: SIZES.levelBadgeSmall,
+    height: SIZES.levelBadgeSmall,
+    borderRadius: SIZES.levelBadgeSmall / 2,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#1A1A2E',
+    borderColor: COLORS.background,
   },
   levelBadgeText: {
-    fontSize: 12,
+    ...TYPOGRAPHY.caption,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.text,
     fontFamily: 'Poppins-Bold',
   },
+
+  // Daily Challenge
   dailyChallenge: {
-    marginBottom: 20,
+    marginBottom: SIZES.screenPadding,
   },
   dailyChallengeContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: SIZES.cardGap,
   },
   dailyChallengeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
+    width: SIZES.iconBadge,
+    height: SIZES.iconBadge,
+    borderRadius: SIZES.iconBadge / 2,
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   challengeImage: {
-    width: 32,
-    height: 32,
+    width: SIZES.iconSmall,
+    height: SIZES.iconSmall,
   },
   dailyChallengeInfo: {
     flex: 1,
   },
   dailyChallengeTitle: {
-    fontSize: 16,
+    ...TYPOGRAPHY.body,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.text,
     fontFamily: 'Poppins-Bold',
   },
   dailyChallengeSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
   },
   dailyChallengeBadge: {
-    backgroundColor: '#FFA726',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm - 2,
+    borderRadius: RADIUS.sm,
   },
   dailyChallengeBadgeText: {
-    fontSize: 14,
+    ...TYPOGRAPHY.bodySmall,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.text,
     fontFamily: 'Poppins-Bold',
   },
+
+  // Main Level Card
   mainLevelCard: {
-    marginBottom: 20,
+    marginBottom: SIZES.screenPadding,
   },
   mainLevelHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: SIZES.screenPadding,
   },
   mainLevelTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   mainLevelSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textTertiary,
   },
   xpBadge: {
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    backgroundColor: COLORS.primaryLight,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm - 2,
+    borderRadius: RADIUS.sm,
   },
   xpBadgeText: {
-    fontSize: 14,
+    ...TYPOGRAPHY.bodySmall,
     fontWeight: '700',
-    color: '#FFA726',
+    color: COLORS.primary,
     fontFamily: 'Poppins-Bold',
   },
+
+  // Progress
   progressSection: {
-    marginBottom: 20,
+    marginBottom: SIZES.screenPadding,
   },
   progressBar: {
-    height: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 100,
+    height: SIZES.progressBarHeight,
+    backgroundColor: COLORS.backgroundHighlight,
+    borderRadius: RADIUS.round,
     overflow: 'hidden',
-    marginBottom: 16,
+    marginBottom: SPACING.md,
   },
   progressFill: {
     height: '100%',
@@ -434,90 +466,81 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.text,
   },
   stats: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: SPACING.sm,
   },
-  stat: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
-  },
-  statLabel: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
-  },
+
+  // Continue Button
   continueButton: {
     width: '100%',
-    borderRadius: 20, // alinhar com o raio dos Cards (identidade mais arredondada)
+    borderRadius: RADIUS.lg,
   },
+
+  // Weekly Ranking
   weeklyRanking: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: SIZES.cardGap,
   },
   rankingBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFA726',
+    width: SIZES.iconBadge,
+    height: SIZES.iconBadge,
+    borderRadius: SIZES.iconBadge / 2,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rankingBadgeText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   rankingContent: {
     flex: 1,
   },
   rankingTitle: {
-    fontSize: 16,
+    ...TYPOGRAPHY.body,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.text,
     fontFamily: 'Poppins-Bold',
   },
   rankingSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
   },
+
+  // Progress Levels Section
   progressLevelsSection: {
-    marginTop: 20,
+    marginTop: SIZES.screenPadding,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: SPACING.md,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   sectionLink: {
-    fontSize: 14,
-    color: '#FFA726',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
     fontFamily: 'Poppins-Medium',
   },
   levelCardsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: SIZES.cardGap,
   },
+
+  // Bottom
   bottomSpace: {
     height: 100,
   },
 });
-

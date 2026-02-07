@@ -13,9 +13,22 @@ import React, { useState, useEffect } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+// LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { COLORS } from '@/constants/design-system';
+import {
+  SoundOnIcon,
+  VibrateIcon,
+  MusicIcon,
+  BellOnIcon,
+  TrophyIcon,
+  LockIcon,
+  InfoIcon,
+  RocketIcon,
+  IconSizes,
+  IconColors,
+} from '@/components/Icons';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -65,7 +78,7 @@ export const ProfileScreen = () => {
 
   const languages = [
     { code: 'pt', name: 'Português', flag: '🇧🇷' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'en', name: 'English', flag: '🇬🇧' },
     { code: 'es', name: 'Español', flag: '🇪🇸' },
     { code: 'fr', name: 'Français', flag: '🇫🇷' },
   ];
@@ -122,7 +135,7 @@ export const ProfileScreen = () => {
   };
 
   return (
-    <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
+    <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.content}
@@ -135,7 +148,7 @@ export const ProfileScreen = () => {
             {user?.avatarUrl ? (
               <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
             ) : (
-              <Text style={styles.avatarEmoji}>🚀</Text>
+              <RocketIcon size={48} color={IconColors.primary} />
             )}
             <View style={styles.levelBadge}>
               <Text style={styles.levelBadgeText}>{currentLevel}</Text>
@@ -189,7 +202,10 @@ export const ProfileScreen = () => {
         {/* Conquistas */}
         <Card style={styles.card}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>🏆 {t('achievements.title')}</Text>
+            <View style={styles.sectionTitleRow}>
+              <TrophyIcon size={IconSizes.md} color={IconColors.gold} />
+              <Text style={styles.sectionTitle}>{t('achievements.title')}</Text>
+            </View>
             <Text style={styles.achievementCount}>
               {unlockedAchievements.length}/{achievements.length}
             </Text>
@@ -208,9 +224,11 @@ export const ProfileScreen = () => {
                   ]}
                 >
                   <View style={styles.achievementIcon}>
-                    <Text style={styles.achievementIconText}>
-                      {isUnlocked ? achievement.icon : '🔒'}
-                    </Text>
+                    {isUnlocked ? (
+                      <Text style={styles.achievementIconText}>{achievement.icon}</Text>
+                    ) : (
+                      <LockIcon size={IconSizes.lg} color={IconColors.muted} />
+                    )}
                   </View>
                   <View style={styles.achievementInfo}>
                     <Text
@@ -242,7 +260,7 @@ export const ProfileScreen = () => {
         </Card>
 
         {/* Idioma */}
-        <Card>
+        <Card style={styles.card}>
           <Text style={styles.sectionTitle}>{t('profile.language')}</Text>
           <View style={styles.languageList}>
             {languages.map(lang => (
@@ -270,78 +288,70 @@ export const ProfileScreen = () => {
           
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingEmoji}>🎵</Text>
+              <View style={styles.settingIconContainer}>
+                <SoundOnIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
               <Text style={styles.settingText}>{t('profile.sound')}</Text>
             </View>
-            <View style={styles.settingRight}>
-              <Text style={[styles.settingStatus, settings.soundEnabled && styles.settingStatusActive]}>
-                {settings.soundEnabled ? '✓' : '✕'}
-              </Text>
-              <Switch
-                value={settings.soundEnabled}
-                onValueChange={handleToggleSound}
-                trackColor={{ false: '#767577', true: '#4CAF50' }}
-                thumbColor={settings.soundEnabled ? '#FFFFFF' : '#f4f3f4'}
-                ios_backgroundColor="#767577"
-              />
-            </View>
+            <Switch
+              value={settings.soundEnabled}
+              onValueChange={handleToggleSound}
+              trackColor={{ false: '#767577', true: '#4CAF50' }}
+              thumbColor={settings.soundEnabled ? '#FFFFFF' : '#f4f3f4'}
+              ios_backgroundColor="#767577"
+              style={styles.switch}
+            />
           </View>
-          
+
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingEmoji}>📳</Text>
+              <View style={styles.settingIconContainer}>
+                <VibrateIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
               <Text style={styles.settingText}>{t('profile.vibration')}</Text>
             </View>
-            <View style={styles.settingRight}>
-              <Text style={[styles.settingStatus, settings.vibrationEnabled && styles.settingStatusActive]}>
-                {settings.vibrationEnabled ? '✓' : '✕'}
-              </Text>
-              <Switch
-                value={settings.vibrationEnabled}
-                onValueChange={handleToggleVibration}
-                trackColor={{ false: '#767577', true: '#4CAF50' }}
-                thumbColor={settings.vibrationEnabled ? '#FFFFFF' : '#f4f3f4'}
-                ios_backgroundColor="#767577"
-              />
-            </View>
+            <Switch
+              value={settings.vibrationEnabled}
+              onValueChange={handleToggleVibration}
+              trackColor={{ false: '#767577', true: '#4CAF50' }}
+              thumbColor={settings.vibrationEnabled ? '#FFFFFF' : '#f4f3f4'}
+              ios_backgroundColor="#767577"
+              style={styles.switch}
+            />
           </View>
-          
+
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingEmoji}>🎼</Text>
+              <View style={styles.settingIconContainer}>
+                <MusicIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
               <Text style={styles.settingText}>{t('profile.music')}</Text>
             </View>
-            <View style={styles.settingRight}>
-              <Text style={[styles.settingStatus, settings.musicEnabled && styles.settingStatusActive]}>
-                {settings.musicEnabled ? '✓' : '✕'}
-              </Text>
-              <Switch
-                value={settings.musicEnabled}
-                onValueChange={handleToggleMusic}
-                trackColor={{ false: '#767577', true: '#4CAF50' }}
-                thumbColor={settings.musicEnabled ? '#FFFFFF' : '#f4f3f4'}
-                ios_backgroundColor="#767577"
-              />
-            </View>
+            <Switch
+              value={settings.musicEnabled}
+              onValueChange={handleToggleMusic}
+              trackColor={{ false: '#767577', true: '#4CAF50' }}
+              thumbColor={settings.musicEnabled ? '#FFFFFF' : '#f4f3f4'}
+              ios_backgroundColor="#767577"
+              style={styles.switch}
+            />
           </View>
-          
+
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingEmoji}>🔔</Text>
+              <View style={styles.settingIconContainer}>
+                <BellOnIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
               <Text style={styles.settingText}>{t('profile.notifications')}</Text>
             </View>
-            <View style={styles.settingRight}>
-              <Text style={[styles.settingStatus, settings.notificationsEnabled && styles.settingStatusActive]}>
-                {settings.notificationsEnabled ? '✓' : '✕'}
-              </Text>
-              <Switch
-                value={settings.notificationsEnabled}
-                onValueChange={handleToggleNotifications}
-                trackColor={{ false: '#767577', true: '#4CAF50' }}
-                thumbColor={settings.notificationsEnabled ? '#FFFFFF' : '#f4f3f4'}
-                ios_backgroundColor="#767577"
-              />
-            </View>
+            <Switch
+              value={settings.notificationsEnabled}
+              onValueChange={handleToggleNotifications}
+              trackColor={{ false: '#767577', true: '#4CAF50' }}
+              thumbColor={settings.notificationsEnabled ? '#FFFFFF' : '#f4f3f4'}
+              ios_backgroundColor="#767577"
+              style={styles.switch}
+            />
           </View>
         </Card>
 
@@ -349,14 +359,29 @@ export const ProfileScreen = () => {
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>{t('profile.about')}</Text>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>ℹ️ {t('profile.version')}</Text>
+            <View style={styles.settingLeft}>
+              <View style={styles.settingIconContainer}>
+                <InfoIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
+              <Text style={styles.settingText}>{t('profile.version')}</Text>
+            </View>
             <Text style={styles.settingValue}>1.0.0</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>📖 {t('profile.terms')}</Text>
+            <View style={styles.settingLeft}>
+              <View style={styles.settingIconContainer}>
+                <InfoIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
+              <Text style={styles.settingText}>{t('profile.terms')}</Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingItem}>
-            <Text style={styles.settingText}>🔒 {t('profile.privacy')}</Text>
+            <View style={styles.settingLeft}>
+              <View style={styles.settingIconContainer}>
+                <LockIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
+              <Text style={styles.settingText}>{t('profile.privacy')}</Text>
+            </View>
           </TouchableOpacity>
         </Card>
 
@@ -369,13 +394,14 @@ export const ProfileScreen = () => {
 
         <View style={styles.bottomSpace} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
   },
   scrollView: {
     flex: 1,
@@ -408,31 +434,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
     position: 'relative',
-    overflow: 'hidden',
   },
   avatarImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
-  },
-  avatarEmoji: {
-    fontSize: 48,
+    overflow: 'hidden',
   },
   levelBadge: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 32,
+    bottom: -4,
+    right: -4,
+    minWidth: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: '#FFA726',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
-    borderColor: '#1A1A2E',
+    borderColor: COLORS.background,
+    paddingHorizontal: 6,
   },
   levelBadgeText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
@@ -483,6 +507,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   achievementCount: {
     fontSize: 16,
@@ -593,11 +622,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  settingEmoji: {
-    fontSize: 24,
-    marginRight: 14,
+  settingIconContainer: {
     width: 32,
-    textAlign: 'center',
+    height: 32,
+    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   settingText: {
     fontSize: 16,
@@ -605,27 +635,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     lineHeight: 24,
   },
-  settingRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  settingStatus: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontFamily: 'Poppins-Medium',
-    minWidth: 75,
-    textAlign: 'right',
-    lineHeight: 20,
-  },
-  settingStatusActive: {
-    color: '#4CAF50',
-    fontWeight: 'bold',
-  },
   settingValue: {
     fontSize: 14,
     color: 'rgba(255, 255, 255, 0.6)',
     fontFamily: 'Poppins-Regular',
+  },
+  switch: {
+    marginRight: -8,
   },
   logoutButton: {
     marginTop: 32,

@@ -6,12 +6,14 @@
 import React, { useEffect } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { COLORS, SPACING, TYPOGRAPHY, RADIUS, SHADOWS } from '@/constants/design-system';
 
 interface ProgressBarProps {
   progress: number; // 0-100
   height?: number;
   showLabel?: boolean;
   label?: string;
+  showThumb?: boolean;
 }
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({
@@ -19,6 +21,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   height = 12,
   showLabel = true,
   label = 'Progresso',
+  showThumb = true,
 }) => {
   const animatedWidth = new Animated.Value(0);
 
@@ -46,12 +49,12 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
       <View style={[styles.track, { height }]}>
         <Animated.View style={{ width: widthInterpolated, height: '100%' }}>
           <LinearGradient
-            colors={['#FFA726', '#FFB74D']}
+            colors={COLORS.primaryGradient as unknown as string[]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.fill}
           >
-            <View style={styles.thumb} />
+            {showThumb && <View style={styles.thumb} />}
           </LinearGradient>
         </Animated.View>
       </View>
@@ -66,27 +69,27 @@ const styles = StyleSheet.create({
   labelContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   label: {
-    fontSize: 14,
-    color: '#FFFFFF',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.text,
     fontFamily: 'Poppins-Medium',
   },
   percentage: {
-    fontSize: 14,
-    color: '#FFA726',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
     fontFamily: 'Poppins-Bold',
   },
   track: {
     width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 100,
+    backgroundColor: COLORS.border,
+    borderRadius: RADIUS.round,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    borderRadius: 100,
+    borderRadius: RADIUS.round,
     position: 'relative',
   },
   thumb: {
@@ -96,13 +99,9 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.text,
     transform: [{ translateY: -10 }],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    ...SHADOWS.sm,
   },
 });
 

@@ -1,11 +1,16 @@
 /**
- * Card Component
+ * Card Component - Refatorado
  * Card com gradiente baseado no design system
  */
 
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import {
+  COLORS,
+  RADIUS,
+  SIZES,
+} from '@/constants/design-system';
 
 interface CardProps {
   children: ReactNode;
@@ -20,13 +25,13 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const gradientColors =
     variant === 'daily-challenge'
-      ? ['rgba(222, 47, 36, 0.30)', 'rgba(243, 150, 12, 0.30)']
-      : ['rgba(94, 74, 139, 0.30)', 'rgba(123, 107, 168, 0.30)'];
+      ? COLORS.cardChallengeGradient
+      : COLORS.cardGradient;
 
   return (
     <View style={[styles.container, style]}>
       <LinearGradient
-        colors={gradientColors}
+        colors={gradientColors as unknown as string[]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -39,19 +44,17 @@ export const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
+    borderRadius: RADIUS.lg,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: COLORS.cardBorder,
   },
   gradient: {
     padding: 1,
   },
   content: {
-    padding: 16,
-    borderRadius: 19,
-    backgroundColor: 'rgba(26, 26, 46, 0.5)',
+    padding: SIZES.cardPadding,
+    borderRadius: RADIUS.lg - 1,
+    backgroundColor: COLORS.backgroundElevated,
   },
 });
-
-

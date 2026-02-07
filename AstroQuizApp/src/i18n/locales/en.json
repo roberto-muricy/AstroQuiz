@@ -136,11 +136,11 @@
     "phaseInfo": "10 questions • {{seconds}}s each",
     "preparing": "Preparing quiz...",
     "tiers": {
-      "beginner": "🌟 Beginner",
-      "novice": "🔭 Novice",
-      "intermediate": "🚀 Intermediate",
-      "advanced": "⭐ Advanced",
-      "elite": "👑 Elite"
+      "beginner": "Beginner",
+      "novice": "Novice",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced",
+      "elite": "Elite"
     },
     "tierSubtitle": "Phases {{from}}-{{to}} • Levels {{min}}-{{max}}",
     "phaseTitle": "Phase {{phase}} - {{tier}}",

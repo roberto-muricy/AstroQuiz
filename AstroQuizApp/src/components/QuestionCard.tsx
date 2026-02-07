@@ -144,7 +144,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           selectedOption === correctOption && styles.explanationSuccess
         ]}>
           <Text style={styles.explanationTitle}>
-            {selectedOption === correctOption ? '✨ Ótimo trabalho!' : '💡 Explicação'}
+            {selectedOption === correctOption ? 'Correto!' : 'Explicação'}
           </Text>
           <Text style={styles.explanationText}>{question.explanation}</Text>
         </View>
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     marginBottom: 24,
     lineHeight: 26,
+    flexShrink: 1,
   },
   questionImage: {
     width: '100%',
@@ -220,6 +221,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: 'transparent',
+    minHeight: 56,
   },
   optionSelected: {
     borderColor: '#FFA726',
@@ -236,6 +238,7 @@ const styles = StyleSheet.create({
   optionLetter: {
     width: 32,
     height: 32,
+    minWidth: 32,
     borderRadius: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
@@ -262,6 +265,8 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Poppins-Medium',
     flex: 1,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   optionTextBold: {
     fontWeight: 'bold',
@@ -301,6 +306,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Poppins-Regular',
     lineHeight: 20,
+    flexShrink: 1,
   },
 });
 

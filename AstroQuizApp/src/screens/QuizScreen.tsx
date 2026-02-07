@@ -1,6 +1,8 @@
 /**
- * QuizScreen
+ * QuizScreen - Refatorada
  * Tela de gameplay do quiz
+ *
+ * Refatoração: Usa design-system para consistência com StatsScreen
  */
 
 import { Button, QuestionCard } from '@/components';
@@ -10,15 +12,42 @@ import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navig
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Alert,
-    Animated,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    Vibration,
-    View,
+  Alert,
+  Animated,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Vibration,
+  View,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import {
+  COLORS,
+  SPACING,
+  TYPOGRAPHY,
+  RADIUS,
+  SIZES,
+} from '@/constants/design-system';
+import { Flame, CheckCircle, XCircle } from 'lucide-react-native';
+
+// Função para calcular a cor do timer baseada no tempo restante
+const getTimerColor = (timeRemaining: number, totalTime: number): string => {
+  const percentage = timeRemaining / totalTime;
+
+  if (percentage > 0.6) {
+    // Verde
+    return '#22C55E';
+  } else if (percentage > 0.4) {
+    // Amarelo
+    return '#EAB308';
+  } else if (percentage > 0.2) {
+    // Laranja
+    return '#F97316';
+  } else {
+    // Vermelho
+    return '#EF4444';
+  }
+};
 
 export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -39,12 +68,10 @@ export const QuizScreen = () => {
   const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Resetar pontuação ao iniciar nova sessão
     setCurrentScore(0);
     setCurrentStreak(0);
     loadQuestion();
-    
-    // Limpar timers ao desmontar
+
     return () => {
       if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
@@ -80,11 +107,9 @@ export const QuizScreen = () => {
     }
   };
 
-  // Handler de seleção com auto-submit após 0.7s
   const handleAnswerSelect = (option: 'A' | 'B' | 'C' | 'D') => {
     if (showResult) return;
 
-    // Limpar timers anteriores
     if (submitTimerRef.current) {
       clearTimeout(submitTimerRef.current);
     }
@@ -92,28 +117,24 @@ export const QuizScreen = () => {
       clearInterval(countdownIntervalRef.current);
     }
 
-    // Haptic feedback leve
     Vibration.vibrate(30);
 
-    // Atualizar seleção
     setSelectedOption(option);
     setAutoSubmitCountdown(null);
 
-    // Iniciar countdown visual (opcional)
     let countdown = 700;
     const startTime = Date.now();
-    
+
     countdownIntervalRef.current = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, 700 - elapsed);
       setAutoSubmitCountdown(remaining);
-      
+
       if (remaining === 0 && countdownIntervalRef.current) {
         clearInterval(countdownIntervalRef.current);
       }
     }, 50);
 
-    // Timer de auto-submit
     submitTimerRef.current = setTimeout(() => {
       handleSubmitAnswer(option);
     }, 700);
@@ -121,7 +142,7 @@ export const QuizScreen = () => {
 
   const handleTimeout = async () => {
     if (!currentQuestion || showResult) return;
-    
+
     try {
       await quizService.submitAnswer(
         sessionId,
@@ -139,47 +160,43 @@ export const QuizScreen = () => {
   const handleSubmitAnswer = async (option: 'A' | 'B' | 'C' | 'D') => {
     if (!currentQuestion) return;
 
-    // Limpar timers
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    
+
     setAutoSubmitCountdown(null);
     setShowResult(true);
-    
+
     try {
       const timeUsed = currentQuestion.timePerQuestion - (timeRemaining * 1000);
       const questionId = currentQuestion.question?.id;
-      
+
       console.log('🔍 Debug - Question ID:', questionId);
       console.log('🔍 Debug - Current Question:', currentQuestion);
-      
+
       const result = await quizService.submitAnswer(
-        sessionId, 
-        option, 
+        sessionId,
+        option,
         timeUsed,
         questionId
       );
-      
+
       console.log('📊 Resultado da resposta:', result);
       setAnswerResult(result);
 
-      // Atualizar pontuação e streak localmente
       setCurrentScore(result.sessionStatus.score);
       setCurrentStreak(result.sessionStatus.streakCount);
 
-      // Haptic feedback diferenciado
       if (result.answerRecord.isCorrect) {
-        Vibration.vibrate(100); // Vibração longa para acerto
+        Vibration.vibrate(100);
       } else {
-        Vibration.vibrate([0, 100, 50, 100]); // Padrão de erro
+        Vibration.vibrate([0, 100, 50, 100]);
       }
-      
-      // Mostrar resultado por 3 segundos
+
       setTimeout(async () => {
         setShowResult(false);
         setAnswerResult(null);
         setSelectedOption(null);
-        
+
         if (result.sessionStatus.isPhaseComplete) {
           navigation.navigate('QuizResult', { sessionId });
         } else {
@@ -216,43 +233,64 @@ export const QuizScreen = () => {
     );
   };
 
+  const totalTime = currentQuestion?.timePerQuestion ? Math.floor(currentQuestion.timePerQuestion / 1000) : 30;
+  const timerColor = getTimerColor(timeRemaining, totalTime);
+  const timerWidth = (timeRemaining / totalTime) * 100;
+
   if (!currentQuestion) {
     return (
-      <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.loading}>
           <Text style={styles.loadingText}>{t('common.loading')}</Text>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <LinearGradient colors={['#1A1A2E', '#3D3D6B', '#4A4A7C']} style={styles.container}>
-      {/* Botão de Voltar */}
-      <TouchableOpacity style={styles.backButton} onPress={handleExit}>
-        <Text style={styles.backButtonText}>✕</Text>
-      </TouchableOpacity>
-
+    <View style={styles.container}>
+      {/* Header com botão X, contador e pontos */}
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleExit}>
+          <Text style={styles.backButtonText}>✕</Text>
+        </TouchableOpacity>
+
         <View style={styles.questionCounter}>
           <Text style={styles.questionCounterText}>
             {t('quiz.questionCounter', { current: currentQuestion.questionIndex, total: currentQuestion.totalQuestions })}
           </Text>
         </View>
-        <View style={styles.timer}>
-          <Text style={[styles.timerText, timeRemaining < 10 && styles.timerDanger]}>
-            ⏱️ {timeRemaining}s
-          </Text>
-        </View>
+
         <View style={styles.scoreContainer}>
           <Text style={styles.scoreText}>{currentScore} {t('quiz.pointsAbbr')}</Text>
           {currentStreak > 0 && (
-            <Text style={styles.streakText}>🔥 {currentStreak}</Text>
+            <View style={styles.streakContainer}>
+              <Flame size={16} color={COLORS.primary} fill={COLORS.primary} />
+              <Text style={styles.streakText}>{currentStreak}</Text>
+            </View>
           )}
         </View>
       </View>
 
-      <View style={styles.content}>
+      {/* Barra de tempo horizontal */}
+      <View style={styles.timerBarContainer}>
+        <View
+          style={[
+            styles.timerBar,
+            {
+              width: `${timerWidth}%`,
+              backgroundColor: timerColor,
+            },
+          ]}
+        />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+      >
         <QuestionCard
           question={currentQuestion.question}
           selectedOption={selectedOption || undefined}
@@ -266,11 +304,11 @@ export const QuizScreen = () => {
         {selectedOption && !showResult && autoSubmitCountdown !== null && (
           <View style={styles.autoSubmitIndicator}>
             <View style={styles.autoSubmitBar}>
-              <View 
+              <View
                 style={[
                   styles.autoSubmitProgress,
                   { width: `${(autoSubmitCountdown / 700) * 100}%` }
-                ]} 
+                ]}
               />
             </View>
             <Text style={styles.autoSubmitText}>
@@ -284,7 +322,9 @@ export const QuizScreen = () => {
           <View style={styles.resultContainer}>
             {answerResult.answerRecord.isCorrect ? (
               <View style={styles.successBanner}>
-                <Text style={styles.successEmoji}>🎉</Text>
+                <View style={styles.resultIconContainer}>
+                  <CheckCircle size={48} color={COLORS.success} />
+                </View>
                 <Text style={styles.successTitle}>{t('quiz.correctTitle')}</Text>
                 <Text style={styles.pointsEarned}>
                   +{answerResult.scoreResult.totalPoints} {t('quiz.pointsEarned')}
@@ -292,7 +332,9 @@ export const QuizScreen = () => {
               </View>
             ) : (
               <View style={styles.errorBanner}>
-                <Text style={styles.errorEmoji}>😔</Text>
+                <View style={styles.resultIconContainer}>
+                  <XCircle size={48} color="#EF4444" />
+                </View>
                 <Text style={styles.errorTitle}>{t('quiz.incorrectTitle')}</Text>
                 <Text style={styles.correctAnswerText}>
                   {t('quiz.correctAnswerLabel', { option: answerResult.answerRecord.correctOption })}
@@ -301,31 +343,15 @@ export const QuizScreen = () => {
             )}
           </View>
         )}
-      </View>
-    </LinearGradient>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    backgroundColor: COLORS.background,
   },
   loading: {
     flex: 1,
@@ -333,137 +359,139 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Medium',
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: SIZES.screenPadding,
     paddingTop: 60,
+    paddingBottom: SPACING.md,
   },
-  questionCounter: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.lg,
+    backgroundColor: COLORS.backgroundElevated,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
   },
-  questionCounterText: {
-    fontSize: 14,
-    color: '#FFFFFF',
+  backButtonText: {
+    fontSize: 18,
+    color: COLORS.text,
     fontFamily: 'Poppins-Medium',
   },
-  timer: {
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  questionCounter: {
+    flex: 1,
+    alignItems: 'center',
   },
-  timerText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
-  },
-  timerDanger: {
-    color: '#DE2F24',
+  questionCounterText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
+    fontFamily: 'Poppins-Medium',
   },
   scoreContainer: {
     alignItems: 'flex-end',
+    minWidth: 70,
   },
   scoreText: {
-    fontSize: 16,
+    ...TYPOGRAPHY.body,
     fontWeight: '700',
-    color: '#0FB57E',
+    color: COLORS.success,
     fontFamily: 'Poppins-Bold',
   },
+  streakContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   streakText: {
-    fontSize: 14,
-    color: '#FFA726',
-    fontFamily: 'Poppins-Medium',
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
+    fontFamily: 'Poppins-Bold',
+  },
+  timerBarContainer: {
+    height: 6,
+    backgroundColor: COLORS.backgroundElevated,
+    marginHorizontal: SIZES.screenPadding,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  timerBar: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
-    flex: 1,
-    padding: 20,
-  },
-  submitButton: {
-    marginTop: 20,
+    padding: SIZES.screenPadding,
+    paddingTop: SPACING.lg,
+    paddingBottom: 40,
   },
   autoSubmitIndicator: {
-    marginTop: 16,
+    marginTop: SPACING.md,
     alignItems: 'center',
   },
   autoSubmitBar: {
     width: '100%',
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: COLORS.backgroundHighlight,
     borderRadius: 2,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   autoSubmitProgress: {
     height: '100%',
-    backgroundColor: '#FFA726',
+    backgroundColor: COLORS.primary,
   },
   autoSubmitText: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
-    fontFamily: 'Poppins-Regular',
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
   },
   resultContainer: {
-    marginTop: 20,
+    marginTop: SPACING.lg,
   },
   successBanner: {
     backgroundColor: 'rgba(15, 181, 126, 0.15)',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
     borderLeftWidth: 4,
-    borderLeftColor: '#0FB57E',
+    borderLeftColor: COLORS.success,
     alignItems: 'center',
   },
-  successEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
+  resultIconContainer: {
+    marginBottom: SPACING.sm,
   },
   successTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#0FB57E',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 8,
+    ...TYPOGRAPHY.h3,
+    color: COLORS.success,
+    marginBottom: SPACING.sm,
   },
   pointsEarned: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
+    ...TYPOGRAPHY.h2,
+    color: COLORS.primary,
   },
   errorBanner: {
     backgroundColor: 'rgba(239, 68, 68, 0.15)',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
     borderLeftWidth: 4,
     borderLeftColor: '#EF4444',
     alignItems: 'center',
   },
-  errorEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
   errorTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    ...TYPOGRAPHY.h3,
     color: '#EF4444',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 8,
+    marginBottom: SPACING.sm,
   },
   correctAnswerText: {
-    fontSize: 16,
-    color: '#FFFFFF',
+    ...TYPOGRAPHY.body,
+    color: COLORS.text,
     fontFamily: 'Poppins-Medium',
   },
 });
-
-
