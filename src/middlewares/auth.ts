@@ -22,9 +22,13 @@ export interface AuthContext {
  */
 export function createAuthMiddleware(strapi: any) {
   return async (ctx: any, next: () => Promise<void>) => {
-    // Skip auth if Firebase not configured (development mode)
+    // Check if Firebase is configured
     if (!isFirebaseConfigured()) {
-      strapi.log.warn('Firebase not configured - auth bypassed');
+      if (process.env.NODE_ENV === 'production') {
+        strapi.log.error('Firebase not configured in production!');
+        return ctx.serviceUnavailable('Authentication service unavailable');
+      }
+      strapi.log.warn('Firebase not configured - auth bypassed (dev mode)');
       await next();
       return;
     }
@@ -88,6 +92,10 @@ export function createAdminMiddleware(strapi: any) {
 export function createOptionalAuthMiddleware(strapi: any) {
   return async (ctx: any, next: () => Promise<void>) => {
     if (!isFirebaseConfigured()) {
+      if (process.env.NODE_ENV === 'production') {
+        strapi.log.error('Firebase not configured in production!');
+        return ctx.serviceUnavailable('Authentication service unavailable');
+      }
       await next();
       return;
     }
