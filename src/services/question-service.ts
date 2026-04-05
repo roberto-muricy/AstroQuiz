@@ -58,7 +58,7 @@ export async function fetchImageCandidateForPhase(
     .limit(1);
 
   if (!includeDrafts) {
-    query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
+    query = query.whereNotNull('q.published_at');
   }
 
   const rows = await query;

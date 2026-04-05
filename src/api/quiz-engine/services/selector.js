@@ -115,7 +115,7 @@ module.exports = {
       // By default, only published questions are available (draftAndPublish=true).
       // For dev testing, allow drafts explicitly.
       if (!includeDrafts) {
-        query = query.andWhereRaw("q.published_at IS NOT NULL AND q.published_at != ''");
+        query = query.whereNotNull('q.published_at');
       }
 
       // Exclude specific questions
