@@ -37,7 +37,7 @@ export function createDebugRoutes(strapi: any): any[] {
             },
           };
         } catch (error: any) {
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },
@@ -97,7 +97,7 @@ export function createDebugRoutes(strapi: any): any[] {
           };
         } catch (error: any) {
           strapi.log.error('GET /api/debug/db-config error:', error);
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },

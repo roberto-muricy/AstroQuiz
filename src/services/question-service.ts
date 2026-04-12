@@ -127,7 +127,7 @@ export async function fetchQuestionRowById(strapi: any, id: number | string): Pr
 }
 
 /**
- * Check write token authorization
+ * Check write token authorization using constant-time comparison
  */
 export function requireWriteTokenIfConfigured(ctx: any): void {
   const requiredToken = process.env.STRAPI_WRITE_TOKEN;
@@ -137,7 +137,17 @@ export function requireWriteTokenIfConfigured(ctx: any): void {
   const bearer = authHeader.startsWith('Bearer ')
     ? authHeader.slice('Bearer '.length).trim()
     : null;
-  if (!bearer || bearer !== requiredToken) {
+
+  if (!bearer) {
+    ctx.unauthorized('Invalid or missing write token');
+    return;
+  }
+
+  // Use constant-time comparison to prevent timing attacks
+  const { timingSafeEqual } = require('crypto');
+  const a = Buffer.from(bearer);
+  const b = Buffer.from(requiredToken);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
     ctx.unauthorized('Invalid or missing write token');
   }
 }

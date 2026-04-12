@@ -36,18 +36,23 @@ const DEFAULT_CONFIG: RateLimitConfig = {
 };
 
 /**
- * Get client IP from request
+ * Get client IP from request.
+ * Uses ctx.request.ip which respects the app's trust proxy setting,
+ * falling back to proxy headers only as secondary source.
  */
 function getClientIp(ctx: any): string {
-  // Check common proxy headers
-  const forwarded = ctx.request.headers['x-forwarded-for'];
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
+  // Prefer ctx.request.ip — Koa/Strapi resolves this correctly
+  // when trust proxy is configured (e.g. on Railway)
+  if (ctx.request.ip && ctx.request.ip !== '127.0.0.1') {
+    return ctx.request.ip;
   }
 
-  const realIp = ctx.request.headers['x-real-ip'];
-  if (realIp) {
-    return realIp;
+  // Fallback: take the rightmost (most trusted) IP from X-Forwarded-For
+  // as proxies append to the right
+  const forwarded = ctx.request.headers['x-forwarded-for'];
+  if (forwarded) {
+    const ips = forwarded.split(',').map((ip: string) => ip.trim());
+    return ips[ips.length - 1];
   }
 
   return ctx.request.ip || 'unknown';

@@ -147,7 +147,7 @@ export function createQuestionRoutes(strapi: any): any[] {
           ctx.body = { data, meta: { total: rows.length } };
         } catch (error: any) {
           strapi.log.error('GET /api/questions error:', error);
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },
@@ -165,7 +165,7 @@ export function createQuestionRoutes(strapi: any): any[] {
           ctx.body = { data: row };
         } catch (error: any) {
           strapi.log.error('GET /api/questions/:id error:', error);
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },
@@ -208,7 +208,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             });
             ctx.body = { data: question };
           } catch (error: any) {
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -255,7 +255,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             ctx.body = { data: row };
           } catch (error: any) {
             strapi.log.error('PUT /api/questions/:id error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -336,7 +336,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/import error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -465,7 +465,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/import-v2 error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -498,7 +498,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             }
           } catch (error: any) {
             strapi.log.error('DELETE /api/questions/:id error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -527,7 +527,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('GET /api/questions/debug-structure error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -565,7 +565,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/delete-locale error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -669,9 +669,8 @@ export function createQuestionRoutes(strapi: any): any[] {
             ctx.status = 500;
             ctx.body = {
               success: false,
-              error: error.message,
+              error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
               stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
-              details: error,
             };
           }
         },
@@ -727,13 +726,15 @@ export function createQuestionRoutes(strapi: any): any[] {
                 success: false,
                 keyType: isFreeKey ? 'Free' : 'Pro',
                 url: DEEPL_API_URL,
-                error: error.response?.data || error.message,
+                error: process.env.NODE_ENV === 'development'
+                  ? (error.response?.data || error.message)
+                  : 'DeepL API error',
                 status: error.response?.status,
               };
             }
           } catch (error: any) {
             strapi.log.error('Test endpoint error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -897,7 +898,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/translate-to-pt error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -917,7 +918,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             ctx.body = { success: true, message: `Deleted ${deleted} questions` };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/truncate error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -1001,7 +1002,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/fix-topickey-documents-api error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -1078,7 +1079,7 @@ export function createQuestionRoutes(strapi: any): any[] {
             };
           } catch (error: any) {
             strapi.log.error('POST /api/questions/fix-image-question-type error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -1139,7 +1140,7 @@ export function createQuestionRoutes(strapi: any): any[] {
           };
         } catch (error: any) {
           strapi.log.error('GET /api/questions/debug-all-methods error:', error);
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },
@@ -1199,8 +1200,7 @@ export function createQuestionRoutes(strapi: any): any[] {
           strapi.log.error('Diagnose document_id error:', error);
           ctx.body = {
             success: false,
-            error: error.message,
-            stack: error.stack,
+            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
           };
         }
       },
@@ -1286,7 +1286,7 @@ export function createQuestionRoutes(strapi: any): any[] {
 
           } catch (error: any) {
             strapi.log.error('Fix document_id error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],
@@ -1399,7 +1399,7 @@ export function createQuestionRoutes(strapi: any): any[] {
 
           } catch (error: any) {
             strapi.log.error('Force sync error:', error);
-            ctx.throw(500, error.message);
+            ctx.throw(500, 'Internal server error');
           }
         },
       ],

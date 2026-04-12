@@ -62,24 +62,30 @@ export function createQuizRoutes(strapi: any): any[] {
           questionCount = -1;
         }
 
-        ctx.body = {
+        const response: any = {
           success: true,
           message: 'Quiz service is healthy',
           data: {
             status: 'ok',
             timestamp: new Date().toISOString(),
             version: '1.0.0',
-            debug: {
-              databaseClient: clientName,
-              questionCount: questionCount,
-              env: {
-                DATABASE_CLIENT: process.env.DATABASE_CLIENT || 'not set',
-                DATABASE_URL_SET: !!process.env.DATABASE_URL,
-                NODE_ENV: process.env.NODE_ENV,
-              },
-            },
+            questionCount: questionCount,
           },
         };
+
+        // Only expose debug info in non-production
+        if (process.env.NODE_ENV !== 'production') {
+          response.data.debug = {
+            databaseClient: clientName,
+            env: {
+              DATABASE_CLIENT: process.env.DATABASE_CLIENT || 'not set',
+              DATABASE_URL_SET: !!process.env.DATABASE_URL,
+              NODE_ENV: process.env.NODE_ENV,
+            },
+          };
+        }
+
+        ctx.body = response;
       },
       config: { auth: false },
     },
