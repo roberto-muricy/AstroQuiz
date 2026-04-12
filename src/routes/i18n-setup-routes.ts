@@ -56,7 +56,7 @@ export function createI18nSetupRoutes(strapi: any): any[] {
           };
         } catch (error: any) {
           strapi.log.error('POST /api/i18n/setup-locales error:', error);
-          ctx.throw(500, error.message);
+          ctx.throw(500, 'Internal server error');
         }
       },
       config: { auth: false },

@@ -3,6 +3,8 @@
  * Handles in-memory session storage with database persistence
  */
 
+import { randomBytes } from 'crypto';
+
 const QUIZ_SESSION_TABLE = 'quiz_sessions';
 const QUIZ_SESSION_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 
@@ -19,7 +21,7 @@ export async function ensureQuizSessionTable(strapi: any): Promise<void> {
     t.text('data').notNullable(); // JSON string
     t.datetime('created_at').notNullable();
     t.datetime('updated_at').notNullable();
-    t.datetime('expires_at').notNullable();
+    t.datetime('expires_at').notNullable().index();
   });
 
   strapi.log.info(`Created ${QUIZ_SESSION_TABLE} table`);
@@ -118,8 +120,8 @@ export function createSession(params: {
 }
 
 /**
- * Generate a unique session ID
+ * Generate a unique session ID using cryptographically secure randomness
  */
 export function generateSessionId(): string {
-  return `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `quiz_${Date.now()}_${randomBytes(12).toString('base64url')}`;
 }

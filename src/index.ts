@@ -30,14 +30,16 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }) {
-    // DEBUG: Check database configuration at runtime
-    strapi.log.info('🔍 ENV VARS AT RUNTIME:');
-    strapi.log.info(`  DATABASE_CLIENT: ${process.env.DATABASE_CLIENT || 'NOT SET'}`);
-    strapi.log.info(`  DATABASE_URL: ${process.env.DATABASE_URL ? 'SET (length: ' + process.env.DATABASE_URL.length + ')' : 'NOT SET'}`);
-    strapi.log.info(`  NODE_ENV: ${process.env.NODE_ENV}`);
+    // Log database configuration only in development
+    if (process.env.NODE_ENV !== 'production') {
+      strapi.log.info('ENV VARS AT RUNTIME:');
+      strapi.log.info(`  DATABASE_CLIENT: ${process.env.DATABASE_CLIENT || 'NOT SET'}`);
+      strapi.log.info(`  DATABASE_URL: ${process.env.DATABASE_URL ? 'SET' : 'NOT SET'}`);
+      strapi.log.info(`  NODE_ENV: ${process.env.NODE_ENV}`);
 
-    const dbConfig = strapi.config.get('database');
-    strapi.log.info(`  Strapi DB Client: ${dbConfig?.connection?.client || 'unknown'}`);
+      const dbConfig = strapi.config.get('database');
+      strapi.log.info(`  Strapi DB Client: ${dbConfig?.connection?.client || 'unknown'}`);
+    }
 
     // Initialize Firebase Admin SDK
     initializeFirebase();
@@ -60,7 +62,8 @@ export default {
       ...createQuestionRoutes(strapi),
       ...createUserProfileRoutes(strapi),
       ...createI18nSetupRoutes(strapi),
-      ...createDebugRoutes(strapi),
+      // Only register debug routes in non-production environments
+      ...(process.env.NODE_ENV !== 'production' ? createDebugRoutes(strapi) : []),
     ];
 
     strapi.server.routes(routes);
@@ -68,7 +71,9 @@ export default {
     strapi.log.info('Quiz Engine routes registered successfully');
     strapi.log.info('Question API routes registered successfully');
     strapi.log.info('User Profile routes registered successfully');
-    strapi.log.info('Debug routes registered successfully');
+    if (process.env.NODE_ENV !== 'production') {
+      strapi.log.info('Debug routes registered (dev only)');
+    }
     strapi.log.info('I18n Setup routes registered successfully');
   },
 };
