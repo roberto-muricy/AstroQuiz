@@ -107,6 +107,19 @@ AstroQuizApp/              # React Native mobile app
 - **Frontend**: TypeScript. PascalCase components (`QuizScreen.tsx`). Functional components + hooks. Context API for state. React Native StyleSheet (no CSS libs).
 - **Naming**: Services end in `-service.ts`, routes in `-routes.ts`, tests in `.test.ts` or `__tests__/` dirs.
 
+## Security Rules
+
+**Nunca introduzir vulnerabilidades de seguranca criticas ou altas.** Ao escrever ou modificar codigo, verificar:
+
+- **Sem segredos expostos**: nunca logar, retornar em responses ou hardcodar tokens, senhas, chaves API ou credenciais. Debug endpoints so existem em dev (`NODE_ENV !== 'production'`).
+- **Sem injection**: sempre usar queries parametrizadas (Knex query builder). Nunca interpolar input do usuario em SQL, comandos shell ou HTML.
+- **Sem vazamento de erros**: catch blocks devem retornar mensagens genericas ao cliente (`'Internal server error'`). Detalhes vao para `strapi.log.error()`, nunca para `ctx.throw(500, error.message)`.
+- **IDs e tokens seguros**: usar `crypto.randomBytes()` para gerar IDs. Nunca `Math.random()`. Comparar tokens com `crypto.timingSafeEqual()`, nunca com `===`.
+- **Validar input**: validar e sanitizar toda entrada do usuario nas bordas da API. Usar as funcoes de `src/services/validation.ts`.
+- **Rate limiting**: todo endpoint publico deve estar coberto pelo rate limiter. Nao confiar em headers `X-Forwarded-For` do cliente — usar `ctx.request.ip`.
+- **Auth por padrao**: novos endpoints devem exigir autenticacao. Usar `auth: false` apenas quando explicitamente necessario (health, rules, quiz play).
+- **Dependencias**: manter `npm audit` com 0 vulnerabilidades criticas. Usar `overrides` no package.json para forcar versoes seguras em dependencias transitivas quando necessario.
+
 ## Environment Variables
 
 See `env.example` for full list. Key ones:
