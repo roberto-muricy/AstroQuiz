@@ -12,7 +12,7 @@
   "nixpacks": {
     "providers": ["nodejs"],
     "variables": {
-      "NODE_VERSION": "18.20.4"
+      "NODE_VERSION": "22"
     }
   }
 }
