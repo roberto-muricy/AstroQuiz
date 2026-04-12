@@ -10,7 +10,7 @@ import strapiSyncService from "@/services/strapiSyncService";
 import { ProgressStorage } from "@/utils/progressStorage";
 import { GameRules, QuizSession, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { changeLanguage } from "@/i18n";
 import { setSentryUser } from "@/config/sentry";
 import analyticsService from "@/services/analyticsService";
@@ -197,77 +197,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const isAuthenticated = !!user && !user.id.startsWith("anon_") && user.id !== "guest";
 
-  /**
-   * Login com Google (Firebase Auth)
-   */
-  const signInWithGoogle = async (): Promise<{ ok: boolean; message?: string }> => {
-    setIsLoading(true);
-    try {
-      const result = await authService.signInWithGoogle();
-      if (!result.ok) {
-        console.log("❌ Google login failed:", result);
-        return { ok: false, message: result.message };
-      }
-
-      const fbUser = authService.getCurrentUser();
-      if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
-
-      // Get and save Firebase ID token for backend API authentication
-      const idToken = await authService.getIdToken();
-      if (idToken) {
-        await api.setAuthToken(idToken);
-        console.log('🔑 Firebase ID token saved for API authentication');
-      }
-
-      // Sync with Strapi backend
-      console.log('📡 Syncing user with Strapi...');
-      try {
-        const serverProfile = await strapiSyncService.syncUser(
-          fbUser.uid,
-          fbUser.email,
-          fbUser.displayName,
-          fbUser.photoURL
-        );
-
-        // Merge local stats with server stats
-        const localProgress = await ProgressStorage.getProgress();
-        const mergedStats = strapiSyncService.mergeStats(localProgress.stats, serverProfile);
-
-        // Update local storage with merged data
-        await ProgressStorage.saveProgress({
-          ...localProgress,
-          stats: mergedStats,
-        });
-
-        console.log('✅ User synced with Strapi');
-      } catch (error) {
-        console.warn('⚠️ Could not sync with Strapi, continuing with local data:', error);
-        // Non-blocking: user can still play even if sync fails
-      }
-
-      const nextUser: User = {
-        id: fbUser.uid,
-        name: fbUser.displayName || "Astronauta",
-        email: fbUser.email || "google@astroquiz.com",
-        avatarUrl: fbUser.photoURL || null,
-        level: user?.level ?? 1,
-        xp: user?.xp ?? 0,
-        totalXP: user?.totalXP ?? 0,
-        streak: user?.streak ?? 0,
-        locale: user?.locale ?? "pt",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setUser(nextUser);
-      analyticsService.logLogin('google');
-      return { ok: true };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleFirebaseUser = async (fbUser: any): Promise<User> => {
+  const handleFirebaseUser = useCallback(async (fbUser: any): Promise<User> => {
     // Get and save Firebase ID token for backend API authentication
     const idToken = await authService.getIdToken();
     if (idToken) {
@@ -317,9 +247,32 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     setUser(nextUser);
     return nextUser;
-  };
+  }, [user]);
 
-  const signInWithEmail = async (email: string, password: string) => {
+  /**
+   * Login com Google (Firebase Auth)
+   */
+  const signInWithGoogle = useCallback(async (): Promise<{ ok: boolean; message?: string }> => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signInWithGoogle();
+      if (!result.ok) {
+        console.log("❌ Google login failed:", result);
+        return { ok: false, message: result.message };
+      }
+
+      const fbUser = authService.getCurrentUser();
+      if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
+
+      await handleFirebaseUser(fbUser);
+      analyticsService.logLogin('google');
+      return { ok: true };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [handleFirebaseUser]);
+
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const result = await authService.signInWithEmail(email, password);
@@ -334,9 +287,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [handleFirebaseUser]);
 
-  const signUpWithEmail = async (email: string, password: string) => {
+  const signUpWithEmail = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const result = await authService.signUpWithEmail(email, password);
@@ -351,18 +304,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [handleFirebaseUser]);
 
   /**
    * Logout
    */
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     setIsLoading(true);
     try {
       analyticsService.logLogout();
       await authService.signOut();
       await api.clearAuthToken();
       console.log('🔓 Auth token cleared');
+      setCurrentSession(null);
       setUser({
         id: "guest",
         name: "Astronauta",
@@ -379,28 +333,29 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [locale]);
+
+  const contextValue = useMemo(() => ({
+    user,
+    setUser,
+    isAuthenticated,
+    signInWithGoogle,
+    signInWithEmail,
+    signUpWithEmail,
+    signOut,
+    currentSession,
+    setCurrentSession,
+    gameRules,
+    loadGameRules,
+    locale,
+    setLocale,
+    isLoading,
+    setIsLoading,
+  }), [user, isAuthenticated, currentSession, gameRules, locale, isLoading,
+       signInWithGoogle, signInWithEmail, signUpWithEmail, signOut]);
 
   return (
-    <AppContext.Provider
-      value={{
-        user,
-        setUser,
-        isAuthenticated,
-        signInWithGoogle,
-        signInWithEmail,
-        signUpWithEmail,
-        signOut,
-        currentSession,
-        setCurrentSession,
-        gameRules,
-        loadGameRules,
-        locale,
-        setLocale,
-        isLoading,
-        setIsLoading,
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
