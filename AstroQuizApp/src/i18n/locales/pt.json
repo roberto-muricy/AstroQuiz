@@ -31,7 +31,9 @@
     "incorrectTitle": "Resposta Incorreta",
     "pointsEarned": "pontos",
     "exitTitle": "Sair do Quiz",
-    "exitMessage": "Tem certeza que deseja sair? Seu progresso será perdido."
+    "exitMessage": "Tem certeza que deseja sair? Seu progresso será perdido.",
+    "exitConfirm": "Sair",
+    "explanation": "Explicação"
   },
   "result": {
     "perfect": "Perfeito!",
@@ -117,11 +119,14 @@
     "createAccountCta": "Criar conta",
     "or": "ou",
     "loginWithGoogle": "Entrar com Google",
+    "loginWithApple": "Entrar com Apple",
     "syncHelper": "Seu progresso local será sincronizado automaticamente.",
     "readyToLaunch": "Pronto para decolar? 🚀",
     "errors": {
       "googleLoginFailed": "Não foi possível entrar com Google.",
       "googleLoginUnexpected": "Erro inesperado ao entrar com Google.",
+      "appleLoginFailed": "Não foi possível entrar com Apple.",
+      "appleLoginUnexpected": "Erro inesperado ao entrar com Apple.",
       "fillEmailPassword": "Preencha e-mail e senha.",
       "authFailed": "Não foi possível autenticar.",
       "authUnexpected": "Erro inesperado ao autenticar."
@@ -135,6 +140,9 @@
     "requiresAccuracy": "Requer {{accuracy}}% de acurácia na fase anterior",
     "phaseInfo": "10 perguntas • {{seconds}}s cada",
     "preparing": "Preparando quiz...",
+    "connectingServer": "Conectando ao servidor...",
+    "wakingUpServer": "Acordando servidor...",
+    "retrying": "Reconectando...",
     "tiers": {
       "beginner": "Iniciante",
       "novice": "Novato",
@@ -172,7 +180,11 @@
     "correctAnswers": "Respostas Corretas",
     "accuracy": "Precisão",
     "bestStreak": "Melhor Sequência",
-    "timePlayed": "Tempo Jogado"
+    "timePlayed": "Tempo Jogado",
+    "xpToRank": "{{xp}} XP para {{rank}}",
+    "startQuiz": "Começar Agora",
+    "unlockAchievements": "Complete seu primeiro quiz para desbloquear conquistas!",
+    "phasesWithPerfect": "{{count}} fase(s) com 100% de acerto"
   },
   "profile": {
     "title": "Perfil",
@@ -192,6 +204,11 @@
     "progressSavedLocally": "Seu progresso está salvo localmente. Entre para sincronizar na nuvem e acessar de qualquer dispositivo.",
     "logoutConfirmTitle": "Sair",
     "logoutConfirmMessage": "Deseja realmente sair?",
+    "deleteAccount": "Excluir Conta",
+    "deleteAccountConfirmTitle": "Excluir Conta",
+    "deleteAccountConfirmMessage": "Tem certeza que deseja excluir sua conta? Todos os dados serão perdidos permanentemente.",
+    "deleteAccountError": "Não foi possível excluir a conta. Tente novamente.",
+    "deleteAccountReauthError": "Por segurança, saia e entre novamente antes de excluir sua conta.",
     "guest": "Visitante",
     "level": "Nível",
     "about": "Sobre",
@@ -204,11 +221,84 @@
     "unlocked": "Desbloqueada!",
     "locked": "Bloqueada"
   },
+  "ranks": {
+    "beginner": "Iniciante",
+    "rookie": "Space Rookie",
+    "apprentice": "Aprendiz",
+    "cadet": "Cadete",
+    "explorer": "Explorador",
+    "challenger": "Desafiante",
+    "navigator": "Navegador",
+    "specialist": "Especialista",
+    "commander": "Comandante",
+    "elite": "Elite"
+  },
   "errors": {
     "loadingFailed": "Falha ao carregar dados",
     "connectionError": "Erro de conexão",
     "tryAgainLater": "Tente novamente mais tarde",
     "quizStartError": "Não foi possível iniciar o quiz.",
     "nextPhaseError": "Não foi possível iniciar a próxima fase."
+  },
+  "ads": {
+    "skipQuestion": "Pular Pergunta",
+    "continueGame": "Continuar",
+    "seeCuriosity": "Ver Curiosidade",
+    "watchAdToSkip": "Assista para pular",
+    "watchAdToContinue": "Assista para continuar",
+    "watchAdForCuriosity": "Assista para ver a explicação",
+    "adLoading": "Carregando...",
+    "adError": "Erro ao carregar anúncio",
+    "adNotAvailable": "Anúncio não disponível",
+    "dailyLimitReached": "Limite diário atingido",
+    "skipsRemaining": "{{count}} pulos restantes hoje",
+    "continuesRemaining": "{{count}} continues restantes hoje",
+    "curiositiesRemaining": "{{count}} curiosidades restantes hoje",
+    "unlimitedWithPro": "Ilimitado com Pro",
+    "continueModalTitle": "Game Over!",
+    "continueModalMessage": "Você pode continuar assistindo um vídeo ou encerrar o quiz.",
+    "continueModalWatch": "Assistir e Continuar",
+    "continueModalEnd": "Encerrar Quiz",
+    "curiosityModalTitle": "Curiosidade",
+    "curiosityModalClose": "Entendi!",
+    "skipUsed": "Pergunta pulada!",
+    "noExplanation": "Explicação não disponível para esta pergunta."
+  },
+  "subscription": {
+    "title": "AstroQuiz Pro",
+    "subtitle": "Desbloqueie todo o potencial do AstroQuiz",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "month": "mês",
+    "year": "ano",
+    "bestValue": "Melhor Valor",
+    "save": "Economize {{percent}}%",
+    "subscribe": "Assinar Agora",
+    "restore": "Restaurar Compra",
+    "successTitle": "Parabéns!",
+    "successMessage": "Você agora é um assinante Pro!",
+    "restoreSuccessTitle": "Compra Restaurada",
+    "restoreSuccessMessage": "Sua assinatura Pro foi restaurada com sucesso!",
+    "purchaseError": "Não foi possível completar a compra. Tente novamente.",
+    "restoreError": "Não foi possível restaurar a compra. Tente novamente.",
+    "noSubscriptionFound": "Nenhuma assinatura encontrada para restaurar.",
+    "legalText": "A assinatura será cobrada na sua conta do iTunes. Ela será renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual.",
+    "comingSoon": "Em breve",
+    "benefits": {
+      "noAds": "Sem Anúncios",
+      "unlimitedSkips": "Pulos Ilimitados",
+      "unlimitedContinues": "Continues Ilimitados",
+      "unlimitedCuriosities": "Curiosidades Ilimitadas",
+      "exclusiveThemes": "Temas Exclusivos",
+      "advancedStats": "Estatísticas Avançadas"
+    },
+    "status": {
+      "active": "Ativo",
+      "expired": "Expirado",
+      "currentPlan": "Plano Atual",
+      "renewsOn": "Renova em {{date}}",
+      "expiresOn": "Expira em {{date}}",
+      "manageSubscription": "Gerenciar Assinatura"
+    }
   }
 }

@@ -11,7 +11,7 @@ import { RootStackParamList } from "@/types";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
 import {
   COLORS,
@@ -25,7 +25,7 @@ type LoginNav = NativeStackNavigationProp<RootStackParamList, "Login">;
 
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginNav>();
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, isAuthenticated, setUser, isLoading } = useApp();
+  const { signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, isAuthenticated, setUser, isLoading } = useApp();
   const { t } = useTranslation();
   const [localLoading, setLocalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +33,30 @@ export const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
 
+  const handleAppleLogin = async () => {
+    setError(null);
+    setLocalLoading(true);
+    try {
+      const result = await signInWithApple();
+      if (!result.ok) {
+        setError('message' in result ? result.message : t("login.errors.appleLoginFailed"));
+        return;
+      }
+      navigation.goBack();
+    } catch (err: any) {
+      setError(err?.message || t("login.errors.appleLoginUnexpected"));
+    } finally {
+      setLocalLoading(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setError(null);
     setLocalLoading(true);
     try {
       const result = await signInWithGoogle();
       if (!result.ok) {
-        setError(result.message || t("login.errors.googleLoginFailed"));
+        setError('message' in result ? result.message : t("login.errors.googleLoginFailed"));
         return;
       }
       navigation.goBack();
@@ -61,7 +78,7 @@ export const LoginScreen: React.FC = () => {
       const action = mode === "login" ? signInWithEmail : signUpWithEmail;
       const result = await action(email, password);
       if (!result.ok) {
-        setError(result.message || t("login.errors.authFailed"));
+        setError('message' in result ? result.message : t("login.errors.authFailed"));
         return;
       }
       navigation.goBack();
@@ -136,6 +153,24 @@ export const LoginScreen: React.FC = () => {
             <Text style={styles.dividerText}>{t("login.or")}</Text>
             <View style={styles.dividerLine} />
           </View>
+
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              onPress={handleAppleLogin}
+              disabled={isLoading || localLoading}
+              style={styles.appleButton}
+              activeOpacity={0.8}
+            >
+              {(isLoading || localLoading) ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text style={styles.appleIcon}></Text>
+                  <Text style={styles.appleButtonText}>{t("login.loginWithApple")}</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             onPress={handleGoogleLogin}
@@ -294,6 +329,28 @@ const styles = StyleSheet.create({
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.textTertiary,
     marginHorizontal: SPACING.md,
+  },
+  appleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#000000",
+    borderRadius: RADIUS.lg,
+    height: SIZES.buttonHeight,
+    marginTop: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+  },
+  appleIcon: {
+    fontSize: 20,
+    color: "#FFFFFF",
+    marginRight: SPACING.sm,
+    lineHeight: 24,
+  },
+  appleButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#FFFFFF",
+    fontFamily: "Poppins-Medium",
   },
   googleButton: {
     flexDirection: "row",

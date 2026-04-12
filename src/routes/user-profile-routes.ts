@@ -5,13 +5,11 @@
 
 import {
   createAuthMiddleware,
-  createOptionalAuthMiddleware,
   AuthContext,
 } from '../middlewares/auth';
 
 export function createUserProfileRoutes(strapi: any): any[] {
   const authMiddleware = createAuthMiddleware(strapi);
-  const optionalAuth = createOptionalAuthMiddleware(strapi);
 
   return [
     // Sync profile (requires auth - uses token UID)
@@ -19,14 +17,14 @@ export function createUserProfileRoutes(strapi: any): any[] {
       method: 'POST',
       path: '/api/user-profile/sync',
       handler: [
-        optionalAuth,
+        authMiddleware,
         async (ctx: any) => {
           try {
             const user = ctx.state.user as AuthContext | undefined;
             const body = ctx.request.body || {};
 
-            // Use authenticated UID if available, otherwise from body
-            const firebaseUid = user?.firebaseUid || body.firebaseUid;
+            // Always use authenticated UID from token (never from body)
+            const firebaseUid = user?.firebaseUid;
             const email = user?.email || body.email;
             const { displayName, photoURL } = body;
 
@@ -179,6 +177,37 @@ export function createUserProfileRoutes(strapi: any): any[] {
           } catch (error: any) {
             strapi.log.error('Error updating stats:', error);
             ctx.internalServerError('Failed to update stats');
+          }
+        },
+      ],
+      config: { auth: false },
+    },
+
+    // Delete own account (requires auth)
+    {
+      method: 'DELETE',
+      path: '/api/user-profile/me',
+      handler: [
+        authMiddleware,
+        async (ctx: any) => {
+          try {
+            const user = ctx.state.user as AuthContext;
+
+            const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
+              where: { firebaseUid: user.firebaseUid },
+            });
+
+            if (profile) {
+              await strapi.db.query('api::user-profile.user-profile').delete({
+                where: { id: profile.id },
+              });
+              strapi.log.info(`Deleted user profile for ${user.firebaseUid}`);
+            }
+
+            ctx.body = { success: true };
+          } catch (error: any) {
+            strapi.log.error('Error deleting user profile:', error);
+            ctx.internalServerError('Failed to delete user profile');
           }
         },
       ],

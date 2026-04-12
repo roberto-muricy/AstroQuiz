@@ -31,7 +31,9 @@
     "incorrectTitle": "Wrong Answer",
     "pointsEarned": "points",
     "exitTitle": "Exit Quiz",
-    "exitMessage": "Are you sure you want to exit? Your progress will be lost."
+    "exitMessage": "Are you sure you want to exit? Your progress will be lost.",
+    "exitConfirm": "Exit",
+    "explanation": "Explanation"
   },
   "result": {
     "perfect": "Perfect!",
@@ -117,11 +119,14 @@
     "createAccountCta": "Create account",
     "or": "or",
     "loginWithGoogle": "Continue with Google",
+    "loginWithApple": "Continue with Apple",
     "syncHelper": "Your local progress will be synced automatically.",
     "readyToLaunch": "Ready to launch? 🚀",
     "errors": {
       "googleLoginFailed": "Could not sign in with Google.",
       "googleLoginUnexpected": "Unexpected error signing in with Google.",
+      "appleLoginFailed": "Could not sign in with Apple.",
+      "appleLoginUnexpected": "Unexpected error signing in with Apple.",
       "fillEmailPassword": "Please enter email and password.",
       "authFailed": "Could not authenticate.",
       "authUnexpected": "Unexpected error while authenticating."
@@ -135,6 +140,9 @@
     "requiresAccuracy": "Requires {{accuracy}}% accuracy in the previous phase",
     "phaseInfo": "10 questions • {{seconds}}s each",
     "preparing": "Preparing quiz...",
+    "connectingServer": "Connecting to server...",
+    "wakingUpServer": "Waking up server...",
+    "retrying": "Reconnecting...",
     "tiers": {
       "beginner": "Beginner",
       "novice": "Novice",
@@ -172,7 +180,11 @@
     "correctAnswers": "Correct Answers",
     "accuracy": "Accuracy",
     "bestStreak": "Best Streak",
-    "timePlayed": "Time Played"
+    "timePlayed": "Time Played",
+    "xpToRank": "{{xp}} XP to {{rank}}",
+    "startQuiz": "Start Now",
+    "unlockAchievements": "Complete your first quiz to unlock achievements!",
+    "phasesWithPerfect": "{{count}} phase(s) with 100% accuracy"
   },
   "profile": {
     "title": "Profile",
@@ -192,6 +204,11 @@
     "progressSavedLocally": "Your progress is saved locally. Sign in to sync to the cloud and access it from any device.",
     "logoutConfirmTitle": "Logout",
     "logoutConfirmMessage": "Do you really want to logout?",
+    "deleteAccount": "Delete Account",
+    "deleteAccountConfirmTitle": "Delete Account",
+    "deleteAccountConfirmMessage": "Are you sure you want to delete your account? All data will be permanently lost.",
+    "deleteAccountError": "Could not delete account. Please try again.",
+    "deleteAccountReauthError": "For security, sign out and sign in again before deleting your account.",
     "guest": "Guest",
     "level": "Level",
     "about": "About",
@@ -204,11 +221,84 @@
     "unlocked": "Unlocked!",
     "locked": "Locked"
   },
+  "ranks": {
+    "beginner": "Beginner",
+    "rookie": "Space Rookie",
+    "apprentice": "Apprentice",
+    "cadet": "Cadet",
+    "explorer": "Explorer",
+    "challenger": "Challenger",
+    "navigator": "Navigator",
+    "specialist": "Specialist",
+    "commander": "Commander",
+    "elite": "Elite"
+  },
   "errors": {
     "loadingFailed": "Failed to load data",
     "connectionError": "Connection error",
     "tryAgainLater": "Please try again later",
     "quizStartError": "Could not start quiz.",
     "nextPhaseError": "Could not start next phase."
+  },
+  "ads": {
+    "skipQuestion": "Skip Question",
+    "continueGame": "Continue",
+    "seeCuriosity": "See Fun Fact",
+    "watchAdToSkip": "Watch to skip",
+    "watchAdToContinue": "Watch to continue",
+    "watchAdForCuriosity": "Watch for explanation",
+    "adLoading": "Loading...",
+    "adError": "Failed to load ad",
+    "adNotAvailable": "Ad not available",
+    "dailyLimitReached": "Daily limit reached",
+    "skipsRemaining": "{{count}} skips remaining today",
+    "continuesRemaining": "{{count}} continues remaining today",
+    "curiositiesRemaining": "{{count}} fun facts remaining today",
+    "unlimitedWithPro": "Unlimited with Pro",
+    "continueModalTitle": "Game Over!",
+    "continueModalMessage": "You can continue by watching a video or end the quiz.",
+    "continueModalWatch": "Watch & Continue",
+    "continueModalEnd": "End Quiz",
+    "curiosityModalTitle": "Fun Fact",
+    "curiosityModalClose": "Got it!",
+    "skipUsed": "Question skipped!",
+    "noExplanation": "No explanation available for this question."
+  },
+  "subscription": {
+    "title": "AstroQuiz Pro",
+    "subtitle": "Unlock the full potential of AstroQuiz",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "month": "month",
+    "year": "year",
+    "bestValue": "Best Value",
+    "save": "Save {{percent}}%",
+    "subscribe": "Subscribe Now",
+    "restore": "Restore Purchase",
+    "successTitle": "Congratulations!",
+    "successMessage": "You are now a Pro subscriber!",
+    "restoreSuccessTitle": "Purchase Restored",
+    "restoreSuccessMessage": "Your Pro subscription has been successfully restored!",
+    "purchaseError": "Could not complete the purchase. Please try again.",
+    "restoreError": "Could not restore purchase. Please try again.",
+    "noSubscriptionFound": "No subscription found to restore.",
+    "legalText": "Payment will be charged to your iTunes account. Subscription automatically renews unless canceled at least 24 hours before the end of the current period.",
+    "comingSoon": "Coming soon",
+    "benefits": {
+      "noAds": "No Ads",
+      "unlimitedSkips": "Unlimited Skips",
+      "unlimitedContinues": "Unlimited Continues",
+      "unlimitedCuriosities": "Unlimited Fun Facts",
+      "exclusiveThemes": "Exclusive Themes",
+      "advancedStats": "Advanced Stats"
+    },
+    "status": {
+      "active": "Active",
+      "expired": "Expired",
+      "currentPlan": "Current Plan",
+      "renewsOn": "Renews on {{date}}",
+      "expiresOn": "Expires on {{date}}",
+      "manageSubscription": "Manage Subscription"
+    }
   }
 }

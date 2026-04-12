@@ -15,15 +15,19 @@ import { changeLanguage } from "@/i18n";
 import { setSentryUser } from "@/config/sentry";
 import analyticsService from "@/services/analyticsService";
 
+type AuthResponse = { ok: true } | { ok: false; message: string };
+
 interface AppContextData {
   // User state
   user: User | null;
   setUser: (user: User | null) => void;
   isAuthenticated: boolean;
-  signInWithGoogle: () => Promise<{ ok: true } | { ok: false; message: string }>;
-  signInWithEmail: (email: string, password: string) => Promise<{ ok: boolean; message?: string }>;
-  signUpWithEmail: (email: string, password: string) => Promise<{ ok: boolean; message?: string }>;
+  signInWithGoogle: () => Promise<AuthResponse>;
+  signInWithApple: () => Promise<AuthResponse>;
+  signInWithEmail: (email: string, password: string) => Promise<AuthResponse>;
+  signUpWithEmail: (email: string, password: string) => Promise<AuthResponse>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 
   // Quiz state
   currentSession: QuizSession | null;
@@ -54,8 +58,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     null
   );
   const [gameRules, setGameRules] = useState<GameRules | null>(null);
-  const [locale, setLocale] = useState<string>("pt");
+  const [locale, setLocaleState] = useState<string>("pt");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const localeLoadedRef = React.useRef(false);
 
   // Carregar dados ao iniciar o app
   useEffect(() => {
@@ -80,8 +85,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       } else {
-        // Criar usuário anônimo com ID único persistente
-        // Progresso salva localmente e migra quando fizer login
         const anonId = generateAnonymousId();
         const anonUser: User = {
           id: anonId,
@@ -103,8 +106,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       // Carregar locale salvo
       const savedLocale = await AsyncStorage.getItem("@locale");
       if (savedLocale) {
-        setLocale(savedLocale);
+        setLocaleState(savedLocale);
+        changeLanguage(savedLocale);
       }
+      localeLoadedRef.current = true;
 
       // Carregar sessão ativa
       const savedSession = await AsyncStorage.getItem("@current_session");
@@ -118,7 +123,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       });
     } catch (error) {
       console.error("Erro ao carregar dados iniciais:", error);
-      // Criar usuário mock em caso de erro
       const mockUser: User = {
         id: "guest",
         name: "Astronauta",
@@ -146,7 +150,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       const rules = await quizService.getGameRules();
       setGameRules(rules);
     } catch (error) {
-      // Log leve para evitar tela vermelha quando estiver offline
       console.log("⚠️ Erro ao carregar regras (offline?):", (error as any)?.message || error);
     }
   };
@@ -157,13 +160,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     if (user) {
       AsyncStorage.setItem("@user", JSON.stringify(user));
-      // Atualiza contexto do Sentry para crash reporting
       setSentryUser({
         id: user.id,
         email: user.email,
         name: user.name,
       });
-      // Atualiza Analytics
       analyticsService.setUserId(user.id);
       analyticsService.setUserProperties({
         user_level: String(user.level || 1),
@@ -177,12 +178,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   }, [user]);
 
   /**
-   * Salvar locale no storage e sincronizar com i18n
+   * Função para mudar o locale (salva no storage e sincroniza i18n)
    */
-  useEffect(() => {
-    AsyncStorage.setItem("@locale", locale);
-    changeLanguage(locale); // Sincroniza i18n com o locale do contexto
-  }, [locale]);
+  const setLocale = (newLocale: string) => {
+    setLocaleState(newLocale);
+    AsyncStorage.setItem("@locale", newLocale);
+    changeLanguage(newLocale);
+  };
 
   /**
    * Salvar sessão no storage
@@ -215,11 +217,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         fbUser.photoURL
       );
 
-      // Merge local stats with server stats
       const localProgress = await ProgressStorage.getProgress();
       const mergedStats = strapiSyncService.mergeStats(localProgress.stats, serverProfile);
 
-      // Update local storage with merged data
       await ProgressStorage.saveProgress({
         ...localProgress,
         stats: mergedStats,
@@ -228,7 +228,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.log('✅ User synced with Strapi');
     } catch (error) {
       console.warn('⚠️ Could not sync with Strapi, continuing with local data:', error);
-      // Non-blocking: user can still play even if sync fails
     }
 
     const nextUser: User = {
@@ -252,13 +251,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   /**
    * Login com Google (Firebase Auth)
    */
-  const signInWithGoogle = useCallback(async (): Promise<{ ok: boolean; message?: string }> => {
+  const signInWithGoogle = useCallback(async (): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
       const result = await authService.signInWithGoogle();
       if (!result.ok) {
         console.log("❌ Google login failed:", result);
-        return { ok: false, message: result.message };
+        return { ok: false, message: 'message' in result ? result.message : 'Erro desconhecido' };
       }
 
       const fbUser = authService.getCurrentUser();
@@ -272,11 +271,33 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [handleFirebaseUser]);
 
-  const signInWithEmail = useCallback(async (email: string, password: string) => {
+  /**
+   * Login com Apple (Firebase Auth)
+   */
+  const signInWithApple = useCallback(async (): Promise<AuthResponse> => {
+    setIsLoading(true);
+    try {
+      const result = await authService.signInWithApple();
+      if (!result.ok) {
+        return { ok: false, message: 'message' in result ? result.message : 'Erro desconhecido' };
+      }
+
+      const fbUser = authService.getCurrentUser();
+      if (!fbUser) return { ok: false, message: 'Firebase não retornou usuário após o login.' };
+
+      await handleFirebaseUser(fbUser);
+      analyticsService.logLogin('apple');
+      return { ok: true };
+    } finally {
+      setIsLoading(false);
+    }
+  }, [handleFirebaseUser]);
+
+  const signInWithEmail = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
       const result = await authService.signInWithEmail(email, password);
-      if (!result.ok) return { ok: false, message: result.message };
+      if (!result.ok) return { ok: false, message: 'message' in result ? result.message : 'Erro ao entrar' };
 
       const fbUser = authService.getCurrentUser();
       if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após o login." };
@@ -289,11 +310,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [handleFirebaseUser]);
 
-  const signUpWithEmail = useCallback(async (email: string, password: string) => {
+  const signUpWithEmail = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
     setIsLoading(true);
     try {
       const result = await authService.signUpWithEmail(email, password);
-      if (!result.ok) return { ok: false, message: result.message };
+      if (!result.ok) return { ok: false, message: 'message' in result ? result.message : 'Erro ao criar conta' };
 
       const fbUser = authService.getCurrentUser();
       if (!fbUser) return { ok: false, message: "Firebase não retornou usuário após criar a conta." };
@@ -305,6 +326,42 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setIsLoading(false);
     }
   }, [handleFirebaseUser]);
+
+  /**
+   * Excluir conta - remove dados do backend e deleta usuário no Firebase
+   */
+  const deleteAccount = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Deletar dados do perfil no Strapi backend
+      try {
+        await api.delete('/user-profile/me');
+      } catch (backendError) {
+        console.warn('⚠️ Could not delete backend profile:', backendError);
+      }
+
+      // Deletar usuário no Firebase Auth
+      await authService.deleteAccount();
+      await api.clearAuthToken();
+
+      // Limpar estado local (volta para usuário anônimo)
+      setUser({
+        id: 'guest',
+        name: 'Astronauta',
+        email: 'guest@astroquiz.com',
+        level: 1,
+        xp: 0,
+        totalXP: 0,
+        streak: 0,
+        avatarUrl: null,
+        locale: locale || 'pt',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [locale]);
 
   /**
    * Logout
@@ -340,9 +397,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setUser,
     isAuthenticated,
     signInWithGoogle,
+    signInWithApple,
     signInWithEmail,
     signUpWithEmail,
     signOut,
+    deleteAccount,
     currentSession,
     setCurrentSession,
     gameRules,
@@ -352,7 +411,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     isLoading,
     setIsLoading,
   }), [user, isAuthenticated, currentSession, gameRules, locale, isLoading,
-       signInWithGoogle, signInWithEmail, signUpWithEmail, signOut]);
+       signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, signOut, deleteAccount]);
 
   return (
     <AppContext.Provider value={contextValue}>

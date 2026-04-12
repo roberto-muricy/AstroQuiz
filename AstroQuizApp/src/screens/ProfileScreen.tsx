@@ -3,26 +3,27 @@
  * Tela de perfil do usuário
  */
 
-import { Button, Card } from '@/components';
+import { Button, Card, Toast } from '@/components';
 import { useApp } from '@/contexts/AppContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import soundService from '@/services/soundService';
 import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
 import { ProgressStorage } from '@/utils/progressStorage';
-import { achievements, getPlayerLevel } from '@/utils/progressionSystem';
-import React, { useState, useEffect } from 'react';
+import { getPlayerLevel } from '@/utils/progressionSystem';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
+import { Alert, Animated, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '@/constants/design-system';
+import { Crown, Sparkles, ChevronRight } from 'lucide-react-native';
 import {
   SoundOnIcon,
   VibrateIcon,
   MusicIcon,
   BellOnIcon,
-  TrophyIcon,
   LockIcon,
   InfoIcon,
   RocketIcon,
@@ -34,8 +35,21 @@ type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
 export const ProfileScreen = () => {
   const navigation = useNavigation<ProfileNav>();
-  const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, isLoading } = useApp();
+  const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, deleteAccount, isLoading } = useApp();
+  const { isPro } = useSubscription();
   const { t } = useTranslation();
+  const proGlowAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!isPro) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(proGlowAnim, { toValue: 1, duration: 1500, useNativeDriver: false }),
+          Animated.timing(proGlowAnim, { toValue: 0, duration: 1500, useNativeDriver: false }),
+        ])
+      ).start();
+    }
+  }, [isPro, proGlowAnim]);
   const [settings, setSettings] = useState<AppSettings>({
     soundEnabled: true,
     vibrationEnabled: true,
@@ -43,12 +57,13 @@ export const ProfileScreen = () => {
     notificationsEnabled: true,
     language: 'pt',
   });
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [totalXP, setTotalXP] = useState(0);
   const [authBusy, setAuthBusy] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [phasesCompleted, setPhasesCompleted] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
     loadSettings();
@@ -62,7 +77,6 @@ export const ProfileScreen = () => {
 
   const loadProgress = async () => {
     const progress = await ProgressStorage.getProgress();
-    setUnlockedAchievements(progress.stats.achievements || []);
     setTotalXP(progress.stats.totalXP || 0);
     setPhasesCompleted(progress.stats.phasesCompleted || 0);
     setMaxStreak(progress.stats.maxStreak || 0);
@@ -89,7 +103,8 @@ export const ProfileScreen = () => {
     // Delay para pegar a tradução nova após mudar o locale
     setTimeout(() => {
       const langName = languages.find(l => l.code === newLocale)?.name || newLocale;
-      Alert.alert(t('profile.languageChanged'), t('profile.languageChangedTo', { lang: langName }));
+      setToastMessage(t('profile.languageChangedTo', { lang: langName }));
+      setToastVisible(true);
     }, 100);
   };
 
@@ -105,6 +120,36 @@ export const ProfileScreen = () => {
     } finally {
       setAuthBusy(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      t('profile.deleteAccountConfirmTitle'),
+      t('profile.deleteAccountConfirmMessage'),
+      [
+        { text: t('common.cancel') || 'Cancelar', style: 'cancel' },
+        {
+          text: t('profile.deleteAccount'),
+          style: 'destructive',
+          onPress: async () => {
+            setAuthBusy(true);
+            try {
+              await deleteAccount();
+            } catch (err: any) {
+              const isReauthError = err?.code === 'auth/requires-recent-login';
+              Alert.alert(
+                'Erro',
+                isReauthError
+                  ? t('profile.deleteAccountReauthError')
+                  : t('profile.deleteAccountError'),
+              );
+            } finally {
+              setAuthBusy(false);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleToggleSound = async (value: boolean) => {
@@ -136,6 +181,12 @@ export const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Toast
+        visible={toastVisible}
+        message={toastMessage}
+        type="success"
+        onHide={() => setToastVisible(false)}
+      />
       <ScrollView 
         style={styles.scrollView} 
         contentContainerStyle={styles.content}
@@ -146,7 +197,7 @@ export const ProfileScreen = () => {
         <View style={styles.profileHeader}>
           <View style={styles.avatar}>
             {user?.avatarUrl ? (
-              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage} />
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatarImage as any} />
             ) : (
               <RocketIcon size={48} color={IconColors.primary} />
             )}
@@ -172,6 +223,46 @@ export const ProfileScreen = () => {
           </View>
         </View>
 
+        {/* Pro Banner */}
+        {!isPro && (
+          <TouchableOpacity
+            style={styles.proBanner}
+            onPress={() => {
+              soundService.playTap();
+              navigation.navigate('Upgrade');
+            }}
+            activeOpacity={0.85}
+          >
+            <View style={styles.proBannerLeft}>
+              <View style={styles.proCrownContainer}>
+                <Crown size={24} color="#FFD700" fill="#FFD700" />
+                <Sparkles size={14} color="#FFA726" style={{ position: 'absolute', top: -4, right: -6 }} />
+              </View>
+              <View style={styles.proBannerText}>
+                <Text style={styles.proBannerTitle}>{t('subscription.title')}</Text>
+                <Text style={styles.proBannerSubtitle}>{t('subscription.benefits.noAds')} • {t('subscription.benefits.unlimitedSkips')}</Text>
+              </View>
+            </View>
+            <ChevronRight size={20} color="#FFA726" />
+          </TouchableOpacity>
+        )}
+
+        {/* Pro Status (se já é Pro) */}
+        {isPro && (
+          <TouchableOpacity
+            style={styles.proStatusBanner}
+            onPress={() => {
+              soundService.playTap();
+              navigation.navigate('Upgrade');
+            }}
+            activeOpacity={0.85}
+          >
+            <Crown size={20} color="#FFD700" fill="#FFD700" />
+            <Text style={styles.proStatusText}>{t('subscription.title')} — {t('subscription.status.active')}</Text>
+            <Text style={styles.proManageText}>{t('subscription.status.manageSubscription')}</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Conta / Login */}
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>{t('profile.accountTitle')}</Text>
@@ -183,12 +274,21 @@ export const ProfileScreen = () => {
 
           <View style={styles.accountButtons}>
             {isAuthenticated ? (
-              <Button
-                title={t('profile.logout')}
-                variant="danger"
-                onPress={handleLogout}
-                loading={authBusy || isLoading}
-              />
+              <>
+                <Button
+                  title={t('profile.logout')}
+                  variant="danger"
+                  onPress={handleLogout}
+                  loading={authBusy || isLoading}
+                />
+                <Button
+                  title={t('profile.deleteAccount')}
+                  variant="ghost"
+                  onPress={handleDeleteAccount}
+                  loading={authBusy || isLoading}
+                  style={styles.deleteAccountButton}
+                />
+              </>
             ) : (
               <Button
                 title={t('profile.loginOrCreate')}
@@ -196,66 +296,6 @@ export const ProfileScreen = () => {
                 loading={authBusy || isLoading}
               />
             )}
-          </View>
-        </Card>
-
-        {/* Conquistas */}
-        <Card style={styles.card}>
-          <View style={styles.sectionHeaderRow}>
-            <View style={styles.sectionTitleRow}>
-              <TrophyIcon size={IconSizes.md} color={IconColors.gold} />
-              <Text style={styles.sectionTitle}>{t('achievements.title')}</Text>
-            </View>
-            <Text style={styles.achievementCount}>
-              {unlockedAchievements.length}/{achievements.length}
-            </Text>
-          </View>
-          
-          <View style={styles.achievementsList}>
-            {achievements.map(achievement => {
-              const isUnlocked = unlockedAchievements.includes(achievement.id);
-              
-              return (
-                <View
-                  key={achievement.id}
-                  style={[
-                    styles.achievementItem,
-                    !isUnlocked && styles.achievementLocked,
-                  ]}
-                >
-                  <View style={styles.achievementIcon}>
-                    {isUnlocked ? (
-                      <Text style={styles.achievementIconText}>{achievement.icon}</Text>
-                    ) : (
-                      <LockIcon size={IconSizes.lg} color={IconColors.muted} />
-                    )}
-                  </View>
-                  <View style={styles.achievementInfo}>
-                    <Text
-                      style={[
-                        styles.achievementName,
-                        !isUnlocked && styles.achievementTextLocked,
-                      ]}
-                    >
-                      {isUnlocked ? achievement.name : '???'}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.achievementDescription,
-                        !isUnlocked && styles.achievementTextLocked,
-                      ]}
-                    >
-                      {isUnlocked ? achievement.description : t('achievements.locked')}
-                    </Text>
-                  </View>
-                  {isUnlocked && (
-                    <View style={styles.achievementXP}>
-                      <Text style={styles.achievementXPText}>+{achievement.xpReward}</Text>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
           </View>
         </Card>
 
@@ -293,14 +333,16 @@ export const ProfileScreen = () => {
               </View>
               <Text style={styles.settingText}>{t('profile.sound')}</Text>
             </View>
-            <Switch
-              value={settings.soundEnabled}
-              onValueChange={handleToggleSound}
-              trackColor={{ false: '#767577', true: '#4CAF50' }}
-              thumbColor={settings.soundEnabled ? '#FFFFFF' : '#f4f3f4'}
-              ios_backgroundColor="#767577"
-              style={styles.switch}
-            />
+            <View style={styles.switchContainer}>
+              <Switch
+                value={settings.soundEnabled}
+                onValueChange={handleToggleSound}
+                trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
+                thumbColor="#FFFFFF"
+                ios_backgroundColor="#3A3A3C"
+                style={styles.switch}
+              />
+            </View>
           </View>
 
           <View style={styles.settingItem}>
@@ -310,14 +352,16 @@ export const ProfileScreen = () => {
               </View>
               <Text style={styles.settingText}>{t('profile.vibration')}</Text>
             </View>
-            <Switch
-              value={settings.vibrationEnabled}
-              onValueChange={handleToggleVibration}
-              trackColor={{ false: '#767577', true: '#4CAF50' }}
-              thumbColor={settings.vibrationEnabled ? '#FFFFFF' : '#f4f3f4'}
-              ios_backgroundColor="#767577"
-              style={styles.switch}
-            />
+            <View style={styles.switchContainer}>
+              <Switch
+                value={settings.vibrationEnabled}
+                onValueChange={handleToggleVibration}
+                trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
+                thumbColor="#FFFFFF"
+                ios_backgroundColor="#3A3A3C"
+                style={styles.switch}
+              />
+            </View>
           </View>
 
           <View style={styles.settingItem}>
@@ -327,14 +371,16 @@ export const ProfileScreen = () => {
               </View>
               <Text style={styles.settingText}>{t('profile.music')}</Text>
             </View>
-            <Switch
-              value={settings.musicEnabled}
-              onValueChange={handleToggleMusic}
-              trackColor={{ false: '#767577', true: '#4CAF50' }}
-              thumbColor={settings.musicEnabled ? '#FFFFFF' : '#f4f3f4'}
-              ios_backgroundColor="#767577"
-              style={styles.switch}
-            />
+            <View style={styles.switchContainer}>
+              <Switch
+                value={settings.musicEnabled}
+                onValueChange={handleToggleMusic}
+                trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
+                thumbColor="#FFFFFF"
+                ios_backgroundColor="#3A3A3C"
+                style={styles.switch}
+              />
+            </View>
           </View>
 
           <View style={styles.settingItem}>
@@ -344,14 +390,16 @@ export const ProfileScreen = () => {
               </View>
               <Text style={styles.settingText}>{t('profile.notifications')}</Text>
             </View>
-            <Switch
-              value={settings.notificationsEnabled}
-              onValueChange={handleToggleNotifications}
-              trackColor={{ false: '#767577', true: '#4CAF50' }}
-              thumbColor={settings.notificationsEnabled ? '#FFFFFF' : '#f4f3f4'}
-              ios_backgroundColor="#767577"
-              style={styles.switch}
-            />
+            <View style={styles.switchContainer}>
+              <Switch
+                value={settings.notificationsEnabled}
+                onValueChange={handleToggleNotifications}
+                trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
+                thumbColor="#FFFFFF"
+                ios_backgroundColor="#3A3A3C"
+                style={styles.switch}
+              />
+            </View>
           </View>
         </Card>
 
@@ -430,6 +478,10 @@ const styles = StyleSheet.create({
   },
   accountButtons: {
     marginTop: 16,
+    gap: 8,
+  },
+  deleteAccountButton: {
+    marginTop: 4,
   },
   avatar: {
     width: 100,
@@ -445,7 +497,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    overflow: 'hidden',
   },
   levelBadge: {
     position: 'absolute',
@@ -498,6 +549,69 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
     fontFamily: 'Poppins-Regular',
   },
+  proBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 167, 38, 0.12)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 167, 38, 0.4)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 8,
+  },
+  proBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  proCrownContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  proBannerText: {
+    flex: 1,
+  },
+  proBannerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#FFD700',
+    fontFamily: 'Poppins-Bold',
+  },
+  proBannerSubtitle: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontFamily: 'Poppins-Regular',
+    marginTop: 2,
+  },
+  proStatusBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.12)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(76, 175, 80, 0.4)',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 8,
+    gap: 8,
+  },
+  proStatusText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4CAF50',
+    fontFamily: 'Poppins-SemiBold',
+    flex: 1,
+  },
+  proManageText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontFamily: 'Poppins-Regular',
+  },
   card: {
     marginTop: 16,
   },
@@ -507,81 +621,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
     marginBottom: 16,
-  },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  achievementCount: {
-    fontSize: 16,
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
-  },
-  achievementsList: {
-    gap: 12,
-  },
-  achievementItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: 'rgba(255, 167, 38, 0.1)',
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#FFA726',
-  },
-  achievementLocked: {
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    opacity: 0.5,
-  },
-  achievementIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  achievementIconText: {
-    fontSize: 24,
-  },
-  achievementInfo: {
-    flex: 1,
-  },
-  achievementName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    fontFamily: 'Poppins-Bold',
-    marginBottom: 2,
-  },
-  achievementDescription: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontFamily: 'Poppins-Regular',
-  },
-  achievementTextLocked: {
-    color: 'rgba(255, 255, 255, 0.4)',
-  },
-  achievementXP: {
-    backgroundColor: 'rgba(255, 167, 38, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  achievementXPText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFA726',
-    fontFamily: 'Poppins-Bold',
   },
   languageList: {
     gap: 12,
@@ -646,8 +685,14 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
     fontFamily: 'Poppins-Regular',
   },
+  switchContainer: {
+    width: 51,
+    height: 31,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   switch: {
-    marginRight: -8,
+    transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }],
   },
   logoutButton: {
     marginTop: 32,

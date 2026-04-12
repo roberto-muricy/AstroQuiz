@@ -1,9 +1,14 @@
 /**
  * Debug Routes
  * Endpoints for debugging configuration issues
+ * DISABLED in production for security
  */
 
 export function createDebugRoutes(strapi: any): any[] {
+  if (process.env.NODE_ENV === 'production') {
+    return [];
+  }
+
   return [
     // Check upload/Cloudinary configuration
     {

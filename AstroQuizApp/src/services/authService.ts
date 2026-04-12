@@ -9,6 +9,7 @@
  */
 import auth from '@react-native-firebase/auth';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import appleAuth from '@invertase/react-native-apple-authentication';
 import { Platform } from 'react-native';
 
 const GOOGLE_WEB_CLIENT_ID =
@@ -53,7 +54,8 @@ class AuthService {
       const result = await GoogleSignin.signIn();
       console.log('🔍 Google Sign-In result:', JSON.stringify(result, null, 2));
 
-      const idToken = result.idToken || result.data?.idToken;
+      // Handle both old and new API signatures
+      const idToken = (result as any).idToken || (result as any).data?.idToken;
       if (!idToken) {
         console.error('❌ No idToken in result:', result);
         return { ok: false, code: 'NO_ID_TOKEN', message: 'Google não retornou idToken.' };
@@ -87,6 +89,39 @@ class AuthService {
           (typeof code === 'string' ? `Erro Google Sign-In (${code}).` : 'Erro desconhecido ao autenticar com Google.'),
       };
     }
+  }
+
+  async signInWithApple(): Promise<AuthResult> {
+    try {
+      const appleAuthResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+      });
+
+      if (!appleAuthResponse.identityToken) {
+        return { ok: false, code: 'NO_ID_TOKEN', message: 'Apple não retornou identityToken.' };
+      }
+
+      const { identityToken, nonce } = appleAuthResponse;
+      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
+      await auth().signInWithCredential(appleCredential);
+      return { ok: true };
+    } catch (e: any) {
+      if (e?.code === appleAuth.Error.CANCELED) {
+        return { ok: false, code: 'CANCELLED', message: 'Login cancelado.' };
+      }
+      return {
+        ok: false,
+        code: 'UNKNOWN',
+        message: e?.message || 'Erro desconhecido ao autenticar com Apple.',
+      };
+    }
+  }
+
+  async deleteAccount(): Promise<void> {
+    const user = auth().currentUser;
+    if (!user) throw new Error('Nenhum usuário autenticado.');
+    await user.delete();
   }
 
   async signOut() {
