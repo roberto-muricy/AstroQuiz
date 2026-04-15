@@ -78,6 +78,9 @@ class ApiService {
       },
     });
 
+    // Remove legacy plain-text token from previous app versions.
+    AsyncStorage.removeItem('@auth_token').catch(() => {});
+
     // Interceptor para adicionar token
     this.api.interceptors.request.use(
       async config => {
@@ -89,18 +92,19 @@ class ApiService {
           config.baseURL = resolvedBaseUrl;
         }
 
-        // Tentar carregar token na hora da requisição
+        // Buscar token diretamente do Firebase Auth (persistido pelo SDK
+        // nativo via Keychain/EncryptedSharedPreferences). Em memória apenas.
         if (!this.authToken) {
           try {
-            const token = await AsyncStorage.getItem('@auth_token');
-            if (token) {
-              this.authToken = token;
+            const fbUser = auth().currentUser;
+            if (fbUser) {
+              this.authToken = await fbUser.getIdToken();
             }
-          } catch (err) {
-            console.log('Token não carregado');
+          } catch {
+            // sem token: segue como guest
           }
         }
-        
+
         if (this.authToken) {
           config.headers.Authorization = `Bearer ${this.authToken}`;
         }
@@ -122,10 +126,9 @@ class ApiService {
           try {
             const user = auth().currentUser;
             if (user) {
-              // Força refresh do token Firebase
+              // Força refresh do token Firebase (persistido em memória)
               const newToken = await user.getIdToken(true);
               this.authToken = newToken;
-              await AsyncStorage.setItem('@auth_token', newToken);
 
               if (__DEV__) {
                 console.log('🔄 Token refreshed automatically');
@@ -181,19 +184,17 @@ class ApiService {
 
 
   /**
-   * Salvar token de autenticação
+   * Cachear token de autenticação em memória (Firebase persiste nativamente).
    */
-  async setAuthToken(token: string) {
+  setAuthToken(token: string) {
     this.authToken = token;
-    await AsyncStorage.setItem('@auth_token', token);
   }
 
   /**
-   * Remover token de autenticação
+   * Limpar token cacheado em memória.
    */
-  async clearAuthToken() {
+  clearAuthToken() {
     this.authToken = null;
-    await AsyncStorage.removeItem('@auth_token');
   }
 
   /**

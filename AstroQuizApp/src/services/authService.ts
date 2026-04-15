@@ -52,12 +52,13 @@ class AuthService {
         await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       }
       const result = await GoogleSignin.signIn();
-      console.log('🔍 Google Sign-In result:', JSON.stringify(result, null, 2));
 
       // Handle both old and new API signatures
       const idToken = (result as any).idToken || (result as any).data?.idToken;
       if (!idToken) {
-        console.error('❌ No idToken in result:', result);
+        if (__DEV__) {
+          console.error('❌ Google Sign-In returned no idToken');
+        }
         return { ok: false, code: 'NO_ID_TOKEN', message: 'Google não retornou idToken.' };
       }
 

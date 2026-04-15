@@ -59,9 +59,7 @@ export function createUserProfileRoutes(strapi: any): any[] {
                 },
               });
 
-              strapi.log.info(
-                `Created new user profile for ${displayName} (${firebaseUid})`
-              );
+              strapi.log.info('Created new user profile');
             } else {
               // Check if blocked
               if (profile.isBlocked) {
@@ -78,7 +76,7 @@ export function createUserProfileRoutes(strapi: any): any[] {
                 },
               });
 
-              strapi.log.info(`Synced user profile for ${displayName} (${firebaseUid})`);
+              strapi.log.info('Synced user profile');
             }
 
             ctx.body = { success: true, data: profile };
@@ -172,7 +170,7 @@ export function createUserProfileRoutes(strapi: any): any[] {
                 },
               });
 
-            strapi.log.info(`Updated stats for ${firebaseUid}`);
+            strapi.log.info('Updated user stats');
             ctx.body = { success: true, data: updatedProfile };
           } catch (error: any) {
             strapi.log.error('Error updating stats:', error);
@@ -201,7 +199,7 @@ export function createUserProfileRoutes(strapi: any): any[] {
               await strapi.db.query('api::user-profile.user-profile').delete({
                 where: { id: profile.id },
               });
-              strapi.log.info(`Deleted user profile for ${user.firebaseUid}`);
+              strapi.log.info('Deleted user profile');
             }
 
             ctx.body = { success: true };
