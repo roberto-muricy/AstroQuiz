@@ -44,11 +44,15 @@ target 'AstroQuizApp' do
       :mac_catalyst_enabled => false
     )
     
-    # Fix deployment target for all pods
+    # Fix deployment target for all pods + ensure dSYM for hermes
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
         if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+        end
+        # Ensure dSYM is generated for hermes (App Store Connect requires it)
+        if target.name == 'hermes-engine' || target.name.include?('hermes')
+          config.build_settings['DEBUG_INFORMATION_FORMAT'] = 'dwarf-with-dsym'
         end
       end
       
