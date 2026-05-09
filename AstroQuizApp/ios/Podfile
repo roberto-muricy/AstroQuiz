@@ -5,8 +5,8 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-# react-native-firebase v23+ requires iOS 15.0+ (see @react-native-firebase/app sdkVersions.ios.iosTarget).
-platform :ios, '15.0'
+# React Native 0.81+ and react-native-screens 4.23+ require iOS 16.0+
+platform :ios, '16.0'
 prepare_react_native_project!
 
 # Needed for Firebase Swift pods when integrating as static libraries in React Native projects.
