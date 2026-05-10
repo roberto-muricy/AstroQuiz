@@ -35,7 +35,14 @@
     "exitConfirm": "Sair",
     "explanation": "Explicação",
     "nextQuestion": "Próxima",
-    "timedOut": "Tempo esgotado"
+    "timedOut": "Tempo esgotado",
+    "difficulty": {
+      "1": "Iniciante",
+      "2": "Fácil",
+      "3": "Médio",
+      "4": "Difícil",
+      "5": "Expert"
+    }
   },
   "result": {
     "perfect": "Perfeito!",

@@ -35,7 +35,14 @@
     "exitConfirm": "Exit",
     "explanation": "Explanation",
     "nextQuestion": "Next",
-    "timedOut": "Time's up"
+    "timedOut": "Time's up",
+    "difficulty": {
+      "1": "Beginner",
+      "2": "Easy",
+      "3": "Medium",
+      "4": "Hard",
+      "5": "Expert"
+    }
   },
   "result": {
     "perfect": "Perfect!",

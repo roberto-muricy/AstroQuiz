@@ -7,8 +7,18 @@ import { Question } from '@/types';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Star } from 'lucide-react-native';
 import { Card } from './Card';
 import api from '@/services/api';
+
+// Mapa de cor por nível (verde → vermelho conforme dificuldade aumenta)
+const DIFFICULTY_COLORS: Record<number, { fg: string; bg: string }> = {
+  1: { fg: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' },   // Iniciante - verde
+  2: { fg: '#84CC16', bg: 'rgba(132, 204, 22, 0.15)' },  // Fácil - lime
+  3: { fg: '#EAB308', bg: 'rgba(234, 179, 8, 0.15)' },   // Médio - amarelo
+  4: { fg: '#F97316', bg: 'rgba(249, 115, 22, 0.15)' },  // Difícil - laranja
+  5: { fg: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' },   // Expert - vermelho
+};
 
 interface QuestionCardProps {
   question: Question;
@@ -91,19 +101,34 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     );
   };
 
+  // Clamp level entre 1 e 5 para evitar erros se vier algo fora do range
+  const level = Math.min(5, Math.max(1, question.level || 1));
+  const difficultyColor = DIFFICULTY_COLORS[level];
+  const difficultyLabel = t(`quiz.difficulty.${level}`);
+
   return (
     <Card>
       <View style={styles.header}>
-        <View style={styles.difficulty}>
-          {[1, 2, 3, 4, 5].map(level => (
-            <View
-              key={level}
-              style={[
-                styles.star,
-                level <= question.level && styles.starActive,
-              ]}
-            />
-          ))}
+        <View
+          style={[
+            styles.difficultyBadge,
+            { backgroundColor: difficultyColor.bg, borderColor: difficultyColor.fg },
+          ]}
+        >
+          <View style={styles.difficultyStars}>
+            {[1, 2, 3, 4, 5].map(i => (
+              <Star
+                key={i}
+                size={10}
+                color={difficultyColor.fg}
+                fill={i <= level ? difficultyColor.fg : 'transparent'}
+                strokeWidth={2}
+              />
+            ))}
+          </View>
+          <Text style={[styles.difficultyLabel, { color: difficultyColor.fg }]}>
+            {difficultyLabel}
+          </Text>
         </View>
         <Text style={styles.topic}>{question.topic}</Text>
       </View>
@@ -162,18 +187,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  difficulty: {
+  difficultyBadge: {
     flexDirection: 'row',
-    gap: 4,
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
   },
-  star: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  difficultyStars: {
+    flexDirection: 'row',
+    gap: 1,
   },
-  starActive: {
-    backgroundColor: '#FBF024',
+  difficultyLabel: {
+    fontSize: 11,
+    fontFamily: 'Poppins-Bold',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
   },
   topic: {
     fontSize: 12,
