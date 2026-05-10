@@ -5,9 +5,9 @@
 
 import { Question } from '@/types';
 import React, { useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Star } from 'lucide-react-native';
+import { Check, Star, X } from 'lucide-react-native';
 import { Card } from './Card';
 import api from '@/services/api';
 
@@ -59,29 +59,37 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     const hasCorrect = typeof correctOption !== 'undefined';
     const isCorrect = showResult && hasCorrect && correctOption === option;
     const isWrong = showResult && hasCorrect && isSelected && selectedOption !== correctOption;
+    // Atenua opções "não-suas e não-corretas" quando o resultado é mostrado (estilo Duolingo)
+    const isDimmed = showResult && hasCorrect && !isCorrect && !isWrong;
 
-    // Determinar o ícone a mostrar
+    // Ícone de resultado (Lucide, não unicode)
     let icon = null;
     if (showResult) {
       if (isCorrect) {
-        icon = <Text style={styles.resultIcon}>✓</Text>;
+        icon = <Check size={22} color="#0FB57E" strokeWidth={3} />;
       } else if (isWrong) {
-        icon = <Text style={styles.resultIconWrong}>✗</Text>;
+        icon = <X size={22} color="#DE2F24" strokeWidth={3} />;
       }
     }
 
     return (
-      <TouchableOpacity
+      <Pressable
         key={option}
         onPress={() => !disabled && onSelectOption?.(option)}
         disabled={disabled || showResult}
-        style={[
+        android_ripple={
+          disabled || showResult
+            ? null
+            : { color: 'rgba(255, 167, 38, 0.2)', borderless: false }
+        }
+        style={({ pressed }) => [
           styles.option,
           isSelected && !showResult && styles.optionSelected,
           isCorrect && styles.optionCorrect,
           isWrong && styles.optionWrong,
+          isDimmed && styles.optionDimmed,
+          pressed && Platform.OS === 'ios' && !disabled && !showResult && styles.optionPressed,
         ]}
-        activeOpacity={0.7}
       >
         <View
           style={[
@@ -93,11 +101,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         >
           <Text style={styles.optionLetterText}>{option}</Text>
         </View>
-        <Text style={[styles.optionText, (isCorrect || isWrong) && styles.optionTextBold]}>
+        <Text
+          style={[
+            styles.optionText,
+            (isCorrect || isWrong) && styles.optionTextBold,
+          ]}
+        >
           {text}
         </Text>
         {icon}
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -244,39 +257,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
   options: {
-    gap: 12,
+    gap: 14,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
-    minHeight: 56,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    gap: 12,
   },
   optionSelected: {
     borderColor: '#FFA726',
-    backgroundColor: 'rgba(255, 167, 38, 0.1)',
+    backgroundColor: 'rgba(255, 167, 38, 0.12)',
   },
   optionCorrect: {
     borderColor: '#0FB57E',
-    backgroundColor: 'rgba(15, 181, 126, 0.1)',
+    backgroundColor: 'rgba(15, 181, 126, 0.12)',
   },
   optionWrong: {
     borderColor: '#DE2F24',
-    backgroundColor: 'rgba(222, 47, 36, 0.1)',
+    backgroundColor: 'rgba(222, 47, 36, 0.12)',
+  },
+  // Outras opções (não a sua, não a correta) atenuadas quando o resultado é mostrado
+  optionDimmed: {
+    opacity: 0.4,
+  },
+  // Feedback de pressionado no iOS (Android usa android_ripple)
+  optionPressed: {
+    backgroundColor: 'rgba(255, 167, 38, 0.08)',
+    transform: [{ scale: 0.98 }],
   },
   optionLetter: {
-    width: 32,
-    height: 32,
-    minWidth: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    minWidth: 36,
+    borderRadius: 18,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
   optionLetterSelected: {
     backgroundColor: '#FFA726',
@@ -288,8 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DE2F24',
   },
   optionLetterText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 17,
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
   },
@@ -300,21 +321,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     flexWrap: 'wrap',
+    lineHeight: 22,
   },
+  // FIX: em RN com fonte customizada, fontWeight é ignorado.
+  // Para deixar bold tem que trocar a fontFamily.
   optionTextBold: {
-    fontWeight: 'bold',
-  },
-  resultIcon: {
-    fontSize: 24,
-    color: '#0FB57E',
-    fontWeight: 'bold',
-    marginLeft: 8,
-  },
-  resultIconWrong: {
-    fontSize: 24,
-    color: '#DE2F24',
-    fontWeight: 'bold',
-    marginLeft: 8,
+    fontFamily: 'Poppins-Bold',
   },
   explanation: {
     marginTop: 20,
