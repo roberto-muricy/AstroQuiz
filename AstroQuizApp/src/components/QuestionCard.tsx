@@ -6,6 +6,7 @@
 import { Question } from '@/types';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Card } from './Card';
 import api from '@/services/api';
 
@@ -26,6 +27,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   onSelectOption,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -144,7 +146,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           selectedOption === correctOption && styles.explanationSuccess
         ]}>
           <Text style={styles.explanationTitle}>
-            {selectedOption === correctOption ? 'Correto!' : 'Explicação'}
+            {selectedOption === correctOption ? t('quiz.correct') : t('quiz.explanation')}
           </Text>
           <Text style={styles.explanationText}>{question.explanation}</Text>
         </View>

@@ -33,7 +33,9 @@
     "exitTitle": "Exit Quiz",
     "exitMessage": "Are you sure you want to exit? Your progress will be lost.",
     "exitConfirm": "Exit",
-    "explanation": "Explanation"
+    "explanation": "Explanation",
+    "nextQuestion": "Next",
+    "timedOut": "Time's up"
   },
   "result": {
     "perfect": "Perfect!",

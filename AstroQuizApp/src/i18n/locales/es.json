@@ -31,7 +31,11 @@
     "incorrectTitle": "Respuesta Incorrecta",
     "pointsEarned": "puntos",
     "exitTitle": "Salir del Quiz",
-    "exitMessage": "¿Seguro que quieres salir? Tu progreso se perderá."
+    "exitMessage": "¿Seguro que quieres salir? Tu progreso se perderá.",
+    "exitConfirm": "Salir",
+    "explanation": "Explicación",
+    "nextQuestion": "Siguiente",
+    "timedOut": "Tiempo agotado"
   },
   "result": {
     "perfect": "¡Perfecto!",

@@ -33,7 +33,9 @@
     "exitTitle": "Sair do Quiz",
     "exitMessage": "Tem certeza que deseja sair? Seu progresso será perdido.",
     "exitConfirm": "Sair",
-    "explanation": "Explicação"
+    "explanation": "Explicação",
+    "nextQuestion": "Próxima",
+    "timedOut": "Tempo esgotado"
   },
   "result": {
     "perfect": "Perfeito!",

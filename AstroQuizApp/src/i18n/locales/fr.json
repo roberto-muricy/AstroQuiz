@@ -31,7 +31,11 @@
     "incorrectTitle": "Mauvaise Réponse",
     "pointsEarned": "points",
     "exitTitle": "Quitter le Quiz",
-    "exitMessage": "Voulez-vous vraiment quitter ? Votre progression sera perdue."
+    "exitMessage": "Voulez-vous vraiment quitter ? Votre progression sera perdue.",
+    "exitConfirm": "Quitter",
+    "explanation": "Explication",
+    "nextQuestion": "Suivant",
+    "timedOut": "Temps écoulé"
   },
   "result": {
     "perfect": "Parfait !",
