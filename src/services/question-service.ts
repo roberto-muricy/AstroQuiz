@@ -127,11 +127,27 @@ export async function fetchQuestionRowById(strapi: any, id: number | string): Pr
 }
 
 /**
- * Check write token authorization using constant-time comparison
+ * Check write token authorization using constant-time comparison.
+ *
+ * SECURITY: In production, the absence of STRAPI_WRITE_TOKEN MUST NOT cause this
+ * function to silently no-op (that would leave public-write endpoints unprotected).
+ * Instead, we fail closed with 503 so the misconfiguration is visible.
  */
 export function requireWriteTokenIfConfigured(ctx: any): void {
   const requiredToken = process.env.STRAPI_WRITE_TOKEN;
-  if (!requiredToken) return;
+
+  if (!requiredToken) {
+    if (process.env.NODE_ENV === 'production') {
+      ctx.throw(503, 'Server misconfiguration: write token not set');
+      return;
+    }
+    // Dev/test: log a warning so devs notice, but allow operation to continue.
+    if (process.env.NODE_ENV !== 'test') {
+      // eslint-disable-next-line no-console
+      console.warn('[requireWriteTokenIfConfigured] STRAPI_WRITE_TOKEN not set; skipping auth check (dev only).');
+    }
+    return;
+  }
 
   const authHeader = ctx.request.headers?.authorization || '';
   const bearer = authHeader.startsWith('Bearer ')

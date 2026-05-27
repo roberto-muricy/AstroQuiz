@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-AstroQuiz is a full-stack astronomy quiz app: **Strapi 5 backend** (TypeScript) + **React Native mobile app**. Deployed on Railway with PostgreSQL, Cloudinary, Firebase Auth, and DeepL translation.
+AstroQuiz is a full-stack astronomy quiz app: **Strapi 5 backend** (TypeScript) + **React Native mobile app**. Deployed on Railway with PostgreSQL, Cloudinary, and Firebase Auth.
 
 ## Quick Reference
 
@@ -40,7 +40,6 @@ npx react-native run-android # Android
     services/              # Business logic (quiz-session, quiz-logic, firebase-auth, validation)
     middlewares/            # Auth (Firebase), rate-limit, cache, performance-monitor
     api/question/           # Strapi content-type schema
-    plugins/deepl-translation/ # Custom Strapi plugin for DeepL
   config/
     database.ts            # DB config (SQLite dev, PostgreSQL prod)
     game-rules.js          # Scoring, phases, difficulty progression
@@ -125,5 +124,5 @@ AstroQuizApp/              # React Native mobile app
 See `env.example` for full list. Key ones:
 - `DATABASE_CLIENT` (sqlite/postgres), `DATABASE_URL` (prod)
 - `APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `JWT_SECRET` (security)
-- `DEEPL_API_KEY`, `FIREBASE_PROJECT_ID`, `STRAPI_WRITE_TOKEN` (integrations)
+- `FIREBASE_SERVICE_ACCOUNT_JSON`, `STRAPI_WRITE_TOKEN` (integrations)
 - `CLOUDINARY_NAME/KEY/SECRET` (file uploads)

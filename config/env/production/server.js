@@ -3,7 +3,18 @@
  * Optimized for Railway deployment with security best practices
  */
 
-module.exports = ({ env }) => ({
+module.exports = ({ env }) => {
+  // SECURITY: in production we must fail-closed if CORS_ORIGINS is not set.
+  // Falling back to a permissive default would silently allow unwanted origins.
+  const corsOrigins = env.array('CORS_ORIGINS', []);
+  if (!Array.isArray(corsOrigins) || corsOrigins.length === 0) {
+    throw new Error(
+      'SECURITY: CORS_ORIGINS env var is required in production. ' +
+      'Set it to a comma-separated list of allowed origins (e.g. https://app.example.com,https://admin.example.com).'
+    );
+  }
+
+  return ({
   host: env('HOST', '0.0.0.0'),
   port: env.int('PORT', 1337),
   
@@ -39,12 +50,7 @@ module.exports = ({ env }) => ({
       config: {
         enabled: true,
         headers: '*',
-        origin: env.array('CORS_ORIGINS', [
-          'http://localhost:3000',
-          'https://localhost:3000',
-          env('STRAPI_ADMIN_BACKEND_URL', 'https://your-app.railway.app'),
-          // Frontend domains will be added here
-        ]),
+        origin: corsOrigins,
       },
     },
     'strapi::poweredBy',
@@ -83,9 +89,10 @@ module.exports = ({ env }) => ({
 
   // Trust proxy for Railway
   proxy: true,
-  
+
   // Cron jobs (disabled in production for performance)
   cron: {
     enabled: false,
   },
-});
+  });
+};

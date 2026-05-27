@@ -1,5 +1,8 @@
 [phases.setup]
-nixPkgs = ["nodejs-22_x", "npm-10_x"]
+# Use modern nixpkgs attribute name. The legacy `nodejs-22_x` was removed
+# from upstream nixpkgs and was breaking Railway builds with
+# "undefined variable 'nodejs-22_x'". `nodejs_22` brings npm together.
+nixPkgs = ["nodejs_22"]
 
 [phases.install]
 cmds = ["npm ci"]

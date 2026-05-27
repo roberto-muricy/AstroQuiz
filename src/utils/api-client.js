@@ -388,55 +388,6 @@ class AstroQuizAPIClient {
     };
   }
 
-  // ==================== DEEPL TRANSLATION API ====================
-
-  /**
-   * Translate text using DeepL
-   * @param {string} text - Text to translate
-   * @param {string} targetLang - Target language code
-   * @param {string} sourceLang - Source language code
-   * @returns {Promise<Object>} Translation response
-   */
-  async translateText(text, targetLang, sourceLang = 'EN') {
-    if (!text) {
-      throw new AstroQuizAPIError('Text is required for translation', 400);
-    }
-
-    const data = {
-      text,
-      targetLang,
-      sourceLang
-    };
-
-    return await this.fetch('/deepl/translate', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-  }
-
-  /**
-   * Translate a question to target language
-   * @param {string} questionId - Question document ID
-   * @param {string} targetLang - Target language code
-   * @param {Array} fields - Fields to translate
-   * @returns {Promise<Object>} Translation response
-   */
-  async translateQuestion(questionId, targetLang, fields = null) {
-    if (!questionId) {
-      throw new AstroQuizAPIError('Question ID is required for translation', 400);
-    }
-
-    const data = {
-      targetLang,
-      ...(fields && { fields })
-    };
-
-    return await this.fetch(`/deepl/translate-question/${questionId}`, {
-      method: 'POST',
-      body: JSON.stringify(data)
-    });
-  }
-
   // ==================== UTILITY METHODS ====================
 
   /**
