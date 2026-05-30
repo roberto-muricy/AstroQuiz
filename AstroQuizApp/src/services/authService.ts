@@ -150,7 +150,11 @@ class AuthService {
       // forceRefresh = true ensures token is always valid
       return await user.getIdToken(true);
     } catch (error) {
-      console.error('Error getting Firebase ID token:', error);
+      // Guard with __DEV__ so the raw error object (which may include token-related
+      // metadata) does not get captured by release-build native loggers or Sentry.
+      if (__DEV__) {
+        console.error('Error getting Firebase ID token:', error);
+      }
       return null;
     }
   }

@@ -1,4 +1,4 @@
-package com.astroquizapptemp
+package com.astroquiz.app
 
 import android.os.Bundle
 import com.facebook.react.ReactActivity

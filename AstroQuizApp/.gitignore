@@ -63,4 +63,8 @@ android/app/keystore/
 # TypeScript
 *.tsbuildinfo
 
+# Backup files
+*.backup.tsx
+*.backup.ts
+
 

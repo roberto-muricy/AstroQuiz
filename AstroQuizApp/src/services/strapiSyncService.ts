@@ -49,7 +49,9 @@ class StrapiSyncService {
 
       return response.data;
     } catch (error) {
-      console.error('❌ Error syncing user with Strapi:', error);
+      if (__DEV__) {
+        console.error('❌ Error syncing user with Strapi:', error);
+      }
       throw error;
     }
   }
@@ -65,7 +67,9 @@ class StrapiSyncService {
 
       return response.data;
     } catch (error) {
-      console.error('❌ Error getting user stats:', error);
+      if (__DEV__) {
+        console.error('❌ Error getting user stats:', error);
+      }
       throw error;
     }
   }
@@ -85,7 +89,9 @@ class StrapiSyncService {
 
       return response.data;
     } catch (error) {
-      console.error('❌ Error updating user stats:', error);
+      if (__DEV__) {
+        console.error('❌ Error updating user stats:', error);
+      }
       throw error;
     }
   }

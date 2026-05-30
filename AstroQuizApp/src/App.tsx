@@ -13,6 +13,9 @@ import firebase from '@react-native-firebase/app';
 // Sentry - Crash Reporting
 import { initSentry, SentryWrap } from "@/config/sentry";
 
+// AdMob + ATT (App Tracking Transparency) - iOS 14.5+
+import { requestTrackingPermission, loadInterstitialAd, loadAllRewardedAds } from "@/services/adService";
+
 // Importar configuração de i18n (deve ser antes do App)
 import '@/i18n';
 
@@ -23,7 +26,32 @@ const App = () => {
   useEffect(() => {
     initializeFirebase();
     checkBackendConnection();
+    initializeAdsWithTracking();
   }, []);
+
+  /**
+   * Solicitar permissão ATT (iOS 14.5+) e inicializar AdMob SDK.
+   *
+   * IMPORTANTE: o prompt do ATT precisa ser disparado ANTES do AdMob carregar
+   * qualquer anúncio personalizado. Esta função é exigida pelo Apple Review
+   * (Guideline 2.1 - Information Needed) para apps que usam o framework
+   * AppTrackingTransparency.
+   */
+  const initializeAdsWithTracking = async () => {
+    try {
+      // 1. Pede permissão de tracking (ATT) - só faz algo no iOS 14.5+
+      await requestTrackingPermission();
+
+      // 2. Pré-carrega ads para uso futuro
+      loadInterstitialAd();
+      loadAllRewardedAds();
+    } catch (error) {
+      // Falhas aqui não devem quebrar o app
+      if (__DEV__) {
+        console.log('[App] Ads init error (non-fatal):', error);
+      }
+    }
+  };
 
   /**
    * Inicializar Firebase

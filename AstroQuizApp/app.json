@@ -1,6 +1,8 @@
 {
   "name": "AstroQuizApp",
-  "displayName": "AstroQuiz"
+  "displayName": "AstroQuiz",
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-2123152010659436~4989922318",
+    "ios_app_id": "ca-app-pub-2123152010659436~XXXXXXXXXX"
+  }
 }
-
-

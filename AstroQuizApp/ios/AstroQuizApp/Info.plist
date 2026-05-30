@@ -50,8 +50,10 @@
 	<string>O AstroQuiz precisa acessar o servidor local na sua rede (Strapi) para carregar perguntas e salvar seu progresso.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>O AstroQuiz usa este identificador para exibir anúncios mais relevantes a você e manter o app gratuito. Você pode mudar sua escolha a qualquer momento nos Ajustes do iOS.</string>
 	<key>RCTNewArchEnabled</key>
-	<false/>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Medium.ttf</string>
