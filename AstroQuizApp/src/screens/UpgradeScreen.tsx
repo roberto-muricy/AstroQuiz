@@ -228,11 +228,11 @@ export const UpgradeScreen = () => {
           <View style={styles.legalContainer}>
             <Text style={styles.legalText}>{t('subscription.legalText')}</Text>
             <View style={styles.legalLinks}>
-              <TouchableOpacity onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/terms-of-service')}>
+              <TouchableOpacity onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/terms.html')}>
                 <Text style={styles.legalLink}>{t('profile.terms')}</Text>
               </TouchableOpacity>
               <Text style={styles.legalSeparator}>•</Text>
-              <TouchableOpacity onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/privacy-policy')}>
+              <TouchableOpacity onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/privacy.html')}>
                 <Text style={styles.legalLink}>{t('profile.privacy')}</Text>
               </TouchableOpacity>
             </View>

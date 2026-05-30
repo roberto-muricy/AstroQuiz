@@ -464,13 +464,15 @@ export const QuizResultScreen = () => {
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={handlePlayAgain}
-              disabled={startingNextPhase}
-            >
-              <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
-            </TouchableOpacity>
+            {passed && (
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={handlePlayAgain}
+                disabled={startingNextPhase}
+              >
+                <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               style={styles.tertiaryButton}
@@ -716,7 +718,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: COLORS.backgroundHighlight,
+    borderColor: COLORS.cardBorder,
   },
   secondaryButtonText: {
     ...TYPOGRAPHY.body,

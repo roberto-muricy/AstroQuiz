@@ -9,7 +9,6 @@
 import { Button, Card, LevelCard } from '@/components';
 import { StatDisplay } from '@/components/common';
 import { useApp } from '@/contexts/AppContext';
-import { Images } from '@/assets';
 import quizService from '@/services/quizService';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
@@ -23,9 +22,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {
@@ -136,36 +133,6 @@ export const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Daily Challenge */}
-        <TouchableOpacity style={styles.dailyChallenge}>
-          <Card variant="daily-challenge">
-            <View style={styles.dailyChallengeContent}>
-              <View style={styles.dailyChallengeIcon}>
-                <Image
-                  source={Images.target}
-                  style={styles.challengeImage}
-                  resizeMode="contain"
-                />
-              </View>
-              <View style={styles.dailyChallengeInfo}>
-                <Text style={styles.dailyChallengeTitle} numberOfLines={1}>
-                  {t('home.dailyChallengeTitle')}
-                </Text>
-                <Text
-                  style={styles.dailyChallengeSubtitle}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {t('home.dailyChallengeSubtitle')}
-                </Text>
-              </View>
-              <View style={styles.dailyChallengeBadge}>
-                <Text style={styles.dailyChallengeBadgeText}>{t('home.dailyChallengeReward')}</Text>
-              </View>
-            </View>
-          </Card>
-        </TouchableOpacity>
-
         {/* Main Level Card */}
         <Card style={styles.mainLevelCard}>
           <View style={styles.mainLevelHeader}>
@@ -219,36 +186,10 @@ export const HomeScreen = () => {
           />
         </Card>
 
-        {/* Weekly Ranking */}
-        <TouchableOpacity>
-          <Card>
-            <View style={styles.weeklyRanking}>
-              <View style={styles.rankingBadge}>
-                <Text style={styles.rankingBadgeText}>#20</Text>
-              </View>
-              <View style={styles.rankingContent}>
-                <Text style={styles.rankingTitle} numberOfLines={1}>
-                  {t('home.weeklyRankingTitle')}
-                </Text>
-                <Text
-                  style={styles.rankingSubtitle}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {t('home.weeklyRankingSubtitle')}
-                </Text>
-              </View>
-            </View>
-          </Card>
-        </TouchableOpacity>
-
         {/* Progress Section */}
         <View style={styles.progressLevelsSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t('home.progressLevelsTitle')}</Text>
-            <TouchableOpacity>
-              <Text style={styles.sectionLink}>{t('home.seeAll')}</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.levelCardsRow}>

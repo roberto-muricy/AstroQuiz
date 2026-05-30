@@ -417,7 +417,7 @@ export const ProfileScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/terms-of-service')}
+            onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/terms.html')}
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
@@ -428,7 +428,7 @@ export const ProfileScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => Linking.openURL('https://robertomuricy.github.io/astroquiz/privacy-policy')}
+            onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/privacy.html')}
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
