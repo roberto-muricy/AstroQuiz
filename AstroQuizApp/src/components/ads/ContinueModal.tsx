@@ -204,7 +204,7 @@ export const ContinueModal: React.FC<ContinueModalProps> = ({
                     }}
                     activeOpacity={0.8}
                   >
-                    <Crown size={18} color="#FFD700" />
+                    <Crown size={18} color={COLORS.premium} />
                     <Text style={styles.upgradeButtonText}>
                       {t('subscription.title')} — {t('subscription.benefits.unlimitedContinues')}
                     </Text>
@@ -221,7 +221,7 @@ export const ContinueModal: React.FC<ContinueModalProps> = ({
                     }}
                     activeOpacity={0.7}
                   >
-                    <Crown size={14} color="#FFD700" />
+                    <Crown size={14} color={COLORS.premium} />
                     <Text style={styles.removeAdsText}>{t('subscription.benefits.noAds')}?</Text>
                   </TouchableOpacity>
                 )}
@@ -345,9 +345,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: SPACING.sm,
-    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    backgroundColor: COLORS.premiumSurface,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
+    borderColor: COLORS.premiumBorder,
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     borderRadius: RADIUS.md,
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   upgradeButtonText: {
     fontSize: 13,
     fontFamily: 'Poppins-SemiBold',
-    color: '#FFD700',
+    color: COLORS.premium,
   },
   removeAdsLink: {
     flexDirection: 'row',
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   removeAdsText: {
     fontSize: 12,
     fontFamily: 'Poppins-Medium',
-    color: 'rgba(255, 215, 0, 0.7)',
+    color: COLORS.premiumMuted,
   },
   endButton: {
     flexDirection: 'row',

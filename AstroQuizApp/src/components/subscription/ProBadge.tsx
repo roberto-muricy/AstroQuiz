@@ -73,7 +73,7 @@ export const ProBadge: React.FC<ProBadgeProps> = ({
       >
         {isPro ? (
           <>
-            <Crown size={iconSize} color="#FFD700" fill="#FFD700" />
+            <Crown size={iconSize} color={COLORS.premium} fill={COLORS.premium} />
             {size !== 'small' && (
               <Text style={styles.proText}>PRO</Text>
             )}
@@ -118,9 +118,9 @@ const styles = StyleSheet.create({
 
   // States
   containerPro: {
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    backgroundColor: COLORS.premiumSurfaceStrong,
     borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.4)',
+    borderColor: COLORS.premiumBorder,
   },
   containerFree: {
     backgroundColor: COLORS.backgroundHighlight,
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   // Text
   proText: {
     ...TYPOGRAPHY.caption,
-    color: '#FFD700',
+    color: COLORS.premium,
     fontFamily: 'Poppins-Bold',
     letterSpacing: 1,
   },

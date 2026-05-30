@@ -38,6 +38,14 @@ export const COLORS = {
   cardChallengeGradient: ['rgba(222, 47, 36, 0.30)', 'rgba(243, 150, 12, 0.30)'] as const,
   cardBorder: 'rgba(255, 255, 255, 0.2)',
 
+  // Premium (Pro / assinatura) — dourado intencional, exclusivo de contextos premium
+  premium: '#FFD700',
+  premiumGradient: ['#FFB300', '#FF8F00'] as const,
+  premiumSurface: 'rgba(255, 215, 0, 0.12)',
+  premiumSurfaceStrong: 'rgba(255, 215, 0, 0.20)',
+  premiumBorder: 'rgba(255, 215, 0, 0.40)',
+  premiumMuted: 'rgba(255, 215, 0, 0.70)',
+
   // Special
   streakBadge: '#4A3F35',
   bottomNav: '#1A1B26',

@@ -75,9 +75,9 @@ export const UpgradeScreen = () => {
   };
 
   const benefits = [
-    { icon: <Zap size={20} color="#FFD700" />, text: t('subscription.benefits.noAds'), sub: t('subscription.benefitsSub.noAds') },
-    { icon: <SkipForward size={20} color="#FFD700" />, text: t('subscription.benefits.unlimitedSkips'), sub: t('subscription.benefitsSub.skips') },
-    { icon: <Heart size={20} color="#FFD700" />, text: t('subscription.benefits.unlimitedContinues'), sub: t('subscription.benefitsSub.continues') },
+    { icon: <Zap size={20} color={COLORS.premium} />, text: t('subscription.benefits.noAds'), sub: t('subscription.benefitsSub.noAds') },
+    { icon: <SkipForward size={20} color={COLORS.premium} />, text: t('subscription.benefits.unlimitedSkips'), sub: t('subscription.benefitsSub.skips') },
+    { icon: <Heart size={20} color={COLORS.premium} />, text: t('subscription.benefits.unlimitedContinues'), sub: t('subscription.benefitsSub.continues') },
   ];
 
   // Se ja e Pro, mostrar status
@@ -92,7 +92,7 @@ export const UpgradeScreen = () => {
           </View>
           <View style={styles.proActiveContainer}>
             <View style={styles.proActiveIcon}>
-              <Crown size={48} color="#FFD700" fill="#FFD700" />
+              <Crown size={48} color={COLORS.premium} fill={COLORS.premium} />
             </View>
             <Text style={styles.proActiveTitle}>{t('subscription.title')}</Text>
             <Text style={styles.proActiveStatus}>{t('subscription.status.active')}</Text>
@@ -132,7 +132,7 @@ export const UpgradeScreen = () => {
           {/* Hero */}
           <View style={styles.hero}>
             <View style={styles.heroIcon}>
-              <Star size={48} color="#FFD700" fill="#FFD700" />
+              <Star size={48} color={COLORS.premium} fill={COLORS.premium} />
             </View>
             <Text style={styles.heroTitle}>{t('subscription.title')}</Text>
             <Text style={styles.heroSubtitle}>{t('subscription.subtitle')}</Text>
@@ -210,7 +210,7 @@ export const UpgradeScreen = () => {
             activeOpacity={0.85}
           >
             <LinearGradient
-              colors={['#FFB300', '#FF8F00']}
+              colors={COLORS.premiumGradient}
               style={styles.subscribeGradient}
             >
               <Text style={styles.subscribeText}>
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: 'rgba(255, 215, 0, 0.12)',
+    backgroundColor: COLORS.premiumSurface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFD700',
+    color: COLORS.premium,
     fontFamily: 'Poppins-Bold',
     marginBottom: 8,
   },
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    backgroundColor: COLORS.premiumSurface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -348,14 +348,14 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   planCardSelected: {
-    borderColor: '#FFD700',
-    backgroundColor: 'rgba(255, 215, 0, 0.08)',
+    borderColor: COLORS.premium,
+    backgroundColor: COLORS.premiumSurface,
   },
   planBadge: {
     position: 'absolute',
     top: -10,
     right: 12,
-    backgroundColor: '#FFD700',
+    backgroundColor: COLORS.premium,
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 8,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#FFD700',
+    backgroundColor: COLORS.premium,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
   },
   planEquivalent: {
     fontSize: 12,
-    color: '#FFD700',
+    color: COLORS.premium,
     fontFamily: 'Poppins-Regular',
     marginTop: 2,
   },
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: 'rgba(255, 215, 0, 0.12)',
+    backgroundColor: COLORS.premiumSurface,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   proActiveTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFD700',
+    color: COLORS.premium,
     fontFamily: 'Poppins-Bold',
     marginBottom: 8,
   },

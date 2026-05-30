@@ -237,7 +237,7 @@ export const ProfileScreen = () => {
           >
             <View style={styles.proBannerLeft}>
               <View style={styles.proCrownContainer}>
-                <Crown size={24} color="#FFD700" fill="#FFD700" />
+                <Crown size={24} color={COLORS.premium} fill={COLORS.premium} />
                 <Sparkles size={14} color="#FFA726" style={{ position: 'absolute', top: -4, right: -6 }} />
               </View>
               <View style={styles.proBannerText}>
@@ -259,7 +259,7 @@ export const ProfileScreen = () => {
             }}
             activeOpacity={0.85}
           >
-            <Crown size={20} color="#FFD700" fill="#FFD700" />
+            <Crown size={20} color={COLORS.premium} fill={COLORS.premium} />
             <Text style={styles.proStatusText}>{t('subscription.title')} — {t('subscription.status.active')}</Text>
             <Text style={styles.proManageText}>{t('subscription.status.manageSubscription')}</Text>
           </TouchableOpacity>
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    backgroundColor: COLORS.premiumSurface,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -574,7 +574,7 @@ const styles = StyleSheet.create({
   proBannerTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFD700',
+    color: COLORS.premium,
     fontFamily: 'Poppins-Bold',
   },
   proBannerSubtitle: {
