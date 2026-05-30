@@ -40,7 +40,7 @@ export const PerformanceCard: React.FC<PerformanceCardProps> = ({
           </View>
 
           <View style={styles.statContainer}>
-            <Text style={styles.statValue}>{avgTime}s</Text>
+            <Text style={styles.statValue}>{avgTime > 0 ? `${avgTime}s` : '—'}</Text>
             <Text style={styles.statLabel} numberOfLines={2}>
               {t('stats.avgTime')}
             </Text>

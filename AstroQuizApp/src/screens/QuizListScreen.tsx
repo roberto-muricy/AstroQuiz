@@ -224,7 +224,7 @@ export const QuizListScreen = () => {
         nestedScrollEnabled={true}
       >
         {/* Header */}
-        <TouchableOpacity activeOpacity={0.9} onLongPress={openApiConfig} delayLongPress={600}>
+        <TouchableOpacity activeOpacity={0.9} onLongPress={__DEV__ ? openApiConfig : undefined} delayLongPress={600}>
           <Text style={styles.pageTitle}>{t('quizList.headerTitle')}</Text>
         </TouchableOpacity>
         <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>

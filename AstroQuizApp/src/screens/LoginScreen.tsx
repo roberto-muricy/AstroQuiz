@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import {
   COLORS,
@@ -27,6 +28,7 @@ export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginNav>();
   const { signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, isAuthenticated, setUser, isLoading } = useApp();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [localLoading, setLocalLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -96,10 +98,10 @@ export const LoginScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+      <TouchableOpacity style={[styles.closeButton, { top: insets.top + 8 }]} onPress={handleClose}>
         <Text style={styles.closeButtonText}>✕</Text>
       </TouchableOpacity>
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <View style={styles.logoCircle}>
             <Text style={styles.logoEmoji}>🚀</Text>
@@ -207,7 +209,6 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     position: "absolute",
-    top: 50,
     right: SIZES.screenPadding,
     zIndex: 10,
     width: 40,
@@ -225,7 +226,6 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     paddingHorizontal: SPACING.lg,
-    paddingTop: 80,
     paddingBottom: SPACING.xl,
   },
   hero: {

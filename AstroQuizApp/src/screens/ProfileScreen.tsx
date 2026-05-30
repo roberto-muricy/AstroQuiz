@@ -14,6 +14,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, Animated, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
 import { useTranslation } from 'react-i18next';
@@ -38,6 +39,7 @@ export const ProfileScreen = () => {
   const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, deleteAccount, isLoading } = useApp();
   const { isPro } = useSubscription();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const proGlowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -187,9 +189,9 @@ export const ProfileScreen = () => {
         type="success"
         onHide={() => setToastVisible(false)}
       />
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.content}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 20 }]}
         bounces={true}
         scrollEventThrottle={16}
       >
@@ -439,13 +441,6 @@ export const ProfileScreen = () => {
           </TouchableOpacity>
         </Card>
 
-        <Button
-          title={t('profile.logout')}
-          variant="danger"
-          onPress={() => Alert.alert(t('profile.logoutConfirmTitle'), t('profile.logoutConfirmMessage'))}
-          style={styles.logoutButton}
-        />
-
         <View style={styles.bottomSpace} />
       </ScrollView>
     </View>
@@ -462,7 +457,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: 60,
     paddingBottom: 120, // Extra espaço para bottom tab bar
   },
   profileHeader: {
@@ -693,9 +687,6 @@ const styles = StyleSheet.create({
   },
   switch: {
     transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }],
-  },
-  logoutButton: {
-    marginTop: 32,
   },
   bottomSpace: {
     height: 100,
