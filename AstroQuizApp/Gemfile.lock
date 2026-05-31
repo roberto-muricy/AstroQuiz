@@ -79,6 +79,7 @@ GEM
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     json (2.15.0)
+    logger (1.7.0)
     minitest (5.25.5)
     molinillo (0.8.0)
     mutex_m (0.3.0)
@@ -117,6 +118,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (>= 6.1.7.3, < 7.1.0)
   cocoapods (~> 1.13)
+  logger
 
 RUBY VERSION
    ruby 3.2.2p53

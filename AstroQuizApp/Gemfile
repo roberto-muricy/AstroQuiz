@@ -5,3 +5,6 @@ ruby ">= 2.6.10"
 
 gem 'cocoapods', '~> 1.13'
 gem 'activesupport', '>= 6.1.7.3', '< 7.1.0'
+# Ruby 3.3.3+ não auto-carrega mais a gem `logger`; o activesupport 7.0.x
+# assume que ela existe e falha (uninitialized constant ...::Logger).
+gem 'logger'
