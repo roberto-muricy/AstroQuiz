@@ -19,6 +19,7 @@ import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navig
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ActivityIndicator,
   Alert,
   ScrollView,
   StyleSheet,
@@ -398,6 +399,11 @@ export const QuizScreen = () => {
                   </Text>
                 )}
               </View>
+            ) : !answerResult ? (
+              /* Aguardando resposta do servidor — estado neutro (evita flash de "Incorreta") */
+              <View style={styles.pendingBanner}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+              </View>
             ) : answerResult?.answerRecord?.isCorrect ? (
               /* Resposta correta */
               <View style={styles.successBanner}>
@@ -601,6 +607,16 @@ const styles = StyleSheet.create({
     marginTop: SPACING.lg,
   },
   // Banners de resultado
+  pendingBanner: {
+    backgroundColor: COLORS.backgroundMuted,
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 116,
+  },
   successBanner: {
     backgroundColor: 'rgba(15, 181, 126, 0.15)',
     borderRadius: RADIUS.md,
