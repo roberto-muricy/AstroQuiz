@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -68,10 +69,13 @@ export const QuizScreen = () => {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
   const [canAdvance, setCanAdvance] = useState(false);
+  // Contagem visível do auto-avanço (apenas em acertos); null = sem auto-avanço
+  const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
 
   const submitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoAdvanceIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref para o resultado mais recente (evita closure stale no timer de auto-advance)
   const latestResultRef = useRef<any>(null);
 
@@ -101,6 +105,27 @@ export const QuizScreen = () => {
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    if (autoAdvanceIntervalRef.current) clearInterval(autoAdvanceIntervalRef.current);
+  };
+
+  // Auto-avanço com contagem visível — usado APENAS em respostas corretas.
+  // Em erros/timeout a tela fica parada até o usuário tocar em "Próxima".
+  const AUTO_ADVANCE_SECONDS = 4;
+  const startAutoAdvance = (result: any) => {
+    setAutoAdvanceCountdown(AUTO_ADVANCE_SECONDS);
+    autoAdvanceIntervalRef.current = setInterval(() => {
+      setAutoAdvanceCountdown(prev => (prev && prev > 1 ? prev - 1 : prev));
+    }, 1000);
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      handleNextQuestion(result);
+    }, AUTO_ADVANCE_SECONDS * 1000);
+  };
+
+  // Cancela o auto-avanço (qualquer interação do usuário enquanto lê a explicação)
+  const cancelAutoAdvance = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    if (autoAdvanceIntervalRef.current) clearInterval(autoAdvanceIntervalRef.current);
+    setAutoAdvanceCountdown(null);
   };
 
   const loadQuestion = async () => {
@@ -173,11 +198,7 @@ export const QuizScreen = () => {
       setCanAdvance(true);
 
       Vibration.vibrate([0, 80, 40, 80]);
-
-      // Auto-avança após 6s se o usuário não tocar em "Próxima"
-      autoAdvanceTimerRef.current = setTimeout(() => {
-        handleNextQuestion(latestResultRef.current);
-      }, 6000);
+      // Tempo esgotado conta como erro: NÃO avança sozinho — usuário lê a explicação
     } catch (error) {
       console.error('Erro ao processar timeout:', error);
       setShowResult(false);
@@ -209,18 +230,16 @@ export const QuizScreen = () => {
         result.answerRecord.isCorrect ? 'correct' : 'wrong',
       ]);
 
-      if (result.answerRecord.isCorrect) {
-        Vibration.vibrate(100);
-      } else {
-        Vibration.vibrate([0, 100, 50, 100]);
-      }
-
       setCanAdvance(true);
 
-      // Auto-avança após 6s se o usuário não tocar em "Próxima"
-      autoAdvanceTimerRef.current = setTimeout(() => {
-        handleNextQuestion(latestResultRef.current);
-      }, 6000);
+      if (result.answerRecord.isCorrect) {
+        Vibration.vibrate(100);
+        // Acertou: avança sozinho (com contagem visível e cancelável)
+        startAutoAdvance(result);
+      } else {
+        Vibration.vibrate([0, 100, 50, 100]);
+        // Errou: NÃO avança sozinho — usuário lê a explicação no próprio ritmo
+      }
     } catch (error) {
       console.error('Erro ao submeter resposta:', error);
       Alert.alert(t('common.error'), t('errors.tryAgainLater'));
@@ -232,12 +251,14 @@ export const QuizScreen = () => {
   const handleNextQuestion = (resultToUse?: any) => {
     const result = resultToUse ?? latestResultRef.current;
     if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    if (autoAdvanceIntervalRef.current) clearInterval(autoAdvanceIntervalRef.current);
 
     setShowResult(false);
     setAnswerResult(null);
     setSelectedOption(null);
     setCanAdvance(false);
     setIsTimedOut(false);
+    setAutoAdvanceCountdown(null);
 
     if (result?.sessionStatus?.isPhaseComplete) {
       navigation.navigate('QuizResult', { sessionId });
@@ -352,6 +373,7 @@ export const QuizScreen = () => {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         bounces={true}
+        onScrollBeginDrag={cancelAutoAdvance}
       >
         <QuestionCard
           question={currentQuestion.question}
@@ -384,6 +406,8 @@ export const QuizScreen = () => {
         {/* ——— Banner de resultado ——— */}
         {showResult && (
           <View style={styles.resultContainer}>
+            {/* Tocar no banner pausa o auto-avanço (para ler a explicação com calma) */}
+            <Pressable onPress={cancelAutoAdvance}>
             {isTimedOut ? (
               /* Timeout — sem resposta selecionada */
               <View style={styles.timeoutBanner}>
@@ -431,6 +455,7 @@ export const QuizScreen = () => {
                 )}
               </View>
             )}
+            </Pressable>
 
             {/* ——— Botão "Próxima" ——— */}
             {canAdvance && (
@@ -440,7 +465,9 @@ export const QuizScreen = () => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.nextButtonText}>
-                  {t('quiz.nextQuestion')} →
+                  {autoAdvanceCountdown !== null
+                    ? `${t('quiz.nextQuestion')} (${autoAdvanceCountdown})`
+                    : `${t('quiz.nextQuestion')} →`}
                 </Text>
               </TouchableOpacity>
             )}
