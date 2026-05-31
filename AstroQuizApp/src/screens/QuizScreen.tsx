@@ -78,6 +78,8 @@ export const QuizScreen = () => {
   const autoAdvanceIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref para o resultado mais recente (evita closure stale no timer de auto-advance)
   const latestResultRef = useRef<any>(null);
+  // Ref para auto-scroll até a explicação quando o resultado chega
+  const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     setCurrentScore(0);
@@ -89,6 +91,17 @@ export const QuizScreen = () => {
       clearAllTimers();
     };
   }, [sessionId]);
+
+  // Auto-scroll suave até a explicação/resultado quando a resposta chega do servidor.
+  // Garante que a explicação não fique abaixo da dobra em perguntas longas.
+  useEffect(() => {
+    if (showResult && answerResult) {
+      const id = setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 250);
+      return () => clearTimeout(id);
+    }
+  }, [showResult, answerResult]);
 
   useEffect(() => {
     if (!showResult && timeRemaining > 0) {
@@ -369,6 +382,7 @@ export const QuizScreen = () => {
       </View>
 
       <ScrollView
+        ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
