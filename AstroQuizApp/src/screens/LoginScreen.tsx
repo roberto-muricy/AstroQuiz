@@ -37,7 +37,9 @@ export const LoginScreen: React.FC = () => {
 
   const handleAppleLogin = async () => {
     setError(null);
-    setLocalLoading(true);
+    // IMPORTANTE: não ligar loading antes da folha nativa da Apple. Re-render
+    // da tela enquanto a folha está aberta faz o iOS cancelar o login
+    // (ASAuthorizationError 1001). A folha nativa já bloqueia a UI.
     try {
       const result = await signInWithApple();
       if (!result.ok) {
@@ -47,8 +49,6 @@ export const LoginScreen: React.FC = () => {
       navigation.goBack();
     } catch (err: any) {
       setError(err?.message || t("login.errors.appleLoginUnexpected"));
-    } finally {
-      setLocalLoading(false);
     }
   };
 

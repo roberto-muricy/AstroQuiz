@@ -275,22 +275,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
    * Login com Apple (Firebase Auth)
    */
   const signInWithApple = useCallback(async (): Promise<AuthResponse> => {
-    setIsLoading(true);
-    try {
-      const result = await authService.signInWithApple();
-      if (!result.ok) {
-        return { ok: false, message: 'message' in result ? result.message : 'Erro desconhecido' };
-      }
-
-      const fbUser = authService.getCurrentUser();
-      if (!fbUser) return { ok: false, message: 'Firebase não retornou usuário após o login.' };
-
-      await handleFirebaseUser(fbUser);
-      analyticsService.logLogin('apple');
-      return { ok: true };
-    } finally {
-      setIsLoading(false);
+    // NÃO alterar isLoading antes/durante a folha nativa do Sign in with Apple.
+    // Qualquer re-render da árvore enquanto a folha está aberta faz o iOS
+    // cancelar o fluxo (ASAuthorizationError 1001 / "Login cancelado"). A
+    // própria folha nativa já cobre a UX; a troca com o Firebase é rápida.
+    const result = await authService.signInWithApple();
+    if (!result.ok) {
+      return { ok: false, message: 'message' in result ? result.message : 'Erro desconhecido' };
     }
+
+    const fbUser = authService.getCurrentUser();
+    if (!fbUser) return { ok: false, message: 'Firebase não retornou usuário após o login.' };
+
+    await handleFirebaseUser(fbUser);
+    analyticsService.logLogin('apple');
+    return { ok: true };
   }, [handleFirebaseUser]);
 
   const signInWithEmail = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
