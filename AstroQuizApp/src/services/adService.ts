@@ -7,9 +7,11 @@ import { Platform } from 'react-native';
 
 // Importação segura do módulo ATT (App Tracking Transparency)
 let requestTrackingAuthorization: (() => Promise<string>) | null = null;
+let getTrackingStatus: (() => Promise<string>) | null = null;
 try {
   const attModule = require('react-native-tracking-transparency');
   requestTrackingAuthorization = attModule.requestTrackingAuthorization;
+  getTrackingStatus = attModule.getTrackingStatus;
 } catch {
   // Módulo ATT não disponível
 }
@@ -46,11 +48,21 @@ try {
  * Usa ATTrackingManager nativo para garantir que o diálogo apareça no iOS 14.5+.
  */
 export const requestTrackingPermission = async (): Promise<void> => {
-  // Solicitar permissão ATT nativa no iOS (ATTrackingManager)
+  // Solicitar permissão ATT nativa no iOS (ATTrackingManager).
+  // Só pedimos quando o status ainda é "not-determined" — assim o pop-up
+  // aparece no primeiro uso (inclusive para o revisor da Apple num fresh
+  // install) e não tentamos reabrir um diálogo já respondido.
   if (Platform.OS === 'ios' && requestTrackingAuthorization) {
     try {
-      const status = await requestTrackingAuthorization();
-      console.log('[AdService] ATT native status:', status);
+      let status: string | undefined;
+      if (getTrackingStatus) {
+        status = await getTrackingStatus();
+        console.log('[AdService] ATT current status:', status);
+      }
+      if (!status || status === 'not-determined') {
+        status = await requestTrackingAuthorization();
+        console.log('[AdService] ATT prompt result:', status);
+      }
     } catch (attError) {
       console.log('[AdService] ATT native request error (non-fatal):', attError);
     }

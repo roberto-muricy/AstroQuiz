@@ -7,7 +7,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import { RootNavigator } from "@/navigation/RootNavigator";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect } from "react";
-import { StatusBar } from "react-native";
+import { StatusBar, AppState } from "react-native";
 import firebase from '@react-native-firebase/app';
 
 // Sentry - Crash Reporting
@@ -26,7 +26,29 @@ const App = () => {
   useEffect(() => {
     initializeFirebase();
     checkBackendConnection();
-    initializeAdsWithTracking();
+
+    // IMPORTANTE (Apple Guideline 2.1 - ATT): o iOS só exibe o pop-up de
+    // App Tracking Transparency quando o app está em primeiro plano e ATIVO.
+    // Se pedirmos durante o launch (app ainda inativo), o iOS engole o pedido
+    // silenciosamente e o alerta nunca aparece (foi o motivo da rejeição).
+    // Por isso, só disparamos o ATT depois que o app fica "active".
+    let didRequestTracking = false;
+    const runTracking = () => {
+      if (didRequestTracking) return;
+      didRequestTracking = true;
+      // pequeno atraso para garantir que a cena está ativa e a UI estabilizou
+      setTimeout(() => {
+        initializeAdsWithTracking();
+      }, 800);
+    };
+
+    if (AppState.currentState === "active") {
+      runTracking();
+    }
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") runTracking();
+    });
+    return () => sub.remove();
   }, []);
 
   /**
