@@ -15,38 +15,44 @@ export interface DifficultyDistribution {
  * Returns array of {level, count} matching the frontend progressionSystem.ts
  */
 export function getDifficultyDistribution(phase: number): DifficultyDistribution[] {
-  // Phases 1-3: Beginner (100% Level 1)
+  // Curva recalibrada para a oferta real de perguntas por nível
+  // (pool: nv1=45, nv2=109, nv3=159, nv4=146, nv5=57). Cada fase soma 10.
+
+  // Fases 1-3: Iniciante (100% nível 1)
   if (phase <= 3) return [{ level: 1, count: 10 }];
 
-  // Phases 4-7: Easy mix
-  if (phase <= 7) return [{ level: 1, count: 8 }, { level: 2, count: 2 }];
+  // Fases 4-6: Introdução ao nível 2
+  if (phase <= 6) return [{ level: 1, count: 4 }, { level: 2, count: 6 }];
 
-  // Phases 8-10: Intro to Level 2
-  if (phase <= 10) return [{ level: 1, count: 6 }, { level: 2, count: 4 }];
+  // Fase 7: transição (quase tudo nível 2)
+  if (phase <= 7) return [{ level: 1, count: 1 }, { level: 2, count: 9 }];
 
-  // Phases 11-15: Intermediate start
-  if (phase <= 15) return [{ level: 2, count: 5 }, { level: 3, count: 5 }];
+  // Fases 8-10: nível 2 com pitada de 3
+  if (phase <= 10) return [{ level: 2, count: 7 }, { level: 3, count: 3 }];
 
-  // Phases 16-20: More Level 3
-  if (phase <= 20) return [{ level: 2, count: 3 }, { level: 3, count: 7 }];
+  // Fases 11-18: nível 2/3 equilibrado
+  if (phase <= 18) return [{ level: 2, count: 6 }, { level: 3, count: 4 }];
 
-  // Phases 21-25: Intermediate advanced
-  if (phase <= 25) return [{ level: 3, count: 6 }, { level: 4, count: 4 }];
+  // Fases 19-22: entra o nível 4
+  if (phase <= 22) return [{ level: 2, count: 1 }, { level: 3, count: 6 }, { level: 4, count: 3 }];
 
-  // Phases 26-30: Balanced challenge
-  if (phase <= 30) return [{ level: 3, count: 5 }, { level: 4, count: 5 }];
+  // Fases 23-27: nível 3/4
+  if (phase <= 27) return [{ level: 3, count: 6 }, { level: 4, count: 4 }];
 
-  // Phases 31-35: More Level 4
-  if (phase <= 35) return [{ level: 3, count: 3 }, { level: 4, count: 7 }];
+  // Fases 28-32: nível 3/4 equilibrado
+  if (phase <= 32) return [{ level: 3, count: 5 }, { level: 4, count: 5 }];
 
-  // Phases 36-40: Advanced
-  if (phase <= 40) return [{ level: 4, count: 6 }, { level: 5, count: 4 }];
+  // Fases 33-37: avançado, entra o nível 5
+  if (phase <= 37) return [{ level: 3, count: 3 }, { level: 4, count: 5 }, { level: 5, count: 2 }];
 
-  // Phases 41-45: Expert mix
-  if (phase <= 45) return [{ level: 4, count: 5 }, { level: 5, count: 5 }];
+  // Fases 38-42: mais nível 5
+  if (phase <= 42) return [{ level: 3, count: 2 }, { level: 4, count: 5 }, { level: 5, count: 3 }];
 
-  // Phases 46-50: Master (100% Level 5)
-  return [{ level: 5, count: 10 }];
+  // Fases 43-47: especialista
+  if (phase <= 47) return [{ level: 2, count: 1 }, { level: 3, count: 2 }, { level: 4, count: 4 }, { level: 5, count: 3 }];
+
+  // Fases 48-50: mestre (nível 4/5)
+  return [{ level: 4, count: 5 }, { level: 5, count: 5 }];
 }
 
 /**

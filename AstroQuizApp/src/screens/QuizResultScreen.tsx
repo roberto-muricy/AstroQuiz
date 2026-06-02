@@ -163,7 +163,9 @@ export const QuizResultScreen = () => {
       if (startingNextPhase) return;
       setStartingNextPhase(true);
       if (sessionData?.phaseNumber) {
-        const newSession = await quizService.startQuiz(sessionData.phaseNumber, locale);
+        const progress = await ProgressStorage.getProgress();
+        const excludeQuestions = progress.answeredQuestionIds || [];
+        const newSession = await quizService.startQuiz(sessionData.phaseNumber, locale, undefined, excludeQuestions);
         navigation.reset({
           index: 1,
           routes: [
@@ -188,7 +190,9 @@ export const QuizResultScreen = () => {
       if (startingNextPhase) return;
       setStartingNextPhase(true);
       const nextPhase = (sessionData?.phaseNumber || 1) + 1;
-      const newSession = await quizService.startQuiz(nextPhase, locale);
+      const progress = await ProgressStorage.getProgress();
+      const excludeQuestions = progress.answeredQuestionIds || [];
+      const newSession = await quizService.startQuiz(nextPhase, locale, undefined, excludeQuestions);
       navigation.reset({
         index: 1,
         routes: [

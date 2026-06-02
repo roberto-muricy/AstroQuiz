@@ -69,21 +69,20 @@ const GAME_RULES = {
       range: [1, 10],
       levels: [1, 2],
       distribution: {
-        1: 0.7, // 70% level 1
-        2: 0.3  // 30% level 2
+        1: 0.4, // 40% level 1
+        2: 0.6  // 60% level 2
       },
       minScore: 0.6,
       description: 'Basic astronomy concepts'
     },
 
-    // Phase 11-20: Novice (Levels 1-3)
+    // Phase 11-20: Novice (Levels 2-3)
     novice: {
       range: [11, 20],
-      levels: [1, 2, 3],
+      levels: [2, 3],
       distribution: {
-        1: 0.4, // 40% level 1
-        2: 0.4, // 40% level 2
-        3: 0.2  // 20% level 3
+        2: 0.3, // 30% level 2
+        3: 0.7  // 70% level 3
       },
       minScore: 0.65,
       description: 'Introduction to intermediate concepts'
@@ -94,9 +93,9 @@ const GAME_RULES = {
       range: [21, 30],
       levels: [2, 3, 4],
       distribution: {
-        2: 0.3, // 30% level 2
+        2: 0.2, // 20% level 2
         3: 0.5, // 50% level 3
-        4: 0.2  // 20% level 4
+        4: 0.3  // 30% level 4
       },
       minScore: 0.7,
       description: 'Intermediate astronomy and astrophysics'
@@ -107,9 +106,9 @@ const GAME_RULES = {
       range: [31, 40],
       levels: [3, 4, 5],
       distribution: {
-        3: 0.2, // 20% level 3
+        3: 0.3, // 30% level 3
         4: 0.5, // 50% level 4
-        5: 0.3  // 30% level 5
+        5: 0.2  // 20% level 5
       },
       minScore: 0.75,
       description: 'Advanced astrophysics and cosmology'
@@ -120,8 +119,8 @@ const GAME_RULES = {
       range: [41, 50],
       levels: [4, 5],
       distribution: {
-        4: 0.3, // 30% level 4
-        5: 0.7  // 70% level 5
+        4: 0.6, // 60% level 4
+        5: 0.4  // 40% level 5
       },
       minScore: 0.85,
       description: 'Elite challenges and cutting-edge astronomy',

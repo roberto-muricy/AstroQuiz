@@ -4,55 +4,71 @@ export interface DifficultyDistribution {
 }
 
 // ===== Difficulty by phase (50 fases) =====
+// Curva recalibrada para a oferta real de perguntas por nível
+// (pool: nv1=45, nv2=109, nv3=159, nv4=146, nv5=57). Deve casar com
+// getDifficultyDistribution do backend (src/services/quiz-logic.ts).
 export const getDifficultyDistribution = (phase: number): DifficultyDistribution[] => {
   if (phase <= 3) return [{ level: 1, count: 10 }]; // 100% lvl1
 
+  if (phase <= 6) return [
+    { level: 1, count: 4 },
+    { level: 2, count: 6 },
+  ];
+
   if (phase <= 7) return [
-    { level: 1, count: 8 },
-    { level: 2, count: 2 },
+    { level: 1, count: 1 },
+    { level: 2, count: 9 },
   ];
 
   if (phase <= 10) return [
-    { level: 1, count: 6 },
-    { level: 2, count: 4 },
+    { level: 2, count: 7 },
+    { level: 3, count: 3 },
   ];
 
-  if (phase <= 15) return [
-    { level: 2, count: 5 },
-    { level: 3, count: 5 },
+  if (phase <= 18) return [
+    { level: 2, count: 6 },
+    { level: 3, count: 4 },
   ];
 
-  if (phase <= 20) return [
-    { level: 2, count: 3 },
-    { level: 3, count: 7 },
+  if (phase <= 22) return [
+    { level: 2, count: 1 },
+    { level: 3, count: 6 },
+    { level: 4, count: 3 },
   ];
 
-  if (phase <= 25) return [
+  if (phase <= 27) return [
     { level: 3, count: 6 },
     { level: 4, count: 4 },
   ];
 
-  if (phase <= 30) return [
+  if (phase <= 32) return [
     { level: 3, count: 5 },
     { level: 4, count: 5 },
   ];
 
-  if (phase <= 35) return [
+  if (phase <= 37) return [
     { level: 3, count: 3 },
-    { level: 4, count: 7 },
+    { level: 4, count: 5 },
+    { level: 5, count: 2 },
   ];
 
-  if (phase <= 40) return [
-    { level: 4, count: 6 },
-    { level: 5, count: 4 },
+  if (phase <= 42) return [
+    { level: 3, count: 2 },
+    { level: 4, count: 5 },
+    { level: 5, count: 3 },
   ];
 
-  if (phase <= 45) return [
+  if (phase <= 47) return [
+    { level: 2, count: 1 },
+    { level: 3, count: 2 },
+    { level: 4, count: 4 },
+    { level: 5, count: 3 },
+  ];
+
+  return [
     { level: 4, count: 5 },
     { level: 5, count: 5 },
-  ];
-
-  return [{ level: 5, count: 10 }]; // 46-50
+  ]; // 48-50
 };
 
 // ===== XP calculation =====
