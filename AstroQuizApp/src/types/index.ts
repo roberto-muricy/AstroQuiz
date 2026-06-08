@@ -207,6 +207,8 @@ export type RootStackParamList = {
   LevelDetail: {
     levelNumber: number;
   };
+  ImageCredits: undefined;
+  Upgrade: undefined;
 };
 
 export type TabParamList = {

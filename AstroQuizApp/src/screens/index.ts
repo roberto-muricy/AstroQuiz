@@ -6,6 +6,8 @@
 export { HomeScreen } from './HomeScreen';
 export { LoginScreen } from './LoginScreen';
 export { ProfileScreen } from './ProfileScreen';
+export { ImageCreditsScreen } from './ImageCreditsScreen';
+export { UpgradeScreen } from './UpgradeScreen';
 export { QuizScreen } from './QuizScreen';
 export { QuizListScreen } from './QuizListScreen';
 export { QuizResultScreen } from './QuizResultScreen';

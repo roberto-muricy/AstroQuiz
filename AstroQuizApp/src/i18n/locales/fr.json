@@ -219,7 +219,8 @@
     "about": "À propos",
     "version": "Version",
     "terms": "Conditions d'utilisation",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "imageCredits": "Crédits des images"
   },
   "achievements": {
     "title": "Réalisations",
@@ -293,5 +294,11 @@
       "expiresOn": "Expire le {{date}}",
       "manageSubscription": "Gérer l'Abonnement"
     }
+  },
+  "imageCredits": {
+    "title": "Crédits des images",
+    "intro": "Les images des questions sont dans le domaine public ou utilisées sous licence, avec les crédits ci-dessous.",
+    "publicDomain": "Domaine public",
+    "footer": "Les noms et marques de missions/institutions appartiennent à leurs propriétaires respectifs. Licences CC : creativecommons.org."
   }
 }

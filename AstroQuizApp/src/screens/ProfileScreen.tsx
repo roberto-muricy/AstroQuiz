@@ -439,6 +439,18 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.privacy')}</Text>
             </View>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => navigation.navigate('ImageCredits')}
+          >
+            <View style={styles.settingLeft}>
+              <View style={styles.settingIconContainer}>
+                <InfoIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
+              <Text style={styles.settingText}>{t('profile.imageCredits')}</Text>
+            </View>
+            <ChevronRight size={20} color={COLORS.textSecondary} />
+          </TouchableOpacity>
         </Card>
 
         <View style={styles.bottomSpace} />

@@ -4,7 +4,7 @@
  * Abre direto nas tabs - login opcional via ProfileScreen
  */
 
-import { LoginScreen, QuizScreen, QuizResultScreen } from '@/screens';
+import { LoginScreen, QuizScreen, QuizResultScreen, ImageCreditsScreen, UpgradeScreen } from '@/screens';
 import { RootStackParamList } from '@/types';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
@@ -50,6 +50,21 @@ export const RootNavigator = () => {
         component={QuizScreen} // Temporário
         options={{
           animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="ImageCredits"
+        component={ImageCreditsScreen}
+        options={{
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen
+        name="Upgrade"
+        component={UpgradeScreen}
+        options={{
+          animation: 'slide_from_bottom',
+          presentation: 'modal',
         }}
       />
     </Stack.Navigator>

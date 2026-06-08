@@ -223,7 +223,8 @@
     "about": "Sobre",
     "version": "Versão",
     "terms": "Termos de Uso",
-    "privacy": "Privacidade"
+    "privacy": "Privacidade",
+    "imageCredits": "Créditos de imagens"
   },
   "achievements": {
     "title": "Conquistas",
@@ -309,5 +310,11 @@
       "expiresOn": "Expira em {{date}}",
       "manageSubscription": "Gerenciar Assinatura"
     }
+  },
+  "imageCredits": {
+    "title": "Créditos de imagens",
+    "intro": "As imagens das perguntas são de domínio público ou usadas sob licença, com os devidos créditos abaixo.",
+    "publicDomain": "Domínio público",
+    "footer": "Nomes e marcas de missões/instituições pertencem aos respectivos detentores. Licenças CC: creativecommons.org."
   }
 }

@@ -223,7 +223,8 @@
     "about": "About",
     "version": "Version",
     "terms": "Terms of Use",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "imageCredits": "Image credits"
   },
   "achievements": {
     "title": "Achievements",
@@ -309,5 +310,11 @@
       "expiresOn": "Expires on {{date}}",
       "manageSubscription": "Manage Subscription"
     }
+  },
+  "imageCredits": {
+    "title": "Image credits",
+    "intro": "The question images are in the public domain or used under license, with proper credits below.",
+    "publicDomain": "Public domain",
+    "footer": "Mission/institution names and marks belong to their respective owners. CC licenses: creativecommons.org."
   }
 }
