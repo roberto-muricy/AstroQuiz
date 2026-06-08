@@ -10,7 +10,9 @@ let requestTrackingAuthorization: (() => Promise<string>) | null = null;
 let getTrackingStatus: (() => Promise<string>) | null = null;
 try {
   const attModule = require('react-native-tracking-transparency');
-  requestTrackingAuthorization = attModule.requestTrackingAuthorization;
+  // O pacote exporta `requestTrackingPermission` (não `requestTrackingAuthorization`).
+  // Usar o nome errado deixava a função undefined e o prompt de ATT nunca era exibido.
+  requestTrackingAuthorization = attModule.requestTrackingPermission;
   getTrackingStatus = attModule.getTrackingStatus;
 } catch {
   // Módulo ATT não disponível
