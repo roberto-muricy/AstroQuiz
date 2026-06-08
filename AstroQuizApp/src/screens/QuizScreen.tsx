@@ -78,6 +78,8 @@ export const QuizScreen = () => {
   const autoAdvanceIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref para o resultado mais recente (evita closure stale no timer de auto-advance)
   const latestResultRef = useRef<any>(null);
+  // IDs das perguntas servidas nesta fase, para registrar e evitar repetição depois.
+  const usedQuestionIdsRef = useRef<number[]>([]);
   // Ref para auto-scroll até a explicação quando o resultado chega
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -196,11 +198,13 @@ export const QuizScreen = () => {
 
     try {
       const timeUsed = currentQuestion.timePerQuestion;
+      const timeoutQuestionId = currentQuestion.question?.id;
+      if (timeoutQuestionId) usedQuestionIdsRef.current.push(timeoutQuestionId);
       const result = await quizService.submitAnswer(
         sessionId,
         selectedOption || 'A',
         timeUsed,
-        currentQuestion.question?.id
+        timeoutQuestionId
       );
 
       latestResultRef.current = result;
@@ -231,6 +235,7 @@ export const QuizScreen = () => {
     try {
       const timeUsed = currentQuestion.timePerQuestion - (timeRemaining * 1000);
       const questionId = currentQuestion.question?.id;
+      if (questionId) usedQuestionIdsRef.current.push(questionId);
 
       const result = await quizService.submitAnswer(sessionId, option, timeUsed, questionId);
 
@@ -274,7 +279,9 @@ export const QuizScreen = () => {
     setAutoAdvanceCountdown(null);
 
     if (result?.sessionStatus?.isPhaseComplete) {
-      navigation.navigate('QuizResult', { sessionId });
+      // Passa os IDs das perguntas desta fase para serem registrados (anti-repetição)
+      const usedQuestionIds = Array.from(new Set(usedQuestionIdsRef.current));
+      navigation.navigate('QuizResult', { sessionId, usedQuestionIds });
     } else {
       loadQuestion();
     }
