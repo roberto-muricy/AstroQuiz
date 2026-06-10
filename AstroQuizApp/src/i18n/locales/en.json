@@ -309,6 +309,11 @@
       "renewsOn": "Renews on {{date}}",
       "expiresOn": "Expires on {{date}}",
       "manageSubscription": "Manage Subscription"
+    },
+    "benefitsSub": {
+      "noAds": "Play without ad interruptions",
+      "skips": "Skip tough questions whenever you want",
+      "continues": "Pick up where you left off when you miss"
     }
   },
   "imageCredits": {

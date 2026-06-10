@@ -293,6 +293,11 @@
       "renewsOn": "Se renueva el {{date}}",
       "expiresOn": "Expira el {{date}}",
       "manageSubscription": "Gestionar Suscripción"
+    },
+    "benefitsSub": {
+      "noAds": "Juega sin interrupciones de anuncios",
+      "skips": "Salta las preguntas difíciles cuando quieras",
+      "continues": "Continúa donde lo dejaste al fallar"
     }
   },
   "imageCredits": {
