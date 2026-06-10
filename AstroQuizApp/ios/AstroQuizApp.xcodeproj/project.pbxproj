@@ -36,6 +36,7 @@
 		A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		AD8B6145D9AC338B0F5C8F78 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0CCBED902931573F724BB8C2 /* PrivacyInfo.xcprivacy */; };
 		AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E834161A3963192DBAAD382 /* InfoPlist.strings */; };
 		D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */; };
 		EE3D83568A92437DA8337041 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */; };
 		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -63,9 +64,11 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AstroQuizApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AstroQuizApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AstroQuizApp/main.m; sourceTree = "<group>"; };
+		1DB64DBA30AEBDD089B03476 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		440DAAE4F66A82A3BE28DD14 /* Pods_AstroQuizApp_AstroQuizAppTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AstroQuizApp_AstroQuizAppTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Medium.ttf"; path = "../assets/fonts/Poppins-Medium.ttf"; sourceTree = "<group>"; };
 		5D5FD580F3E84DBC2EDCB3FC /* Pods-AstroQuizApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.debug.xcconfig"; sourceTree = "<group>"; };
+		7D4F28267A2EEB2BA83B4AF5 /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AstroQuizApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		93BAE5128A442243AF62EA4F /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		947025C92F084A21009636C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -74,7 +77,9 @@
 		A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Bold.ttf"; path = "../assets/fonts/Poppins-Bold.ttf"; sourceTree = "<group>"; };
 		AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../assets/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
+		C5E6FF127A14F5370CD51AFA /* pt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		FB32E63BB41BC5C13EFE121C /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +130,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				0CCBED902931573F724BB8C2 /* PrivacyInfo.xcprivacy */,
+				9E834161A3963192DBAAD382 /* InfoPlist.strings */,
 			);
 			name = AstroQuizApp;
 			sourceTree = "<group>";
@@ -264,6 +270,9 @@
 			knownRegions = (
 				en,
 				Base,
+				pt,
+				es,
+				fr,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
@@ -315,6 +324,7 @@
 				A1F50CC3235E4A10ABAA02BE /* Poppins-Bold.ttf in Resources */,
 				D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */,
 				AD8B6145D9AC338B0F5C8F78 /* PrivacyInfo.xcprivacy in Resources */,
+				BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,6 +514,20 @@
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		9E834161A3963192DBAAD382 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FB32E63BB41BC5C13EFE121C /* en */,
+				C5E6FF127A14F5370CD51AFA /* pt */,
+				1DB64DBA30AEBDD089B03476 /* es */,
+				7D4F28267A2EEB2BA83B4AF5 /* fr */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {

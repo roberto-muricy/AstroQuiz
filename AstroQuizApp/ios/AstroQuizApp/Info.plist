@@ -12,6 +12,13 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>pt</string>
+		<string>es</string>
+		<string>fr</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -47,11 +54,9 @@
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>O AstroQuiz precisa acessar o servidor local na sua rede (Strapi) para carregar perguntas e salvar seu progresso.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>AstroQuiz needs access to the local server on your network to load questions and save your progress.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>O AstroQuiz usa este identificador para exibir anúncios mais relevantes a você e manter o app gratuito. Você pode mudar sua escolha a qualquer momento nos Ajustes do iOS.</string>
+	<string>AstroQuiz uses this identifier to show you more relevant ads and keep the app free. You can change your choice anytime in iOS Settings.</string>
 	<key>RCTNewArchEnabled</key>
 	<false/>
 	<key>UIAppFonts</key>

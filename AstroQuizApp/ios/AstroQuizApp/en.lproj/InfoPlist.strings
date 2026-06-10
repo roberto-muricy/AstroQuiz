@@ -1,0 +1,2 @@
+"NSUserTrackingUsageDescription" = "AstroQuiz uses this identifier to show you more relevant ads and keep the app free. You can change your choice anytime in iOS Settings.";
+"NSLocalNetworkUsageDescription" = "AstroQuiz needs access to the local server on your network to load questions and save your progress.";
