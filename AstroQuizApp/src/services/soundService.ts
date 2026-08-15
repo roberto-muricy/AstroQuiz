@@ -1,41 +1,25 @@
 /**
  * Sound Service
- * Manages sound effects (react-native-sound) and haptic feedback
+ * Efeitos sonoros do quiz + feedback tátil (vibração).
+ *
+ * NOTA IMPORTANTE: falamos DIRETO com o módulo nativo `RNSound`, sem usar o
+ * wrapper JS do pacote react-native-sound. O wrapper (sound.js) faz
+ * `require('react-native/Libraries/Image/resolveAssetSource')` esperando uma
+ * função, mas no React Native 0.81 esse módulo usa `export default` e o require
+ * devolve um objeto — o construtor quebra com "Object is not a function" e o
+ * áudio falha silenciosamente. O módulo nativo em si funciona normalmente.
  */
 
-import { Vibration } from 'react-native';
+import { NativeModules, Vibration } from 'react-native';
 import { SettingsStorage, type AppSettings } from '@/utils/settingsStorage';
 
-// Importação segura: se o módulo nativo não estiver disponível, o app
-// continua funcionando apenas com vibração.
-let Sound: any = null;
-let isSoundAvailable = false;
+const RNSound: any = NativeModules?.RNSound ?? null;
+const isSoundAvailable = !!RNSound && typeof RNSound.prepare === 'function';
 
-try {
-  // react-native-sound exporta via CommonJS (module.exports = Sound),
-  // então o construtor vem direto do require.
-  const mod = require('react-native-sound');
-  Sound = typeof mod === 'function' ? mod : mod?.default;
-  isSoundAvailable = typeof Sound === 'function';
-  if (isSoundAvailable) {
-    // Toca junto com outros áudios e respeita o botão físico de silencioso.
-    Sound.setCategory('Ambient', true);
-  }
-} catch (error) {
-  Sound = null;
-  isSoundAvailable = false;
-}
+type SoundKey = 'correct' | 'incorrect' | 'tap' | 'warning' | 'streak' | 'phase';
 
-type SoundKey =
-  | 'correct'
-  | 'incorrect'
-  | 'tap'
-  | 'warning'
-  | 'streak'
-  | 'phase';
-
-// Os arquivos são copiados para o bundle nativo por `react-native-asset`
-// (ver assets/sounds e react-native.config.js).
+// Arquivos copiados para o bundle nativo por `react-native-asset`
+// (ver assets/sounds + react-native.config.js).
 const SOUND_FILES: Record<SoundKey, string> = {
   correct: 'correct.wav',
   incorrect: 'incorrect.wav',
@@ -54,6 +38,16 @@ const VOLUMES: Record<SoundKey, number> = {
   phase: 0.8,
 };
 
+// Cada som carregado no nativo é identificado por uma chave numérica.
+const KEYS: Record<SoundKey, number> = {
+  correct: 1,
+  incorrect: 2,
+  tap: 3,
+  warning: 4,
+  streak: 5,
+  phase: 6,
+};
+
 class SoundService {
   private readonly defaultSettings: AppSettings = {
     soundEnabled: true,
@@ -63,31 +57,59 @@ class SoundService {
     language: 'pt',
   };
   private settings: AppSettings | null = this.defaultSettings;
-  private players: Partial<Record<SoundKey, any>> = {};
+  private loaded: Partial<Record<SoundKey, boolean>> = {};
   private preloaded = false;
 
-  /**
-   * Pré-carrega os efeitos sonoros. Chamar uma vez na inicialização do app
-   * evita atraso na primeira reprodução.
-   */
+  constructor() {
+    if (isSoundAvailable) {
+      try {
+        // 'Playback' toca mesmo com o botão lateral de silencioso ligado;
+        // mixWithOthers=true não interrompe música que o usuário esteja ouvindo.
+        RNSound.setCategory('Playback', true);
+      } catch (error) {
+        // segue sem categoria explícita
+      }
+    }
+  }
+
+  /** Carrega os efeitos no nativo (chamar uma vez, no início do app). */
   preload() {
     if (!isSoundAvailable || this.preloaded) return;
     this.preloaded = true;
+    (Object.keys(SOUND_FILES) as SoundKey[]).forEach((key) => this.load(key));
+  }
 
-    (Object.keys(SOUND_FILES) as SoundKey[]).forEach((key) => {
-      try {
-        const player = new Sound(SOUND_FILES[key], Sound.MAIN_BUNDLE, (error: any) => {
-          if (error) {
-            this.players[key] = undefined;
-            return;
-          }
-          player.setVolume(VOLUMES[key]);
-        });
-        this.players[key] = player;
-      } catch (error) {
-        this.players[key] = undefined;
-      }
-    });
+  private load(key: SoundKey, playWhenReady = false) {
+    if (!isSoundAvailable) return;
+
+    const path = `${RNSound.MainBundlePath}/${SOUND_FILES[key]}`;
+    try {
+      RNSound.prepare(path, KEYS[key], {}, (error: any) => {
+        if (error) {
+          this.loaded[key] = false;
+          return;
+        }
+        this.loaded[key] = true;
+        try {
+          RNSound.setVolume(KEYS[key], VOLUMES[key]);
+        } catch (e) {
+          // volume é opcional
+        }
+        if (playWhenReady) this.start(key);
+      });
+    } catch (error) {
+      this.loaded[key] = false;
+    }
+  }
+
+  private start(key: SoundKey) {
+    try {
+      // Rebobina para permitir repetições rápidas (acertos seguidos).
+      RNSound.setCurrentTime(KEYS[key], 0);
+      RNSound.play(KEYS[key], () => {});
+    } catch (error) {
+      // áudio nunca deve quebrar o fluxo do quiz
+    }
   }
 
   private play(key: SoundKey) {
@@ -96,11 +118,12 @@ class SoundService {
 
     if (!this.preloaded) this.preload();
 
-    const player = this.players[key];
-    if (!player) return;
-
-    // Rebobina antes de tocar para permitir repetições rápidas.
-    player.stop(() => player.play());
+    if (this.loaded[key]) {
+      this.start(key);
+    } else {
+      // Ainda não carregou (ou falhou): carrega agora e toca quando estiver pronto.
+      this.load(key, true);
+    }
   }
 
   private async ensureSettings(): Promise<AppSettings> {
@@ -134,7 +157,7 @@ class SoundService {
     this.settings = { ...(this.settings ?? (await SettingsStorage.getSettings())), musicEnabled: enabled };
   }
 
-  // region public sound cues
+  // region efeitos públicos
   playTap() {
     this.play('tap');
     this.vibrate(15);
@@ -176,18 +199,31 @@ class SoundService {
   }
 
   async playBackgroundMusic(volume = 0.25) {
-    // Música de fundo permanece desativada (apenas efeitos sonoros por enquanto).
+    // Música de fundo permanece desativada (apenas efeitos sonoros).
   }
 
   async stopBackgroundMusic() {
-    // Música de fundo permanece desativada (apenas efeitos sonoros por enquanto).
+    // Música de fundo permanece desativada (apenas efeitos sonoros).
   }
 
-  /** Libera os players (usar ao encerrar o app, se necessário). */
+  /** Diagnóstico do subsistema de áudio (usado em verificação manual). */
+  getDiagnostics(): string {
+    if (!isSoundAvailable) return 'SND: modulo nativo indisponivel';
+    const keys = Object.keys(SOUND_FILES) as SoundKey[];
+    const ok = keys.filter((k) => this.loaded[k]).length;
+    return `carregados=${ok}/${keys.length} som=${this.settings?.soundEnabled}`;
+  }
+
+  /** Libera os players nativos. */
   release() {
-    (Object.keys(this.players) as SoundKey[]).forEach((key) => {
-      this.players[key]?.release?.();
-      this.players[key] = undefined;
+    if (!isSoundAvailable) return;
+    (Object.keys(KEYS) as SoundKey[]).forEach((key) => {
+      try {
+        RNSound.release(KEYS[key]);
+      } catch (error) {
+        // ignora
+      }
+      this.loaded[key] = false;
     });
     this.preloaded = false;
   }
