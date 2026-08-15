@@ -27,7 +27,6 @@ export const RootNavigator = () => {
         component={LoginScreen}
         options={{
           animation: 'slide_from_bottom',
-          presentation: 'modal',
         }}
       />
       <Stack.Screen
@@ -64,7 +63,6 @@ export const RootNavigator = () => {
         component={UpgradeScreen}
         options={{
           animation: 'slide_from_bottom',
-          presentation: 'modal',
         }}
       />
     </Stack.Navigator>
