@@ -4,6 +4,8 @@
  */
 
 import { AppProvider } from "@/contexts/AppContext";
+import { AdsProvider } from "@/contexts/AdsContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { RootNavigator } from "@/navigation/RootNavigator";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect } from "react";
@@ -110,14 +112,18 @@ const App = () => {
 
   return (
     <AppProvider>
-      <NavigationContainer>
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent
-        />
-        <RootNavigator />
-      </NavigationContainer>
+      <AdsProvider>
+        <SubscriptionProvider>
+          <NavigationContainer>
+            <StatusBar
+              barStyle="light-content"
+              backgroundColor="transparent"
+              translucent
+            />
+            <RootNavigator />
+          </NavigationContainer>
+        </SubscriptionProvider>
+      </AdsProvider>
     </AppProvider>
   );
 };
