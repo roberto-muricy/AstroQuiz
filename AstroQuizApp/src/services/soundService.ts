@@ -16,35 +16,40 @@ import { SettingsStorage, type AppSettings } from '@/utils/settingsStorage';
 const RNSound: any = NativeModules?.RNSound ?? null;
 const isSoundAvailable = !!RNSound && typeof RNSound.prepare === 'function';
 
-type SoundKey = 'correct' | 'incorrect' | 'tap' | 'warning' | 'streak' | 'phase';
+type SoundKey = 'correct' | 'incorrect' | 'nav' | 'toggle' | 'xp' | 'phase';
 
 // Arquivos copiados para o bundle nativo por `react-native-asset`
 // (ver assets/sounds + react-native.config.js).
 const SOUND_FILES: Record<SoundKey, string> = {
-  correct: 'correct.wav',
-  incorrect: 'incorrect.wav',
-  tap: 'tap.wav',
-  warning: 'warning.wav',
-  streak: 'streak.wav',
-  phase: 'phase.wav',
+  correct: 'correct.wav',   // arpejo ascendente
+  incorrect: 'incorrect.wav', // grave, "falha de sistema"
+  nav: 'nav.wav',           // troca de tela / botao principal
+  toggle: 'toggle.wav',     // chaves e selecao de alternativa
+  xp: 'xp.wav',             // ganho de pontos
+  phase: 'phase.wav',       // fase concluida
 };
 
 const VOLUMES: Record<SoundKey, number> = {
   correct: 0.7,
   incorrect: 0.7,
-  tap: 0.3,
-  warning: 0.6,
-  streak: 0.7,
+  nav: 0.35,     // discretos: tocam a cada toque
+  toggle: 0.35,
+  xp: 0.6,
   phase: 0.8,
 };
+
+// Música de fundo (loop). Volume baixo: é ambiente, não protagonista.
+const MUSIC_FILE = 'background.wav';
+const MUSIC_KEY = 99;
+const MUSIC_VOLUME = 0.18;
 
 // Cada som carregado no nativo é identificado por uma chave numérica.
 const KEYS: Record<SoundKey, number> = {
   correct: 1,
   incorrect: 2,
-  tap: 3,
-  warning: 4,
-  streak: 5,
+  nav: 3,
+  toggle: 4,
+  xp: 5,
   phase: 6,
 };
 
@@ -59,6 +64,8 @@ class SoundService {
   private settings: AppSettings | null = this.defaultSettings;
   private loaded: Partial<Record<SoundKey, boolean>> = {};
   private preloaded = false;
+  private musicLoaded = false;
+  private musicPlaying = false;
 
   constructor() {
     if (isSoundAvailable) {
@@ -155,17 +162,35 @@ class SoundService {
   async setMusicEnabled(enabled: boolean) {
     await SettingsStorage.setMusicEnabled(enabled);
     this.settings = { ...(this.settings ?? (await SettingsStorage.getSettings())), musicEnabled: enabled };
+    if (enabled) {
+      this.playBackgroundMusic();
+    } else {
+      this.stopBackgroundMusic();
+    }
   }
 
   // region efeitos públicos
+  /** Troca de tela e botoes principais. */
+  playNavigate() {
+    this.play('nav');
+    this.vibrate(12);
+  }
+
+  /** Chaves de configuracao e selecao de alternativa. */
   playTap() {
-    this.play('tap');
+    this.play('toggle');
     this.vibrate(15);
   }
 
   playSelect() {
-    this.play('tap');
+    this.play('toggle');
     this.vibrate(15);
+  }
+
+  /** Ganho de XP. */
+  playXP() {
+    this.play('xp');
+    this.vibrate([0, 20]);
   }
 
   playCorrect() {
@@ -178,13 +203,13 @@ class SoundService {
     this.vibrate([0, 35]);
   }
 
+  // Aviso de tempo e sequencia de acertos ainda nao tem som definido:
+  // por enquanto so vibram.
   playWarning() {
-    this.play('warning');
     this.vibrate([0, 45]);
   }
 
   playStreak(streakCount?: number) {
-    this.play('streak');
     this.vibrate([0, 20]);
   }
 
@@ -198,12 +223,82 @@ class SoundService {
     this.vibrate([0, 30, 40, 30]);
   }
 
-  async playBackgroundMusic(volume = 0.25) {
-    // Música de fundo permanece desativada (apenas efeitos sonoros).
+  /**
+   * Inicia a música de fundo em loop. Só toca se o usuário tiver ativado
+   * ("Música" nas Configurações) — por padrão vem desligada.
+   */
+  async playBackgroundMusic(volume = MUSIC_VOLUME) {
+    if (!isSoundAvailable) return;
+    const settings = await this.ensureSettings();
+    if (!settings.musicEnabled) return;
+    if (this.musicPlaying) return;
+
+    const start = () => {
+      try {
+        RNSound.setNumberOfLoops(MUSIC_KEY, -1); // -1 = repete indefinidamente
+        RNSound.setVolume(MUSIC_KEY, volume);
+        RNSound.play(MUSIC_KEY, () => {});
+        this.musicPlaying = true;
+      } catch (error) {
+        this.musicPlaying = false;
+      }
+    };
+
+    if (this.musicLoaded) {
+      start();
+      return;
+    }
+
+    try {
+      RNSound.prepare(`${RNSound.MainBundlePath}/${MUSIC_FILE}`, MUSIC_KEY, {}, (error: any) => {
+        if (error) {
+          this.musicLoaded = false;
+          return;
+        }
+        this.musicLoaded = true;
+        start();
+      });
+    } catch (error) {
+      this.musicLoaded = false;
+    }
   }
 
   async stopBackgroundMusic() {
-    // Música de fundo permanece desativada (apenas efeitos sonoros).
+    if (!isSoundAvailable || !this.musicLoaded) return;
+    try {
+      RNSound.stop(MUSIC_KEY, () => {});
+    } catch (error) {
+      // ignora
+    }
+    this.musicPlaying = false;
+  }
+
+  /** Pausa sem perder a posição (app foi para segundo plano). */
+  pauseBackgroundMusic() {
+    if (!isSoundAvailable || !this.musicPlaying) return;
+    try {
+      RNSound.pause(MUSIC_KEY, () => {});
+    } catch (error) {
+      // ignora
+    }
+    this.musicPlaying = false;
+  }
+
+  /** Retoma a música ao voltar para o app, se estiver habilitada. */
+  async resumeBackgroundMusic() {
+    if (!isSoundAvailable) return;
+    const settings = await this.ensureSettings();
+    if (!settings.musicEnabled || this.musicPlaying) return;
+    if (!this.musicLoaded) {
+      this.playBackgroundMusic();
+      return;
+    }
+    try {
+      RNSound.play(MUSIC_KEY, () => {});
+      this.musicPlaying = true;
+    } catch (error) {
+      this.musicPlaying = false;
+    }
   }
 
   /** Diagnóstico do subsistema de áudio (usado em verificação manual). */

@@ -10,6 +10,7 @@ import { Button, Card, LevelCard } from '@/components';
 import { StatDisplay } from '@/components/common';
 import { useApp } from '@/contexts/AppContext';
 import quizService from '@/services/quizService';
+import soundService from '@/services/soundService';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -87,6 +88,7 @@ export const HomeScreen = () => {
   };
 
   const handleStartQuiz = async (phaseNumber: number) => {
+    soundService.playNavigate();
     try {
       console.log('🎮 Iniciando quiz - Fase:', phaseNumber, 'Locale:', locale);
       const progress = await ProgressStorage.getProgress();

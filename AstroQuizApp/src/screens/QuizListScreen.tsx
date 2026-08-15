@@ -88,6 +88,7 @@ export const QuizListScreen = () => {
   };
 
   const handleStartQuiz = async (phaseNumber: number) => {
+    soundService.playNavigate();
     if (phaseNumber > unlockedPhases) {
       soundService.playIncorrect();
       Alert.alert(

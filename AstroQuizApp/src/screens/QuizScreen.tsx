@@ -28,7 +28,6 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Vibration,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -180,7 +179,7 @@ export const QuizScreen = () => {
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
 
-    Vibration.vibrate(30);
+    soundService.playSelect();
     setSelectedOption(option);
     setAutoSubmitCountdown(null);
 

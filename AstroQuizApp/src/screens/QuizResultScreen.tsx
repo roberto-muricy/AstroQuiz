@@ -151,6 +151,11 @@ export const QuizResultScreen = () => {
 
       soundService.playPhaseComplete(isPerfect);
 
+      // XP entra depois da fanfarra para os dois não se sobreporem.
+      if (data.passed) {
+        setTimeout(() => soundService.playXP(), 900);
+      }
+
     } catch (error) {
       console.error('Erro ao carregar resultados:', error);
     } finally {

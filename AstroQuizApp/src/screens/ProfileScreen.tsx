@@ -4,6 +4,7 @@
  */
 
 import { Button, Card, Toast } from '@/components';
+import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { useApp } from '@/contexts/AppContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import soundService from '@/services/soundService';
@@ -13,7 +14,7 @@ import { getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, Animated, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
+import { Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
@@ -336,13 +337,11 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.sound')}</Text>
             </View>
             <View style={styles.switchContainer}>
-              <Switch
+              <ToggleSwitch
                 value={settings.soundEnabled}
                 onValueChange={handleToggleSound}
                 trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
                 thumbColor="#FFFFFF"
-                ios_backgroundColor="#3A3A3C"
-                style={styles.switch}
               />
             </View>
           </View>
@@ -355,13 +354,11 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.vibration')}</Text>
             </View>
             <View style={styles.switchContainer}>
-              <Switch
+              <ToggleSwitch
                 value={settings.vibrationEnabled}
                 onValueChange={handleToggleVibration}
                 trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
                 thumbColor="#FFFFFF"
-                ios_backgroundColor="#3A3A3C"
-                style={styles.switch}
               />
             </View>
           </View>
@@ -374,13 +371,11 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.music')}</Text>
             </View>
             <View style={styles.switchContainer}>
-              <Switch
+              <ToggleSwitch
                 value={settings.musicEnabled}
                 onValueChange={handleToggleMusic}
                 trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
                 thumbColor="#FFFFFF"
-                ios_backgroundColor="#3A3A3C"
-                style={styles.switch}
               />
             </View>
           </View>
@@ -393,13 +388,11 @@ export const ProfileScreen = () => {
               <Text style={styles.settingText}>{t('profile.notifications')}</Text>
             </View>
             <View style={styles.switchContainer}>
-              <Switch
+              <ToggleSwitch
                 value={settings.notificationsEnabled}
                 onValueChange={handleToggleNotifications}
                 trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
                 thumbColor="#FFFFFF"
-                ios_backgroundColor="#3A3A3C"
-                style={styles.switch}
               />
             </View>
           </View>
@@ -698,7 +691,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   switch: {
-    transform: [{ scaleX: 0.85 }, { scaleY: 0.85 }],
+    // Sem transform: escalar um Switch nativo no iOS quebra a detecção de toque
+    // (o controle fica visualmente correto, mas não responde).
   },
   bottomSpace: {
     height: 100,

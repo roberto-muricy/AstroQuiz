@@ -23,27 +23,35 @@
     },
     {
       "path": "assets/sounds/correct.wav",
-      "sha1": "34a193cb7541beea44f5db7e8e62828fdc5a81db"
+      "sha1": "f65d06620f7e06962b74d296816203bdbff38c85"
     },
     {
       "path": "assets/sounds/incorrect.wav",
-      "sha1": "46cd4d7c2486e8d12d26e4534f6cad6cd9671df2"
+      "sha1": "2ff81e9502ee8ecd0785df0fd947c6b5bcbf1c1a"
+    },
+    {
+      "path": "assets/sounds/nav.wav",
+      "sha1": "7933bb23f8196077acc0b098000cf7f4b8beeba0"
     },
     {
       "path": "assets/sounds/phase.wav",
-      "sha1": "18c984cf4926909e36fc9bb5f0717ca1e864670f"
+      "sha1": "0e5d4e80c55eb5434b4fc3e6842b74705d8d97f2"
     },
     {
       "path": "assets/sounds/streak.wav",
       "sha1": "fae14631a626cbf21c9d6b83a1300fb3f6e42fdf"
     },
     {
-      "path": "assets/sounds/tap.wav",
-      "sha1": "b3d82cdda9415d6d630c1be5a123f467d874ad1e"
+      "path": "assets/sounds/toggle.wav",
+      "sha1": "3a0cc2f7fba691b2fec6a588d355819dba70b75e"
     },
     {
       "path": "assets/sounds/warning.wav",
       "sha1": "3ac57fd48a5b41b94f9fff754ccb50bafba2190f"
+    },
+    {
+      "path": "assets/sounds/xp.wav",
+      "sha1": "8ae2235e1cef22158d60491575227c918e004a2b"
     }
   ]
 }

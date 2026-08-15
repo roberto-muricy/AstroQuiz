@@ -31,6 +31,8 @@ const App = () => {
     checkBackendConnection();
     // Pré-carrega os efeitos sonoros para não haver atraso no primeiro acerto/erro
     soundService.preload();
+    // Inicia a música de fundo (só toca se estiver ativada nas Configurações)
+    soundService.playBackgroundMusic();
 
     // IMPORTANTE (Apple Guideline 2.1 - ATT): o iOS só exibe o pop-up de
     // App Tracking Transparency quando o app está em primeiro plano e ATIVO.
@@ -51,7 +53,14 @@ const App = () => {
       runTracking();
     }
     const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") runTracking();
+      if (state === "active") {
+        runTracking();
+        // Retoma a música ao voltar para o app (se o usuário a tiver ativado).
+        soundService.resumeBackgroundMusic();
+      } else {
+        // Silencia enquanto o app está em segundo plano.
+        soundService.pauseBackgroundMusic();
+      }
     });
     return () => sub.remove();
   }, []);
