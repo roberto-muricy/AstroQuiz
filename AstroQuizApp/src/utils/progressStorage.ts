@@ -138,11 +138,13 @@ export const ProgressStorage = {
       console.log(`🎉 Fase ${phaseNumber + 1} desbloqueada! (req ${requirement.requiredAccuracy}%)`);
     }
 
-    // Registrar perguntas usadas para evitar repetição em próximas fases (capar lista para 500 itens)
+    // Registrar perguntas usadas para evitar repetição em próximas fases.
+    // O cap precisa ser maior que o total do banco de perguntas (~650 por locale);
+    // caso contrário os IDs mais antigos caem da lista e aquelas perguntas voltam a se repetir.
     if (Array.isArray(questionIds) && questionIds.length > 0) {
       const merged = new Set(progress.answeredQuestionIds || []);
       questionIds.filter(Boolean).forEach((id) => merged.add(id));
-      const limited = Array.from(merged).slice(-500);
+      const limited = Array.from(merged).slice(-2000);
       progress.answeredQuestionIds = limited;
     }
 

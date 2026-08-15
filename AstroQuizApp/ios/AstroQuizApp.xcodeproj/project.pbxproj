@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* AstroQuizAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* AstroQuizAppTests.m */; };
+		0845AFF3BD2E491E99171672 /* streak.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1AA116285444F698D296CEE /* streak.wav */; };
 		096E3FAB64354E688666A8EE /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		0E29C3A379754D258D6BD72F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		108348FBCFE5434CAABD136B /* correct.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6070F3DFDACA444D9077D149 /* correct.wav */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -18,26 +20,38 @@
 		1F59794CE6354B25AB261589 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		274790A6407A4C9F9253CF5F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		2D11D268E33A4DF5A00521E2 /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */; };
+		38CCEE08AA444272A962B7F8 /* incorrect.wav in Resources */ = {isa = PBXBuildFile; fileRef = EE9ECB9DB1D0412BBD72E7EB /* incorrect.wav */; };
 		3AA76C7604A64D8A917B42ED /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		410C9F336AE7442E9E6FDD7D /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		438211223BE49C52B3024816 /* Pods_AstroQuizApp_AstroQuizAppTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10222306973C62EBC3F10522 /* Pods_AstroQuizApp_AstroQuizAppTests.framework */; };
+		4CC0AA0A7E9C42E9A654A593 /* background.wav in Resources */ = {isa = PBXBuildFile; fileRef = D6A43BAED01F44E2870FBF7C /* background.wav */; };
+		6EDB3465C6CD4E76B7FDBE87 /* correct.wav in Resources */ = {isa = PBXBuildFile; fileRef = 6070F3DFDACA444D9077D149 /* correct.wav */; };
 		7714E4C60BF64065BF727A17 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		7F6A9908212448BEA6DD097A /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		84C4C02761F0418BA0B0DCF1 /* tap.wav in Resources */ = {isa = PBXBuildFile; fileRef = 8ABA30AC51B8419DB24D7E2F /* tap.wav */; };
+		86993E7C5D56441A9401E0D3 /* warning.wav in Resources */ = {isa = PBXBuildFile; fileRef = 98E69B070B7240A89670D217 /* warning.wav */; };
 		8BF57E5C075943818A02AF9F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		903035D75F8C4F2C97E5E213 /* tap.wav in Resources */ = {isa = PBXBuildFile; fileRef = 8ABA30AC51B8419DB24D7E2F /* tap.wav */; };
 		91598AB854DB4C52835774F1 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		947025CA2F084A21009636C5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 947025C92F084A21009636C5 /* GoogleService-Info.plist */; };
 		986E8D8149E74112BA4CB6E5 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		9D3A87E970974EA0A9C585BD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		A1F50CC3235E4A10ABAA02BE /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */; };
 		A2F014F5A1FC4B10A3211057 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		A5F468A736A54EFC9D9D5353 /* phase.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35BE8542752549EE8A2F6FCA /* phase.wav */; };
 		A62F3A557DE24A6EA9F05422 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
+		A69668F4F9F04B46A61E8A0F /* incorrect.wav in Resources */ = {isa = PBXBuildFile; fileRef = EE9ECB9DB1D0412BBD72E7EB /* incorrect.wav */; };
 		AD8B6145D9AC338B0F5C8F78 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0CCBED902931573F724BB8C2 /* PrivacyInfo.xcprivacy */; };
 		AF5DA3F9EAE94898B8751B32 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E834161A3963192DBAAD382 /* InfoPlist.strings */; };
 		C72B77E5CB4E2C54E1A2007B /* Pods_AstroQuizApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E131988747BD1CAE6F8AAB05 /* Pods_AstroQuizApp.framework */; };
+		CF1F364821C2473E8A6F4AF4 /* background.wav in Resources */ = {isa = PBXBuildFile; fileRef = D6A43BAED01F44E2870FBF7C /* background.wav */; };
+		D3CE634E570E4EE2A16F5787 /* phase.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35BE8542752549EE8A2F6FCA /* phase.wav */; };
 		D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */; };
+		E94C75D635384BAD95FC8ED7 /* streak.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1AA116285444F698D296CEE /* streak.wav */; };
+		EB405F2C8434466CBBBCC783 /* warning.wav in Resources */ = {isa = PBXBuildFile; fileRef = 98E69B070B7240A89670D217 /* warning.wav */; };
 		EE3D83568A92437DA8337041 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */; };
 		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
@@ -65,20 +79,27 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AstroQuizApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AstroQuizApp/main.m; sourceTree = "<group>"; };
 		1DB64DBA30AEBDD089B03476 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		35BE8542752549EE8A2F6FCA /* phase.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = phase.wav; path = ../assets/sounds/phase.wav; sourceTree = "<group>"; };
 		4B2B162DEE5900894F427156 /* Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Medium.ttf"; path = "../assets/fonts/Poppins-Medium.ttf"; sourceTree = "<group>"; };
+		6070F3DFDACA444D9077D149 /* correct.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = correct.wav; path = ../assets/sounds/correct.wav; sourceTree = "<group>"; };
 		64308DE3C1F97D01B3C5AFF3 /* Pods-AstroQuizApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.debug.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.debug.xcconfig"; sourceTree = "<group>"; };
 		7D4F28267A2EEB2BA83B4AF5 /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AstroQuizApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		82F1EA7479720A2C2684BFBE /* Pods-AstroQuizApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.release.xcconfig"; sourceTree = "<group>"; };
+		8ABA30AC51B8419DB24D7E2F /* tap.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = tap.wav; path = ../assets/sounds/tap.wav; sourceTree = "<group>"; };
 		947025C92F084A21009636C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		98E69B070B7240A89670D217 /* warning.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = warning.wav; path = ../assets/sounds/warning.wav; sourceTree = "<group>"; };
 		A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Bold.ttf"; path = "../assets/fonts/Poppins-Bold.ttf"; sourceTree = "<group>"; };
 		AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../assets/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
 		C5E6FF127A14F5370CD51AFA /* pt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D6A43BAED01F44E2870FBF7C /* background.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = background.wav; path = ../assets/sounds/background.wav; sourceTree = "<group>"; };
 		D6B429775B63DA1D0108ED5C /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		E131988747BD1CAE6F8AAB05 /* Pods_AstroQuizApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AstroQuizApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EE9ECB9DB1D0412BBD72E7EB /* incorrect.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = incorrect.wav; path = ../assets/sounds/incorrect.wav; sourceTree = "<group>"; };
+		F1AA116285444F698D296CEE /* streak.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = streak.wav; path = ../assets/sounds/streak.wav; sourceTree = "<group>"; };
 		FB32E63BB41BC5C13EFE121C /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -152,6 +173,13 @@
 				AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */,
 				A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */,
 				B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */,
+				F1AA116285444F698D296CEE /* streak.wav */,
+				8ABA30AC51B8419DB24D7E2F /* tap.wav */,
+				D6A43BAED01F44E2870FBF7C /* background.wav */,
+				98E69B070B7240A89670D217 /* warning.wav */,
+				6070F3DFDACA444D9077D149 /* correct.wav */,
+				35BE8542752549EE8A2F6FCA /* phase.wav */,
+				EE9ECB9DB1D0412BBD72E7EB /* incorrect.wav */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -290,6 +318,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E94C75D635384BAD95FC8ED7 /* streak.wav in Resources */,
+				84C4C02761F0418BA0B0DCF1 /* tap.wav in Resources */,
+				4CC0AA0A7E9C42E9A654A593 /* background.wav in Resources */,
+				86993E7C5D56441A9401E0D3 /* warning.wav in Resources */,
+				108348FBCFE5434CAABD136B /* correct.wav in Resources */,
+				D3CE634E570E4EE2A16F5787 /* phase.wav in Resources */,
+				38CCEE08AA444272A962B7F8 /* incorrect.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,6 +360,13 @@
 				D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */,
 				AD8B6145D9AC338B0F5C8F78 /* PrivacyInfo.xcprivacy in Resources */,
 				BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */,
+				0845AFF3BD2E491E99171672 /* streak.wav in Resources */,
+				903035D75F8C4F2C97E5E213 /* tap.wav in Resources */,
+				CF1F364821C2473E8A6F4AF4 /* background.wav in Resources */,
+				EB405F2C8434466CBBBCC783 /* warning.wav in Resources */,
+				6EDB3465C6CD4E76B7FDBE87 /* correct.wav in Resources */,
+				A5F468A736A54EFC9D9D5353 /* phase.wav in Resources */,
+				A69668F4F9F04B46A61E8A0F /* incorrect.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -588,7 +630,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = AstroQuizApp/AstroQuizApp.entitlements;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = 34677MW5LY;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = AstroQuizApp/Info.plist;
@@ -618,7 +660,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = AstroQuizApp/AstroQuizApp.entitlements;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_TEAM = 34677MW5LY;
 				INFOPLIST_FILE = AstroQuizApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;

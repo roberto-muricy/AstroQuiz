@@ -7,6 +7,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import { AdsProvider } from "@/contexts/AdsContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { RootNavigator } from "@/navigation/RootNavigator";
+import soundService from "@/services/soundService";
 import { NavigationContainer } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { StatusBar, AppState } from "react-native";
@@ -28,6 +29,8 @@ const App = () => {
   useEffect(() => {
     initializeFirebase();
     checkBackendConnection();
+    // Pré-carrega os efeitos sonoros para não haver atraso no primeiro acerto/erro
+    soundService.preload();
 
     // IMPORTANTE (Apple Guideline 2.1 - ATT): o iOS só exibe o pop-up de
     // App Tracking Transparency quando o app está em primeiro plano e ATIVO.

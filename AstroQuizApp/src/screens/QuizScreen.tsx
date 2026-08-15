@@ -14,15 +14,17 @@
 
 import { QuestionCard } from '@/components';
 import quizService from '@/services/quizService';
+import soundService from '@/services/soundService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
-import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
-import React, { useEffect, useRef, useState } from 'react';
+import { useNavigation, useRoute, NavigationProp, RouteProp, useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -56,6 +58,14 @@ export const QuizScreen = () => {
   const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+
+  // Oculta a barra de status (relógio/wifi/bateria) durante o jogo para maior imersão.
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setHidden(true, 'fade');
+      return () => StatusBar.setHidden(false, 'fade');
+    }, [])
+  );
 
   const [currentQuestion, setCurrentQuestion] = useState<CurrentQuestion | null>(null);
   const [selectedOption, setSelectedOption] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
@@ -214,7 +224,7 @@ export const QuizScreen = () => {
       setQuestionResults(prev => [...prev, 'timeout']);
       setCanAdvance(true);
 
-      Vibration.vibrate([0, 80, 40, 80]);
+      soundService.playIncorrect();
       // Tempo esgotado conta como erro: NÃO avança sozinho — usuário lê a explicação
     } catch (error) {
       console.error('Erro ao processar timeout:', error);
@@ -251,11 +261,11 @@ export const QuizScreen = () => {
       setCanAdvance(true);
 
       if (result.answerRecord.isCorrect) {
-        Vibration.vibrate(100);
+        soundService.playCorrect();
         // Acertou: avança sozinho (com contagem visível e cancelável)
         startAutoAdvance(result);
       } else {
-        Vibration.vibrate([0, 100, 50, 100]);
+        soundService.playIncorrect();
         // Errou: NÃO avança sozinho — usuário lê a explicação no próprio ritmo
       }
     } catch (error) {
