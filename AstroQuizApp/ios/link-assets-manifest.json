@@ -2,6 +2,10 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/Poppins-Bold.ttf",
+      "sha1": "45e4d582cbb4dab2bbad3f624fad9ae567c66547"
+    },
+    {
       "path": "assets/fonts/Poppins-Medium.ttf",
       "sha1": "e837165aedb031ea74872c5983a3217d1c190a1a"
     },
@@ -10,12 +14,36 @@
       "sha1": "86a425be5a919d86729b85b2bc1d07da5ce413d4"
     },
     {
-      "path": "assets/fonts/Poppins-Bold.ttf",
-      "sha1": "45e4d582cbb4dab2bbad3f624fad9ae567c66547"
-    },
-    {
       "path": "assets/fonts/Poppins-SemiBold.ttf",
       "sha1": "622ca6ccbe2f22c5611dffa016b745bd26be154c"
+    },
+    {
+      "path": "assets/sounds/background.wav",
+      "sha1": "4cda6a300d0d843c0009d740a4bb8c02f54dc092"
+    },
+    {
+      "path": "assets/sounds/correct.wav",
+      "sha1": "34a193cb7541beea44f5db7e8e62828fdc5a81db"
+    },
+    {
+      "path": "assets/sounds/incorrect.wav",
+      "sha1": "46cd4d7c2486e8d12d26e4534f6cad6cd9671df2"
+    },
+    {
+      "path": "assets/sounds/phase.wav",
+      "sha1": "18c984cf4926909e36fc9bb5f0717ca1e864670f"
+    },
+    {
+      "path": "assets/sounds/streak.wav",
+      "sha1": "fae14631a626cbf21c9d6b83a1300fb3f6e42fdf"
+    },
+    {
+      "path": "assets/sounds/tap.wav",
+      "sha1": "b3d82cdda9415d6d630c1be5a123f467d874ad1e"
+    },
+    {
+      "path": "assets/sounds/warning.wav",
+      "sha1": "3ac57fd48a5b41b94f9fff754ccb50bafba2190f"
     }
   ]
 }
