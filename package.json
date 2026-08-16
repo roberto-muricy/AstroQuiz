@@ -47,7 +47,7 @@
     "ts-jest": "^29.4.9"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "^5.42.0",
+    "@strapi/plugin-cloud": "^5.52.0",
     "@strapi/plugin-users-permissions": "^5.42.0",
     "@strapi/provider-upload-cloudinary": "^5.42.0",
     "@strapi/strapi": "^5.42.0",
