@@ -9,7 +9,7 @@ const GAME_RULES = {
   // === BASIC GAME CONFIGURATION ===
   general: {
     questionsPerPhase: 10,
-    timePerQuestion: 30000, // 30 seconds in milliseconds
+    timePerQuestion: 45000, // 45 seconds in milliseconds
     totalPhases: 50,
     minScoreToPass: 0.6, // 60% minimum to pass a phase
     maxRetries: 3, // Maximum retries per phase
@@ -31,11 +31,11 @@ const GAME_RULES = {
     // Speed bonus multipliers (based on time remaining)
     speedBonus: {
       // If answered in first 10 seconds (20s remaining): 2x multiplier
-      excellent: { threshold: 20000, multiplier: 2.0 },
+      excellent: { threshold: 35000, multiplier: 2.0 },
       // If answered in first 15 seconds (15s remaining): 1.5x multiplier
-      good: { threshold: 15000, multiplier: 1.5 },
+      good: { threshold: 30000, multiplier: 1.5 },
       // If answered in first 20 seconds (10s remaining): 1.2x multiplier
-      normal: { threshold: 10000, multiplier: 1.2 },
+      normal: { threshold: 25000, multiplier: 1.2 },
       // If answered in last 10 seconds: 1x multiplier
       slow: { threshold: 0, multiplier: 1.0 }
     },

@@ -111,11 +111,14 @@ export function diversifyTopics<T extends { topic?: string; id: number }>(
  */
 export const SCORING = {
   pointsByLevel: { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50 } as Record<number, number>,
-  timePerQuestion: 30000,
+  timePerQuestion: 45000,
+  // Os limiares sao por tempo RESTANTE. Ao passar de 30s para 45s eles foram
+  // deslocados em +15s para manter a mesma exigencia de rapidez de antes:
+  // 2.0x continua exigindo resposta em ate 10s, 1.5x ate 15s, 1.2x ate 20s.
   speedMultipliers: [
-    { minRemaining: 20000, multiplier: 2.0 },  // Excellent (<10s used)
-    { minRemaining: 15000, multiplier: 1.5 },  // Good (<15s used)
-    { minRemaining: 10000, multiplier: 1.2 },  // Normal (<20s used)
+    { minRemaining: 35000, multiplier: 2.0 },  // Excellent (<10s used)
+    { minRemaining: 30000, multiplier: 1.5 },  // Good (<15s used)
+    { minRemaining: 25000, multiplier: 1.2 },  // Normal (<20s used)
     { minRemaining: 0, multiplier: 1.0 },      // Slow (>20s used)
   ],
   streakBonusStart: 3,

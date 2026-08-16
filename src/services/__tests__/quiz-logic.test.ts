@@ -209,7 +209,7 @@ describe('Quiz Logic Service', () => {
 
   describe('SCORING constants', () => {
     it('should have correct time per question', () => {
-      expect(SCORING.timePerQuestion).toBe(30000);
+      expect(SCORING.timePerQuestion).toBe(45000);
     });
 
     it('should have correct pass threshold', () => {

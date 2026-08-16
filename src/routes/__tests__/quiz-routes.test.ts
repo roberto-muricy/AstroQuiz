@@ -170,7 +170,7 @@ describe('Quiz Routes - Validation Integration', () => {
 
   describe('Scoring Rules', () => {
     it('should have correct time per question', () => {
-      expect(SCORING.timePerQuestion).toBe(30000);
+      expect(SCORING.timePerQuestion).toBe(45000);
     });
 
     it('should have correct pass threshold', () => {
@@ -187,9 +187,9 @@ describe('Quiz Routes - Validation Integration', () => {
 
     it('should have correct speed multipliers', () => {
       const multipliers = SCORING.speedMultipliers;
-      expect(multipliers[0]).toEqual({ minRemaining: 20000, multiplier: 2.0 });
-      expect(multipliers[1]).toEqual({ minRemaining: 15000, multiplier: 1.5 });
-      expect(multipliers[2]).toEqual({ minRemaining: 10000, multiplier: 1.2 });
+      expect(multipliers[0]).toEqual({ minRemaining: 35000, multiplier: 2.0 });
+      expect(multipliers[1]).toEqual({ minRemaining: 30000, multiplier: 1.5 });
+      expect(multipliers[2]).toEqual({ minRemaining: 25000, multiplier: 1.2 });
       expect(multipliers[3]).toEqual({ minRemaining: 0, multiplier: 1.0 });
     });
   });
