@@ -39,7 +39,7 @@ const VOLUMES: Record<SoundKey, number> = {
 };
 
 // Música de fundo (loop). Volume baixo: é ambiente, não protagonista.
-const MUSIC_FILE = 'background.wav';
+const MUSIC_FILE = 'background.m4a'; // "Outer Space" — AAC (12x menor que o WAV original)
 const MUSIC_KEY = 99;
 const MUSIC_VOLUME = 0.18;
 

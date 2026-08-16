@@ -142,3 +142,9 @@ mobile/build/
 Icon?firebase-credentials.json
 firebase-credentials.json
 .env.production
+
+# Backups locais (conteudo / rollback de localizacao)
+backups/
+
+# Fonte da música (WAV original, 34MB) — o app usa o .m4a convertido
+AstroQuizApp/assets/_music-source/
