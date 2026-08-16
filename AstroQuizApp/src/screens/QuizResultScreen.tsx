@@ -10,6 +10,8 @@ import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
 import soundService from '@/services/soundService';
+import { showInterstitialAfterPhase, loadInterstitialAd } from '@/services/adService';
+import { useAds } from '@/contexts/AdsContext';
 import { AchievementPopup } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import React, { useEffect, useRef, useState } from 'react';
@@ -171,16 +173,18 @@ export const QuizResultScreen = () => {
         const progress = await ProgressStorage.getProgress();
         const excludeQuestions = progress.answeredQuestionIds || [];
         const newSession = await quizService.startQuiz(sessionData.phaseNumber, locale, undefined, excludeQuestions);
-        navigation.reset({
-          index: 1,
-          routes: [
-            { name: 'Main' },
-            {
-              name: 'QuizGame',
-              params: { phaseNumber: sessionData.phaseNumber, sessionId: newSession.sessionId },
-            },
-          ],
-        });
+        await runAdThen(() =>
+          navigation.reset({
+            index: 1,
+            routes: [
+              { name: 'Main' },
+              {
+                name: 'QuizGame',
+                params: { phaseNumber: sessionData.phaseNumber, sessionId: newSession.sessionId },
+              },
+            ],
+          })
+        );
       }
     } catch (error) {
       console.error('Erro ao iniciar novo quiz:', error);
@@ -198,16 +202,18 @@ export const QuizResultScreen = () => {
       const progress = await ProgressStorage.getProgress();
       const excludeQuestions = progress.answeredQuestionIds || [];
       const newSession = await quizService.startQuiz(nextPhase, locale, undefined, excludeQuestions);
-      navigation.reset({
-        index: 1,
-        routes: [
-          { name: 'Main' },
-          {
-            name: 'QuizGame',
-            params: { phaseNumber: nextPhase, sessionId: newSession.sessionId },
-          },
-        ],
-      });
+      await runAdThen(() =>
+        navigation.reset({
+          index: 1,
+          routes: [
+            { name: 'Main' },
+            {
+              name: 'QuizGame',
+              params: { phaseNumber: nextPhase, sessionId: newSession.sessionId },
+            },
+          ],
+        })
+      );
     } catch (error) {
       console.error('Erro ao iniciar próxima fase:', error);
       Alert.alert('Erro', 'Não foi possível iniciar a próxima fase.');
@@ -216,11 +222,33 @@ export const QuizResultScreen = () => {
     }
   };
 
+
+  /**
+   * Exibe o interstitial ao SAIR da tela de resultado — nunca na chegada, para
+   * nao atropelar a fanfarra, as estrelas e a contagem de XP. Assinantes Pro
+   * (adsEnabled=false) nunca veem anuncio. A regra de fase minima fica no
+   * adService (MIN_PHASE_FOR_ADS).
+   */
+  const runAdThen = async (next: () => void) => {
+    try {
+      if (adsEnabled && !isPro) {
+        await showInterstitialAfterPhase(sessionData?.phaseNumber || 1);
+        // Ja deixa o proximo carregado para a fase seguinte
+        loadInterstitialAd();
+      }
+    } catch (error) {
+      // anuncio nunca pode impedir a navegacao
+    }
+    next();
+  };
+
   const handleBackToMenu = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    });
+    runAdThen(() =>
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      })
+    );
   };
 
   const triggerLevelUp = (fromLevel: number, toLevel: { level: number; title: string; icon: string }) => {
