@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* AstroQuizAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* AstroQuizAppTests.m */; };
-		0845AFF3BD2E491E99171672 /* streak.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1AA116285444F698D296CEE /* streak.wav */; };
 		096E3FAB64354E688666A8EE /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		0E29C3A379754D258D6BD72F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
@@ -26,7 +25,6 @@
 		7A06B303A7CE45F59561C0C0 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		7F6A9908212448BEA6DD097A /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		86993E7C5D56441A9401E0D3 /* warning.wav in Resources */ = {isa = PBXBuildFile; fileRef = 98E69B070B7240A89670D217 /* warning.wav */; };
 		8BF57E5C075943818A02AF9F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		91598AB854DB4C52835774F1 /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		947025CA2F084A21009636C5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 947025C92F084A21009636C5 /* GoogleService-Info.plist */; };
@@ -40,8 +38,6 @@
 		BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9E834161A3963192DBAAD382 /* InfoPlist.strings */; };
 		C72B77E5CB4E2C54E1A2007B /* Pods_AstroQuizApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E131988747BD1CAE6F8AAB05 /* Pods_AstroQuizApp.framework */; };
 		D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */; };
-		E94C75D635384BAD95FC8ED7 /* streak.wav in Resources */ = {isa = PBXBuildFile; fileRef = F1AA116285444F698D296CEE /* streak.wav */; };
-		EB405F2C8434466CBBBCC783 /* warning.wav in Resources */ = {isa = PBXBuildFile; fileRef = 98E69B070B7240A89670D217 /* warning.wav */; };
 		EE3D83568A92437DA8337041 /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5BF31ADE05D3402885375CE0 /* Poppins-Medium.ttf */; };
 		FCAF4D6EA77A43ECB3F1EF9E /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		E1571C02818949DFA09BE14E /* xp.wav in Resources */ = {isa = PBXBuildFile; fileRef = E2B3C893931E416EBFFE1370 /* xp.wav */; };
@@ -58,6 +54,10 @@
 		4B0C1074D2744C08A4096963 /* toggle.wav in Resources */ = {isa = PBXBuildFile; fileRef = 262024284E3A49698DEDC238 /* toggle.wav */; };
 		D701EBE1C12740ED9ACF2B39 /* background.m4a in Resources */ = {isa = PBXBuildFile; fileRef = F044D6FD6D0C48919DE0E112 /* background.m4a */; };
 		603E759F3D74494AA20A06FD /* background.m4a in Resources */ = {isa = PBXBuildFile; fileRef = F044D6FD6D0C48919DE0E112 /* background.m4a */; };
+		52FBC9E1EAF54415B5CC1525 /* tick.wav in Resources */ = {isa = PBXBuildFile; fileRef = 37D58C98019B4B4EBB9C2DD5 /* tick.wav */; };
+		FAD6C5340CA74E63846D295D /* tick.wav in Resources */ = {isa = PBXBuildFile; fileRef = 37D58C98019B4B4EBB9C2DD5 /* tick.wav */; };
+		2635380FE27B47ECA1819367 /* timeout.wav in Resources */ = {isa = PBXBuildFile; fileRef = 95E6C6B887C741F4B988288A /* timeout.wav */; };
+		2206AAA2A7B34A1286F603D3 /* timeout.wav in Resources */ = {isa = PBXBuildFile; fileRef = 95E6C6B887C741F4B988288A /* timeout.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,7 +90,6 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = AstroQuizApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		82F1EA7479720A2C2684BFBE /* Pods-AstroQuizApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp/Pods-AstroQuizApp.release.xcconfig"; sourceTree = "<group>"; };
 		947025C92F084A21009636C5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		98E69B070B7240A89670D217 /* warning.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = warning.wav; path = ../assets/sounds/warning.wav; sourceTree = "<group>"; };
 		A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Bold.ttf"; path = "../assets/fonts/Poppins-Bold.ttf"; sourceTree = "<group>"; };
 		AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-Regular.ttf"; path = "../assets/fonts/Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Poppins-SemiBold.ttf"; path = "../assets/fonts/Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -98,7 +97,6 @@
 		D6B429775B63DA1D0108ED5C /* Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; path = "Target Support Files/Pods-AstroQuizApp-AstroQuizAppTests/Pods-AstroQuizApp-AstroQuizAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		E131988747BD1CAE6F8AAB05 /* Pods_AstroQuizApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AstroQuizApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F1AA116285444F698D296CEE /* streak.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = streak.wav; path = ../assets/sounds/streak.wav; sourceTree = "<group>"; };
 		FB32E63BB41BC5C13EFE121C /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E2B3C893931E416EBFFE1370 /* xp.wav */ = {isa = PBXFileReference; name = "xp.wav"; path = "../assets/sounds/xp.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		B0571DBC23354B04988E6E97 /* correct.wav */ = {isa = PBXFileReference; name = "correct.wav"; path = "../assets/sounds/correct.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
@@ -107,6 +105,8 @@
 		3C2C165F749C45C88B1FBE44 /* incorrect.wav */ = {isa = PBXFileReference; name = "incorrect.wav"; path = "../assets/sounds/incorrect.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		262024284E3A49698DEDC238 /* toggle.wav */ = {isa = PBXFileReference; name = "toggle.wav"; path = "../assets/sounds/toggle.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		F044D6FD6D0C48919DE0E112 /* background.m4a */ = {isa = PBXFileReference; name = "background.m4a"; path = "../assets/sounds/background.m4a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		37D58C98019B4B4EBB9C2DD5 /* tick.wav */ = {isa = PBXFileReference; name = "tick.wav"; path = "../assets/sounds/tick.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		95E6C6B887C741F4B988288A /* timeout.wav */ = {isa = PBXFileReference; name = "timeout.wav"; path = "../assets/sounds/timeout.wav"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,8 +179,6 @@
 				AD9FE176ACF64B798F5C7F47 /* Poppins-Regular.ttf */,
 				A1FF0C8322504DFB8B80129A /* Poppins-Bold.ttf */,
 				B380BAF11EEA454CB9FEAFCC /* Poppins-SemiBold.ttf */,
-				F1AA116285444F698D296CEE /* streak.wav */,
-				98E69B070B7240A89670D217 /* warning.wav */,
 				E2B3C893931E416EBFFE1370 /* xp.wav */,
 				B0571DBC23354B04988E6E97 /* correct.wav */,
 				0DBFB8561E1F48D797AA446F /* nav.wav */,
@@ -188,6 +186,8 @@
 				3C2C165F749C45C88B1FBE44 /* incorrect.wav */,
 				262024284E3A49698DEDC238 /* toggle.wav */,
 				F044D6FD6D0C48919DE0E112 /* background.m4a */,
+				37D58C98019B4B4EBB9C2DD5 /* tick.wav */,
+				95E6C6B887C741F4B988288A /* timeout.wav */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -326,8 +326,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E94C75D635384BAD95FC8ED7 /* streak.wav in Resources */,
-				86993E7C5D56441A9401E0D3 /* warning.wav in Resources */,
 				3427DDF13CC349C09433A65A /* xp.wav in Resources */,
 				F7247FAB9B33401680A40E99 /* correct.wav in Resources */,
 				794ADC07D85D4D75A37A76D5 /* nav.wav in Resources */,
@@ -335,6 +333,8 @@
 				7AAFB1FB8E2543B1AA40382F /* incorrect.wav in Resources */,
 				4B0C1074D2744C08A4096963 /* toggle.wav in Resources */,
 				603E759F3D74494AA20A06FD /* background.m4a in Resources */,
+				FAD6C5340CA74E63846D295D /* tick.wav in Resources */,
+				2206AAA2A7B34A1286F603D3 /* timeout.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,8 +370,6 @@
 				D56FEFB09201406789C1EDD8 /* Poppins-SemiBold.ttf in Resources */,
 				AD8B6145D9AC338B0F5C8F78 /* PrivacyInfo.xcprivacy in Resources */,
 				BC430AD8792E13A911909603 /* InfoPlist.strings in Resources */,
-				0845AFF3BD2E491E99171672 /* streak.wav in Resources */,
-				EB405F2C8434466CBBBCC783 /* warning.wav in Resources */,
 				E1571C02818949DFA09BE14E /* xp.wav in Resources */,
 				401D8A90F25D47768D2DF7A6 /* correct.wav in Resources */,
 				611024B19A9D410CAE333C00 /* nav.wav in Resources */,
@@ -379,6 +377,8 @@
 				4C5A59B9591749A0BF7951E1 /* incorrect.wav in Resources */,
 				9BA8B91CC41B4E878741F566 /* toggle.wav in Resources */,
 				D701EBE1C12740ED9ACF2B39 /* background.m4a in Resources */,
+				52FBC9E1EAF54415B5CC1525 /* tick.wav in Resources */,
+				2635380FE27B47ECA1819367 /* timeout.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

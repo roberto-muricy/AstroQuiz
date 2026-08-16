@@ -38,16 +38,16 @@
       "sha1": "0e5d4e80c55eb5434b4fc3e6842b74705d8d97f2"
     },
     {
-      "path": "assets/sounds/streak.wav",
-      "sha1": "fae14631a626cbf21c9d6b83a1300fb3f6e42fdf"
+      "path": "assets/sounds/tick.wav",
+      "sha1": "99a5825488d182ea827245ade19d971f5b3ee6b8"
+    },
+    {
+      "path": "assets/sounds/timeout.wav",
+      "sha1": "e571be873b74f21b59685b17188c3c1d055f8f8e"
     },
     {
       "path": "assets/sounds/toggle.wav",
       "sha1": "3a0cc2f7fba691b2fec6a588d355819dba70b75e"
-    },
-    {
-      "path": "assets/sounds/warning.wav",
-      "sha1": "3ac57fd48a5b41b94f9fff754ccb50bafba2190f"
     },
     {
       "path": "assets/sounds/xp.wav",

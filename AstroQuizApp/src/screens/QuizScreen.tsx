@@ -49,6 +49,10 @@ const getTimerColor = (timeRemaining: number, totalTime: number): string => {
   return '#EF4444';
 };
 
+// Segundo a partir do qual a contagem regressiva fica audível (a barra do
+// tempo já está vermelha nos últimos 20% = 6 s de 30 s).
+const COUNTDOWN_FROM = 6;
+
 type QuestionResult = 'correct' | 'wrong' | 'timeout';
 
 export const QuizScreen = () => {
@@ -116,6 +120,11 @@ export const QuizScreen = () => {
 
   useEffect(() => {
     if (!showResult && timeRemaining > 0) {
+      // Contagem regressiva audível nos 6 s finais — a faixa em que a barra
+      // do tempo já está vermelha. Toca em 6, 5, 4, 3, 2 e 1.
+      if (timeRemaining <= COUNTDOWN_FROM) {
+        soundService.playTick();
+      }
       const timer = setTimeout(() => {
         setTimeRemaining(time => time - 1);
       }, 1000);
@@ -223,7 +232,7 @@ export const QuizScreen = () => {
       setQuestionResults(prev => [...prev, 'timeout']);
       setCanAdvance(true);
 
-      soundService.playIncorrect();
+      soundService.playTimeout();
       // Tempo esgotado conta como erro: NÃO avança sozinho — usuário lê a explicação
     } catch (error) {
       console.error('Erro ao processar timeout:', error);

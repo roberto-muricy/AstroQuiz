@@ -16,7 +16,7 @@ import { SettingsStorage, type AppSettings } from '@/utils/settingsStorage';
 const RNSound: any = NativeModules?.RNSound ?? null;
 const isSoundAvailable = !!RNSound && typeof RNSound.prepare === 'function';
 
-type SoundKey = 'correct' | 'incorrect' | 'nav' | 'toggle' | 'xp' | 'phase';
+type SoundKey = 'correct' | 'incorrect' | 'nav' | 'toggle' | 'xp' | 'phase' | 'tick' | 'timeout';
 
 // Arquivos copiados para o bundle nativo por `react-native-asset`
 // (ver assets/sounds + react-native.config.js).
@@ -27,6 +27,8 @@ const SOUND_FILES: Record<SoundKey, string> = {
   toggle: 'toggle.wav',     // chaves e selecao de alternativa
   xp: 'xp.wav',             // ganho de pontos
   phase: 'phase.wav',       // fase concluida
+  tick: 'tick.wav',         // contagem regressiva (ultimos 6s)
+  timeout: 'timeout.wav',   // tempo esgotado
 };
 
 const VOLUMES: Record<SoundKey, number> = {
@@ -36,6 +38,8 @@ const VOLUMES: Record<SoundKey, number> = {
   toggle: 0.35,
   xp: 0.6,
   phase: 0.8,
+  tick: 0.25,    // toca 6x por pergunta: precisa ser discreto
+  timeout: 0.7,
 };
 
 // Música de fundo (loop). Volume baixo: é ambiente, não protagonista.
@@ -51,6 +55,8 @@ const KEYS: Record<SoundKey, number> = {
   toggle: 4,
   xp: 5,
   phase: 6,
+  tick: 7,
+  timeout: 8,
 };
 
 class SoundService {
@@ -203,9 +209,20 @@ class SoundService {
     this.vibrate([0, 35]);
   }
 
-  // Aviso de tempo e sequencia de acertos ainda nao tem som definido:
-  // por enquanto so vibram.
+  /** Contagem regressiva: um clique por segundo nos ultimos 6s. */
+  playTick() {
+    this.play('tick');
+    // sem vibrar: 6 vibracoes seguidas seriam incomodas
+  }
+
+  /** Tempo esgotado — som proprio, distinto do erro. */
+  playTimeout() {
+    this.play('timeout');
+    this.vibrate([0, 60, 40, 60]);
+  }
+
   playWarning() {
+    this.play('tick');
     this.vibrate([0, 45]);
   }
 
