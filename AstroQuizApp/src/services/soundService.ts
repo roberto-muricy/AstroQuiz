@@ -67,7 +67,10 @@ class SoundService {
     notificationsEnabled: true,
     language: 'pt',
   };
-  private settings: AppSettings | null = this.defaultSettings;
+  // Começa com os padrões para que os efeitos (que tocam de forma síncrona)
+  // funcionem antes do disco responder; `hydrate()` troca pelo valor real.
+  private settings: AppSettings = this.defaultSettings;
+  private hydration: Promise<void> | null = null;
   private loaded: Partial<Record<SoundKey, boolean>> = {};
   private preloaded = false;
   private musicLoaded = false;
@@ -89,6 +92,9 @@ class SoundService {
   preload() {
     if (!isSoundAvailable || this.preloaded) return;
     this.preloaded = true;
+    // Dispara a leitura das preferências já no arranque, para que efeitos e
+    // vibração respeitem o que o usuário escolheu na sessão anterior.
+    this.ensureSettings();
     (Object.keys(SOUND_FILES) as SoundKey[]).forEach((key) => this.load(key));
   }
 
@@ -139,11 +145,25 @@ class SoundService {
     }
   }
 
+  /**
+   * Lê as preferências salvas uma única vez. A promessa fica guardada para que
+   * chamadas simultâneas (preload + música no arranque) compartilhem a mesma
+   * leitura em vez de disputarem o disco.
+   */
   private async ensureSettings(): Promise<AppSettings> {
-    if (!this.settings) {
-      this.settings = await SettingsStorage.getSettings();
+    if (!this.hydration) {
+      this.hydration = SettingsStorage.getSettings()
+        .then((saved) => {
+          this.settings = saved;
+        })
+        .catch(() => {
+          // Sem acesso ao disco o app segue com os padrões.
+        });
     }
-    return this.settings || this.defaultSettings;
+    await this.hydration;
+    // Devolve o estado vivo, e não o que veio do disco: os setters alteram
+    // `settings` depois da hidratação e essas mudanças precisam valer.
+    return this.settings;
   }
 
   private vibrate(pattern: number | number[] = 30) {
@@ -156,18 +176,21 @@ class SoundService {
   }
 
   async setSoundEnabled(enabled: boolean) {
+    const current = await this.ensureSettings();
     await SettingsStorage.setSoundEnabled(enabled);
-    this.settings = { ...(this.settings ?? (await SettingsStorage.getSettings())), soundEnabled: enabled };
+    this.settings = { ...current, soundEnabled: enabled };
   }
 
   async setVibrationEnabled(enabled: boolean) {
+    const current = await this.ensureSettings();
     await SettingsStorage.setVibrationEnabled(enabled);
-    this.settings = { ...(this.settings ?? (await SettingsStorage.getSettings())), vibrationEnabled: enabled };
+    this.settings = { ...current, vibrationEnabled: enabled };
   }
 
   async setMusicEnabled(enabled: boolean) {
+    const current = await this.ensureSettings();
     await SettingsStorage.setMusicEnabled(enabled);
-    this.settings = { ...(this.settings ?? (await SettingsStorage.getSettings())), musicEnabled: enabled };
+    this.settings = { ...current, musicEnabled: enabled };
     if (enabled) {
       this.playBackgroundMusic();
     } else {
