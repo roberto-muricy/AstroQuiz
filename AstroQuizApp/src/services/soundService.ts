@@ -32,7 +32,7 @@ const SOUND_FILES: Record<SoundKey, string> = {
 };
 
 const VOLUMES: Record<SoundKey, number> = {
-  correct: 0.7,
+  correct: 0.49,  // 30% abaixo dos demais: toca com muita frequência
   incorrect: 0.7,
   nav: 0.35,     // discretos: tocam a cada toque
   toggle: 0.35,
