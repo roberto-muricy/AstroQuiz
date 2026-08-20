@@ -1,14 +1,14 @@
 {
- "gerado_em": "2026-08-20T11:14:31.396Z",
- "total": 692,
+ "gerado_em": "2026-08-20T12:35:38.514Z",
+ "total": 695,
  "por_nivel": {
   "1": 96,
   "2": 141,
-  "3": 181,
-  "4": 170,
+  "3": 183,
+  "4": 171,
   "5": 104
  },
- "com_imagem": 52,
+ "com_imagem": 55,
  "idiomas": [
   "pt",
   "en",
@@ -21088,6 +21088,186 @@
      ],
      "explanation": "Repare que os carimbos de tempo são praticamente idênticos. Cada filtro do Solar Dynamics Observatory isola a emissão de íons específicos, que só brilham em temperaturas próprias — de cerca de 600 mil a mais de 1 milhão de graus.",
      "topic": "Observação do espaço"
+    }
+   }
+  },
+  {
+   "base_id": "astro_img_0035",
+   "document_id": "gt0q69fxb2czz6mv09cnmycn",
+   "level": 4,
+   "topic_key": "Solar System",
+   "question_type": "image",
+   "correct_option": "D",
+   "image": {
+    "url": "https://res.cloudinary.com/dnvnxibya/image/upload/v1787229262/jupiter_polo_norte_ciclones_6366094610.jpg",
+    "name": "jupiter_polo_norte_ciclones_6366094610.jpg",
+    "width": 1280,
+    "height": 1280
+   },
+   "locales": {
+    "en": {
+     "question": "This infrared image shows Jupiter’s north pole. What are these spiral structures?",
+     "options": [
+      "Dark patches left by comet impacts",
+      "Shadows of the moons cast on the atmosphere",
+      "Regions where the solar wind stripped the atmosphere away",
+      "Continent-sized cyclones — eight surrounding a ninth at the centre, in an arrangement stable for years"
+     ],
+     "explanation": "In 2017 Juno revealed an arrangement nobody predicted: eight cyclones around a ninth, each thousands of kilometres across, spinning side by side without merging. The south pole has five.",
+     "topic": "Solar System"
+    },
+    "es": {
+     "question": "Esta imagen infrarroja muestra el polo norte de Júpiter. ¿Qué son estas estructuras en espiral?",
+     "options": [
+      "Manchas oscuras dejadas por impactos de cometas",
+      "Sombras de las lunas proyectadas sobre la atmósfera",
+      "Regiones donde el viento solar arrancó la atmósfera",
+      "Ciclones del tamaño de continentes: ocho rodeando a un noveno en el centro, en una disposición estable desde hace años"
+     ],
+     "explanation": "En 2017 Juno reveló una disposición que nadie predijo: ocho ciclones alrededor de un noveno, cada uno de miles de kilómetros, girando juntos sin fusionarse. En el polo sur son cinco.",
+     "topic": "Sistema Solar"
+    },
+    "fr": {
+     "question": "Cette image infrarouge montre le pôle nord de Jupiter. Que sont ces structures en spirale ?",
+     "options": [
+      "Des taches sombres laissées par des impacts de comètes",
+      "Les ombres des lunes projetées sur l’atmosphère",
+      "Des régions où le vent solaire a arraché l'atmosphère",
+      "Des cyclones grands comme des continents — huit entourant un neuvième au centre, dans un agencement stable depuis des années"
+     ],
+     "explanation": "En 2017, Juno a révélé un agencement que personne n'avait prévu : huit cyclones autour d'un neuvième, chacun de milliers de kilomètres, tournant côte à côte sans fusionner. Le pôle sud en compte cinq.",
+     "topic": "Système solaire"
+    },
+    "pt": {
+     "question": "Esta imagem infravermelha mostra o polo norte de Júpiter. O que são estas estruturas em espiral?",
+     "options": [
+      "Manchas escuras deixadas por impactos de cometas",
+      "Sombras das luas projetadas na atmosfera",
+      "Regiões onde o vento solar arrancou a atmosfera",
+      "Ciclones do tamanho de continentes — oito cercando um nono no centro, num arranjo que se mantém estável há anos"
+     ],
+     "explanation": "A Juno revelou em 2017 um arranjo que ninguém previa: oito ciclones em volta de um nono, cada um com milhares de quilômetros, girando lado a lado sem se fundirem. No polo sul são cinco.",
+     "topic": "Sistema solar"
+    }
+   }
+  },
+  {
+   "base_id": "astro_img_0036",
+   "document_id": "ilwddc7m0zwg9g0mg0w2qa84",
+   "level": 3,
+   "topic_key": "Space Observation",
+   "question_type": "image",
+   "correct_option": "C",
+   "image": {
+    "url": "https://res.cloudinary.com/dnvnxibya/image/upload/v1787229263/eclipse_anel_de_diamante_2667cd8bc4.jpg",
+    "name": "eclipse_anel_de_diamante_2667cd8bc4.jpg",
+    "width": 1279,
+    "height": 853
+   },
+   "locales": {
+    "en": {
+     "question": "What causes this intense glare at a single point on the rim, the instant a total solar eclipse begins or ends?",
+     "options": [
+      "A solar flare coinciding with the eclipse",
+      "Refraction of light in Earth’s atmosphere",
+      "Sunlight streaming through a valley between mountains on the Moon’s limb",
+      "Sunlight reflecting off the Moon’s surface"
+     ],
+     "explanation": "It is called the diamond ring effect. The Moon’s edge is not smooth: with almost the entire solar disc covered, the last light escapes through a valley between lunar mountains. You are seeing the Moon’s relief.",
+     "topic": "Space Observation"
+    },
+    "es": {
+     "question": "¿Qué causa este brillo intenso en un único punto del borde, en el instante en que un eclipse solar total empieza o termina?",
+     "options": [
+      "Una erupción solar que coincide con el eclipse",
+      "La refracción de la luz en la atmósfera terrestre",
+      "La luz del Sol pasando por un valle entre montañas en el borde de la Luna",
+      "El reflejo del Sol en la superficie de la Luna"
+     ],
+     "explanation": "Se llama efecto del anillo de diamante. El borde de la Luna no es liso: cuando casi todo el disco solar está cubierto, la última luz escapa por un valle entre montañas lunares. Estás viendo el relieve de la Luna.",
+     "topic": "Observación espacial"
+    },
+    "fr": {
+     "question": "Qu'est-ce qui provoque cet éclat intense en un seul point du bord, à l'instant où une éclipse solaire totale commence ou s'achève ?",
+     "options": [
+      "Une éruption solaire coïncidant avec l’éclipse",
+      "La réfraction de la lumière dans l'atmosphère terrestre",
+      "La lumière du Soleil passant par une vallée entre des montagnes du limbe lunaire",
+      "Le reflet du Soleil sur la surface de la Lune"
+     ],
+     "explanation": "C'est l'effet de l'anneau de diamant. Le bord de la Lune n'est pas lisse : lorsque presque tout le disque solaire est couvert, la dernière lumière s'échappe par une vallée entre des montagnes lunaires. Vous voyez le relief lunaire.",
+     "topic": "Observation de l'espace"
+    },
+    "pt": {
+     "question": "O que causa este brilho intenso num ponto único da borda, no instante em que um eclipse solar total começa ou termina?",
+     "options": [
+      "Uma erupção solar coincidente com o eclipse",
+      "A refração da luz na atmosfera da Terra",
+      "A luz do Sol passando por um vale entre montanhas na borda da Lua",
+      "O reflexo do Sol na superfície da Lua"
+     ],
+     "explanation": "Chama-se efeito do anel de diamante. A borda da Lua não é lisa: quando quase todo o disco solar já está coberto, a última luz escapa por um vale entre montanhas lunares. Você está vendo o relevo da Lua.",
+     "topic": "Observação do espaço"
+    }
+   }
+  },
+  {
+   "base_id": "astro_img_0037",
+   "document_id": "6aqidw23q1uviua4ep9bzban",
+   "level": 3,
+   "topic_key": "Small Solar System Bodies",
+   "question_type": "image",
+   "correct_option": "D",
+   "image": {
+    "url": "https://res.cloudinary.com/dnvnxibya/image/upload/v1787229264/bennu_superficie_pedregulhos_212daea7c6.jpg",
+    "name": "bennu_superficie_pedregulhos_212daea7c6.jpg",
+    "width": 855,
+    "height": 355
+   },
+   "locales": {
+    "en": {
+     "question": "This boulder-covered surface photographed by OSIRIS-REx surprised the mission team. Why?",
+     "options": [
+      "They expected pure ice rather than rock",
+      "They expected a metallic surface",
+      "They expected deep craters and few rocks",
+      "They expected smooth sand, but the asteroid is a loose pile of rock — which nearly made sample collection impossible"
+     ],
+     "explanation": "The probe was designed to touch down on a fine sandy beach. It found a boulder field and needed a target far smaller than planned. On contact, it sank into Bennu as if into a ball pit.",
+     "topic": "Small Solar System Bodies"
+    },
+    "es": {
+     "question": "Esta superficie cubierta de rocas, fotografiada por OSIRIS-REx, sorprendió al equipo de la misión. ¿Por qué?",
+     "options": [
+      "Se esperaba hielo puro, y no roca",
+      "Se esperaba una superficie metálica",
+      "Se esperaban cráteres profundos y pocas rocas",
+      "Se esperaba arena lisa, pero el asteroide es un montón suelto de rocas, lo que casi impidió la recogida de muestras"
+     ],
+     "explanation": "La sonda fue diseñada para posarse en una playa de arena fina. Encontró un campo de rocas y necesitó un punto de recogida mucho menor de lo previsto. Al tocar Bennu, se hundió como en una piscina de bolas.",
+     "topic": "Cuerpos menores del Sistema Solar"
+    },
+    "fr": {
+     "question": "Cette surface couverte de blocs rocheux, photographiée par OSIRIS-REx, a surpris l'équipe de la mission. Pourquoi ?",
+     "options": [
+      "On attendait de la glace pure, et non de la roche",
+      "On attendait une surface métallique",
+      "On attendait des cratères profonds et peu de roches",
+      "On attendait du sable lisse, mais l'astéroïde est un empilement meuble de roches — ce qui a failli rendre le prélèvement impossible"
+     ],
+     "explanation": "La sonde était conçue pour se poser sur une plage de sable fin. Elle a trouvé un champ de blocs et a dû viser une zone bien plus petite que prévu. Au contact, elle s'est enfoncée dans Bennu comme dans une piscine à balles.",
+     "topic": "Petits corps du système solaire"
+    },
+    "pt": {
+     "question": "Esta superfície coberta de pedregulhos, fotografada pela OSIRIS-REx, surpreendeu a equipe da missão. Por quê?",
+     "options": [
+      "Esperava-se gelo puro, e não rocha",
+      "Esperava-se uma superfície metálica",
+      "Esperava-se crateras profundas e poucas rochas",
+      "Esperava-se areia lisa, mas o asteroide é um amontoado solto de rochas — o que quase inviabilizou a coleta de amostras"
+     ],
+     "explanation": "A sonda foi projetada para pousar numa praia de areia fina. Encontrou um campo de pedregulhos e precisou de um ponto de coleta muito menor que o previsto. Ao tocar Bennu, afundou como se fosse uma piscina de bolinhas.",
+     "topic": "Pequenos corpos do Sistema Solar"
     }
    }
   },
