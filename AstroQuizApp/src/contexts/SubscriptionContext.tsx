@@ -8,6 +8,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -26,6 +27,37 @@ import {
 } from '@/services/subscriptionService';
 import { SubscriptionPlan } from '@/constants/subscription';
 import { useAds } from './AdsContext';
+import { useApp } from './AppContext';
+
+/**
+ * Só contas de verdade são identificadas no RevenueCat. Usuários anônimos
+ * (`anon_…`) e o estado pós-logout (`guest`) ficam com o ID anônimo do próprio
+ * SDK, que lê o recibo do aparelho.
+ */
+export const ehContaReal = (id?: string | null): boolean =>
+  !!id && id !== 'guest' && !id.startsWith('anon_');
+
+export type AcaoVinculo =
+  | { tipo: 'identificar'; userId: string }
+  | { tipo: 'desidentificar' }
+  | { tipo: 'nada' };
+
+/**
+ * Decide o que fazer no RevenueCat quando o usuário do app muda.
+ *
+ * `identificado` é a conta atualmente vinculada (null = anônimo). A regra
+ * delicada é a última: chamar logOut quando já estamos anônimos é erro no SDK,
+ * então nesse caso não fazemos nada.
+ */
+export const decidirVinculo = (
+  idDoUsuario: string | null | undefined,
+  identificado: string | null,
+): AcaoVinculo => {
+  const alvo = ehContaReal(idDoUsuario) ? (idDoUsuario as string) : null;
+  if (alvo === identificado) return { tipo: 'nada' };
+  if (alvo) return { tipo: 'identificar', userId: alvo };
+  return identificado ? { tipo: 'desidentificar' } : { tipo: 'nada' };
+};
 
 interface SubscriptionContextData {
   // Status da assinatura
@@ -64,6 +96,10 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
   children,
 }) => {
   const { setAdsEnabled } = useAds();
+  // Este provider fica dentro do AppProvider, então enxerga o usuário logado.
+  const { user } = useApp();
+  // Qual conta está identificada no RevenueCat agora (null = anônima).
+  const identificadoRef = useRef<string | null>(null);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +151,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
     setAdsEnabled(!isPro);
     console.log('[SubscriptionContext] Ads enabled:', !isPro);
   }, [isPro, setAdsEnabled]);
+
 
   /**
    * Atualiza o status da assinatura
@@ -194,14 +231,47 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({
    */
   const clearUserId = useCallback(async () => {
     await logoutUser();
-    setCustomerInfo({
-      isPro: false,
-      activeSubscription: null,
-      expirationDate: null,
-      willRenew: false,
-      originalPurchaseDate: null,
-    });
+    // Não zeramos o status: a assinatura pertence ao Apple ID, não à conta do
+    // app. Quem sai da conta continua Pro no mesmo aparelho — e a Apple exige
+    // que seja assim. Relemos o estado real em vez de presumir "não-Pro".
+    const info = await getCustomerInfo();
+    setCustomerInfo(info);
   }, []);
+
+  /**
+   * Vincula a assinatura à conta do app.
+   *
+   * Sem isto o RevenueCat opera sempre com um ID anônimo preso ao aparelho:
+   * quem assina no iPhone e entra com a mesma conta AstroQuiz no iPad não vê
+   * o Pro. Como o SubscriptionProvider fica dentro do AppProvider, ele observa
+   * o usuário e reage sozinho ao login e ao logout — nenhuma tela precisa
+   * chamar nada.
+   */
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const acao = decidirVinculo(user?.id, identificadoRef.current);
+    if (acao.tipo === 'nada') return;
+
+    let cancelado = false;
+    (async () => {
+      try {
+        if (acao.tipo === 'identificar') {
+          await setUserId(acao.userId);
+          if (!cancelado) identificadoRef.current = acao.userId;
+        } else {
+          await clearUserId();
+          if (!cancelado) identificadoRef.current = null;
+        }
+      } catch (error) {
+        // Falhar aqui não pode quebrar o app: o usuário segue com o ID anônimo,
+        // que continua lendo o recibo do aparelho.
+        console.error('[SubscriptionContext] Falha ao vincular a assinatura à conta:', error);
+      }
+    })();
+
+    return () => { cancelado = true; };
+  }, [isInitialized, user?.id, setUserId, clearUserId]);
 
   // Produtos filtrados
   const monthlyProduct = products.find((p) =>
