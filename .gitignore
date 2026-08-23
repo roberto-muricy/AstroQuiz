@@ -148,3 +148,9 @@ backups/
 
 # Fonte da música (WAV original, 34MB) — o app usa o .m4a convertido
 AstroQuizApp/assets/_music-source/
+
+# Chaves de conta de servico do Google Cloud (RevenueCat, Play Console).
+# Dao acesso a dados financeiros — nunca versionar.
+*-*.iam.gserviceaccount.json
+astroquiz-*-*.json
+*service-account*.json
