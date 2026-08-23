@@ -66,7 +66,7 @@ module.exports = createCoreController('api::user-profile.user-profile', ({ strap
       return { success: true, data: profile };
     } catch (error) {
       strapi.log.error('Error syncing user profile:', error);
-      ctx.throw(500, error);
+      ctx.throw(500, 'Internal server error');
     }
   },
 
@@ -99,7 +99,7 @@ module.exports = createCoreController('api::user-profile.user-profile', ({ strap
       return { success: true, data: updatedProfile };
     } catch (error) {
       strapi.log.error('Error updating stats:', error);
-      ctx.throw(500, error);
+      ctx.throw(500, 'Internal server error');
     }
   },
 
@@ -122,7 +122,7 @@ module.exports = createCoreController('api::user-profile.user-profile', ({ strap
       return { success: true, data: profile };
     } catch (error) {
       strapi.log.error('Error getting stats:', error);
-      ctx.throw(500, error);
+      ctx.throw(500, 'Internal server error');
     }
   }
 }));

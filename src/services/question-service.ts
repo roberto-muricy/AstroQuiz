@@ -155,8 +155,9 @@ export function requireWriteTokenIfConfigured(ctx: any): void {
     : null;
 
   if (!bearer) {
-    ctx.unauthorized('Invalid or missing write token');
-    return;
+    // ctx.throw lanca de fato; ctx.unauthorized apenas marca a resposta e
+    // deixaria o middleware seguir para o handler — era o bug de bypass.
+    ctx.throw(401, 'Invalid or missing write token');
   }
 
   // Use constant-time comparison to prevent timing attacks
@@ -164,7 +165,7 @@ export function requireWriteTokenIfConfigured(ctx: any): void {
   const a = Buffer.from(bearer);
   const b = Buffer.from(requiredToken);
   if (a.length !== b.length || !timingSafeEqual(a, b)) {
-    ctx.unauthorized('Invalid or missing write token');
+    ctx.throw(401, 'Invalid or missing write token');
   }
 }
 
