@@ -9,9 +9,12 @@ import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navig
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
+import type { RankIconName } from '@/utils/progressionSystem';
+import { RankIcon } from '@/components/RankIcon';
 import soundService from '@/services/soundService';
 import { showInterstitialAfterPhase, loadInterstitialAd } from '@/services/adService';
 import { useAds } from '@/contexts/AdsContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { AchievementPopup } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import React, { useEffect, useRef, useState } from 'react';
@@ -56,6 +59,8 @@ export const QuizResultScreen = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'QuizResult'>>();
   const { sessionId, usedQuestionIds = [] } = route.params;
   const { locale } = useApp();
+  const { adsEnabled } = useAds();
+  const { isPro } = useSubscription();
   const { t } = useTranslation();
 
   const [sessionData, setSessionData] = useState<any>(null);
@@ -72,12 +77,13 @@ export const QuizResultScreen = () => {
     from: number;
     to: number;
     title: string;
-    icon: string;
+    icon: RankIconName;
   } | null>(null);
   const [stars, setStars] = useState(0);
   const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
   const [totalXP, setTotalXP] = useState(0);
   const [levelTitle, setLevelTitle] = useState('');
+  const [levelIcon, setLevelIcon] = useState<RankIconName | null>(null);
   const [xpToNext, setXpToNext] = useState(0);
 
   useEffect(() => {
@@ -123,7 +129,8 @@ export const QuizResultScreen = () => {
 
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
         setTotalXP(updated.stats.totalXP);
-        setLevelTitle(`${currentLevel.icon} ${currentLevel.title}`);
+        setLevelTitle(currentLevel.title);
+        setLevelIcon(currentLevel.icon);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
         setPhaseUnlocked(updated.unlockedPhases > data.phaseNumber);
 
@@ -251,7 +258,7 @@ export const QuizResultScreen = () => {
     );
   };
 
-  const triggerLevelUp = (fromLevel: number, toLevel: { level: number; title: string; icon: string }) => {
+  const triggerLevelUp = (fromLevel: number, toLevel: { level: number; title: string; icon: RankIconName }) => {
     setLevelUpInfo({
       from: fromLevel,
       to: toLevel.level,
@@ -350,7 +357,10 @@ export const QuizResultScreen = () => {
             </View>
             {levelTitle ? (
               <View style={styles.levelRow}>
-                <Text style={styles.levelText}>{levelTitle}</Text>
+                <View style={styles.levelTitleRow}>
+                  {levelIcon && <RankIcon name={levelIcon} size={20} color={IconColors.gold} />}
+                  <Text style={styles.levelText}>{levelTitle}</Text>
+                </View>
                 <Text style={styles.levelSubText}>
                   {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
                 </Text>
@@ -533,7 +543,10 @@ export const QuizResultScreen = () => {
             <Text style={styles.levelUpSubtitle}>
               {t('result.levelUpFrom', { from: levelUpInfo.from, to: levelUpInfo.to })}
             </Text>
-            <Text style={styles.levelUpBadge}>{levelUpInfo.icon} {levelUpInfo.title}</Text>
+            <View style={styles.levelUpBadgeRow}>
+              <RankIcon name={levelUpInfo.icon} size={22} color={IconColors.gold} filled />
+              <Text style={styles.levelUpBadge}>{levelUpInfo.title}</Text>
+            </View>
             <TouchableOpacity style={styles.levelUpButton} onPress={closeLevelUp} activeOpacity={0.85}>
               <Text style={styles.levelUpButtonText}>{t('common.continue')}</Text>
             </TouchableOpacity>
@@ -600,6 +613,11 @@ const styles = StyleSheet.create({
   levelRow: {
     alignItems: 'center',
     marginBottom: SPACING.md,
+  },
+  levelTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
   },
   levelText: {
     ...TYPOGRAPHY.body,
@@ -812,10 +830,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: SPACING.sm,
   },
+  levelUpBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.xs,
+    marginBottom: SPACING.lg,
+  },
   levelUpBadge: {
     ...TYPOGRAPHY.h3,
     color: COLORS.text,
-    marginBottom: SPACING.lg,
   },
   levelUpButton: {
     backgroundColor: COLORS.primary,

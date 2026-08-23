@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SPACING, TYPOGRAPHY, COLORS, RADIUS, SIZES } from '@/constants/design-system';
+import { Lock, Play, Star } from 'lucide-react-native';
 
 interface PhaseCardProps {
   phaseNumber: number;
@@ -56,16 +57,23 @@ export const PhaseCard: React.FC<PhaseCardProps> = ({
 
           {/* Stars */}
           <View style={styles.starsContainer}>
-            {[0, 1, 2].map((i) => (
-              <Text key={i} style={styles.star}>
-                {progress.completed > i * 3 ? '⭐' : '☆'}
-              </Text>
-            ))}
+            {[0, 1, 2].map((i) => {
+              const conquistada = progress.completed > i * 3;
+              return (
+                <Star
+                  key={i}
+                  size={18}
+                  color={conquistada ? COLORS.warning : COLORS.textSecondary}
+                  fill={conquistada ? COLORS.warning : 'transparent'}
+                  strokeWidth={2}
+                />
+              );
+            })}
           </View>
 
           {/* Button */}
           <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonIcon}>▶</Text>
+            <Play size={12} color={COLORS.text} fill={COLORS.text} strokeWidth={2} />
             <Text style={styles.buttonText}>Continuar</Text>
           </TouchableOpacity>
         </>
@@ -73,7 +81,9 @@ export const PhaseCard: React.FC<PhaseCardProps> = ({
 
       {isLocked && (
         <>
-          <Text style={styles.lockIcon}>🔒</Text>
+          <View style={styles.lockIcon}>
+            <Lock size={32} color={COLORS.textSecondary} strokeWidth={2} />
+          </View>
           <Text style={styles.lockedText} numberOfLines={2}>
             Bloqueado
           </Text>
@@ -175,7 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   lockIcon: {
-    fontSize: 32,
     marginVertical: SPACING.md,
   },
   lockedText: {
