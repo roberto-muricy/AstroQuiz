@@ -1,12 +1,12 @@
 {
- "gerado_em": "2026-08-20T12:35:38.514Z",
- "total": 695,
+ "gerado_em": "2026-08-27T01:34:59.500Z",
+ "total": 700,
  "por_nivel": {
   "1": 96,
   "2": 141,
-  "3": 183,
-  "4": 171,
-  "5": 104
+  "3": 184,
+  "4": 173,
+  "5": 106
  },
  "com_imagem": 55,
  "idiomas": [
@@ -33233,6 +33233,281 @@
      ],
      "explanation": "A distorção é pequena demais para ser vista em uma galáxia isolada, mas medida estatisticamente em milhões delas mapeia a distribuição de matéria escura. É o método central da missão Euclides.",
      "topic": "Galáxias e Cosmologia"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_190",
+   "document_id": "oibr6tw1rghigt53tp7djg4n",
+   "level": 3,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "C",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Adding payload to a rocket requires more fuel — and that fuel also has to be accelerated. What follows from this?",
+     "options": [
+      "Payload and fuel grow in the same proportion",
+      "Consumption drops, because the rocket becomes more stable",
+      "Total mass grows far faster than the payload, which is why a rocket is almost entirely fuel",
+      "The effect is negligible, since the fuel burns early on"
+     ],
+     "explanation": "This is the tyranny of the rocket equation: every extra kilo of payload demands fuel, which demands more fuel to accelerate it. The Saturn V lifted 3,000 tonnes at launch to send about 45 tonnes to the Moon.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "Añadir carga a un cohete exige más combustible, y ese combustible también hay que acelerarlo. ¿Qué consecuencia tiene?",
+     "options": [
+      "Carga y combustible crecen en la misma proporción",
+      "El consumo baja, porque el cohete se vuelve más estable",
+      "La masa total crece mucho más rápido que la carga útil, y por eso el cohete es casi todo combustible",
+      "El efecto es despreciable, ya que el combustible arde al principio"
+     ],
+     "explanation": "Es la llamada tiranía de la ecuación del cohete: cada kilo extra de carga exige combustible, que a su vez exige más combustible para ser acelerado. El Saturno V despegaba con 3.000 toneladas para llevar unas 45 a la Luna.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Ajouter de la charge utile à une fusée exige plus de carburant — et ce carburant doit lui aussi être accéléré. Quelle en est la conséquence ?",
+     "options": [
+      "Charge utile et carburant croissent dans la même proportion",
+      "La consommation baisse, car la fusée devient plus stable",
+      "La masse totale croît bien plus vite que la charge utile : la fusée est donc presque entièrement du carburant",
+      "L'effet est négligeable, puisque le carburant brûle au début"
+     ],
+     "explanation": "C'est la tyrannie de l'équation de la fusée : chaque kilo de charge supplémentaire exige du carburant, lequel exige encore du carburant pour être accéléré. Saturn V décollait avec 3 000 tonnes pour envoyer environ 45 tonnes vers la Lune.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Acrescentar carga a um foguete exige mais combustível — e esse combustível também precisa ser acelerado. Qual é a consequência?",
+     "options": [
+      "Carga e combustível crescem na mesma proporção",
+      "O consumo diminui, porque o foguete fica mais estável",
+      "A massa total cresce muito mais rápido que a carga útil, e por isso quase todo o foguete é combustível",
+      "O efeito é desprezível, já que o combustível queima no início"
+     ],
+     "explanation": "É a chamada tirania da equação do foguete: cada quilo extra de carga exige combustível, que exige mais combustível para ser acelerado. No Saturno V, os 3 mil toneladas de decolagem levaram cerca de 45 toneladas à Lua.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_191",
+   "document_id": "ic88hksfi27aeekh6k69ka6y",
+   "level": 4,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "A",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why is a rocket’s mass almost entirely fuel?",
+     "options": [
+      "Because final speed grows only with the logarithm of the full-to-empty mass ratio: gaining speed means multiplying the fuel",
+      "Because fuel is the cheapest material available",
+      "Because the structure needs weight to stay stable during ascent",
+      "Because the atmosphere demands extra mass to overcome friction"
+     ],
+     "explanation": "Tsiolkovsky’s equation says the speed gained is proportional to the logarithm of the mass ratio. Since the logarithm grows slowly, doubling the final speed does not cost twice the fuel — it costs far more.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué la masa de un cohete es casi toda combustible?",
+     "options": [
+      "Porque la velocidad final crece solo con el logaritmo de la razón entre masa llena y masa vacía: ganar velocidad exige multiplicar el combustible",
+      "Porque el combustible es el material más barato disponible",
+      "Porque la estructura necesita peso para mantenerse estable en el ascenso",
+      "Porque la atmósfera exige masa extra para vencer el rozamiento"
+     ],
+     "explanation": "La ecuación de Tsiolkovski dice que la velocidad ganada es proporcional al logaritmo de la razón de masas. Como el logaritmo crece despacio, duplicar la velocidad final no cuesta el doble de combustible: cuesta mucho más.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi la masse d'une fusée est-elle presque entièrement du carburant ?",
+     "options": [
+      "Parce que la vitesse finale ne croît qu’avec le logarithme du rapport entre masse pleine et masse vide : gagner de la vitesse impose de multiplier le carburant",
+      "Parce que le carburant est le matériau le moins cher",
+      "Parce que la structure a besoin de poids pour rester stable pendant la montée",
+      "Parce que l'atmosphère exige une masse supplémentaire pour vaincre le frottement"
+     ],
+     "explanation": "L'équation de Tsiolkovski indique que la vitesse gagnée est proportionnelle au logarithme du rapport de masses. Comme le logarithme croît lentement, doubler la vitesse finale ne coûte pas deux fois plus de carburant : bien davantage.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que a massa de um foguete é quase toda de combustível?",
+     "options": [
+      "Porque a velocidade final cresce apenas com o logaritmo da razão entre massa cheia e massa vazia: ganhar velocidade exige multiplicar o combustível",
+      "Porque o combustível é o material mais barato disponível",
+      "Porque a estrutura precisa de peso para se manter estável na subida",
+      "Porque a atmosfera exige massa extra para vencer o atrito"
+     ],
+     "explanation": "A equação de Tsiolkovsky diz que a velocidade ganha é proporcional ao logaritmo da razão de massas. Como o logaritmo cresce devagar, dobrar a velocidade final não custa o dobro de combustível — custa muito mais.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_192",
+   "document_id": "vtj0auxkr438xh3yq6bzm2tr",
+   "level": 4,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "D",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why do rockets discard stages during ascent?",
+     "options": [
+      "Because the lower stages overheat and must be removed",
+      "Because each stage uses a fuel that only works at one altitude",
+      "Because the falling stages help slow the rocket’s spin",
+      "Because the empty mass would keep being accelerated to the end — dropping it improves the initial-to-final mass ratio, which sets the speed achieved"
+     ],
+     "explanation": "A dry tank does not vanish: it keeps being pushed until burnout. Since final speed depends on the full-to-empty mass ratio, shedding dead weight is the most direct way to beat the rocket equation.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué los cohetes desechan etapas durante el ascenso?",
+     "options": [
+      "Porque las etapas inferiores se calientan demasiado y hay que retirarlas",
+      "Porque cada etapa usa un combustible que solo funciona a cierta altitud",
+      "Porque la caída de las etapas ayuda a frenar la rotación del cohete",
+      "Porque la masa vacía seguiría siendo acelerada hasta el final: soltarla mejora la razón entre masa inicial y final, que determina la velocidad alcanzada"
+     ],
+     "explanation": "Un tanque seco no desaparece: sigue siendo empujado hasta el final de la combustión. Como la velocidad final depende de la razón entre masa llena y vacía, soltar peso muerto es la forma más directa de burlar la ecuación del cohete.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi les fusées larguent-elles des étages pendant l'ascension ?",
+     "options": [
+      "Parce que les étages inférieurs surchauffent et doivent être retirés",
+      "Parce que chaque étage utilise un carburant qui ne fonctionne qu’à une altitude",
+      "Parce que la chute des étages aide à freiner la rotation de la fusée",
+      "Parce que la masse à vide continuerait d’être accélérée jusqu’au bout — la larguer améliore le rapport entre masse initiale et finale, qui fixe la vitesse atteinte"
+     ],
+     "explanation": "Un réservoir vide ne disparaît pas : il continue d'être poussé jusqu'à l'extinction. Comme la vitesse finale dépend du rapport entre masse pleine et masse vide, se délester est le moyen le plus direct de contourner l'équation de la fusée.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que foguetes descartam estágios durante a subida?",
+     "options": [
+      "Porque os estágios inferiores esquentam demais e precisam ser removidos",
+      "Porque cada estágio usa um combustível que só funciona numa altitude",
+      "Porque a queda dos estágios ajuda a frear a rotação do foguete",
+      "Porque a massa vazia continuaria sendo acelerada até o fim — descartá-la melhora a razão entre massa inicial e final, que determina a velocidade alcançada"
+     ],
+     "explanation": "Um tanque seco não some: ele continua sendo empurrado até o fim da queima. Como a velocidade final depende da razão entre massa cheia e vazia, largar peso morto é a maneira mais direta de driblar a equação do foguete.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_193",
+   "document_id": "7n7siwbysoz3e04q98xqy6ub",
+   "level": 5,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "B",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "What does specific impulse measure in a rocket engine?",
+     "options": [
+      "The maximum force the engine can produce",
+      "How efficiently it converts propellant into impulse — the higher it is, the less mass needed for the same speed gain",
+      "How long the engine can run without failing",
+      "The pressure inside the combustion chamber"
+     ],
+     "explanation": "This is why ion engines pay off on long voyages: their thrust is laughable, comparable to the weight of a sheet of paper, but their specific impulse is ten times that of a chemical engine — they spend very little mass for the same speed gain.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Qué mide el impulso específico en un motor de cohete?",
+     "options": [
+      "La fuerza máxima que el motor puede producir",
+      "La eficiencia con que convierte propelente en impulso: cuanto mayor, menos masa hace falta para la misma ganancia de velocidad",
+      "Cuánto tiempo aguanta el motor sin fallar",
+      "La presión dentro de la cámara de combustión"
+     ],
+     "explanation": "Por eso los motores iónicos compensan en viajes largos: su empuje es irrisorio, comparable al peso de una hoja de papel, pero su impulso específico es diez veces el de un motor químico: gastan poquísima masa para la misma ganancia de velocidad.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Que mesure l'impulsion spécifique d'un moteur-fusée ?",
+     "options": [
+      "La force maximale que le moteur peut produire",
+      "L’efficacité avec laquelle il convertit l’ergol en impulsion — plus elle est élevée, moins il faut de masse pour le même gain de vitesse",
+      "La durée pendant laquelle le moteur peut fonctionner sans défaillance",
+      "La pression dans la chambre de combustion"
+     ],
+     "explanation": "C'est pourquoi les moteurs ioniques sont rentables sur les longs trajets : leur poussée est dérisoire, comparable au poids d'une feuille de papier, mais leur impulsion spécifique vaut dix fois celle d'un moteur chimique — très peu de masse pour le même gain de vitesse.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "O que o impulso específico mede num motor de foguete?",
+     "options": [
+      "A força máxima que o motor consegue produzir",
+      "A eficiência com que ele converte propelente em impulso — quanto maior, menos massa é preciso para o mesmo ganho de velocidade",
+      "Quanto tempo o motor aguenta funcionar sem falhar",
+      "A pressão dentro da câmara de combustão"
+     ],
+     "explanation": "É por isso que motores iônicos valem a pena em viagens longas: o empuxo é ridículo, comparável ao peso de uma folha de papel, mas o impulso específico é dez vezes maior que o de um motor químico — gastam pouquíssima massa para o mesmo ganho de velocidade.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_194",
+   "document_id": "vnardsgi0qovedbtw1xfr72q",
+   "level": 5,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "C",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why is reaching low Earth orbit called \"halfway to anywhere in the Solar System\"?",
+     "options": [
+      "Because orbit lies at half the distance to the Moon",
+      "Because half the fuel is consumed before liftoff",
+      "Because the delta-v spent reaching orbit is comparable to what is then needed to travel on to most destinations",
+      "Because Earth’s gravity stops acting above that altitude"
+     ],
+     "explanation": "The phrase is Robert Heinlein’s. Climbing from the surface to low orbit costs about 9.4 km/s of delta-v; from orbit to Mars, little more than 4. Earth’s gravity well is the most expensive obstacle of the whole trip.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué se dice que llegar a la órbita baja terrestre es \"la mitad del camino a cualquier parte del Sistema Solar\"?",
+     "options": [
+      "Porque la órbita está a la mitad de la distancia a la Luna",
+      "Porque la mitad del combustible se consume antes del despegue",
+      "Porque el delta-v gastado en alcanzar la órbita es comparable al que hace falta después para llegar a la mayoría de los destinos",
+      "Porque la gravedad terrestre deja de actuar a partir de esa altitud"
+     ],
+     "explanation": "La frase es de Robert Heinlein. Subir de la superficie a la órbita baja cuesta unos 9,4 km/s de delta-v; de la órbita a Marte, poco más de 4. El pozo gravitatorio de la Tierra es el obstáculo más caro de todo el viaje.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi dit-on qu'atteindre l'orbite terrestre basse, c'est « la moitié du chemin vers n'importe où dans le système solaire » ?",
+     "options": [
+      "Parce que l'orbite se situe à mi-distance de la Lune",
+      "Parce que la moitié du carburant est consommée avant le décollage",
+      "Parce que le delta-v dépensé pour atteindre l’orbite est comparable à celui nécessaire ensuite pour rejoindre la plupart des destinations",
+      "Parce que la gravité terrestre cesse d'agir au-delà de cette altitude"
+     ],
+     "explanation": "La formule est de Robert Heinlein. Monter de la surface à l'orbite basse coûte environ 9,4 km/s de delta-v ; de l'orbite à Mars, à peine plus de 4. Le puits de gravité terrestre est l'obstacle le plus coûteux de tout le voyage.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que se diz que chegar à órbita baixa da Terra é \"metade do caminho para qualquer lugar do Sistema Solar\"?",
+     "options": [
+      "Porque a órbita fica a metade da distância até a Lua",
+      "Porque metade do combustível é consumida antes mesmo da decolagem",
+      "Porque o delta-v gasto para alcançar a órbita é comparável ao necessário para, dali, seguir à maioria dos destinos",
+      "Porque a gravidade da Terra deixa de agir a partir dessa altitude"
+     ],
+     "explanation": "A frase é de Robert Heinlein. Subir da superfície à órbita baixa custa cerca de 9,4 km/s de delta-v; da órbita até Marte, pouco mais de 4. O poço gravitacional da Terra é o obstáculo mais caro de toda a viagem.",
+     "topic": "Missões espaciais"
     }
    }
   },
