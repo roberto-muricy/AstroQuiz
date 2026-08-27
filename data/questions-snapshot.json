@@ -1,12 +1,12 @@
 {
- "gerado_em": "2026-08-27T01:34:59.500Z",
- "total": 700,
+ "gerado_em": "2026-08-27T02:08:16.389Z",
+ "total": 705,
  "por_nivel": {
   "1": 96,
   "2": 141,
   "3": 184,
-  "4": 173,
-  "5": 106
+  "4": 175,
+  "5": 109
  },
  "com_imagem": 55,
  "idiomas": [
@@ -33507,6 +33507,281 @@
       "Porque a gravidade da Terra deixa de agir a partir dessa altitude"
      ],
      "explanation": "A frase é de Robert Heinlein. Subir da superfície à órbita baixa custa cerca de 9,4 km/s de delta-v; da órbita até Marte, pouco mais de 4. O poço gravitacional da Terra é o obstáculo mais caro de toda a viagem.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_195",
+   "document_id": "tzqmgz3k4ryrwg1c30wqkuqc",
+   "level": 4,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "B",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "In a Hohmann transfer to a higher orbit, the probe fires its engine twice. What is the end result?",
+     "options": [
+      "Higher and faster",
+      "It ends up in a higher orbit and moving more slowly than before",
+      "Lower and faster",
+      "Speed is unchanged, only altitude"
+     ],
+     "explanation": "It seems contradictory, but that is orbital mechanics: the higher the orbit, the lower the speed needed to stay in it. You accelerate to climb and end up slower — the extra energy became altitude, not speed.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "En una transferencia de Hohmann a una órbita más alta, la sonda acelera dos veces. ¿Cuál es el resultado final?",
+     "options": [
+      "Más alta y más rápida",
+      "Termina en una órbita más alta y moviéndose más despacio que antes",
+      "Más baja y más rápida",
+      "La velocidad no cambia, solo la altitud"
+     ],
+     "explanation": "Parece contradictorio, pero es mecánica orbital: cuanto más alta la órbita, menor la velocidad necesaria para mantenerse en ella. Se acelera para subir y el resultado es ir más despacio: la energía extra se convirtió en altitud, no en velocidad.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Lors d'un transfert de Hohmann vers une orbite plus haute, la sonde allume son moteur deux fois. Quel est le résultat final ?",
+     "options": [
+      "Plus haute et plus rapide",
+      "Elle se retrouve sur une orbite plus haute et se déplace plus lentement qu’avant",
+      "Plus basse et plus rapide",
+      "La vitesse ne change pas, seule l’altitude"
+     ],
+     "explanation": "Cela paraît contradictoire, mais c'est la mécanique orbitale : plus l'orbite est haute, plus la vitesse nécessaire pour s'y maintenir est faible. On accélère pour monter et on finit plus lent — l'énergie supplémentaire est devenue de l'altitude, pas de la vitesse.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Numa transferência de Hohmann para uma órbita mais alta, a sonda acelera duas vezes. Qual é o resultado final?",
+     "options": [
+      "Mais alta e mais rápida",
+      "Ela termina numa órbita mais alta e movendo-se mais devagar que antes",
+      "Mais baixa e mais rápida",
+      "A velocidade não muda, apenas a altitude"
+     ],
+     "explanation": "Parece contraditório, mas é a mecânica orbital: quanto mais alta a órbita, menor a velocidade necessária para se manter nela. Acelera-se para subir e o resultado é ir mais devagar — a energia extra virou altitude, não velocidade.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_196",
+   "document_id": "z25uexy9ner9p7o3wabqe8fi",
+   "level": 4,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "C",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why do missions to Mars launch only every 26 months?",
+     "options": [
+      "Because that is the time needed to build and test a probe",
+      "Because Mars is only visible from Earth during those periods",
+      "Because that is how long it takes Earth and Mars to line up again for the most economical transfer",
+      "Because Mars’s orbit crosses Earth’s every 26 months"
+     ],
+     "explanation": "The two planets run on different tracks at different speeds. Every 26 months they return to the relative position that allows departure on the least fuel — missing the window means waiting more than two years.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué las misiones a Marte parten solo cada 26 meses?",
+     "options": [
+      "Porque es el tiempo necesario para preparar y probar una sonda",
+      "Porque Marte solo es visible desde la Tierra en esos períodos",
+      "Porque es el intervalo en que la Tierra y Marte vuelven a alinearse para permitir la transferencia más económica",
+      "Porque la órbita de Marte cruza la de la Tierra cada 26 meses"
+     ],
+     "explanation": "Los dos planetas corren en pistas distintas y a velocidades distintas. Cada 26 meses vuelven a la posición relativa que permite partir gastando el mínimo de combustible: perder la ventana significa esperar más de dos años.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi les missions vers Mars ne partent-elles que tous les 26 mois ?",
+     "options": [
+      "Parce que c’est le temps nécessaire pour préparer et tester une sonde",
+      "Parce que Mars n'est visible depuis la Terre que durant ces périodes",
+      "Parce que c'est l'intervalle au bout duquel la Terre et Mars se réalignent pour permettre le transfert le plus économique",
+      "Parce que l'orbite de Mars croise celle de la Terre tous les 26 mois"
+     ],
+     "explanation": "Les deux planètes courent sur des pistes différentes à des vitesses différentes. Tous les 26 mois, elles retrouvent la position relative permettant de partir au moindre coût en carburant : rater la fenêtre, c'est attendre plus de deux ans.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que missões para Marte partem apenas a cada 26 meses?",
+     "options": [
+      "Porque é o tempo necessário para preparar e testar uma sonda",
+      "Porque Marte só fica visível da Terra nesses períodos",
+      "Porque é o intervalo em que Terra e Marte voltam a se alinhar de modo a permitir a transferência mais econômica",
+      "Porque a órbita de Marte cruza a da Terra a cada 26 meses"
+     ],
+     "explanation": "Os dois planetas correm em pistas diferentes e em velocidades diferentes. A cada 26 meses eles voltam à posição relativa que permite partir gastando o mínimo de combustível — perder a janela significa esperar mais de dois anos.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_197",
+   "document_id": "06yh4abmk5wotjzq2w09vvry",
+   "level": 5,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "D",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why does a probe need more fuel to enter orbit around Mercury than to leave the Solar System?",
+     "options": [
+      "Because Mercury has very strong gravity",
+      "Because the distance to Mercury is greater than it seems",
+      "Because the solar wind repels approaching probes",
+      "Because falling toward the Sun it gains speed — and must brake hard to be captured by Mercury"
+     ],
+     "explanation": "Going to Mercury means falling down the Sun’s gravity well: the probe arrives far too fast and must spend propellant braking. In delta-v that is about 15 km/s, against 9 to escape the Solar System. BepiColombo took seven years and nine gravity assists.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué una sonda necesita más combustible para entrar en órbita de Mercurio que para abandonar el Sistema Solar?",
+     "options": [
+      "Porque Mercurio tiene una gravedad muy intensa",
+      "Porque la distancia a Mercurio es mayor de lo que parece",
+      "Porque el viento solar repele a las sondas que se acercan",
+      "Porque al caer hacia el Sol gana velocidad, y debe frenar mucho para ser capturada por Mercurio"
+     ],
+     "explanation": "Ir a Mercurio es bajar por el pozo gravitatorio del Sol: la sonda llega demasiado rápido y debe gastar propelente frenando. En delta-v son unos 15 km/s, frente a 9 para escapar del Sistema Solar. BepiColombo tardó siete años y nueve asistencias gravitatorias.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi une sonde a-t-elle besoin de plus de carburant pour se mettre en orbite autour de Mercure que pour quitter le système solaire ?",
+     "options": [
+      "Parce que Mercure possède une gravité très intense",
+      "Parce que la distance jusqu’à Mercure est plus grande qu’il n’y paraît",
+      "Parce que le vent solaire repousse les sondes qui approchent",
+      "Parce qu’en tombant vers le Soleil elle gagne de la vitesse — et doit fortement freiner pour être capturée par Mercure"
+     ],
+     "explanation": "Aller vers Mercure, c'est descendre le puits de gravité du Soleil : la sonde arrive bien trop vite et doit dépenser des ergols pour freiner. En delta-v, cela représente environ 15 km/s contre 9 pour quitter le système solaire. BepiColombo a mis sept ans et neuf assistances gravitationnelles.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que uma sonda precisa de mais combustível para entrar em órbita de Mercúrio do que para deixar o Sistema Solar?",
+     "options": [
+      "Porque Mercúrio tem gravidade muito intensa",
+      "Porque a distância até Mercúrio é maior do que parece",
+      "Porque o vento solar repele as sondas que se aproximam",
+      "Porque, ao cair em direção ao Sol, ela ganha velocidade — e precisa frear muito para ser capturada por Mercúrio"
+     ],
+     "explanation": "Ir a Mercúrio é descer o poço gravitacional do Sol: a sonda chega rápida demais e precisa gastar propelente para frear. Em delta-v são cerca de 15 km/s, contra 9 para escapar do Sistema Solar. A BepiColombo levou sete anos e nove assistências gravitacionais.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_198",
+   "document_id": "5amhhyvp0n1od1gyacf4zg3b",
+   "level": 5,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "A",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why does a probe gain more speed by burning fuel at its closest point to a planet?",
+     "options": [
+      "Because the same amount of fuel yields more energy when the craft is already moving fast",
+      "Because the planet’s gravity pushes the probe at that point",
+      "Because fuel burns better under stronger gravity",
+      "Because the planet’s atmosphere helps propel the probe"
+     ],
+     "explanation": "This is the Oberth effect. Kinetic energy grows with the square of speed, so adding speed to something already fast yields far more energy. That is why probes dive deep into the gravity well before firing their engines.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué una sonda gana más velocidad quemando combustible en el punto más cercano a un planeta?",
+     "options": [
+      "Porque la misma cantidad de combustible rinde más energía cuando la nave ya se mueve rápido",
+      "Porque la gravedad del planeta empuja a la sonda en ese punto",
+      "Porque el combustible arde mejor bajo mayor gravedad",
+      "Porque la atmósfera del planeta ayuda a impulsar la sonda"
+     ],
+     "explanation": "Es el efecto Oberth. La energía cinética crece con el cuadrado de la velocidad, así que añadir velocidad a algo que ya va rápido rinde mucha más energía. Por eso las sondas se sumergen en el pozo gravitatorio antes de encender los motores.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi une sonde gagne-t-elle plus de vitesse en brûlant son carburant au point le plus proche d'une planète ?",
+     "options": [
+      "Parce que la même quantité de carburant produit plus d’énergie quand le vaisseau va déjà vite",
+      "Parce que la gravité de la planète pousse la sonde à cet endroit",
+      "Parce que le carburant brûle mieux sous une gravité plus forte",
+      "Parce que l'atmosphère de la planète aide à propulser la sonde"
+     ],
+     "explanation": "C'est l'effet Oberth. L'énergie cinétique croît avec le carré de la vitesse : ajouter de la vitesse à un objet déjà rapide rapporte bien plus d'énergie. D'où les plongées au plus profond du puits de gravité avant d'allumer les moteurs.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que uma sonda ganha mais velocidade queimando combustível no ponto mais próximo de um planeta?",
+     "options": [
+      "Porque a mesma quantidade de combustível rende mais energia quando a nave já está se movendo depressa",
+      "Porque a gravidade do planeta empurra a sonda nesse ponto",
+      "Porque o combustível queima melhor sob gravidade maior",
+      "Porque a atmosfera do planeta ajuda a impulsionar a sonda"
+     ],
+     "explanation": "É o efeito Oberth. A energia cinética cresce com o quadrado da velocidade, então acrescentar velocidade a quem já está rápido rende muito mais energia. Por isso as sondas mergulham fundo no poço gravitacional antes de acender os motores.",
+     "topic": "Missões espaciais"
+    }
+   }
+  },
+  {
+   "base_id": "q_new_199",
+   "document_id": "zqfwchm91qjktx8zgbchz4ns",
+   "level": 5,
+   "topic_key": "Space Missions",
+   "question_type": "text",
+   "correct_option": "C",
+   "image": null,
+   "locales": {
+    "en": {
+     "question": "Why is changing an orbit’s inclination one of the most expensive manoeuvres?",
+     "options": [
+      "Because the orbit must first be raised to a higher altitude",
+      "Because fuel freezes in steeply inclined orbits",
+      "Because it requires turning the direction of the entire orbital velocity vector, which is several kilometres per second",
+      "Because the craft must re-enter the atmosphere and launch again"
+     ],
+     "explanation": "A nudge sideways is not enough: you have to redirect a velocity of nearly 8 km/s. That is why the ISS keeps its 51.6° inclination, inherited from Baikonur’s latitude — changing it would cost almost as much as launching another station.",
+     "topic": "Space Missions"
+    },
+    "es": {
+     "question": "¿Por qué cambiar la inclinación de una órbita es una de las maniobras más caras?",
+     "options": [
+      "Porque antes hay que elevar la órbita a mayor altitud",
+      "Porque el combustible se congela en órbitas muy inclinadas",
+      "Porque exige girar la dirección de todo el vector velocidad orbital, que es de varios kilómetros por segundo",
+      "Porque hay que reentrar en la atmósfera y lanzar de nuevo"
+     ],
+     "explanation": "No basta con empujar de lado: hay que redirigir una velocidad de casi 8 km/s. Por eso la ISS mantiene su inclinación de 51,6°, heredada de la latitud de Baikonur: cambiarla costaría casi lo mismo que lanzar otra estación.",
+     "topic": "Misiones espaciales"
+    },
+    "fr": {
+     "question": "Pourquoi changer l'inclinaison d'une orbite est-il l'une des manœuvres les plus coûteuses ?",
+     "options": [
+      "Parce qu'il faut d'abord relever l'orbite à une altitude supérieure",
+      "Parce que le carburant gèle sur les orbites très inclinées",
+      "Parce qu’il faut faire pivoter la direction de tout le vecteur vitesse orbitale, de plusieurs kilomètres par seconde",
+      "Parce qu'il faut rentrer dans l'atmosphère et relancer"
+     ],
+     "explanation": "Une simple poussée latérale ne suffit pas : il faut réorienter une vitesse de près de 8 km/s. C'est pourquoi l'ISS conserve son inclinaison de 51,6°, héritée de la latitude de Baïkonour — la changer coûterait presque autant que lancer une autre station.",
+     "topic": "Missions spatiales"
+    },
+    "pt": {
+     "question": "Por que mudar a inclinação de uma órbita é uma das manobras mais caras?",
+     "options": [
+      "Porque exige antes elevar a órbita a uma altitude maior",
+      "Porque o combustível congela em órbitas muito inclinadas",
+      "Porque exige girar a direção de todo o vetor velocidade orbital, que é de vários quilômetros por segundo",
+      "Porque é preciso reentrar na atmosfera e lançar novamente"
+     ],
+     "explanation": "Não basta empurrar de lado: é preciso redirecionar uma velocidade de quase 8 km/s. Por isso a ISS mantém a inclinação de 51,6°, herdada da latitude de Baikonur — mudá-la custaria quase o mesmo que lançar outra estação.",
      "topic": "Missões espaciais"
     }
    }
