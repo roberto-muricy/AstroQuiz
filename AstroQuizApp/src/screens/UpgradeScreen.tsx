@@ -19,7 +19,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
-import { X, Star, Zap, SkipForward, Heart, Crown, Check } from 'lucide-react-native';
+import { X, Star, Zap, SkipForward, Crown, Check } from 'lucide-react-native';
 import { COLORS, SPACING, TYPOGRAPHY, RADIUS } from '@/constants/design-system';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { PRICES } from '@/constants/subscription';
@@ -74,10 +74,13 @@ export const UpgradeScreen = () => {
     }
   };
 
+  // Só entram aqui benefícios que o app entrega de fato. "Continues
+  // Ilimitados" saiu porque o quiz não tem game over — sempre roda as 10
+  // perguntas —, e "Pulos Ilimitados" virou a cota real: 2 por fase, sem
+  // anúncio. Prometer o que o jogo não cumpre gera reembolso e contestação.
   const benefits = [
     { icon: <Zap size={20} color={COLORS.premium} />, text: t('subscription.benefits.noAds'), sub: t('subscription.benefitsSub.noAds') },
-    { icon: <SkipForward size={20} color={COLORS.premium} />, text: t('subscription.benefits.unlimitedSkips'), sub: t('subscription.benefitsSub.skips') },
-    { icon: <Heart size={20} color={COLORS.premium} />, text: t('subscription.benefits.unlimitedContinues'), sub: t('subscription.benefitsSub.continues') },
+    { icon: <SkipForward size={20} color={COLORS.premium} />, text: t('subscription.benefits.skipsPerPhase'), sub: t('subscription.benefitsSub.skipsPerPhase') },
   ];
 
   // Se ja e Pro, mostrar status

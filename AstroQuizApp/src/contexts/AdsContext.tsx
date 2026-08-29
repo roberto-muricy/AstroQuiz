@@ -13,14 +13,45 @@ import React, {
   useState,
 } from 'react';
 
-// Limites diários para usuários free
+// Limites diários — sobraram apenas os continues, que hoje são código morto
+// (o quiz não tem game over de onde continuar). Pulos migraram para cota por
+// fase; ver PHASE_LIMITS.
 const DAILY_LIMITS = {
-  skips: 3,
   continues: 2,
 };
 
+/**
+ * Cota de pulos por fase.
+ *
+ * Por fase, e não por dia, seguindo o modelo das ajudas do Show do Milhão: a
+ * ajuda faz parte da estrutura da partida, não de uma cota de consumo. Para
+ * quem joga de graça isso é mais legível — a cota volta em toda fase, em vez
+ * de sumir pelo resto do dia — e rende mais anúncios premiados ao longo do
+ * tempo do que um teto diário de três.
+ *
+ * O Pro leva dois e não paga anúncio; ninguém leva ilimitado. As fases 41-50
+ * exigem 85% de acerto, e pulo sem limite levaria o assinante à fase 50 sem
+ * saber astronomia — patente, XP e ranking perderiam o sentido. O benefício
+ * do Pro é não esperar o vídeo, não burlar o jogo.
+ */
+const PHASE_LIMITS = {
+  free: 1,
+  pro: 2,
+};
+
+/**
+ * Quantos pulos ainda restam nesta fase.
+ *
+ * Fica fora do componente para poder ser testado sem montar a árvore de
+ * contexto.
+ */
+export const calcularPulosRestantes = (
+  ehPro: boolean,
+  usadosNaFase: number,
+): number =>
+  Math.max(0, (ehPro ? PHASE_LIMITS.pro : PHASE_LIMITS.free) - usadosNaFase);
+
 const STORAGE_KEYS = {
-  dailySkips: '@ads_daily_skips',
   dailyContinues: '@ads_daily_continues',
   lastResetDate: '@ads_last_reset_date',
 };
@@ -30,8 +61,8 @@ interface AdsContextData {
   adsEnabled: boolean;
   setAdsEnabled: (enabled: boolean) => void;
 
-  // Contadores diários
-  dailySkipsUsed: number;
+  // Contadores
+  phaseSkipsUsed: number;
   dailyContinuesUsed: number;
 
   // Limites restantes
@@ -45,6 +76,9 @@ interface AdsContextData {
   // Verificar se pode usar
   canUseSkip: boolean;
   canUseContinue: boolean;
+
+  // Zera a cota de pulos da fase. O QuizScreen chama ao abrir uma fase.
+  resetPhaseCounters: () => void;
 
   // Reset manual (para testes)
   resetDailyCounters: () => Promise<void>;
@@ -61,8 +95,10 @@ interface AdsProviderProps {
 
 export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
   const [adsEnabled, setAdsEnabled] = useState(true);
-  const [dailySkipsUsed, setDailySkipsUsed] = useState(0);
   const [dailyContinuesUsed, setDailyContinuesUsed] = useState(0);
+  // Pulos gastos na fase atual. Vive só em memória: a fase dura uma sessão, e
+  // quem fechar o app no meio perde o progresso do quiz junto.
+  const [phaseSkipsUsed, setPhaseSkipsUsed] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   // Carregar contadores do storage
@@ -81,7 +117,6 @@ export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
       if (lastResetDate !== today) {
         // É um novo dia, resetar contadores
         await AsyncStorage.multiSet([
-          [STORAGE_KEYS.dailySkips, '0'],
           [STORAGE_KEYS.dailyContinues, '0'],
           [STORAGE_KEYS.lastResetDate, today],
         ]);
@@ -105,17 +140,10 @@ export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
       const wasReset = await checkAndResetIfNewDay();
 
       if (wasReset) {
-        setDailySkipsUsed(0);
         setDailyContinuesUsed(0);
       } else {
-        // Carregar valores salvos
-        const [skips, continues] = await AsyncStorage.multiGet([
-          STORAGE_KEYS.dailySkips,
-          STORAGE_KEYS.dailyContinues,
-        ]);
-
-        setDailySkipsUsed(parseInt(skips[1] || '0', 10));
-        setDailyContinuesUsed(parseInt(continues[1] || '0', 10));
+        const continues = await AsyncStorage.getItem(STORAGE_KEYS.dailyContinues);
+        setDailyContinuesUsed(parseInt(continues || '0', 10));
       }
     } catch (error) {
       console.error('[AdsContext] Erro ao carregar contadores:', error);
@@ -125,14 +153,21 @@ export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
   };
 
   /**
-   * Incrementa contador de skips usados
+   * Incrementa contador de skips usados.
+   *
+   * Nada vai para o disco: a cota é da fase, e a fase não sobrevive ao
+   * fechamento do app.
    */
-  const incrementSkipUsed = useCallback(async () => {
-    const newValue = dailySkipsUsed + 1;
-    setDailySkipsUsed(newValue);
-    await AsyncStorage.setItem(STORAGE_KEYS.dailySkips, String(newValue));
-    console.log(`[AdsContext] Skip usado: ${newValue}/${DAILY_LIMITS.skips}`);
-  }, [dailySkipsUsed]);
+  const incrementSkipUsed = useCallback(() => {
+    setPhaseSkipsUsed(anterior => anterior + 1);
+  }, []);
+
+  /**
+   * Zera a cota por fase. Chamado ao entrar numa fase nova.
+   */
+  const resetPhaseCounters = useCallback(() => {
+    setPhaseSkipsUsed(0);
+  }, []);
 
   /**
    * Incrementa contador de continues usados
@@ -150,30 +185,29 @@ export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
   const resetDailyCounters = async () => {
     const today = new Date().toISOString().split('T')[0];
     await AsyncStorage.multiSet([
-      [STORAGE_KEYS.dailySkips, '0'],
       [STORAGE_KEYS.dailyContinues, '0'],
       [STORAGE_KEYS.lastResetDate, today],
     ]);
-    setDailySkipsUsed(0);
     setDailyContinuesUsed(0);
+    setPhaseSkipsUsed(0);
     console.log('[AdsContext] Contadores resetados');
   };
 
   // Calcular valores derivados
-  const skipsRemaining = Math.max(0, DAILY_LIMITS.skips - dailySkipsUsed);
+  const ehPro = !adsEnabled;
+  const skipsRemaining = calcularPulosRestantes(ehPro, phaseSkipsUsed);
   const continuesRemaining = Math.max(0, DAILY_LIMITS.continues - dailyContinuesUsed);
 
-  // Se Pro (adsEnabled=false), pode usar ilimitado
-  // Se Free, verificar limites
-  const canUseSkip = !adsEnabled || skipsRemaining > 0;
-  const canUseContinue = !adsEnabled || continuesRemaining > 0;
+  // Ninguém é ilimitado — nem o Pro (ver PHASE_LIMITS).
+  const canUseSkip = skipsRemaining > 0;
+  const canUseContinue = ehPro || continuesRemaining > 0;
 
   return (
     <AdsContext.Provider
       value={{
         adsEnabled,
         setAdsEnabled,
-        dailySkipsUsed,
+        phaseSkipsUsed,
         dailyContinuesUsed,
         skipsRemaining,
         continuesRemaining,
@@ -181,6 +215,7 @@ export const AdsProvider: React.FC<AdsProviderProps> = ({ children }) => {
         incrementContinueUsed,
         canUseSkip,
         canUseContinue,
+        resetPhaseCounters,
         resetDailyCounters,
         isLoading,
       }}
@@ -201,4 +236,4 @@ export const useAds = () => {
   return context;
 };
 
-export { DAILY_LIMITS };
+export { DAILY_LIMITS, PHASE_LIMITS };

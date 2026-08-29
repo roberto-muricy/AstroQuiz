@@ -13,6 +13,8 @@
  */
 
 import { QuestionCard } from '@/components';
+import { RewardedAdButton } from '@/components/ads';
+import { useAds } from '@/contexts/AdsContext';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
@@ -38,7 +40,7 @@ import {
   RADIUS,
   SIZES,
 } from '@/constants/design-system';
-import { Flame, CheckCircle, XCircle, Clock } from 'lucide-react-native';
+import { Flame, CheckCircle, XCircle, Clock, SkipForward } from 'lucide-react-native';
 
 // Cor do timer baseada no tempo restante
 const getTimerColor = (timeRemaining: number, totalTime: number): string => {
@@ -53,7 +55,7 @@ const getTimerColor = (timeRemaining: number, totalTime: number): string => {
 // tempo já está vermelha nos últimos 20% = 6 s de 30 s).
 const COUNTDOWN_FROM = 6;
 
-type QuestionResult = 'correct' | 'wrong' | 'timeout';
+type QuestionResult = 'correct' | 'wrong' | 'timeout' | 'skipped';
 
 export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -61,6 +63,7 @@ export const QuizScreen = () => {
   const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const { resetPhaseCounters } = useAds();
 
   // Oculta a barra de status (relógio/wifi/bateria) durante o jogo para maior imersão.
   useFocusEffect(
@@ -75,6 +78,10 @@ export const QuizScreen = () => {
   const [showResult, setShowResult] = useState(false);
   const [answerResult, setAnswerResult] = useState<any>(null);
   const [isTimedOut, setIsTimedOut] = useState(false);
+  const [isSkipped, setIsSkipped] = useState(false);
+  // Verdadeiro enquanto o anúncio do pulo está na tela. Congela o cronômetro:
+  // um vídeo premiado dura até 30 s e a pergunta expiraria por baixo dele.
+  const [skipEmCurso, setSkipEmCurso] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(30);
   const [autoSubmitCountdown, setAutoSubmitCountdown] = useState<number | null>(null);
@@ -100,6 +107,8 @@ export const QuizScreen = () => {
     setCurrentScore(0);
     setCurrentStreak(0);
     setQuestionResults([]);
+    // Fase nova, cota de pulos do Pro zerada.
+    resetPhaseCounters();
     loadQuestion();
 
     return () => {
@@ -119,6 +128,8 @@ export const QuizScreen = () => {
   }, [showResult, answerResult]);
 
   useEffect(() => {
+    if (skipEmCurso) return;
+
     if (!showResult && timeRemaining > 0) {
       // Contagem regressiva audível nos 6 s finais — a faixa em que a barra
       // do tempo já está vermelha. Toca em 6, 5, 4, 3, 2 e 1.
@@ -132,7 +143,7 @@ export const QuizScreen = () => {
     } else if (timeRemaining === 0 && !showResult) {
       handleTimeout();
     }
-  }, [timeRemaining, showResult]);
+  }, [timeRemaining, showResult, skipEmCurso]);
 
   const clearAllTimers = () => {
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
@@ -172,6 +183,7 @@ export const QuizScreen = () => {
       setShowResult(false);
       setAnswerResult(null);
       setIsTimedOut(false);
+      setIsSkipped(false);
       setAutoSubmitCountdown(null);
       setCanAdvance(false);
     } catch (error) {
@@ -218,11 +230,15 @@ export const QuizScreen = () => {
       const timeUsed = currentQuestion.timePerQuestion;
       const timeoutQuestionId = currentQuestion.question?.id;
       if (timeoutQuestionId) usedQuestionIdsRef.current.push(timeoutQuestionId);
+      // O 5º argumento é obrigatório: sem ele o servidor compara a opção
+      // enviada ('A', de placeholder) com a correta, e deixar o tempo acabar
+      // pontuava como acerto sempre que a resposta certa era a letra A.
       const result = await quizService.submitAnswer(
         sessionId,
         selectedOption || 'A',
         timeUsed,
-        timeoutQuestionId
+        timeoutQuestionId,
+        true
       );
 
       latestResultRef.current = result;
@@ -284,6 +300,70 @@ export const QuizScreen = () => {
     }
   };
 
+  /**
+   * Pular a pergunta atual.
+   *
+   * Chamado pelo RewardedAdButton depois que a recompensa é concedida — o
+   * anúncio (ou o atalho do Pro) já aconteceu, e o contador de uso já subiu.
+   *
+   * O pulo custa a pergunta: vai ao servidor como não-respondida, então não dá
+   * pontos, zera a sequência e continua contando entre as 10. Quem pula 3 fica
+   * limitado a 70% na fase e nunca faz uma fase perfeita — é esse custo que
+   * impede o pulo de virar atalho para as fases Elite.
+   */
+  const handleSkip = async () => {
+    if (!currentQuestion || showResult) return;
+
+    clearAllTimers();
+    setSkipEmCurso(false);
+    setAutoSubmitCountdown(null);
+    setShowResult(true);
+    setIsSkipped(true);
+
+    try {
+      const timeUsed = currentQuestion.timePerQuestion - timeRemaining * 1000;
+      const questionId = currentQuestion.question?.id;
+      if (questionId) usedQuestionIdsRef.current.push(questionId);
+
+      const result = await quizService.submitAnswer(
+        sessionId,
+        selectedOption || 'A',
+        timeUsed,
+        questionId,
+        true,
+        true
+      );
+
+      latestResultRef.current = result;
+      setAnswerResult(result);
+      setCurrentScore(result.sessionStatus.score);
+      setCurrentStreak(result.sessionStatus.streakCount);
+      setQuestionResults(prev => [...prev, 'skipped']);
+      setCanAdvance(true);
+      // Sem avanço automático: a explicação continua valendo a leitura.
+    } catch (error) {
+      console.error('Erro ao pular pergunta:', error);
+      setShowResult(false);
+      setIsSkipped(false);
+      Alert.alert(t('common.error'), t('errors.tryAgainLater'));
+    }
+  };
+
+  const handleSkipFailed = (erro?: string) => {
+    console.warn('[QuizScreen] Pulo não concedido:', erro);
+    // O cronômetro só volta a correr quando o usuário fecha o aviso. Se
+    // liberássemos aqui, ele perderia segundos lendo um erro que não causou —
+    // e o anúncio que falhou nem chegou a lhe dar o pulo.
+    Alert.alert(
+      t('common.error'),
+      t('ads.adNotAvailable'),
+      [{ text: 'OK', onPress: () => setSkipEmCurso(false) }],
+      // Sem isto, o botão "voltar" do Android fecharia o aviso sem passar pelo
+      // onPress — e o cronômetro ficaria congelado até o fim da fase.
+      { cancelable: false },
+    );
+  };
+
   const handleNextQuestion = (resultToUse?: any) => {
     const result = resultToUse ?? latestResultRef.current;
     if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
@@ -294,6 +374,7 @@ export const QuizScreen = () => {
     setSelectedOption(null);
     setCanAdvance(false);
     setIsTimedOut(false);
+    setIsSkipped(false);
     setAutoAdvanceCountdown(null);
 
     if (result?.sessionStatus?.isPhaseComplete) {
@@ -399,6 +480,7 @@ export const QuizScreen = () => {
                 result === 'correct' && styles.dotCorrect,
                 result === 'wrong' && styles.dotWrong,
                 result === 'timeout' && styles.dotTimeout,
+                result === 'skipped' && styles.dotSkipped,
                 isCurrent && styles.dotCurrent,
               ]}
             />
@@ -427,6 +509,22 @@ export const QuizScreen = () => {
           disabled={showResult}
         />
 
+        {/* ——— Pular pergunta ———
+            Some assim que o usuário escolhe uma alternativa: a partir dali a
+            resposta já está a caminho, e pular deixaria de fazer sentido. */}
+        {!showResult && !selectedOption && (
+          <View style={styles.skipRow}>
+            <RewardedAdButton
+              rewardType="skip"
+              variant="outline"
+              size="small"
+              onStarted={() => setSkipEmCurso(true)}
+              onRewardEarned={handleSkip}
+              onFailed={handleSkipFailed}
+            />
+          </View>
+        )}
+
         {/* ——— Auto-submit countdown indicator ——— */}
         {selectedOption && !showResult && autoSubmitCountdown !== null && (
           <View style={styles.autoSubmitIndicator}>
@@ -447,7 +545,22 @@ export const QuizScreen = () => {
           <View style={styles.resultContainer}>
             {/* Tocar no banner pausa o auto-avanço (para ler a explicação com calma) */}
             <Pressable onPress={cancelAutoAdvance}>
-            {isTimedOut ? (
+            {isSkipped ? (
+              /* Pulada — vale mostrar a resposta certa mesmo assim */
+              <View style={styles.skippedBanner}>
+                <View style={styles.resultIconContainer}>
+                  <SkipForward size={44} color={COLORS.textSecondary} />
+                </View>
+                <Text style={styles.skippedTitle}>{t('quiz.skippedTitle')}</Text>
+                {answerResult && (
+                  <Text style={styles.correctAnswerText}>
+                    {t('quiz.correctAnswerLabel', {
+                      option: answerResult.answerRecord.correctOption,
+                    })}
+                  </Text>
+                )}
+              </View>
+            ) : isTimedOut ? (
               /* Timeout — sem resposta selecionada */
               <View style={styles.timeoutBanner}>
                 <View style={styles.resultIconContainer}>
@@ -635,6 +748,10 @@ const styles = StyleSheet.create({
   dotTimeout: {
     backgroundColor: '#F97316',
   },
+  // Pulada é neutra: não foi acerto nem erro, foi uma pergunta abandonada.
+  dotSkipped: {
+    backgroundColor: COLORS.textSecondary,
+  },
   dotCurrent: {
     backgroundColor: COLORS.primary,
     width: 10,
@@ -698,6 +815,23 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: '#EF4444',
     alignItems: 'center',
+  },
+  skipRow: {
+    marginTop: SPACING.md,
+    alignItems: 'center',
+  },
+  skippedBanner: {
+    backgroundColor: 'rgba(148, 163, 184, 0.15)',
+    borderRadius: RADIUS.md,
+    padding: SIZES.screenPadding,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.textSecondary,
+    alignItems: 'center',
+  },
+  skippedTitle: {
+    ...TYPOGRAPHY.h3,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
   },
   timeoutBanner: {
     backgroundColor: 'rgba(249, 115, 22, 0.15)',

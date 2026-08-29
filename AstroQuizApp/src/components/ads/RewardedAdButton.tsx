@@ -23,6 +23,12 @@ export interface RewardedAdButtonProps {
   rewardType: RewardType;
   /** Callback quando a recompensa é obtida */
   onRewardEarned: () => void;
+  /**
+   * Disparado no toque, antes do anúncio aparecer. Quem chama usa para
+   * suspender o que não pode correr por baixo do vídeo — o cronômetro da
+   * pergunta, por exemplo.
+   */
+  onStarted?: () => void;
   /** Callback quando o ad falha ou usuário cancela */
   onFailed?: (error?: string) => void;
   /** Se o botão está desabilitado */
@@ -54,6 +60,7 @@ const DEFAULT_LABELS: Record<SupportedRewardType, string> = {
 export const RewardedAdButton: React.FC<RewardedAdButtonProps> = ({
   rewardType,
   onRewardEarned,
+  onStarted,
   onFailed,
   disabled = false,
   label,
@@ -100,6 +107,7 @@ export const RewardedAdButton: React.FC<RewardedAdButtonProps> = ({
     if (isProcessing || disabled || !canUse) return;
 
     setIsProcessing(true);
+    onStarted?.();
 
     try {
       // Se usuário é Pro (adsEnabled=false), não mostra ad
@@ -185,8 +193,11 @@ export const RewardedAdButton: React.FC<RewardedAdButtonProps> = ({
         )}
       </View>
 
-      {/* Contador de usos restantes (apenas para free) */}
-      {showUsageCount && adsEnabled && (
+      {/* Contador de usos restantes.
+          Aparece também para o Pro: desde que a cota dele passou a ser por
+          fase, esconder o número deixaria o botão simplesmente apagar sem
+          explicação depois do segundo pulo. */}
+      {showUsageCount && (
         <View style={styles.usageCount}>
           <Text style={styles.usageCountText}>{remaining}</Text>
         </View>

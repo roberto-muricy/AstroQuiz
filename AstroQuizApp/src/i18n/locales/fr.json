@@ -42,7 +42,8 @@
       "3": "Moyen",
       "4": "Difficile",
       "5": "Expert"
-    }
+    },
+    "skippedTitle": "Question Passée"
   },
   "result": {
     "perfect": "Parfait !",
@@ -280,11 +281,11 @@
     "comingSoon": "Bientôt disponible",
     "benefits": {
       "noAds": "Sans Publicités",
-      "unlimitedSkips": "Passages Illimités",
       "unlimitedContinues": "Continues Illimités",
       "unlimitedCuriosities": "Anecdotes Illimitées",
       "exclusiveThemes": "Thèmes Exclusifs",
-      "advancedStats": "Statistiques Avancées"
+      "advancedStats": "Statistiques Avancées",
+      "skipsPerPhase": "Sauts sans Publicité"
     },
     "status": {
       "active": "Actif",
@@ -296,8 +297,7 @@
     },
     "benefitsSub": {
       "noAds": "Jouez sans interruptions publicitaires",
-      "skips": "Passez les questions difficiles quand vous voulez",
-      "continues": "Reprenez là où vous étiez en cas d’erreur"
+      "skipsPerPhase": "2 par phase, sans vidéo à regarder"
     }
   },
   "imageCredits": {

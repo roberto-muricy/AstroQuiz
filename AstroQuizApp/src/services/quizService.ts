@@ -83,7 +83,12 @@ class QuizService {
     timeUsed: number,
     questionId?: number,
     isTimeout?: boolean,
+    isSkipped?: boolean,
   ): Promise<any> {
+    // Uma pergunta pulada viaja com isTimeout=true (é o que faz o servidor
+    // tratá-la como não-respondida) e mais isSkipped, que a distingue de um
+    // tempo realmente esgotado. Servidor antigo ignora o segundo campo e
+    // pontua igual — por isso não há ordem obrigatória de deploy.
     const response = await api.post<any>(
       '/quiz/answer',
       {
@@ -92,6 +97,7 @@ class QuizService {
         timeUsed,
         questionId,
         isTimeout: !!isTimeout,
+        isSkipped: !!isSkipped,
       },
     );
 

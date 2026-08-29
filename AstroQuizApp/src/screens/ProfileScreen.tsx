@@ -243,7 +243,7 @@ export const ProfileScreen = () => {
               </View>
               <View style={styles.proBannerText}>
                 <Text style={styles.proBannerTitle}>{t('subscription.title')}</Text>
-                <Text style={styles.proBannerSubtitle}>{t('subscription.benefits.noAds')} • {t('subscription.benefits.unlimitedSkips')}</Text>
+                <Text style={styles.proBannerSubtitle}>{t('subscription.benefits.noAds')} • {t('subscription.benefits.skipsPerPhase')}</Text>
               </View>
             </View>
             <ChevronRight size={20} color="#FFA726" />

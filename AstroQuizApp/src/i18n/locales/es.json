@@ -42,7 +42,8 @@
       "3": "Medio",
       "4": "Difícil",
       "5": "Experto"
-    }
+    },
+    "skippedTitle": "Pregunta Saltada"
   },
   "result": {
     "perfect": "¡Perfecto!",
@@ -280,11 +281,11 @@
     "comingSoon": "Próximamente",
     "benefits": {
       "noAds": "Sin Anuncios",
-      "unlimitedSkips": "Saltos Ilimitados",
       "unlimitedContinues": "Continues Ilimitados",
       "unlimitedCuriosities": "Curiosidades Ilimitadas",
       "exclusiveThemes": "Temas Exclusivos",
-      "advancedStats": "Estadísticas Avanzadas"
+      "advancedStats": "Estadísticas Avanzadas",
+      "skipsPerPhase": "Saltos sin Anuncio"
     },
     "status": {
       "active": "Activo",
@@ -296,8 +297,7 @@
     },
     "benefitsSub": {
       "noAds": "Juega sin interrupciones de anuncios",
-      "skips": "Salta las preguntas difíciles cuando quieras",
-      "continues": "Continúa donde lo dejaste al fallar"
+      "skipsPerPhase": "2 por fase, sin esperar vídeo"
     }
   },
   "imageCredits": {
