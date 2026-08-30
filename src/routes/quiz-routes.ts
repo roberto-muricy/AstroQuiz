@@ -467,6 +467,7 @@ export function createQuizRoutes(strapi: any): any[] {
             timeUsed = 15000,
             questionId,
             isTimeout = false,
+            isSkipped = false,
           } = ctx.request.body;
 
           // Validate inputs
@@ -574,12 +575,15 @@ export function createQuizRoutes(strapi: any): any[] {
           }
 
           // Record answer
+          // Pular chega como isTimeout=true (mesma pontuação: zero) acrescido de
+          // isSkipped, que separa a desistência voluntária do tempo esgotado.
           session.answers.push({
             questionId,
             selectedOption,
             correctOption,
             isCorrect,
             isTimeout,
+            isSkipped: !!isSkipped,
             timeUsed,
             points: totalPoints,
           });
@@ -613,6 +617,7 @@ export function createQuizRoutes(strapi: any): any[] {
                 correctOption,
                 isCorrect,
                 isTimeout,
+                isSkipped: !!isSkipped,
                 timeUsed,
                 points: totalPoints,
                 level: questionLevel,

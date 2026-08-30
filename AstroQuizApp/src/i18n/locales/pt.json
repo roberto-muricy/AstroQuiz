@@ -42,7 +42,8 @@
       "3": "Médio",
       "4": "Difícil",
       "5": "Expert"
-    }
+    },
+    "skippedTitle": "Pergunta Pulada"
   },
   "result": {
     "perfect": "Perfeito!",
@@ -296,11 +297,11 @@
     "comingSoon": "Em breve",
     "benefits": {
       "noAds": "Sem Anúncios",
-      "unlimitedSkips": "Pulos Ilimitados",
       "unlimitedContinues": "Continues Ilimitados",
       "unlimitedCuriosities": "Curiosidades Ilimitadas",
       "exclusiveThemes": "Temas Exclusivos",
-      "advancedStats": "Estatísticas Avançadas"
+      "advancedStats": "Estatísticas Avançadas",
+      "skipsPerPhase": "Pulos sem Anúncio"
     },
     "status": {
       "active": "Ativo",
@@ -312,8 +313,7 @@
     },
     "benefitsSub": {
       "noAds": "Jogue sem interrupções de anúncios",
-      "skips": "Pule perguntas difíceis quando quiser",
-      "continues": "Continue de onde parou ao errar"
+      "skipsPerPhase": "2 por fase, sem esperar vídeo"
     }
   },
   "imageCredits": {

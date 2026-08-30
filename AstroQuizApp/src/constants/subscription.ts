@@ -47,14 +47,9 @@ export const PRO_BENEFITS = [
     translationKey: 'subscription.benefits.noAds',
   },
   {
-    key: 'unlimitedSkips',
+    key: 'skipsPerPhase',
     icon: 'skip-forward',
-    translationKey: 'subscription.benefits.unlimitedSkips',
-  },
-  {
-    key: 'unlimitedContinues',
-    icon: 'heart',
-    translationKey: 'subscription.benefits.unlimitedContinues',
+    translationKey: 'subscription.benefits.skipsPerPhase',
   },
 ];
 

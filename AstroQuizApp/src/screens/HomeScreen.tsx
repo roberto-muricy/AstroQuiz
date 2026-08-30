@@ -13,6 +13,8 @@ import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
+import type { RankIconName } from '@/utils/progressionSystem';
+import { RankIcon } from '@/components/RankIcon';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import React, { useEffect, useState } from 'react';
@@ -42,6 +44,7 @@ export const HomeScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
   const [levelTitle, setLevelTitle] = useState('');
+  const [levelIcon, setLevelIcon] = useState<RankIconName>('Sparkle');
   const [currentLevel, setCurrentLevel] = useState(1);
   const [xpToNext, setXpToNext] = useState(0);
   const [progressPct, setProgressPct] = useState(0);
@@ -64,7 +67,11 @@ export const HomeScreen = () => {
       const level = getPlayerLevel(xp);
       const xpNext = getXPToNextLevel(xp);
       setCurrentLevel(level.level);
-      setLevelTitle(`${level.icon} ${level.title}`);
+      // Só o título. O ícone é desenhado à parte: desde que as patentes
+      // passaram a guardar o *nome* do ícone Lucide em vez de um emoji, esta
+      // interpolação imprimia "Sparkle Space Rookie" na tela.
+      setLevelTitle(level.title);
+      setLevelIcon(level.icon);
       setXpToNext(xpNext);
 
       if (xpNext === 0) {
@@ -139,7 +146,10 @@ export const HomeScreen = () => {
         <Card style={styles.mainLevelCard}>
           <View style={styles.mainLevelHeader}>
             <View>
-              <Text style={styles.mainLevelTitle}>{levelTitle || t('home.levelNumber', { level: currentLevel })}</Text>
+              <View style={styles.mainLevelTitleRow}>
+                <RankIcon name={levelIcon} size={20} filled={currentLevel >= 8} />
+                <Text style={styles.mainLevelTitle}>{levelTitle || t('home.levelNumber', { level: currentLevel })}</Text>
+              </View>
               <Text style={styles.mainLevelSubtitle}>
                 {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
               </Text>
@@ -362,6 +372,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: SIZES.screenPadding,
+  },
+  mainLevelTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   mainLevelTitle: {
     ...TYPOGRAPHY.h3,

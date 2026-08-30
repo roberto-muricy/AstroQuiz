@@ -36,7 +36,14 @@ import { StarsRating, LockIcon, PlayIcon, IconSizes, IconColors } from '@/compon
 
 export const QuizListScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { locale } = useApp();
+  const { locale, gameRules } = useApp();
+
+  // Vem do servidor (GET /api/quiz/rules). Estava fixo em 30 no código e o
+  // backend já servia 45 — a tela prometia menos tempo do que o jogo dá.
+  // Lendo daqui, mudar a regra no servidor basta: não precisa de novo build.
+  const segundosPorPergunta = Math.round(
+    (gameRules?.general?.timePerQuestion ?? 45000) / 1000,
+  );
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [unlockedPhases, setUnlockedPhases] = useState(1);
@@ -201,7 +208,7 @@ export const QuizListScreen = () => {
               : finalDescription}
           </Text>
           <Text style={[styles.phaseInfo, isLocked && styles.lockedText]}>
-            {t('quizList.phaseInfo', { seconds: 30 })} {isCompleted ? `• ${accuracy}%` : ''}
+            {t('quizList.phaseInfo', { seconds: segundosPorPergunta })} {isCompleted ? `• ${accuracy}%` : ''}
           </Text>
           <View style={styles.starRow}>
             <StarsRating stars={stars} size={IconSizes.md} gap={6} />

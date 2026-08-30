@@ -42,7 +42,8 @@
       "3": "Medium",
       "4": "Hard",
       "5": "Expert"
-    }
+    },
+    "skippedTitle": "Question Skipped"
   },
   "result": {
     "perfect": "Perfect!",
@@ -296,11 +297,11 @@
     "comingSoon": "Coming soon",
     "benefits": {
       "noAds": "No Ads",
-      "unlimitedSkips": "Unlimited Skips",
       "unlimitedContinues": "Unlimited Continues",
       "unlimitedCuriosities": "Unlimited Fun Facts",
       "exclusiveThemes": "Exclusive Themes",
-      "advancedStats": "Advanced Stats"
+      "advancedStats": "Advanced Stats",
+      "skipsPerPhase": "Ad-Free Skips"
     },
     "status": {
       "active": "Active",
@@ -312,8 +313,7 @@
     },
     "benefitsSub": {
       "noAds": "Play without ad interruptions",
-      "skips": "Skip tough questions whenever you want",
-      "continues": "Pick up where you left off when you miss"
+      "skipsPerPhase": "2 per phase, no video to watch"
     }
   },
   "imageCredits": {
