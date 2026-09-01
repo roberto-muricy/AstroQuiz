@@ -257,7 +257,8 @@
     "curiosityModalTitle": "Anecdote",
     "curiosityModalClose": "Compris !",
     "skipUsed": "Question passée !",
-    "noExplanation": "Aucune explication disponible pour cette question."
+    "noExplanation": "Aucune explication disponible pour cette question.",
+    "adRetryLater": "Aucune publicité disponible pour le moment. Réessayez dans un instant."
   },
   "subscription": {
     "title": "AstroQuiz Pro",
