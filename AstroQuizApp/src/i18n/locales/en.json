@@ -273,7 +273,8 @@
     "curiosityModalTitle": "Fun Fact",
     "curiosityModalClose": "Got it!",
     "skipUsed": "Question skipped!",
-    "noExplanation": "No explanation available for this question."
+    "noExplanation": "No explanation available for this question.",
+    "adRetryLater": "No ad available right now. Try again in a moment."
   },
   "subscription": {
     "title": "AstroQuiz Pro",

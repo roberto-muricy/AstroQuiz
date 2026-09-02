@@ -16,6 +16,11 @@ import { useAds } from '@/contexts/AdsContext';
 
 export type RewardType = RewardedAdType;
 
+/** Espaçamento entre novas tentativas de carregar um anúncio que falhou. */
+const INTERVALO_NOVA_TENTATIVA_MS = 20000;
+/** Teto de tentativas enquanto o botão estiver na tela. */
+const MAX_TENTATIVAS = 3;
+
 export interface UseRewardedAdOptions {
   /**
    * Tipo do rewarded ad (skip, continue, curiosity)
@@ -182,6 +187,32 @@ export const useRewardedAd = (options: UseRewardedAdOptions = {}): UseRewardedAd
     const interval = setInterval(checkLoaded, 1000);
     return () => clearInterval(interval);
   }, [adsEnabled, type]);
+
+  // Nova tentativa depois de uma falha de carregamento.
+  //
+  // Sem isto, um anúncio que falha ao carregar deixa o botão morto: o próximo
+  // toque encontra o mesmo estado vazio e mostra o mesmo erro. Falta de
+  // preenchimento é rotina no AdMob, então o caso é comum, não excepcional.
+  //
+  // O intervalo é longo e o número de tentativas é limitado de propósito —
+  // repetir requisição de anúncio em rajada é violação de política.
+  useEffect(() => {
+    if (!adsEnabled || !isAvailable) return;
+
+    let tentativas = 0;
+    const intervalo = setInterval(() => {
+      if (isRewardedAdReady(type)) {
+        tentativas = 0;
+        return;
+      }
+      if (tentativas >= MAX_TENTATIVAS) return;
+      tentativas += 1;
+      console.log(`[useRewardedAd] Recarregando ${type} (tentativa ${tentativas})`);
+      loadAd();
+    }, INTERVALO_NOVA_TENTATIVA_MS);
+
+    return () => clearInterval(intervalo);
+  }, [adsEnabled, isAvailable, type, loadAd]);
 
   return {
     isLoaded: adsEnabled ? isLoaded : true, // Pro sempre "carregado"

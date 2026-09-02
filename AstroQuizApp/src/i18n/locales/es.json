@@ -257,7 +257,8 @@
     "curiosityModalTitle": "Curiosidad",
     "curiosityModalClose": "¡Entendido!",
     "skipUsed": "¡Pregunta saltada!",
-    "noExplanation": "No hay explicación disponible para esta pregunta."
+    "noExplanation": "No hay explicación disponible para esta pregunta.",
+    "adRetryLater": "Ningún anuncio disponible ahora. Inténtalo de nuevo en unos instantes."
   },
   "subscription": {
     "title": "AstroQuiz Pro",

@@ -221,6 +221,11 @@ export const QuizScreen = () => {
 
   const handleTimeout = async () => {
     if (!currentQuestion || showResult) return;
+    // Um pulo em andamento tem precedência sobre o tempo esgotado. O congelar
+    // do cronômetro já cobre o caso normal, mas entre o toque em "Pular" e o
+    // congelamento entrar em vigor cabe um quadro de tela — e o jogador
+    // perderia o pulo (já debitado) e a pergunta de uma vez só.
+    if (skipEmCurso) return;
 
     // Mostra o banner de resultado imediatamente (antes de chamar o servidor)
     setShowResult(true);
@@ -354,9 +359,12 @@ export const QuizScreen = () => {
     // O cronômetro só volta a correr quando o usuário fecha o aviso. Se
     // liberássemos aqui, ele perderia segundos lendo um erro que não causou —
     // e o anúncio que falhou nem chegou a lhe dar o pulo.
+    // Falta de preenchimento é rotina, não erro do jogador: a mensagem diz o
+    // que fazer em vez de só constatar a falha. O hook segue tentando
+    // recarregar por trás, então "em instantes" é literal.
     Alert.alert(
-      t('common.error'),
       t('ads.adNotAvailable'),
+      t('ads.adRetryLater'),
       [{ text: 'OK', onPress: () => setSkipEmCurso(false) }],
       // Sem isto, o botão "voltar" do Android fecharia o aviso sem passar pelo
       // onPress — e o cronômetro ficaria congelado até o fim da fase.
