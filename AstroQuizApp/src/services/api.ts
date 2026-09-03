@@ -63,8 +63,14 @@ const getInitialBaseUrl = () => {
 const API_BASE_URL = getInitialBaseUrl();
 const API_TIMEOUT = 30000;
 
-/** Repeticoes em falha de rede (sem resposta HTTP). */
-const MAX_TENTATIVAS_REDE = 2;
+/**
+ * Repeticoes em falha de rede (sem resposta HTTP).
+ *
+ * Quatro, e nao duas: no Android o reset de fluxo HTTP/2 derruba quase toda
+ * primeira tentativa, e o log mostrou ser preciso chegar a terceira para uma
+ * passar. Com duas, mais da metade das aberturas de fase falhava.
+ */
+const MAX_TENTATIVAS_REDE = 4;
 /** Espera antes de repetir; cresce a cada tentativa. */
 const ESPERA_BASE_MS = 400;
 

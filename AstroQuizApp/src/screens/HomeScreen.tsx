@@ -17,7 +17,7 @@ import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -94,7 +94,14 @@ export const HomeScreen = () => {
     setRefreshing(false);
   };
 
+  // Trava contra toques repetidos. Sem ela, dois toques abrem duas cadeias de
+  // requisicao em paralelo — e ja aconteceu de uma criar a sessao e a outra
+  // falhar, com o alerta de erro cobrindo o quiz que tinha acabado de abrir.
+  const iniciandoRef = useRef(false);
+
   const handleStartQuiz = async (phaseNumber: number) => {
+    if (iniciandoRef.current) return;
+    iniciandoRef.current = true;
     soundService.playNavigate();
     try {
       console.log('🎮 Iniciando quiz - Fase:', phaseNumber, 'Locale:', locale);
@@ -111,6 +118,8 @@ export const HomeScreen = () => {
     } catch (error) {
       console.error('❌ Erro ao iniciar quiz:', error);
       Alert.alert(t('common.error'), t('errors.quizStartError'));
+    } finally {
+      iniciandoRef.current = false;
     }
   };
 

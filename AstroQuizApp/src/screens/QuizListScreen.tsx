@@ -13,7 +13,7 @@ import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { calculateStarRating, getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
-import React, { useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -94,7 +94,12 @@ export const QuizListScreen = () => {
     );
   };
 
+  // Mesma trava do HomeScreen: dois toques abriam duas cadeias de requisicao
+  // em paralelo, e a que falhava mostrava o alerta por cima da que dava certo.
+  const iniciandoRef = useRef(false);
+
   const handleStartQuiz = async (phaseNumber: number) => {
+    if (iniciandoRef.current) return;
     soundService.playNavigate();
     if (phaseNumber > unlockedPhases) {
       soundService.playIncorrect();
@@ -106,6 +111,7 @@ export const QuizListScreen = () => {
     }
 
     try {
+      iniciandoRef.current = true;
       soundService.playTap();
       setLoading(true);
       console.log('🌐 API baseURL (current):', api.getBaseUrl());
@@ -138,6 +144,7 @@ export const QuizListScreen = () => {
       }
     } finally {
       setLoading(false);
+      iniciandoRef.current = false;
     }
   };
 
