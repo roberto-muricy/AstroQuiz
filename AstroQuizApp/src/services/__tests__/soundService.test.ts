@@ -25,8 +25,10 @@ jest.mock('@/utils/settingsStorage', () => ({
 }));
 
 // Sem módulo nativo: exercita apenas a camada de preferências.
+const mockVibrate = jest.fn();
+
 jest.mock('react-native', () => ({
-  Vibration: { vibrate: jest.fn() },
+  Vibration: { vibrate: mockVibrate },
   NativeModules: {},
 }));
 
@@ -66,5 +68,42 @@ describe('soundService — preferências', () => {
     mockGetSettings.mockRejectedValue(new Error('disco indisponível'));
     const settings = await freshService().getSettings();
     expect(settings.soundEnabled).toBe(true);
+  });
+});
+
+/**
+ * Regressão: vibração indisponível não pode derrubar o app.
+ *
+ * O manifesto Android não declarava android.permission.VIBRATE, então a
+ * primeira vibração lançava SecurityException e o sistema matava o processo —
+ * o app fechava ao entrar no quiz. A permissão foi declarada, mas o serviço
+ * também passou a tolerar a falha: um efeito tátil não vale uma fase perdida.
+ */
+describe('vibração', () => {
+  it('não propaga erro quando a plataforma recusa vibrar', async () => {
+    mockVibrate.mockImplementation(() => {
+      throw new Error('SecurityException: no android.permission.VIBRATE');
+    });
+    const service = freshService();
+    await service.getSettings();
+
+    // Antes da correção, isto derrubava o processo. Capturamos de forma
+    // explícita porque playSelect pode ser síncrono ou assíncrono.
+    let erro: unknown = null;
+    try {
+      await service.playSelect();
+    } catch (e) {
+      erro = e;
+    }
+    expect(erro).toBeNull();
+    expect(mockVibrate).toHaveBeenCalled();
+  });
+
+  it('vibra normalmente quando a plataforma permite', async () => {
+    mockVibrate.mockImplementation(() => undefined);
+    const service = freshService();
+    await service.getSettings();
+    await service.playSelect();
+    expect(mockVibrate).toHaveBeenCalled();
   });
 });

@@ -168,7 +168,16 @@ class SoundService {
 
   private vibrate(pattern: number | number[] = 30) {
     if (!this.settings?.vibrationEnabled) return;
-    Vibration.vibrate(pattern, false);
+    try {
+      Vibration.vibrate(pattern, false);
+    } catch (erro) {
+      // Um efeito tátil não pode derrubar o jogo. No Android sem a permissão
+      // VIBRATE isto lançava SecurityException e matava o processo inteiro ao
+      // entrar no quiz. A permissão foi declarada no manifesto, mas o custo de
+      // uma vibração falhar em silêncio é zero e o de um travamento é a fase
+      // perdida — então vale a rede de proteção.
+      console.warn('[soundService] Vibração indisponível:', erro);
+    }
   }
 
   async getSettings() {
