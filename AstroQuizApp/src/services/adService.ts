@@ -120,6 +120,9 @@ const REWARDED_AD_UNIT_IDS: Record<RewardedAdType, { ios: string; android: strin
 // Test ID oficial do Google para Rewarded Ads
 const REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/5224354917';
 
+/** Prazo para o SDK responder a um carregamento antes de considerarmos falha. */
+const LOAD_TIMEOUT_MS = 15000;
+
 const getRewardedAdUnitId = (type: RewardedAdType): string => {
   if (!isAdModuleAvailable) return '';
 
@@ -273,30 +276,50 @@ export const loadRewardedAd = (type: RewardedAdType = 'skip'): Promise<void> => 
   const adUnitId = getRewardedAdUnitId(type);
 
   state.loadPromise = new Promise((resolve) => {
+    let encerrado = false;
+    let timerDeSeguranca: ReturnType<typeof setTimeout> | null = null;
+    const encerrar = (carregado: boolean) => {
+      if (encerrado) return;
+      encerrado = true;
+      if (timerDeSeguranca) clearTimeout(timerDeSeguranca);
+      state.isLoaded = carregado;
+      state.loadPromise = null;
+      resolve();
+    };
+
     try {
       state.ad = RewardedAd.createForAdRequest(adUnitId, {
         requestNonPersonalizedAdsOnly: true,
       });
 
-      state.ad.addAdEventListener(AdEventType.LOADED, () => {
+      // ATENCAO: anuncio premiado NAO emite AdEventType.LOADED — emite
+      // RewardedAdEventType.LOADED. Escutar o evento generico era o bug que
+      // deixava os anuncios invisiveis: o anuncio carregava, o Google contava
+      // 100% de correspondencia, e o app nunca ficava sabendo. isLoaded ficava
+      // falso para sempre e o botao respondia "anuncio nao disponivel"
+      // segurando um anuncio pronto.
+      state.ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
         console.log(`[AdService] Rewarded ad (${type}) loaded`);
-        state.isLoaded = true;
-        state.loadPromise = null;
-        resolve();
+        encerrar(true);
       });
 
       state.ad.addAdEventListener(AdEventType.ERROR, (error: any) => {
         console.log(`[AdService] Rewarded ad (${type}) error:`, error);
-        state.isLoaded = false;
-        state.loadPromise = null;
-        resolve();
+        encerrar(false);
       });
+
+      // Rede de seguranca: se nenhum dos dois eventos vier, a promessa ficaria
+      // pendente para sempre e todo carregamento seguinte a herdaria, travando
+      // o botao em silencio. Melhor desistir e deixar tentar de novo.
+      timerDeSeguranca = setTimeout(() => {
+        console.log(`[AdService] Rewarded ad (${type}) sem resposta em ${LOAD_TIMEOUT_MS}ms`);
+        encerrar(false);
+      }, LOAD_TIMEOUT_MS);
 
       state.ad.load();
     } catch (error) {
       console.log(`[AdService] Error initializing rewarded ad (${type}):`, error);
-      state.loadPromise = null;
-      resolve();
+      encerrar(false);
     }
   });
 
