@@ -7,9 +7,9 @@ export const REVENUECAT_API_KEYS = {
   // Key de teste (para desenvolvimento)
   test: 'test_rUTmxCK0srpqCCmYNqvrbSGDPch',
 
-  // Keys de produção (configurar depois no RevenueCat)
+  // Chaves públicas de SDK — feitas para viajar dentro do app.
   ios: 'appl_XdGQhsRvLWVsOGDnwzmbNJIlekM',
-  android: 'goog_XXXXXXXXXX', // TODO: Substituir pela key de produção Android
+  android: 'goog_QYelOHlXrPBMTjJUiFAFdHnUzxQ',
 };
 
 // IDs dos produtos (devem corresponder aos configurados nas lojas)
