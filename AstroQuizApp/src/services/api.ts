@@ -78,6 +78,10 @@ class ApiService {
       },
     });
 
+    // Registrado tambem em producao: saber a URL efetiva evita uma classe
+    // inteira de suposicao quando um aparelho real falha e o simulador nao.
+    console.log('[api] baseURL:', API_BASE_URL, '| timeout:', API_TIMEOUT);
+
     // Remove legacy plain-text token from previous app versions.
     AsyncStorage.removeItem('@auth_token').catch(() => {});
 
@@ -145,20 +149,28 @@ class ApiService {
           }
         }
 
-        // Log de erro em desenvolvimento
-        if (__DEV__) {
-          const baseURL = this.api.defaults.baseURL;
-          const url = error.config?.url;
-          const method = (error.config?.method || '').toUpperCase();
-          const code = (error as any)?.code;
-
+        // Falha de rede — a que nao tem resposta HTTP — precisa de detalhe
+        // TAMBEM em producao. "Network Error" sozinho nao distingue DNS, TLS,
+        // conexao recusada, reset ou timeout, e foi exatamente essa cegueira
+        // que travou o diagnostico de uma falha no Android: o log existia, mas
+        // so em __DEV__, entao o aparelho real nunca contava o que aconteceu.
+        //
+        // Cabecalhos ficam de fora de proposito: Authorization carrega o token
+        // do Firebase, e log de token e vazamento de credencial.
+        const semResposta = !error.response;
+        if (__DEV__ || semResposta) {
+          const cfg: any = error.config || {};
           console.log('❌ API Error:', {
             message: error.message,
-            code,
-            baseURL,
-            request: `${method} ${url}`,
+            code: (error as any)?.code,
+            request: `${(cfg.method || '').toUpperCase()} ${cfg.baseURL || ''}${cfg.url || ''}`,
             status: error.response?.status,
-            data: error.response?.data,
+            timeoutConfigurado: cfg.timeout,
+            // O React Native guarda aqui a mensagem crua do OkHttp — e ela que
+            // nomeia a causa real quando o axios so diz "Network Error".
+            erroNativo: (error as any)?.request?._response,
+            estadoXHR: (error as any)?.request?.status,
+            ...(__DEV__ ? { data: error.response?.data } : {}),
           });
         }
         return Promise.reject(error);
