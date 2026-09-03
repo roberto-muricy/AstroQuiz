@@ -33,8 +33,22 @@ export const MAX_PHASE = 50;
 
 /**
  * Time constraints (ms)
+ *
+ * Este teto estava em 30000 enquanto config/game-rules.js dava 45000 por
+ * pergunta. O app envia o tempo real gasto, entao TODA pergunta cujo tempo
+ * esgotava chegava aqui com 45000 e era recusada com 400 — o jogador ficava
+ * preso na fase, sem registrar a resposta.
+ *
+ * A folga sobre o tempo de jogo e proposital: o cliente mede por conta propria
+ * e latencia, app em segundo plano ou relogio impreciso podem devolver um
+ * valor um pouco acima do teorico. Ser generoso aqui nao abre brecha — o bonus
+ * de velocidade so premia tempos MENORES, logo inflar timeUsed nao beneficia
+ * ninguem.
+ *
+ * O teste em __tests__/validation-tempo.test.ts falha se este valor voltar a
+ * ficar abaixo do tempo por pergunta das regras do jogo.
  */
-export const MAX_TIME_PER_QUESTION = 30000;
+export const MAX_TIME_PER_QUESTION = 90000;
 
 /**
  * Validate phase number

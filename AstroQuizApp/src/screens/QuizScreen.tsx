@@ -82,6 +82,9 @@ export const QuizScreen = () => {
   // Verdadeiro enquanto o anúncio do pulo está na tela. Congela o cronômetro:
   // um vídeo premiado dura até 30 s e a pergunta expiraria por baixo dele.
   const [skipEmCurso, setSkipEmCurso] = useState(false);
+  // O envio da pergunta ao servidor falhou. O banner fica, e no lugar de
+  // "Próxima" aparece "Tentar novamente".
+  const [falhaEnvio, setFalhaEnvio] = useState(false);
   const [loading, setLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(30);
   const [autoSubmitCountdown, setAutoSubmitCountdown] = useState<number | null>(null);
@@ -184,6 +187,7 @@ export const QuizScreen = () => {
       setAnswerResult(null);
       setIsTimedOut(false);
       setIsSkipped(false);
+      setFalhaEnvio(false);
       setAutoSubmitCountdown(null);
       setCanAdvance(false);
     } catch (error) {
@@ -230,6 +234,18 @@ export const QuizScreen = () => {
     // Mostra o banner de resultado imediatamente (antes de chamar o servidor)
     setShowResult(true);
     setIsTimedOut(true);
+    await registrarTimeout();
+  };
+
+  /**
+   * Registra no servidor a pergunta cujo tempo esgotou.
+   *
+   * Separado de handleTimeout para que o botão "Tentar novamente" possa
+   * repetir só o envio, sem remontar o banner.
+   */
+  const registrarTimeout = async () => {
+    if (!currentQuestion) return;
+    setFalhaEnvio(false);
 
     try {
       const timeUsed = currentQuestion.timePerQuestion;
@@ -256,9 +272,16 @@ export const QuizScreen = () => {
       soundService.playTimeout();
       // Tempo esgotado conta como erro: NÃO avança sozinho — usuário lê a explicação
     } catch (error) {
-      console.error('Erro ao processar timeout:', error);
-      setShowResult(false);
-      setIsTimedOut(false);
+      // Este catch desfazia showResult. Como o cronômetro continuava em zero,
+      // o efeito chamava handleTimeout no mesmo instante, que falhava de novo:
+      // um laço que deixava o jogador preso num banner "Tempo esgotado!" sem
+      // botão nenhum, sem sequer saber que algo tinha falhado.
+      //
+      // Agora a falha fica visível e oferece nova tentativa. O banner
+      // permanece, então o efeito do cronômetro não volta a disparar.
+      console.error('Erro ao registrar tempo esgotado:', error);
+      setFalhaEnvio(true);
+      setCanAdvance(false);
     }
   };
 
@@ -383,6 +406,7 @@ export const QuizScreen = () => {
     setCanAdvance(false);
     setIsTimedOut(false);
     setIsSkipped(false);
+    setFalhaEnvio(false);
     setAutoAdvanceCountdown(null);
 
     if (result?.sessionStatus?.isPhaseComplete) {
@@ -617,6 +641,22 @@ export const QuizScreen = () => {
             )}
             </Pressable>
 
+            {/* ——— Falha ao registrar no servidor ———
+                Sem isto o jogador ficava olhando um banner sem botão, sem
+                saber que algo tinha dado errado nem como sair. */}
+            {falhaEnvio && (
+              <View>
+                <Text style={styles.falhaTexto}>{t('errors.connectionError')}</Text>
+                <TouchableOpacity
+                  style={styles.retryButton}
+                  onPress={registrarTimeout}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
             {/* ——— Botão "Próxima" ——— */}
             {canAdvance && (
               <TouchableOpacity
@@ -827,6 +867,26 @@ const styles = StyleSheet.create({
   skipRow: {
     marginTop: SPACING.md,
     alignItems: 'center',
+  },
+  falhaTexto: {
+    ...TYPOGRAPHY.body,
+    color: '#F97316',
+    textAlign: 'center',
+    marginTop: SPACING.md,
+  },
+  retryButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#F97316',
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    marginTop: SPACING.sm,
+  },
+  retryButtonText: {
+    ...TYPOGRAPHY.body,
+    color: '#F97316',
+    fontFamily: 'Poppins-SemiBold',
   },
   skippedBanner: {
     backgroundColor: 'rgba(148, 163, 184, 0.15)',

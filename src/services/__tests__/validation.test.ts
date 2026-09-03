@@ -14,6 +14,7 @@ import {
   validateQuestionData,
   combineValidations,
   formatValidationErrors,
+  MAX_TIME_PER_QUESTION,
 } from '../validation';
 
 describe('Validation Service', () => {
@@ -111,8 +112,16 @@ describe('Validation Service', () => {
       expect(validateTimeUsed(-100).valid).toBe(false);
     });
 
-    it('should reject values over 30000ms', () => {
-      expect(validateTimeUsed(35000).valid).toBe(false);
+    // 35000 era recusado quando o teto ainda era 30000 — e era exatamente esse
+    // teto que rejeitava toda pergunta cujo tempo esgotava, ja que o jogo da
+    // 45000. O teto passou a 90000; o limite agora e testado contra a constante
+    // e contra as regras do jogo em validation-tempo.test.ts.
+    it('should reject values over the ceiling', () => {
+      expect(validateTimeUsed(MAX_TIME_PER_QUESTION + 1).valid).toBe(false);
+    });
+
+    it('should accept the full question time (what a timeout sends)', () => {
+      expect(validateTimeUsed(45000).valid).toBe(true);
     });
 
     it('should allow undefined (optional field)', () => {
