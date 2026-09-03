@@ -36,9 +36,7 @@ class QuizService {
       // Evita spinner infinito em caso de backend inacessível/host errado.
       //
       // repetirEmFalhaDeRede: iniciar uma fase é seguro de repetir — no pior
-      // caso nasce uma sessão órfã, que expira sozinha em 6 horas. Já
-      // /quiz/answer NÃO leva esta marca: repetir uma resposta que o servidor
-      // possa ter processado contaria a pergunta duas vezes.
+      // caso nasce uma sessão órfã, que expira sozinha em 6 horas.
       { timeout: 10000, repetirEmFalhaDeRede: true } as any,
     );
 
@@ -94,6 +92,13 @@ class QuizService {
     // tratá-la como não-respondida) e mais isSkipped, que a distingue de um
     // tempo realmente esgotado. Servidor antigo ignora o segundo campo e
     // pontua igual — por isso não há ordem obrigatória de deploy.
+    //
+    // requestId torna a chamada idempotente: o mesmo identificador viaja em
+    // todas as repetições, e o servidor devolve o resultado guardado em vez de
+    // contar a resposta outra vez. É o que permite repetir com segurança uma
+    // requisição que pode ter sido processada antes de a conexão cair.
+    const requestId = `ans_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
     const response = await api.post<any>(
       '/quiz/answer',
       {
@@ -103,7 +108,9 @@ class QuizService {
         questionId,
         isTimeout: !!isTimeout,
         isSkipped: !!isSkipped,
+        requestId,
       },
+      { repetirEmFalhaDeRede: true } as any,
     );
 
     if (!response.success || !response.data) {

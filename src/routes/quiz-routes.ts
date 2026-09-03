@@ -468,6 +468,7 @@ export function createQuizRoutes(strapi: any): any[] {
             questionId,
             isTimeout = false,
             isSkipped = false,
+            requestId,
           } = ctx.request.body;
 
           // Validate inputs
@@ -533,6 +534,25 @@ export function createQuizRoutes(strapi: any): any[] {
 
           // Get or create session
           let session = await getSession(strapi, sessionId);
+
+          // Idempotencia: a mesma requisicao repetida devolve o mesmo
+          // resultado em vez de contar a resposta de novo.
+          //
+          // Necessario porque o app repete requisicoes que falham sem resposta
+          // HTTP — no Android o fluxo HTTP/2 e cancelado DEPOIS de o servidor
+          // ter respondido 200, entao a resposta ja foi processada aqui mesmo
+          // que o app nunca a receba. Sem esta guarda, a repeticao contaria a
+          // pergunta duas vezes e a fase pularia uma.
+          if (requestId && session) {
+            const jaProcessada = (session.answers || []).find(
+              (a: any) => a.requestId === requestId
+            );
+            if (jaProcessada?.resposta) {
+              strapi.log.info(`Answer ${requestId} ja processada; devolvendo resultado guardado`);
+              ctx.body = jaProcessada.resposta;
+              return;
+            }
+          }
           if (!session) {
             session = {
               sessionId,
@@ -577,7 +597,7 @@ export function createQuizRoutes(strapi: any): any[] {
           // Record answer
           // Pular chega como isTimeout=true (mesma pontuação: zero) acrescido de
           // isSkipped, que separa a desistência voluntária do tempo esgotado.
-          session.answers.push({
+          const registro: any = {
             questionId,
             selectedOption,
             correctOption,
@@ -586,7 +606,9 @@ export function createQuizRoutes(strapi: any): any[] {
             isSkipped: !!isSkipped,
             timeUsed,
             points: totalPoints,
-          });
+            requestId,
+          };
+          session.answers.push(registro);
 
           // Check if phase complete
           const isPhaseComplete = session.currentQuestionIndex >= 10;
@@ -602,14 +624,9 @@ export function createQuizRoutes(strapi: any): any[] {
             }
           }
 
-          quizSessions.set(sessionId, session);
-          await saveQuizSession(strapi, session);
-
-          strapi.log.info(
-            `Session ${sessionId} - Score: ${session.score}, Streak: ${session.streakCount}, Progress: ${session.currentQuestionIndex}/10`
-          );
-
-          ctx.body = {
+          // O corpo e montado antes de salvar para ficar guardado junto do
+          // registro: e ele que uma requisicao repetida recebe de volta.
+          const corpoDaResposta = {
             success: true,
             data: {
               answerRecord: {
@@ -641,6 +658,19 @@ export function createQuizRoutes(strapi: any): any[] {
               },
             },
           };
+
+          // Guardado junto da resposta: e isto que a repeticao recebe de volta,
+          // identico ao original, sem reprocessar nada.
+          if (requestId) registro.resposta = corpoDaResposta;
+
+          quizSessions.set(sessionId, session);
+          await saveQuizSession(strapi, session);
+
+          strapi.log.info(
+            `Session ${sessionId} - Score: ${session.score}, Streak: ${session.streakCount}, Progress: ${session.currentQuestionIndex}/10`
+          );
+
+          ctx.body = corpoDaResposta;
         } catch (error: any) {
           strapi.log.error('Error submitting answer:', error);
           ctx.internalServerError('Failed to submit answer');
