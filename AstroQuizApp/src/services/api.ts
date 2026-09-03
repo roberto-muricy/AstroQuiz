@@ -63,6 +63,11 @@ const getInitialBaseUrl = () => {
 const API_BASE_URL = getInitialBaseUrl();
 const API_TIMEOUT = 30000;
 
+/** Repeticoes em falha de rede (sem resposta HTTP). */
+const MAX_TENTATIVAS_REDE = 2;
+/** Espera antes de repetir; cresce a cada tentativa. */
+const ESPERA_BASE_MS = 400;
+
 class ApiService {
   private api: AxiosInstance;
   private authToken: string | null = null;
@@ -173,6 +178,40 @@ class ApiService {
             ...(__DEV__ ? { data: error.response?.data } : {}),
           });
         }
+        // Nova tentativa em falha de rede.
+        //
+        // No Android observamos o servidor responder 200 e o fluxo HTTP/2 ser
+        // cancelado ~300 ms depois ("stream was reset: CANCEL"), sem resposta
+        // chegar ao app. Reset de fluxo e falha transitoria: a segunda
+        // tentativa costuma passar.
+        //
+        // Repetimos apenas o que e seguro repetir. O 200 recebido mostra que o
+        // servidor JA processou o pedido — entao repetir /quiz/answer contaria
+        // a resposta duas vezes e a fase pularia uma pergunta. GET e sempre
+        // seguro; POST so quando quem chama marcar explicitamente.
+        const cfg = (error.config || {}) as InternalAxiosRequestConfig & {
+          _tentativas?: number;
+          repetirEmFalhaDeRede?: boolean;
+        };
+        const metodoSeguro = (cfg.method || 'get').toLowerCase() === 'get';
+        const podeRepetir = semResposta && (metodoSeguro || cfg.repetirEmFalhaDeRede === true);
+
+        if (podeRepetir) {
+          const tentativa = (cfg._tentativas ?? 0) + 1;
+          if (tentativa <= MAX_TENTATIVAS_REDE) {
+            cfg._tentativas = tentativa;
+            const espera = ESPERA_BASE_MS * tentativa;
+            console.log(
+              `[api] falha de rede em ${(cfg.method || '').toUpperCase()} ${cfg.url} — ` +
+                `tentativa ${tentativa}/${MAX_TENTATIVAS_REDE} em ${espera}ms`,
+            );
+            await new Promise<void>(resolve => {
+              setTimeout(resolve, espera);
+            });
+            return this.api(cfg);
+          }
+        }
+
         return Promise.reject(error);
       },
     );

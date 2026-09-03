@@ -34,7 +34,12 @@ class QuizService {
         ...(options?.includeDrafts ? { includeDrafts: true } : {}),
       },
       // Evita spinner infinito em caso de backend inacessível/host errado.
-      { timeout: 10000 },
+      //
+      // repetirEmFalhaDeRede: iniciar uma fase é seguro de repetir — no pior
+      // caso nasce uma sessão órfã, que expira sozinha em 6 horas. Já
+      // /quiz/answer NÃO leva esta marca: repetir uma resposta que o servidor
+      // possa ter processado contaria a pergunta duas vezes.
+      { timeout: 10000, repetirEmFalhaDeRede: true } as any,
     );
 
     if (!response.success || !response.data) {
