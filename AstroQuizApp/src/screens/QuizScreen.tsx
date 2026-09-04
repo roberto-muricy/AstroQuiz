@@ -95,6 +95,18 @@ export const QuizScreen = () => {
   // Contagem visível do auto-avanço (apenas em acertos); null = sem auto-avanço
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
 
+  // Trava de envio por pergunta.
+  //
+  // showResult e estado do React e chega tarde demais para servir de guarda:
+  // handleSubmitAnswer (auto-envio da alternativa, 700ms apos o toque) e
+  // handleTimeout (cronometro em zero) podiam disparar no mesmo instante e
+  // registrar a MESMA pergunta duas vezes no servidor — uma fase terminou com
+  // 12 respostas em 10 perguntas, e a mesma pergunta apareceu 3 vezes.
+  //
+  // A idempotencia do backend nao pega esse caso: cada envio leva um
+  // requestId proprio, entao para o servidor sao respostas diferentes.
+  const respostaEnviadaRef = useRef(false);
+
   const submitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -188,6 +200,7 @@ export const QuizScreen = () => {
       setIsTimedOut(false);
       setIsSkipped(false);
       setFalhaEnvio(false);
+      respostaEnviadaRef.current = false;
       setAutoSubmitCountdown(null);
       setCanAdvance(false);
     } catch (error) {
@@ -225,6 +238,8 @@ export const QuizScreen = () => {
 
   const handleTimeout = async () => {
     if (!currentQuestion || showResult) return;
+    if (respostaEnviadaRef.current) return;
+    respostaEnviadaRef.current = true;
     // Um pulo em andamento tem precedência sobre o tempo esgotado. O congelar
     // do cronômetro já cobre o caso normal, mas entre o toque em "Pular" e o
     // congelamento entrar em vigor cabe um quadro de tela — e o jogador
@@ -287,6 +302,8 @@ export const QuizScreen = () => {
 
   const handleSubmitAnswer = async (option: 'A' | 'B' | 'C' | 'D') => {
     if (!currentQuestion) return;
+    if (respostaEnviadaRef.current) return;
+    respostaEnviadaRef.current = true;
 
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
@@ -325,6 +342,8 @@ export const QuizScreen = () => {
       Alert.alert(t('common.error'), t('errors.tryAgainLater'));
       setShowResult(false);
       setSelectedOption(null);
+      // Falhou: libera a trava para o jogador poder responder de novo.
+      respostaEnviadaRef.current = false;
     }
   };
 
@@ -341,6 +360,8 @@ export const QuizScreen = () => {
    */
   const handleSkip = async () => {
     if (!currentQuestion || showResult) return;
+    if (respostaEnviadaRef.current) return;
+    respostaEnviadaRef.current = true;
 
     clearAllTimers();
     setSkipEmCurso(false);
@@ -373,6 +394,7 @@ export const QuizScreen = () => {
       console.error('Erro ao pular pergunta:', error);
       setShowResult(false);
       setIsSkipped(false);
+      respostaEnviadaRef.current = false;
       Alert.alert(t('common.error'), t('errors.tryAgainLater'));
     }
   };

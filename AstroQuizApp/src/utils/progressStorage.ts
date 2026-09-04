@@ -144,7 +144,14 @@ export const ProgressStorage = {
     if (Array.isArray(questionIds) && questionIds.length > 0) {
       const merged = new Set(progress.answeredQuestionIds || []);
       questionIds.filter(Boolean).forEach((id) => merged.add(id));
-      const limited = Array.from(merged).slice(-2000);
+      // 300, e nao 2000. Esta lista viaja no corpo de TODA abertura de fase:
+      // com 2000 IDs sao ~10 KB por requisicao, e foi exatamente isso que
+      // derrubava o /quiz/start no Android — o envio lento fazia o fluxo HTTP/2
+      // ser resetado antes de terminar. Com a lista vazia, uma fase inteira
+      // rodou sem um unico erro.
+      //
+      // 300 cobre 30 fases sem repeticao, de sobra para o efeito pretendido.
+      const limited = Array.from(merged).slice(-300);
       progress.answeredQuestionIds = limited;
     }
 
