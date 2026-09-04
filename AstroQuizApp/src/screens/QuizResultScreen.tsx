@@ -65,6 +65,7 @@ export const QuizResultScreen = () => {
 
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [falhaAoCarregar, setFalhaAoCarregar] = useState(false);
   const [phaseUnlocked, setPhaseUnlocked] = useState(false);
   const [startingNextPhase, setStartingNextPhase] = useState(false);
   const [newAchievements, setNewAchievements] = useState<any[]>([]);
@@ -166,7 +167,11 @@ export const QuizResultScreen = () => {
       }
 
     } catch (error) {
+      // Sem isto a tela ficava em "calculando" para sempre: o erro so ia para o
+      // console e nada na interface mudava. Falhar em silencio e pior do que
+      // falhar — o jogador nao tem como saber que precisa tentar de novo.
       console.error('Erro ao carregar resultados:', error);
+      setFalhaAoCarregar(true);
     } finally {
       setLoading(false);
     }
@@ -308,7 +313,24 @@ export const QuizResultScreen = () => {
         style={styles.container}
       >
         <View style={styles.loading}>
-          <Text style={styles.loadingText}>{t('result.calculatingResults')}</Text>
+          {falhaAoCarregar ? (
+            <>
+              <Text style={styles.loadingText}>{t('errors.connectionError')}</Text>
+              <TouchableOpacity
+                style={styles.retryResultButton}
+                onPress={() => {
+                  setFalhaAoCarregar(false);
+                  setLoading(true);
+                  loadResults();
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.retryResultText}>{t('common.retry')}</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <Text style={styles.loadingText}>{t('result.calculatingResults')}</Text>
+          )}
         </View>
       </LinearGradient>
     );
@@ -572,6 +594,19 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  retryResultButton: {
+    marginTop: SPACING.lg,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+  },
+  retryResultText: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.primary,
+    fontFamily: 'Poppins-SemiBold',
   },
   loading: {
     flex: 1,

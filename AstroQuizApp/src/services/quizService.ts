@@ -157,9 +157,14 @@ class QuizService {
     sessionId: string,
     reason: 'completed' | 'abandoned' = 'completed',
   ): Promise<any> {
-    const response = await api.post<any>(`/quiz/finish/${sessionId}`, {
-      reason,
-    });
+    // repetirEmFalhaDeRede: finalizar apenas marca a sessao como concluida —
+    // repetir nao muda nada. Sem a marca, uma falha de rede aqui deixava a tela
+    // de resultado presa em "calculando" para sempre.
+    const response = await api.post<any>(
+      `/quiz/finish/${sessionId}`,
+      { reason },
+      { repetirEmFalhaDeRede: true } as any,
+    );
 
     if (!response.success || !response.data) {
       throw new Error(response.message || 'Erro ao finalizar quiz');
