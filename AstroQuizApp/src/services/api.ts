@@ -71,8 +71,15 @@ const API_TIMEOUT = 30000;
  * passar. Com duas, mais da metade das aberturas de fase falhava.
  */
 const MAX_TENTATIVAS_REDE = 4;
-/** Espera antes de repetir; cresce a cada tentativa. */
-const ESPERA_BASE_MS = 400;
+/**
+ * Espera antes de repetir; cresce a cada tentativa.
+ *
+ * Curta de proposito. Recuo progressivo longo existe para nao martelar servidor
+ * sobrecarregado — nao e o caso: o servidor responde 200 na hora, e o problema
+ * e o fluxo ser cortado depois. Com 400ms de base, as quatro tentativas somavam
+ * 4 segundos de espera pura e a fase levava 8 segundos para abrir.
+ */
+const ESPERA_BASE_MS = 150;
 
 class ApiService {
   private api: AxiosInstance;
