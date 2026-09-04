@@ -19,7 +19,6 @@ import { AchievementPopup } from '@/components';
 import { useApp } from '@/contexts/AppContext';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +27,7 @@ import {
   Animated,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import quizService from '@/services/quizService';
 import { useTranslation } from 'react-i18next';

@@ -9,6 +9,7 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { RootNavigator } from "@/navigation/RootNavigator";
 import soundService from "@/services/soundService";
 import { NavigationContainer } from "@react-navigation/native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import React, { useEffect } from "react";
 import { StatusBar, AppState } from "react-native";
 import firebase from '@react-native-firebase/app';
@@ -123,6 +124,11 @@ const App = () => {
   };
 
   return (
+    // SafeAreaProvider precisa envolver tudo: sem ele useSafeAreaInsets()
+    // devolve zeros, e o app desenha atras da barra de status e da barra de
+    // navegacao. No iOS o React Navigation fornecia um substituto e o problema
+    // passava despercebido; no Android o conteudo ficava cortado.
+    <SafeAreaProvider>
     <AppProvider>
       <AdsProvider>
         <SubscriptionProvider>
@@ -137,6 +143,7 @@ const App = () => {
         </SubscriptionProvider>
       </AdsProvider>
     </AppProvider>
+    </SafeAreaProvider>
   );
 };
 

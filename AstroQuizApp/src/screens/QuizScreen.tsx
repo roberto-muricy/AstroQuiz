@@ -545,7 +545,10 @@ export const QuizScreen = () => {
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
-        contentContainerStyle={styles.content}
+        // A margem de baixo precisa somar a barra de navegacao do sistema: com
+        // um valor fixo, as alternativas e o botao de pular ficavam por baixo
+        // dela em aparelhos com barra de tres botoes.
+        contentContainerStyle={[styles.content, { paddingBottom: 40 + insets.bottom }]}
         showsVerticalScrollIndicator={false}
         bounces={true}
         onScrollBeginDrag={cancelAutoAdvance}
