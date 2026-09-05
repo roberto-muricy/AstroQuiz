@@ -48,7 +48,12 @@
     "questionsWord": "questions",
     "eachWord": "chacune",
     "pointsLabel": "Points",
-    "levelShort": "Niveau {{level}}"
+    "levelShort": "Niveau {{level}}",
+    "breakdown": {
+      "base": "{{points}} base",
+      "speed": "× {{multiplier}} rapidité",
+      "streak": "+ {{points}} série"
+    }
   },
   "result": {
     "perfect": "Parfait !",

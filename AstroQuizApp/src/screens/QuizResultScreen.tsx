@@ -115,6 +115,14 @@ export const QuizResultScreen = () => {
 
       const isPerfect = accuracy === 100;
 
+      // Registrar as perguntas vistas ANTES do teste de aprovação.
+      //
+      // Isto morava dentro do `if (data.passed)` abaixo, junto com XP e
+      // desbloqueio. Quem reprovava numa fase tinha as 10 perguntas esquecidas
+      // e as reencontrava na fase seguinte — reprovar é justamente quando o
+      // jogador MAIS vai repetir a fase, e mais sente a repetição.
+      await ProgressStorage.registrarPerguntasVistas(usedQuestionIds);
+
       if (data.passed && data.phaseNumber) {
         const prevProgress = await ProgressStorage.getProgress();
         const prevLevel = getPlayerLevel(prevProgress.stats.totalXP);

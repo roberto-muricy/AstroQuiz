@@ -48,7 +48,12 @@
     "questionsWord": "preguntas",
     "eachWord": "cada una",
     "pointsLabel": "Puntos",
-    "levelShort": "Nivel {{level}}"
+    "levelShort": "Nivel {{level}}",
+    "breakdown": {
+      "base": "{{points}} base",
+      "speed": "× {{multiplier}} rapidez",
+      "streak": "+ {{points}} racha"
+    }
   },
   "result": {
     "perfect": "¡Perfecto!",

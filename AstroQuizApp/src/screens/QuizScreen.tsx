@@ -58,6 +58,35 @@ const COUNTDOWN_FROM = 6;
 
 type QuestionResult = 'correct' | 'wrong' | 'timeout' | 'skipped';
 
+/**
+ * Escreve a conta que gerou os pontos da pergunta.
+ *
+ * A regra do servidor é `arredonda(base × multiplicador de rapidez) + sequência`
+ * (quiz-logic.ts, calculatePoints). Aqui ela vira texto: "20 base × 1,5 rapidez
+ * + 5 sequência".
+ *
+ * As parcelas que não valeram nada ficam de fora — sem bônus de rapidez a linha
+ * é só "20 base", e não "20 base × 1 rapidez + 0 sequência", que sugeriria que
+ * o jogador perdeu algo.
+ */
+const montarConta = (
+  scoreResult: { basePoints?: number; speedMultiplier?: number; streakBonus?: number },
+  t: (chave: string, opcoes?: any) => string,
+): string => {
+  const base = scoreResult?.basePoints ?? 0;
+  const mult = scoreResult?.speedMultiplier ?? 1;
+  const seq = scoreResult?.streakBonus ?? 0;
+
+  const partes = [t('quiz.breakdown.base', { points: base })];
+  if (mult > 1) {
+    // 1.5 vira "1,5" em pt e "1.5" em en — quem formata é o Intl do aparelho.
+    partes.push(t('quiz.breakdown.speed', { multiplier: mult.toLocaleString() }));
+  }
+  if (seq > 0) partes.push(t('quiz.breakdown.streak', { points: seq }));
+
+  return partes.join(' ');
+};
+
 export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizGame'>>();
@@ -739,6 +768,12 @@ export const QuizScreen = () => {
                 <Text style={styles.pointsEarned}>
                   +{answerResult.scoreResult.totalPoints} {t('quiz.pointsEarned')}
                 </Text>
+                {/* De onde saiu o número.
+                    O servidor sempre mandou basePoints, speedMultiplier e
+                    streakBonus na resposta; a tela só mostrava a soma. Sem a
+                    conta, ganhar 20 numa pergunta e 60 na seguinte parecia
+                    aleatório — e um jogador reclamou exatamente disso. */}
+                <Text style={styles.pontosConta}>{montarConta(answerResult.scoreResult, t)}</Text>
               </View>
             ) : (
               /* Resposta errada */
@@ -1075,6 +1110,12 @@ const styles = StyleSheet.create({
   pointsEarned: {
     ...TYPOGRAPHY.h2,
     color: COLORS.primary,
+  },
+  pontosConta: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    textAlign: 'center',
   },
   correctAnswerText: {
     ...TYPOGRAPHY.body,

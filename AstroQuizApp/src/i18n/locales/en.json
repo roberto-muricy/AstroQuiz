@@ -48,7 +48,12 @@
     "questionsWord": "questions",
     "eachWord": "each",
     "pointsLabel": "Points",
-    "levelShort": "Level {{level}}"
+    "levelShort": "Level {{level}}",
+    "breakdown": {
+      "base": "{{points}} base",
+      "speed": "× {{multiplier}} speed",
+      "streak": "+ {{points}} streak"
+    }
   },
   "result": {
     "perfect": "Perfect!",

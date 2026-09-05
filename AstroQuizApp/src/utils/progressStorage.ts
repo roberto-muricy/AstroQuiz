@@ -26,6 +26,26 @@ export interface GameProgress {
   answeredQuestionIds: number[];
 }
 
+/**
+ * Junta as perguntas recém-vistas às já registradas, respeitando o teto.
+ *
+ * O teto é 300, e não 2000. Esta lista viaja no corpo de TODA abertura de fase:
+ * com 2000 IDs são ~10 KB por requisição, e foi exatamente isso que derrubava o
+ * /quiz/start no Android — o envio lento fazia o fluxo HTTP/2 ser resetado antes
+ * de terminar. Com a lista vazia, uma fase inteira rodou sem um único erro.
+ *
+ * 300 cobre 30 fases sem repetição, de sobra para o efeito pretendido. O
+ * servidor trata a lista como preferência, então estourar o teto não deixa
+ * ninguém sem perguntas — só devolve as mais antigas ao sorteio.
+ */
+const LIMITE_VISTAS = 300;
+
+const mesclarVistas = (atuais: number[] = [], novas: number[] = []): number[] => {
+  const merged = new Set(atuais || []);
+  novas.filter(Boolean).forEach((id) => merged.add(id));
+  return Array.from(merged).slice(-LIMITE_VISTAS);
+};
+
 const getDefaultProgress = (): GameProgress => ({
   unlockedPhases: 1,
   completedPhases: [],
@@ -138,25 +158,29 @@ export const ProgressStorage = {
       console.log(`🎉 Fase ${phaseNumber + 1} desbloqueada! (req ${requirement.requiredAccuracy}%)`);
     }
 
-    // Registrar perguntas usadas para evitar repetição em próximas fases.
-    // O cap precisa ser maior que o total do banco de perguntas (~650 por locale);
-    // caso contrário os IDs mais antigos caem da lista e aquelas perguntas voltam a se repetir.
     if (Array.isArray(questionIds) && questionIds.length > 0) {
-      const merged = new Set(progress.answeredQuestionIds || []);
-      questionIds.filter(Boolean).forEach((id) => merged.add(id));
-      // 300, e nao 2000. Esta lista viaja no corpo de TODA abertura de fase:
-      // com 2000 IDs sao ~10 KB por requisicao, e foi exatamente isso que
-      // derrubava o /quiz/start no Android — o envio lento fazia o fluxo HTTP/2
-      // ser resetado antes de terminar. Com a lista vazia, uma fase inteira
-      // rodou sem um unico erro.
-      //
-      // 300 cobre 30 fases sem repeticao, de sobra para o efeito pretendido.
-      const limited = Array.from(merged).slice(-300);
-      progress.answeredQuestionIds = limited;
+      progress.answeredQuestionIds = mesclarVistas(progress.answeredQuestionIds, questionIds);
     }
 
     await this.saveProgress(progress);
     return progress;
+  },
+
+  /**
+   * Registra as perguntas que o jogador viu, sem mexer em XP nem desbloqueio.
+   *
+   * Existe porque `updateAfterPhase` só era chamado quando a fase era APROVADA
+   * (`if (data.passed)` na QuizResultScreen). Quem reprovava na fase 1 tinha as
+   * 10 perguntas esquecidas — e as reencontrava na fase 2. Era metade da
+   * repetição relatada; a outra metade estava no servidor, que ignorava a lista.
+   *
+   * Reprovar não pode dar XP, mas as perguntas foram vistas de qualquer jeito.
+   */
+  async registrarPerguntasVistas(questionIds: number[]): Promise<void> {
+    if (!Array.isArray(questionIds) || questionIds.length === 0) return;
+    const progress = await this.getProgress();
+    progress.answeredQuestionIds = mesclarVistas(progress.answeredQuestionIds, questionIds);
+    await this.saveProgress(progress);
   },
 
   async resetProgress(): Promise<void> {
