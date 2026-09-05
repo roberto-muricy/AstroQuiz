@@ -68,6 +68,32 @@ export function shuffle<T>(arr: T[]): T[] {
 }
 
 /**
+ * Ordena um nivel colocando as perguntas ineditas na frente das ja vistas.
+ *
+ * Por que preferencia e nao filtro: o cliente guarda ate 300 IDs vistos, e o
+ * nivel 1 tem 96 perguntas em pt. Um `whereNotIn` puro deixaria quem jogou
+ * muito com fases de menos de 10 perguntas. Aqui as ja vistas continuam no
+ * sorteio, mas so entram depois que as ineditas do nivel acabam.
+ *
+ * Cada grupo e embaralhado por conta propria, entao a ordem nao vaza a idade
+ * do ID nem torna a fase previsivel.
+ *
+ * Isto era o bug: o caminho de selecao que roda em producao ignorava a lista
+ * inteira. Medido contra o ar antes da correcao — excluindo as 237 perguntas de
+ * nivel 1-2 em pt, a fase 1 devolvia 10 perguntas, TODAS da lista excluida.
+ */
+export function preferirIneditas<T extends { id: number }>(
+  doNivel: T[],
+  jaVistas: Set<number>
+): T[] {
+  if (!jaVistas || jaVistas.size === 0) return shuffle(doNivel);
+  return [
+    ...shuffle(doNivel.filter((q) => !jaVistas.has(q.id))),
+    ...shuffle(doNivel.filter((q) => jaVistas.has(q.id))),
+  ];
+}
+
+/**
  * Diversify questions by topic (max 3 per topic)
  */
 export function diversifyTopics<T extends { topic?: string; id: number }>(

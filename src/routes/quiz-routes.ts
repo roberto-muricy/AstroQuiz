@@ -19,6 +19,7 @@ import {
   getDifficultyDistribution,
   diversifyTopics,
   shuffle,
+  preferirIneditas,
   calculatePoints,
   calculateStreakBonus,
   calculatePerfectBonus,
@@ -232,12 +233,27 @@ export function createQuizRoutes(strapi: any): any[] {
               if (byLevel[q.level]) byLevel[q.level].push(q);
             }
 
+            // Perguntas que o jogador ja viu, enviadas pelo cliente.
+            //
+            // Este caminho ignorava excludeQuestions por completo. Nao era um
+            // caso de borda: o `strapi.service('api::quiz-engine.selector')`
+            // logo acima nunca resolve — a api quiz-engine nao tem
+            // content-types, entao o Strapi 5 nao a registra — e portanto ESTE
+            // e o unico caminho de selecao que roda em producao. Medido contra
+            // o ar: excluindo as 237 perguntas de nivel 1-2 em pt, a fase 1
+            // devolvia 10 perguntas, todas da lista excluida.
+            const jaVistas = new Set<number>(
+              (Array.isArray(excludeQuestions) ? excludeQuestions : [])
+                .map((id: any) => Number(id))
+                .filter((id: number) => Number.isFinite(id))
+            );
+
             // Select according to distribution
             const picked: any[] = [];
             const usedIds = new Set<number>();
 
             for (const { level, count } of distribution) {
-              const candidates = shuffle(byLevel[level] || []);
+              const candidates = preferirIneditas(byLevel[level] || [], jaVistas);
               let addedForLevel = 0;
 
               for (const q of candidates) {
