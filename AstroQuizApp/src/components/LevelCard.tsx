@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ProgressBar } from './ProgressBar';
@@ -42,6 +43,7 @@ export const LevelCard: React.FC<LevelCardProps> = ({
   isActive = false,
   onPress,
 }) => {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -108,7 +110,7 @@ export const LevelCard: React.FC<LevelCardProps> = ({
                 {isLocked ? <LockIcon size={14} /> : <PlayIcon size={12} />}
               </View>
               <Text style={styles.buttonText} numberOfLines={1}>
-                {isLocked ? 'Bloqueado' : 'Continuar'}
+                {isLocked ? t('home.locked') : t('common.continue')}
               </Text>
             </TouchableOpacity>
           </View>

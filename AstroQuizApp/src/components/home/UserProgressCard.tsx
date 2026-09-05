@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, StyleSheet } from 'react-native';
 import { RankBadge } from '@/components/common/RankBadge';
 import { StatDisplay } from '@/components/common/StatDisplay';
@@ -29,6 +30,7 @@ export const UserProgressCard: React.FC<UserProgressCardProps> = ({
   streak,
   onContinue,
 }) => {
+  const { t } = useTranslation();
   return (
     <View style={styles.card}>
       {/* Header com badge */}
@@ -63,7 +65,7 @@ export const UserProgressCard: React.FC<UserProgressCardProps> = ({
       </View>
 
       {/* Button */}
-      <Button title="Continuar" onPress={onContinue} size="large" />
+      <Button title={t('common.continue')} onPress={onContinue} size="large" />
     </View>
   );
 };

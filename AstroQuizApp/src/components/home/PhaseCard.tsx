@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SPACING, TYPOGRAPHY, COLORS, RADIUS, SIZES } from '@/constants/design-system';
 import { Lock, Play, Star } from 'lucide-react-native';
@@ -16,6 +17,7 @@ export const PhaseCard: React.FC<PhaseCardProps> = ({
   progress,
   onPress,
 }) => {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity
       style={[styles.card, !isLocked && styles.cardActive]}
@@ -32,7 +34,7 @@ export const PhaseCard: React.FC<PhaseCardProps> = ({
 
       {/* Status */}
       <Text style={styles.phaseStatus}>
-        {isLocked ? 'Bloqueado' : 'Disponível'}
+        {isLocked ? t('home.locked') : t('home.available')}
       </Text>
 
       {!isLocked && progress && (

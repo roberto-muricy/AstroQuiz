@@ -106,7 +106,16 @@
     "yourProgress": "Your Progress",
     "phasesCompleted": "Phases Completed",
     "totalXP": "Total XP",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "welcomeFirst": "Welcome, {{name}}!",
+    "firstRun": {
+      "title": "Your first journey starts here",
+      "body": "Fifty phases of astronomy, from the Solar System to cosmology. Answer fast to score more, and chain correct answers to multiply.",
+      "phases": "phases",
+      "questions": "questions",
+      "perQuestion": "per question",
+      "cta": "Start the journey"
+    }
   },
   "tabs": {
     "home": "Home",

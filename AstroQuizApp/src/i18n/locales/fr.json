@@ -106,7 +106,16 @@
     "yourProgress": "Votre Progression",
     "phasesCompleted": "Phases Terminées",
     "totalXP": "XP Total",
-    "achievements": "Réalisations"
+    "achievements": "Réalisations",
+    "welcomeFirst": "Bienvenue, {{name}} !",
+    "firstRun": {
+      "title": "Votre premier voyage commence ici",
+      "body": "Cinquante phases d astronomie, du Système solaire à la cosmologie. Répondez vite pour marquer plus, et enchaînez les bonnes réponses pour multiplier.",
+      "phases": "phases",
+      "questions": "questions",
+      "perQuestion": "par question",
+      "cta": "Commencer le voyage"
+    }
   },
   "tabs": {
     "home": "Accueil",

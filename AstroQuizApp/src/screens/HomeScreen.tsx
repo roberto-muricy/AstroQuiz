@@ -39,7 +39,12 @@ import { FireIcon, RocketIcon, IconSizes, IconColors } from '@/components/Icons'
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { user, locale } = useApp();
+  const { user, locale, gameRules } = useApp();
+
+  // Do servidor, nao fixo no codigo: se a regra mudar, o convite acompanha.
+  const segundosPorPergunta = Math.round(
+    (gameRules?.general?.timePerQuestion ?? 45000) / 1000,
+  );
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
@@ -50,6 +55,12 @@ export const HomeScreen = () => {
   const [progressPct, setProgressPct] = useState(0);
   const [unlockedPhase, setUnlockedPhase] = useState(1);
   const [streak, setStreak] = useState(0);
+
+  // Primeiro acesso: nada jogado ainda. A tela inteira foi desenhada para quem
+  // volta — sem esta distincao ela recebe o recem-chegado com "bem-vindo de
+  // volta", uma sequencia de zero dias, uma barra de XP vazia e um botao
+  // "Continuar" que promete retomar algo que nunca comecou.
+  const primeiroAcesso = totalXP === 0;
 
   useEffect(() => {
     loadProgress();
@@ -136,12 +147,18 @@ export const HomeScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.welcomeText}>
-              {t('home.welcomeBack', { name: user?.name || t('home.astronaut') })}
+              {primeiroAcesso
+                ? t('home.welcomeFirst', { name: user?.name || t('home.astronaut') })
+                : t('home.welcomeBack', { name: user?.name || t('home.astronaut') })}
             </Text>
-            <View style={styles.streakBadge}>
-              <FireIcon size={IconSizes.sm} color={IconColors.primary} />
-              <Text style={styles.streakText}>{t('home.streakDays', { count: streak })}</Text>
-            </View>
+            {/* Uma sequencia de zero dias na abertura so informa ao jogador que
+                ele ainda nao fez nada. Aparece quando houver o que mostrar. */}
+            {streak > 0 && (
+              <View style={styles.streakBadge}>
+                <FireIcon size={IconSizes.sm} color={IconColors.primary} />
+                <Text style={styles.streakText}>{t('home.streakDays', { count: streak })}</Text>
+              </View>
+            )}
           </View>
           <View style={styles.avatar}>
             <RocketIcon size={IconSizes.xl} color={IconColors.primary} />
@@ -151,8 +168,36 @@ export const HomeScreen = () => {
           </View>
         </View>
 
-        {/* Main Level Card */}
+        {/* Cartao central.
+
+            Mesma moldura nos dois estados — nao e outra tela, e o mesmo bloco
+            com conteudo adequado ao momento. Antes da primeira partida, patente
+            e barra de XP nao significam nada; o acervo, sim, e e o argumento
+            para ficar. */}
         <Card style={styles.mainLevelCard}>
+          {primeiroAcesso ? (
+            <View>
+              <Text style={styles.conviteTitulo}>{t('home.firstRun.title')}</Text>
+              <Text style={styles.conviteTexto}>{t('home.firstRun.body')}</Text>
+
+              <View style={styles.conviteNumeros}>
+                <StatDisplay value="50" label={t('home.firstRun.phases')} />
+                <StatDisplay value="705" label={t('home.firstRun.questions')} />
+                <StatDisplay
+                  value={`${segundosPorPergunta}s`}
+                  label={t('home.firstRun.perQuestion')}
+                />
+              </View>
+
+              <Button
+                title={t('home.firstRun.cta')}
+                onPress={() => handleStartQuiz(1)}
+                size="large"
+                style={styles.continueButton}
+              />
+            </View>
+          ) : (
+            <View>
           <View style={styles.mainLevelHeader}>
             <View>
               <View style={styles.mainLevelTitleRow}>
@@ -205,6 +250,8 @@ export const HomeScreen = () => {
             size="large"
             style={styles.continueButton}
           />
+            </View>
+          )}
         </Card>
 
         {/* Progress Section */}
@@ -381,6 +428,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: SIZES.screenPadding,
+  },
+  conviteTitulo: {
+    ...TYPOGRAPHY.h3,
+    color: COLORS.text,
+    marginBottom: SPACING.sm,
+  },
+  conviteTexto: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    lineHeight: 21,
+  },
+  conviteNumeros: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.lg,
+    marginBottom: SPACING.xs,
   },
   mainLevelTitleRow: {
     flexDirection: 'row',
