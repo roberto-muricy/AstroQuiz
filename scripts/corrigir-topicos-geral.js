@@ -54,6 +54,47 @@ const buscarLocale = async (loc) => {
   return todas;
 };
 
+/**
+ * Pergunta o token pelo terminal, sem eco e sem passar pela linha de comando.
+ *
+ * Existe porque a forma anterior — `STRAPI_WRITE_TOKEN=... node script.js` ou
+ * `read -rs "?prompt" VAR` — colocava o segredo na linha de comando, e um token
+ * base64 tem `+` e `=`, que o zsh recusa como nome de variavel. O resultado
+ * pratico foi o token acabar no historico do shell.
+ *
+ * Aqui ele nunca toca no shell: e lido direto do terminal, com o eco desligado,
+ * e vive apenas na memoria deste processo.
+ */
+function perguntarToken() {
+  return new Promise((resolve) => {
+    const entrada = process.stdin;
+    if (!entrada.isTTY) {
+      console.error('\nERRO: sem terminal interativo. Rode o script direto, sem pipe.');
+      return resolve(null);
+    }
+    process.stdout.write('\nCole o STRAPI_WRITE_TOKEN (nada aparece na tela) e tecle Enter:\n> ');
+    entrada.setRawMode(true);
+    entrada.resume();
+    entrada.setEncoding('utf8');
+
+    let buffer = '';
+    const aoTeclar = (ch) => {
+      if (ch === '\r' || ch === '\n') {
+        entrada.setRawMode(false);
+        entrada.pause();
+        entrada.removeListener('data', aoTeclar);
+        process.stdout.write('\n');
+        // Espaco ou quebra colados junto derrubariam a comparacao de tamanho.
+        return resolve(buffer.trim());
+      }
+      if (ch === '') { process.stdout.write('\n'); process.exit(130); }   // Ctrl-C
+      if (ch === '') { buffer = buffer.slice(0, -1); return; }            // backspace
+      buffer += ch;
+    };
+    entrada.on('data', aoTeclar);
+  });
+}
+
 /** Duas variantes que so diferem em maiuscula/acento/espaco sao a mesma coisa. */
 const normalizar = (s) =>
   String(s || '')
@@ -160,9 +201,9 @@ const normalizar = (s) =>
     return;
   }
 
-  const token = process.env.STRAPI_WRITE_TOKEN;
+  const token = process.env.STRAPI_WRITE_TOKEN || (await perguntarToken());
   if (!token) {
-    console.error('\nERRO: --aplicar exige STRAPI_WRITE_TOKEN no ambiente.');
+    console.error('\nERRO: sem token, nada a fazer.');
     process.exit(1);
   }
 
