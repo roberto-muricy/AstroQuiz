@@ -129,6 +129,11 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   cardOuter: {
+    // As tres camadas precisam esticar junto com o container: sem isto o
+    // cartao visivel se dimensiona pelo proprio conteudo, e a fase bloqueada
+    // — que nao mostra estatisticas, barra nem estrelas — fica visivelmente
+    // mais baixa que a fase liberada ao lado.
+    flex: 1,
     borderRadius: RADIUS.lg,
     overflow: 'hidden',
     borderWidth: 1,
@@ -139,9 +144,11 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   gradient: {
+    flex: 1,
     padding: 1,
   },
   cardContent: {
+    flex: 1,
     padding: 12,
     borderRadius: RADIUS.lg - 1,
     backgroundColor: COLORS.backgroundElevated,
@@ -204,6 +211,9 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   button: {
+    // Empurra o botao para a base. Assim os dois cartoes alinham o botao na
+    // mesma linha, mesmo com quantidades diferentes de conteudo acima.
+    marginTop: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

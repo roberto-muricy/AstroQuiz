@@ -546,7 +546,9 @@ const styles = StyleSheet.create({
 
   // Progress Levels Section
   progressLevelsSection: {
-    marginTop: SIZES.screenPadding,
+    // Sem marginTop de proposito: mainLevelCard ja aplica marginBottom de 24.
+    // No React Native margens nao colapsam como no CSS — elas somam, e as duas
+    // juntas abriam 48dp de vazio entre o cartao e este titulo.
   },
   sectionHeader: {
     flexDirection: 'row',
