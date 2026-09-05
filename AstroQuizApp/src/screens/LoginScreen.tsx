@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from "react-native";
+import { RocketIcon, IconColors } from '@/components/Icons';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import {
@@ -104,7 +105,7 @@ export const LoginScreen: React.FC = () => {
       <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoEmoji}>🚀</Text>
+            <RocketIcon size={44} color={IconColors.primary} />
           </View>
           <Text style={styles.title}>{t("login.saveProgressTitle")}</Text>
           <Text style={styles.subtitle}>

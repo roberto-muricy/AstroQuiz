@@ -52,6 +52,7 @@ import {
   LockIcon,
   IconSizes,
   IconColors,
+  RefreshIcon,
 } from '@/components/Icons';
 
 export const QuizResultScreen = () => {
@@ -528,6 +529,7 @@ export const QuizResultScreen = () => {
                   colors={['#EF4444', '#DC2626']}
                   style={styles.buttonGradient}
                 >
+                  <RefreshIcon size={18} color="#FFFFFF" />
                   <Text style={styles.buttonText}>{t('result.tryAgain')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -539,6 +541,7 @@ export const QuizResultScreen = () => {
                 onPress={handlePlayAgain}
                 disabled={startingNextPhase}
               >
+                <RefreshIcon size={17} color={COLORS.text} />
                 <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
               </TouchableOpacity>
             )}
@@ -795,6 +798,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   buttonGradient: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
     paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
   },
@@ -803,6 +808,8 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   secondaryButton: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
     backgroundColor: COLORS.backgroundHighlight,
     borderRadius: RADIUS.md,
     paddingVertical: SPACING.lg - 2,

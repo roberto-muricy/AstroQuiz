@@ -52,7 +52,7 @@
     "keepTrying": "Continuez !",
     "phaseCompleted": "Phase {{phase}} Terminée",
     "phaseIncomplete": "Phase {{phase}} Incomplète",
-    "approved": "✓ RÉUSSI",
+    "approved": "RÉUSSI",
     "required": "Requis : 60%",
     "finalScore": "Score Final",
     "accuracy": "{{percent}}% de réussite",
@@ -73,8 +73,8 @@
     "need60": "Vous avez besoin de 60% pour réussir.",
     "tryAgainConquer": "Réessayez et conquérez cette phase !",
     "nextPhase": "▶ Phase Suivante",
-    "tryAgain": "🔄 Réessayer",
-    "playAgain": "🔄 Rejouer",
+    "tryAgain": "Réessayer",
+    "playAgain": "Rejouer",
     "backToMenu": "← Retour au Menu",
     "levelUp": "Niveau Supérieur !",
     "levelUpFrom": "Vous êtes passé du niveau {{from}} au {{to}}",
@@ -140,7 +140,7 @@
     "loginWithGoogle": "Continuer avec Google",
     "loginWithApple": "Continuer avec Apple",
     "syncHelper": "Votre progression locale sera synchronisée automatiquement.",
-    "readyToLaunch": "Prêt à décoller ? 🚀",
+    "readyToLaunch": "Prêt à décoller ?",
     "errors": {
       "googleLoginFailed": "Impossible de se connecter avec Google.",
       "googleLoginUnexpected": "Erreur inattendue lors de la connexion avec Google.",
@@ -152,7 +152,7 @@
     }
   },
   "quizList": {
-    "headerTitle": "🚀 AstroQuiz",
+    "headerTitle": "AstroQuiz",
     "headerSubtitle": "Choisissez une phase pour commencer",
     "lockedTitle": "Phase verrouillée 🔒",
     "lockedMessage": "Terminez la Phase {{prev}} pour déverrouiller cette phase !",

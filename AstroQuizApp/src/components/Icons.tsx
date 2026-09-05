@@ -7,6 +7,7 @@ import React from 'react';
 import { View } from 'react-native';
 import {
   Rocket,
+  RotateCcw,
   Flame,
   Star,
   Trophy,
@@ -75,6 +76,11 @@ interface IconProps {
 /** Foguete - Avatar, Logo, Progresso */
 export const RocketIcon = ({ size = IconSizes.md, color = IconColors.primary }: IconProps) => (
   <Rocket size={size} color={color} strokeWidth={2} />
+);
+
+/** Repetir - Jogar novamente, tentar de novo */
+export const RefreshIcon = ({ size = IconSizes.md, color = IconColors.primary }: IconProps) => (
+  <RotateCcw size={size} color={color} strokeWidth={2} />
 );
 
 /** Fogo - Streak, sequência de acertos */

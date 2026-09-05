@@ -32,7 +32,7 @@ import {
   RADIUS,
   SIZES,
 } from '@/constants/design-system';
-import { StarsRating, LockIcon, PlayIcon, IconSizes, IconColors } from '@/components/Icons';
+import { StarsRating, LockIcon, PlayIcon, RocketIcon, IconSizes, IconColors } from '@/components/Icons';
 
 export const QuizListScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -240,7 +240,10 @@ export const QuizListScreen = () => {
       >
         {/* Header */}
         <TouchableOpacity activeOpacity={0.9} onLongPress={__DEV__ ? openApiConfig : undefined} delayLongPress={600}>
-          <Text style={styles.pageTitle}>{t('quizList.headerTitle')}</Text>
+          <View style={styles.pageTitleRow}>
+            <RocketIcon size={IconSizes.lg} color={IconColors.primary} />
+            <Text style={styles.pageTitle}>{t('quizList.headerTitle')}</Text>
+          </View>
         </TouchableOpacity>
         <Text style={styles.subtitle}>{t('quizList.headerSubtitle')}</Text>
 
@@ -305,6 +308,11 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     gap: SPACING.md,
     paddingBottom: 100,
+  },
+  pageTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
   },
   pageTitle: {
     ...TYPOGRAPHY.h1,
