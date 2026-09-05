@@ -43,7 +43,12 @@
       "4": "Difícil",
       "5": "Experto"
     },
-    "skippedTitle": "Pregunta Saltada"
+    "skippedTitle": "Pregunta Saltada",
+    "preparing": "Preparando…",
+    "questionsWord": "preguntas",
+    "eachWord": "cada una",
+    "pointsLabel": "Puntos",
+    "levelShort": "Nivel {{level}}"
   },
   "result": {
     "perfect": "¡Perfecto!",

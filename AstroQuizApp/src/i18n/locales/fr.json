@@ -43,7 +43,12 @@
       "4": "Difficile",
       "5": "Expert"
     },
-    "skippedTitle": "Question Passée"
+    "skippedTitle": "Question Passée",
+    "preparing": "Préparation…",
+    "questionsWord": "questions",
+    "eachWord": "chacune",
+    "pointsLabel": "Points",
+    "levelShort": "Niveau {{level}}"
   },
   "result": {
     "perfect": "Parfait !",

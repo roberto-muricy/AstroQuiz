@@ -1,24 +1,21 @@
 /**
  * QuestionCard Component
- * Card de pergunta do quiz
+ * Pergunta do quiz: enunciado num cartão só dele, alternativas soltas abaixo.
+ *
+ * A pergunta ganhou cartão próprio porque antes dividia um único cartão com a
+ * dificuldade, o tópico e as quatro alternativas — seis blocos com o mesmo peso
+ * visual, e nada dominando a tela. Dificuldade e tópico subiram para a barra de
+ * cima da QuizScreen; as alternativas saíram para fora do cartão. Sobrou o
+ * enunciado, que é o que a pessoa precisa ler primeiro.
  */
 
 import { Question } from '@/types';
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Check, Star, X } from 'lucide-react-native';
+import { Check, X } from 'lucide-react-native';
 import { Card } from './Card';
 import api from '@/services/api';
-
-// Mapa de cor por nível (verde → vermelho conforme dificuldade aumenta)
-const DIFFICULTY_COLORS: Record<number, { fg: string; bg: string }> = {
-  1: { fg: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' },   // Iniciante - verde
-  2: { fg: '#84CC16', bg: 'rgba(132, 204, 22, 0.15)' },  // Fácil - lime
-  3: { fg: '#EAB308', bg: 'rgba(234, 179, 8, 0.15)' },   // Médio - amarelo
-  4: { fg: '#F97316', bg: 'rgba(249, 115, 22, 0.15)' },  // Difícil - laranja
-  5: { fg: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' },   // Expert - vermelho
-};
 
 interface QuestionCardProps {
   question: Question;
@@ -114,62 +111,36 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     );
   };
 
-  // Clamp level entre 1 e 5 para evitar erros se vier algo fora do range
-  const level = Math.min(5, Math.max(1, question.level || 1));
-  const difficultyColor = DIFFICULTY_COLORS[level];
-  const difficultyLabel = t(`quiz.difficulty.${level}`);
-
   return (
-    <Card>
-      <View style={styles.header}>
-        <View
-          style={[
-            styles.difficultyBadge,
-            { backgroundColor: difficultyColor.bg, borderColor: difficultyColor.fg },
-          ]}
-        >
-          <View style={styles.difficultyStars}>
-            {[1, 2, 3, 4, 5].map(i => (
-              <Star
-                key={i}
-                size={10}
-                color={difficultyColor.fg}
-                fill={i <= level ? difficultyColor.fg : 'transparent'}
-                strokeWidth={2}
-              />
-            ))}
+    <>
+      {/* ——— Enunciado, sozinho no cartão ——— */}
+      <Card>
+        <Text style={styles.question}>{question.question}</Text>
+
+        {/* Imagem da pergunta (se questionType === 'image') */}
+        {imageUri && !imageError && (
+          <View style={styles.imageWrap}>
+            <Image
+              source={{ uri: imageUri }}
+              style={styles.questionImage}
+              resizeMode="contain"
+              onLoadStart={() => setImageLoading(true)}
+              onLoadEnd={() => setImageLoading(false)}
+              onError={() => {
+                setImageLoading(false);
+                setImageError(true);
+              }}
+            />
+            {imageLoading && (
+              <View style={styles.imageOverlay}>
+                <ActivityIndicator color="#FFA726" />
+              </View>
+            )}
           </View>
-          <Text style={[styles.difficultyLabel, { color: difficultyColor.fg }]}>
-            {difficultyLabel}
-          </Text>
-        </View>
-        <Text style={styles.topic}>{question.topic}</Text>
-      </View>
+        )}
+      </Card>
 
-      <Text style={styles.question}>{question.question}</Text>
-
-      {/* Imagem da pergunta (se questionType === 'image') */}
-      {imageUri && !imageError && (
-        <View style={styles.imageWrap}>
-          <Image
-            source={{ uri: imageUri }}
-            style={styles.questionImage}
-            resizeMode="contain"
-            onLoadStart={() => setImageLoading(true)}
-            onLoadEnd={() => setImageLoading(false)}
-            onError={() => {
-              setImageLoading(false);
-              setImageError(true);
-            }}
-          />
-          {imageLoading && (
-            <View style={styles.imageOverlay}>
-              <ActivityIndicator color="#FFA726" />
-            </View>
-          )}
-        </View>
-      )}
-
+      {/* ——— Alternativas, fora do cartão ——— */}
       <View style={styles.options}>
         {renderOption('A', question.optionA)}
         {renderOption('B', question.optionB)}
@@ -189,59 +160,30 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <Text style={styles.explanationText}>{question.explanation}</Text>
         </View>
       )}
-    </Card>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  difficultyBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  difficultyStars: {
-    flexDirection: 'row',
-    gap: 1,
-  },
-  difficultyLabel: {
-    fontSize: 11,
-    fontFamily: 'Poppins-Bold',
-    letterSpacing: 0.3,
-    textTransform: 'uppercase',
-  },
-  topic: {
-    fontSize: 12,
-    color: '#FFA726',
-    fontFamily: 'Poppins-Medium',
-  },
+  // 22 px, contra 16 das alternativas. A 18 px a razão era 1,12 — perto demais
+  // para o olho registrar qual dos dois blocos é o conteúdo principal.
   question: {
-    fontSize: 18,
+    fontSize: 22,
     color: '#FFFFFF',
     fontFamily: 'Poppins-Bold',
-    marginBottom: 24,
-    lineHeight: 26,
+    lineHeight: 30,
+    textAlign: 'center',
     flexShrink: 1,
   },
   questionImage: {
     width: '100%',
     height: 200,
     borderRadius: 12,
-    marginBottom: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   imageWrap: {
     width: '100%',
-    marginBottom: 20,
+    marginTop: 16,
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
@@ -257,12 +199,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
   options: {
-    gap: 14,
+    gap: 12,
+    marginTop: 16,
   },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    // Alternativas mais altas: fora do cartão elas passam a ser o alvo de
+    // toque principal da tela, e 14 px de respiro deixava a fileira apertada.
+    paddingVertical: 16,
     paddingHorizontal: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 12,

@@ -9,6 +9,7 @@ export { Card } from './Card';
 export { LevelCard } from './LevelCard';
 export { ProgressBar } from './ProgressBar';
 export { QuestionCard } from './QuestionCard';
+export { PhaseCountdown } from './PhaseCountdown';
 export { Toast } from './Toast';
 
 // Icons

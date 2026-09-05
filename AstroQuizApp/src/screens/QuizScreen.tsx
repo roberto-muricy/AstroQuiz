@@ -12,9 +12,10 @@
  * - i18n para strings hardcoded do QuestionCard
  */
 
-import { QuestionCard } from '@/components';
+import { PhaseCountdown, QuestionCard } from '@/components';
 import { RewardedAdButton } from '@/components/ads';
 import { useAds } from '@/contexts/AdsContext';
+import { useApp } from '@/contexts/AppContext';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
@@ -40,7 +41,7 @@ import {
   RADIUS,
   SIZES,
 } from '@/constants/design-system';
-import { Flame, CheckCircle, XCircle, Clock, SkipForward } from 'lucide-react-native';
+import { Flame, Check, CheckCircle, XCircle, X, Clock, SkipForward } from 'lucide-react-native';
 
 // Cor do timer baseada no tempo restante
 const getTimerColor = (timeRemaining: number, totalTime: number): string => {
@@ -60,10 +61,11 @@ type QuestionResult = 'correct' | 'wrong' | 'timeout' | 'skipped';
 export const QuizScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizGame'>>();
-  const { sessionId } = route.params as { sessionId: string; phaseNumber: number };
+  const { sessionId, phaseNumber } = route.params as { sessionId: string; phaseNumber: number };
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { resetPhaseCounters } = useAds();
+  const { gameRules } = useApp();
 
   // Oculta a barra de status (relógio/wifi/bateria) durante o jogo para maior imersão.
   useFocusEffect(
@@ -94,6 +96,19 @@ export const QuizScreen = () => {
   const [canAdvance, setCanAdvance] = useState(false);
   // Contagem visível do auto-avanço (apenas em acertos); null = sem auto-avanço
   const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
+  // Contagem de 3 s ao abrir a fase. Enquanto true, cobre a tela inteira e o
+  // cronômetro da pergunta NÃO corre.
+  const [contagemAtiva, setContagemAtiva] = useState(true);
+  // A pergunta não veio da rede. Sem isto o anel da contagem giraria para
+  // sempre, prometendo um progresso que não existe.
+  const [erroCarregar, setErroCarregar] = useState(false);
+  // Verdadeiro quando a pergunta que a contagem está esperando já chegou.
+  //
+  // Não dá para usar `!!currentQuestion` no lugar: numa nova tentativa no meio
+  // da fase a pergunta ANTERIOR continua no estado, a contagem se daria por
+  // satisfeita na hora, e ao fim dos 3 s ela revelaria a pergunta velha — com o
+  // cronômetro reiniciado e a resposta já registrada no servidor.
+  const [perguntaPronta, setPerguntaPronta] = useState(false);
 
   // Trava de envio por pergunta.
   //
@@ -122,6 +137,9 @@ export const QuizScreen = () => {
     setCurrentScore(0);
     setCurrentStreak(0);
     setQuestionResults([]);
+    // Sessão nova, contagem nova. "Jogar de novo" reaproveita a tela sem
+    // desmontá-la, então sem isto a segunda partida entraria sem contagem.
+    setContagemAtiva(true);
     // Fase nova, cota de pulos do Pro zerada.
     resetPhaseCounters();
     loadQuestion();
@@ -144,6 +162,9 @@ export const QuizScreen = () => {
 
   useEffect(() => {
     if (skipEmCurso) return;
+    // Sem esta guarda a contagem regressiva não serviria para nada: a pergunta
+    // carrega por baixo dela e o cronômetro começaria a correr atrás da tela.
+    if (contagemAtiva) return;
 
     if (!showResult && timeRemaining > 0) {
       // Contagem regressiva audível nos 6 s finais — a faixa em que a barra
@@ -158,7 +179,7 @@ export const QuizScreen = () => {
     } else if (timeRemaining === 0 && !showResult) {
       handleTimeout();
     }
-  }, [timeRemaining, showResult, skipEmCurso]);
+  }, [timeRemaining, showResult, skipEmCurso, contagemAtiva]);
 
   const clearAllTimers = () => {
     if (submitTimerRef.current) clearTimeout(submitTimerRef.current);
@@ -190,9 +211,12 @@ export const QuizScreen = () => {
   const loadQuestion = async () => {
     try {
       setLoading(true);
+      setErroCarregar(false);
+      setPerguntaPronta(false);
       clearAllTimers();
       const question = await quizService.getCurrentQuestion(sessionId);
       setCurrentQuestion(question);
+      setPerguntaPronta(true);
       setTimeRemaining(Math.floor(question.timePerQuestion / 1000));
       setSelectedOption(null);
       setShowResult(false);
@@ -205,7 +229,9 @@ export const QuizScreen = () => {
       setCanAdvance(false);
     } catch (error) {
       console.error('Erro ao carregar pergunta:', error);
-      Alert.alert(t('common.error'), t('errors.loadingFailed'));
+      // O alerta some com um toque e não deixava saída nenhuma. A tela de erro
+      // fica, e oferece tentar de novo ou sair.
+      setErroCarregar(true);
     } finally {
       setLoading(false);
     }
@@ -462,7 +488,58 @@ export const QuizScreen = () => {
   const timerWidth = (timeRemaining / totalTime) * 100;
   const totalQuestions = currentQuestion?.totalQuestions ?? 10;
 
-  // ——— Loading state ———
+  // ——— Contagem regressiva de abertura ———
+  // Vem antes do estado de carregamento porque ela *é* o estado de carregamento
+  // agora: a pergunta é buscada por baixo, e a contagem só sai quando as duas
+  // coisas terminam.
+  if (contagemAtiva && !erroCarregar) {
+    return (
+      <View style={styles.container}>
+        <PhaseCountdown
+          phaseNumber={phaseNumber}
+          totalQuestions={
+            currentQuestion?.totalQuestions ??
+            gameRules?.general?.questionsPerPhase ??
+            10
+          }
+          secondsPerQuestion={Math.round(
+            (currentQuestion?.timePerQuestion ??
+              gameRules?.general?.timePerQuestion ??
+              45000) / 1000,
+          )}
+          pronto={perguntaPronta}
+          onFinish={() => setContagemAtiva(false)}
+        />
+      </View>
+    );
+  }
+
+  // ——— A pergunta não veio ———
+  // Antes desta tela o jogador ficava para sempre num "Carregando…" morto,
+  // depois de um alerta que não oferecia nada.
+  if (erroCarregar) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loading}>
+          <Text style={styles.loadingText}>{t('errors.connectionError')}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              setContagemAtiva(true);
+              loadQuestion();
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.8}>
+            <Text style={styles.sairTexto}>{t('quiz.exitConfirm')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   if (!currentQuestion) {
     return (
       <View style={styles.container}>
@@ -473,33 +550,39 @@ export const QuizScreen = () => {
     );
   }
 
+  const nivel = Math.min(5, Math.max(1, currentQuestion.question.level || 1));
+
   return (
     <View style={styles.container}>
-      {/* ——— Header ——— */}
+      {/* ——— Header ———
+          Tópico e nível moraram no cartão da pergunta até aqui. Subiram porque
+          são contexto da tela, não conteúdo — e o cartão precisava esvaziar
+          para o enunciado poder crescer. */}
       <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.backButton} onPress={handleExit}>
-          <Text style={styles.backButtonText}>✕</Text>
+          <X size={18} color={COLORS.text} strokeWidth={2.5} />
         </TouchableOpacity>
 
-        <View style={styles.questionCounter}>
-          <Text style={styles.questionCounterText}>
-            {t('quiz.questionCounter', {
-              current: currentQuestion.questionIndex,
-              total: currentQuestion.totalQuestions,
-            })}
+        <View style={styles.headerCenter}>
+          <Text style={styles.topicText} numberOfLines={1}>
+            {currentQuestion.question.topic}
           </Text>
+          {/* "Nível 2", e não estrelas: no resto do app estrelas medem
+              desempenho, e o mesmo símbolo com dois significados confunde. */}
+          <Text style={styles.levelText}>{t('quiz.levelShort', { level: nivel })}</Text>
         </View>
 
         <View style={styles.scoreContainer}>
-          <Text style={styles.scoreText}>
-            {currentScore} {t('quiz.pointsAbbr')}
-          </Text>
-          {currentStreak > 0 && (
-            <View style={styles.streakContainer}>
-              <Flame size={14} color={COLORS.primary} fill={COLORS.primary} />
-              <Text style={styles.streakText}>{currentStreak}</Text>
-            </View>
-          )}
+          <View style={styles.scoreLabelRow}>
+            {currentStreak > 0 && (
+              <View style={styles.streakContainer}>
+                <Flame size={13} color={COLORS.primary} fill={COLORS.primary} />
+                <Text style={styles.streakText}>{currentStreak}</Text>
+              </View>
+            )}
+            <Text style={styles.scoreLabel}>{t('quiz.pointsLabel')}</Text>
+          </View>
+          <Text style={styles.scoreText}>{currentScore}</Text>
         </View>
       </View>
 
@@ -513,31 +596,40 @@ export const QuizScreen = () => {
             ]}
           />
         </View>
-        <View style={styles.timerBadge}>
-          <Clock size={12} color={timerColor} />
-          <Text style={[styles.timerText, { color: timerColor }]}>
-            {timeRemaining}s
-          </Text>
-        </View>
+        <Text style={[styles.timerText, { color: timerColor }]}>
+          {timeRemaining}s
+        </Text>
       </View>
 
-      {/* ——— Indicadores de progresso (dots) ——— */}
-      <View style={styles.progressDots}>
+      {/* ——— Trilha das perguntas ———
+          Substitui as bolinhas de 7 px. Cada marca tem 22 px de altura e leva
+          o símbolo do que aconteceu dentro — quem não distingue vermelho de
+          verde continua lendo a trilha. A marca atual mostra o número da
+          pergunta, o que dispensa o "Pergunta 3/10" que ficava no topo. */}
+      <View style={styles.trilha}>
         {Array.from({ length: totalQuestions }).map((_, i) => {
           const result = questionResults[i];
-          const isCurrent = i === questionResults.length && !showResult;
+          const isCurrent = i === questionResults.length;
           return (
             <View
               key={i}
               style={[
-                styles.dot,
-                result === 'correct' && styles.dotCorrect,
-                result === 'wrong' && styles.dotWrong,
-                result === 'timeout' && styles.dotTimeout,
-                result === 'skipped' && styles.dotSkipped,
-                isCurrent && styles.dotCurrent,
+                styles.marca,
+                result === 'correct' && styles.marcaCorrect,
+                result === 'wrong' && styles.marcaWrong,
+                result === 'timeout' && styles.marcaTimeout,
+                result === 'skipped' && styles.marcaSkipped,
+                isCurrent && styles.marcaCurrent,
               ]}
-            />
+            >
+              {result === 'correct' && <Check size={12} color="#22C55E" strokeWidth={3} />}
+              {result === 'wrong' && <X size={12} color="#EF4444" strokeWidth={3} />}
+              {result === 'timeout' && <Clock size={11} color="#F97316" strokeWidth={2.5} />}
+              {result === 'skipped' && (
+                <SkipForward size={11} color={COLORS.textSecondary} strokeWidth={2.5} />
+              )}
+              {!result && isCurrent && <Text style={styles.marcaNumero}>{i + 1}</Text>}
+            </View>
           );
         })}
       </View>
@@ -712,10 +804,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: SIZES.screenPadding,
+    gap: SPACING.md,
   },
   loadingText: {
     ...TYPOGRAPHY.h3,
     color: COLORS.text,
+    textAlign: 'center',
+  },
+  sairTexto: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.textSecondary,
+    fontFamily: 'Poppins-Medium',
+    paddingVertical: SPACING.sm,
   },
   header: {
     flexDirection: 'row',
@@ -734,38 +835,49 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.cardBorder,
   },
-  backButtonText: {
-    fontSize: 16,
-    color: COLORS.text,
-    fontFamily: 'Poppins-Medium',
-  },
-  questionCounter: {
+  headerCenter: {
     flex: 1,
     alignItems: 'center',
+    paddingHorizontal: SPACING.sm,
   },
-  questionCounterText: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.text,
+  topicText: {
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.primary,
     fontFamily: 'Poppins-Medium',
+  },
+  levelText: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.textTertiary,
   },
   scoreContainer: {
     alignItems: 'flex-end',
     minWidth: 70,
   },
+  scoreLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  scoreLabel: {
+    fontSize: 9.5,
+    lineHeight: 13,
+    color: COLORS.textTertiary,
+    fontFamily: 'Poppins-Medium',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
   scoreText: {
-    ...TYPOGRAPHY.body,
-    fontWeight: '700',
+    ...TYPOGRAPHY.h3,
     color: COLORS.success,
     fontFamily: 'Poppins-Bold',
   },
   streakContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    marginTop: 2,
+    gap: 2,
   },
   streakText: {
-    ...TYPOGRAPHY.bodySmall,
+    ...TYPOGRAPHY.caption,
     color: COLORS.primary,
     fontFamily: 'Poppins-Bold',
   },
@@ -788,48 +900,56 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 3,
   },
-  timerBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    minWidth: 38,
-  },
   timerText: {
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 18,
     fontFamily: 'Poppins-Bold',
+    minWidth: 34,
+    textAlign: 'right',
   },
-  // Dots de progresso
-  progressDots: {
+  // Trilha das perguntas
+  trilha: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 6,
+    paddingHorizontal: SIZES.screenPadding,
+    gap: 4,
     marginBottom: SPACING.md,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+  marca: {
+    flex: 1,
+    height: 22,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.10)',
   },
-  dotCorrect: {
-    backgroundColor: '#22C55E',
+  marcaCorrect: {
+    backgroundColor: 'rgba(34, 197, 94, 0.18)',
+    borderColor: '#22C55E',
   },
-  dotWrong: {
-    backgroundColor: '#EF4444',
+  marcaWrong: {
+    backgroundColor: 'rgba(239, 68, 68, 0.16)',
+    borderColor: '#EF4444',
   },
-  dotTimeout: {
-    backgroundColor: '#F97316',
+  marcaTimeout: {
+    backgroundColor: 'rgba(249, 115, 22, 0.16)',
+    borderColor: '#F97316',
   },
   // Pulada é neutra: não foi acerto nem erro, foi uma pergunta abandonada.
-  dotSkipped: {
-    backgroundColor: COLORS.textSecondary,
+  marcaSkipped: {
+    backgroundColor: 'rgba(180, 180, 200, 0.14)',
+    borderColor: COLORS.textSecondary,
   },
-  dotCurrent: {
+  marcaCurrent: {
     backgroundColor: COLORS.primary,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    borderColor: COLORS.primary,
+  },
+  marcaNumero: {
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#1A1A2E',
+    fontFamily: 'Poppins-Bold',
   },
   scrollView: {
     flex: 1,
