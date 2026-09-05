@@ -207,9 +207,34 @@ const normalizar = (s) =>
     process.exit(1);
   }
 
-  let ok = 0;
+  // Comprimento, nunca o valor. Um token colado duas vezes aparece aqui como o
+  // dobro do tamanho — foi assim que 186 requisicoes falharam em silencio.
+  console.log(`\ntoken recebido: ${token.length} caracteres`);
+
+  // Prova de fogo numa linha so. Sem isto, um token errado gera 186 requisicoes
+  // 401 antes de o script admitir que nao ia funcionar.
+  const teste = plano[0];
+  const rt = await fetch(`${BASE}/questions/${teste.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ topic: teste.para, topicKey: teste.para }),
+  });
+  if (rt.status === 401) {
+    console.error('\nTOKEN RECUSADO (401). Nada foi escrito.');
+    console.error('  E o valor de STRAPI_WRITE_TOKEN nas Variables do Railway,');
+    console.error('  nao um token gerado no painel do Strapi.');
+    console.error('  Se o comprimento acima for o dobro do esperado, foi colagem dupla.');
+    process.exit(1);
+  }
+  if (!rt.ok) {
+    console.error(`\nfalha inesperada na primeira escrita: ${rt.status}. Nada mais foi tentado.`);
+    process.exit(1);
+  }
+  console.log('token aceito — aplicando o resto.\n');
+
+  let ok = 1;
   const falhas = [];
-  for (const item of plano) {
+  for (const item of plano.slice(1)) {
     const r = await fetch(`${BASE}/questions/${item.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
