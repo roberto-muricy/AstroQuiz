@@ -16,6 +16,7 @@ import { PhaseCountdown, QuestionCard } from '@/components';
 import { RewardedAdButton } from '@/components/ads';
 import { useAds } from '@/contexts/AdsContext';
 import { useApp } from '@/contexts/AppContext';
+import analyticsService from '@/services/analyticsService';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { CurrentQuestion, RootStackParamList } from '@/types';
@@ -94,7 +95,7 @@ export const QuizScreen = () => {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { resetPhaseCounters } = useAds();
-  const { gameRules } = useApp();
+  const { gameRules, locale } = useApp();
 
   // Oculta a barra de status (relógio/wifi/bateria) durante o jogo para maior imersão.
   useFocusEffect(
@@ -171,6 +172,10 @@ export const QuizScreen = () => {
     setContagemAtiva(true);
     // Fase nova, cota de pulos do Pro zerada.
     resetPhaseCounters();
+    // Sem este evento nao ha como saber em que fase os jogadores param — e e
+    // esse numero que decide se a exigencia de acerto deve subir ao longo das
+    // 50 fases ou ficar em 60%. O servico ja existia; ninguem o chamava.
+    analyticsService.logQuizStart(phaseNumber, locale);
     loadQuestion();
 
     return () => {
@@ -504,7 +509,12 @@ export const QuizScreen = () => {
         {
           text: t('quiz.exitConfirm'),
           style: 'destructive',
-          onPress: () => navigation.goBack(),
+          onPress: () => {
+            // Em que pergunta a pessoa desistiu. Junto com quiz_start e
+            // quiz_complete, e o que revela onde a curva vira parede.
+            analyticsService.logQuizAbandon(phaseNumber, questionResults.length + 1);
+            navigation.goBack();
+          },
         },
       ],
     );

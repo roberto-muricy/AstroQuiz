@@ -11,6 +11,7 @@ import { ProgressStorage } from '@/utils/progressStorage';
 import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
+import analyticsService from '@/services/analyticsService';
 import soundService from '@/services/soundService';
 import { showInterstitialAfterPhase, loadInterstitialAd } from '@/services/adService';
 import { useAds } from '@/contexts/AdsContext';
@@ -109,6 +110,19 @@ export const QuizResultScreen = () => {
       setUnlockRequirement(getUnlockRequirement((data.phaseNumber || 1) + 1));
 
       const isPerfect = accuracy === 100;
+
+      // O evento que fecha o funil: quantos começaram a fase, quantos
+      // terminaram e com que desempenho. É a taxa de aprovação por fase que
+      // diz se a exigência de acerto deve subir ou ficar em 60%.
+      analyticsService.logQuizComplete({
+        phaseNumber: data.phaseNumber,
+        score: data.finalScore || data.score || 0,
+        accuracy,
+        timeSpent: data.totalTime || 0,
+        correctAnswers: data.correctAnswers || 0,
+        totalQuestions: data.totalQuestions || 10,
+        passed: !!data.passed,
+      });
 
       // Registrar as perguntas vistas ANTES do teste de aprovação.
       //
