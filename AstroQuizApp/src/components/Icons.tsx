@@ -11,6 +11,7 @@ import {
   Flame,
   Star,
   Trophy,
+  Telescope,
   Sparkles,
   ThumbsUp,
   Dumbbell,
@@ -116,6 +117,17 @@ export const ThumbsUpIcon = ({ size = IconSizes.md, color = IconColors.success }
 /** Força - Incentivo, continuar tentando */
 export const StrengthIcon = ({ size = IconSizes.md, color = IconColors.primary }: IconProps) => (
   <Dumbbell size={size} color={color} strokeWidth={2} />
+);
+
+/**
+ * Luneta - fase não concluída, "continue observando".
+ *
+ * Substitui o Dumbbell na tela de resultado: um haltere de academia não diz
+ * nada num quiz de astronomia, e a luneta convida a tentar de novo em vez de
+ * mandar o jogador se esforçar mais.
+ */
+export const KeepLookingIcon = ({ size = IconSizes.md, color = IconColors.primary }: IconProps) => (
+  <Telescope size={size} color={color} strokeWidth={2} />
 );
 
 /** X vermelho - Erros, respostas incorretas */

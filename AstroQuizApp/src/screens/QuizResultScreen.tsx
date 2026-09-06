@@ -39,17 +39,12 @@ import {
   SIZES,
 } from '@/constants/design-system';
 import {
-  TrophyIcon,
+  RocketIcon,
   SparkleIcon,
   ThumbsUpIcon,
-  StrengthIcon,
-  StarsRating,
-  CheckIcon,
-  ErrorIcon,
+  KeepLookingIcon,
   FireIcon,
-  TimerIcon,
   AwardIcon,
-  LockIcon,
   IconSizes,
   IconColors,
   RefreshIcon,
@@ -355,11 +350,24 @@ export const QuizResultScreen = () => {
   const isGreat = accuracy >= 80;
   const isGood = accuracy >= 60;
 
+  const acertos = sessionData.correctAnswers || 0;
+  const totalPerguntas = sessionData.totalQuestions || 10;
+  const segundos = Math.round((sessionData.totalTime || 0) / 1000);
+  // Quantas respostas faltaram para os 60%. Dizer "faltaram 2 acertos" e mais
+  // acionavel do que "minimo 60%": a distancia vem em perguntas, que e a
+  // unidade em que o jogador pensa.
+  const faltaram = Math.max(0, Math.ceil(totalPerguntas * 0.6) - acertos);
+
+  // Quanto do nível atual já foi percorrido, em %. O topo da faixa é o XP que
+  // o jogador tem mais o que falta; a base é o XP que o nível atual exigiu.
+  const nivelAtual = getPlayerLevel(totalXP);
+  const topoDaFaixa = totalXP + xpToNext;
+  const xpProgresso = topoDaFaixa > nivelAtual.xpRequired
+    ? ((totalXP - nivelAtual.xpRequired) / (topoDaFaixa - nivelAtual.xpRequired)) * 100
+    : 100;
+
   return (
-    <LinearGradient
-      colors={COLORS.backgroundGradient}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -367,152 +375,122 @@ export const QuizResultScreen = () => {
           bounces={true}
           scrollEventThrottle={16}
         >
-          {/* Header com Ícone de Performance */}
+          {/* ——— Cabeçalho ———
+              Antes daqui saíam sete anúncios do mesmo fato: troféu, título,
+              três estrelas, selo APROVADO, "100% de acerto", cartão "Pontuação
+              perfeita" e o par "10 certas / 0 erradas". Sobrou um ícone, uma
+              palavra e a fase. */}
           <Animated.View style={[styles.header, { transform: [{ scale: scaleAnim }] }]}>
-            <View style={styles.performanceIcon}>
-              {isPerfect ? <TrophyIcon size={64} color={IconColors.gold} /> :
-               isGreat ? <SparkleIcon size={64} color={IconColors.gold} /> :
-               isGood ? <ThumbsUpIcon size={64} color={IconColors.success} /> :
-               <StrengthIcon size={64} color={IconColors.primary} />}
-            </View>
-            <Text style={styles.title}>
-              {isPerfect ? t('result.perfect') : isGreat ? t('result.excellent') : isGood ? t('result.veryGood') : t('result.keepTrying')}
-            </Text>
-            <Text style={styles.subtitle}>
+            <Text style={styles.eyebrow}>
               {passed
                 ? t('result.phaseCompleted', { phase: sessionData.phaseNumber })
                 : t('result.phaseIncomplete', { phase: sessionData.phaseNumber })}
             </Text>
-            <View style={styles.starRow}>
-              <StarsRating stars={stars} size={IconSizes.lg} gap={8} />
+            <View style={styles.performanceIcon}>
+              {/* Foguete no lugar do troféu: é o ícone da marca, e "decolou"
+                  fala a língua do app. Luneta no lugar do haltere de academia. */}
+              {isPerfect ? <RocketIcon size={52} color={IconColors.gold} /> :
+               isGreat ? <SparkleIcon size={52} color={IconColors.gold} /> :
+               isGood ? <ThumbsUpIcon size={52} color={IconColors.success} /> :
+               <KeepLookingIcon size={52} color={IconColors.primary} />}
             </View>
-            {levelTitle ? (
-              <View style={styles.levelRow}>
-                <View style={styles.levelTitleRow}>
-                  {levelIcon && <RankIcon name={levelIcon} size={20} color={IconColors.gold} />}
-                  <Text style={styles.levelText}>{levelTitle}</Text>
+            <Text style={styles.title}>
+              {isPerfect ? t('result.perfect') : isGreat ? t('result.excellent') : isGood ? t('result.veryGood') : t('result.keepTrying')}
+            </Text>
+          </Animated.View>
+
+          {/* ——— O placar, sem caixa ———
+              O cartão roxo #5A5A9C não existia no design system e era a única
+              superfície opaca dessa cor no app inteiro. O número não precisa de
+              moldura para ser o herói da tela. */}
+          <View style={styles.heroScore}>
+            <Text style={[styles.scoreValue, !passed && styles.scoreValueMuted]}>
+              {sessionData.finalScore || sessionData.score || 0}
+            </Text>
+            <Text style={styles.scoreLabel}>{t('result.pointsLabel')}</Text>
+          </View>
+
+          {/* ——— Os fatos, numa linha ———
+              Quatro tiles viravam meia tela. "0 erradas" não informa nada
+              depois de "100%", então acerto e erro viraram uma fração. */}
+          <View style={styles.fatos}>
+            <Text style={styles.fato}>{accuracy}<Text style={styles.fatoUnidade}>%</Text></Text>
+            <Text style={styles.separador}>·</Text>
+            <Text style={styles.fato}>{acertos}<Text style={styles.fatoUnidade}>/{totalPerguntas}</Text></Text>
+            <Text style={styles.separador}>·</Text>
+            <Text style={styles.fato}>{segundos}<Text style={styles.fatoUnidade}>s</Text></Text>
+            {sessionData.maxStreak > 1 && (
+              <>
+                <Text style={styles.separador}>·</Text>
+                <Text style={styles.fato}>
+                  {sessionData.maxStreak}
+                  <Text style={styles.fatoUnidade}> {t('result.inARow')}</Text>
+                </Text>
+              </>
+            )}
+          </View>
+
+          {/* ——— Conquistas como medalhas ———
+              Eram três cartões de três linhas cada. O texto explicativo não
+              sobrevive à segunda partida; o que fica é o símbolo. */}
+          {(isPerfect || sessionData.maxStreak >= 10) && (
+            <View style={styles.medalhas}>
+              {isPerfect && (
+                <View style={styles.medalha}>
+                  <AwardIcon size={15} color={COLORS.primary} />
+                  <Text style={styles.medalhaTexto}>{t('result.perfectBonus')}</Text>
                 </View>
-                <Text style={styles.levelSubText}>
+              )}
+              {sessionData.maxStreak >= 10 && (
+                <View style={styles.medalha}>
+                  <FireIcon size={15} color={COLORS.primary} />
+                  <Text style={styles.medalhaTexto}>
+                    {t('result.streakOf', { count: sessionData.maxStreak })}
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* ——— Por que não passou ———
+              "Faltaram 2 acertos" no lugar de "mínimo 60%": a distância em
+              perguntas é a unidade em que o jogador pensa. E a promessa de que
+              as perguntas mudam só virou verdade quando a exclusão foi
+              corrigida no servidor — é o melhor motivo para tentar de novo. */}
+          {!passed && (
+            <View style={styles.avisoFalha}>
+              <Text style={styles.avisoTitulo}>
+                {t('result.missedBy', { count: faltaram })}
+              </Text>
+              <Text style={styles.avisoTexto}>
+                {t('result.retryHint', { needed: Math.ceil(totalPerguntas * 0.6), total: totalPerguntas })}
+              </Text>
+            </View>
+          )}
+
+          {/* ——— Nível e XP, numa linha ——— */}
+          {levelTitle ? (
+            <View style={styles.nivelBloco}>
+              <View style={styles.nivelLinha}>
+                {levelIcon && <RankIcon name={levelIcon} size={15} color={IconColors.gold} />}
+                <Text style={styles.nivelTexto}>{levelTitle}</Text>
+                <Text style={styles.nivelXp}>
                   {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
                 </Text>
               </View>
-            ) : null}
-
-            {/* Badge de Passou/Não Passou */}
-            {passed ? (
-              <View style={styles.passedBadge}>
-                <Text style={styles.passedText}>{t('result.approved')}</Text>
-              </View>
-            ) : (
-              <View style={styles.failedBadge}>
-                <Text style={styles.failedText}>{t('result.required')}</Text>
-              </View>
-            )}
-          </Animated.View>
-
-          {/* Card de Pontuação Principal */}
-          <View style={styles.scoreCard}>
-            <LinearGradient
-              colors={['#5A5A9C', '#4A4A7C']}
-              style={styles.scoreGradient}
-            >
-              <Text style={styles.scoreLabel}>{t('result.finalScore')}</Text>
-              <Text style={styles.scoreValue}>{sessionData.finalScore || sessionData.score || 0}</Text>
-              <Text style={styles.accuracyText}>{t('result.accuracy', { percent: accuracy })}</Text>
-            </LinearGradient>
-          </View>
-
-          {/* Estatísticas Detalhadas */}
-          <View style={styles.statsContainer}>
-            <View style={styles.statRow}>
-              <View style={styles.statItem}>
-                <CheckIcon size={IconSizes.lg} color={IconColors.success} />
-                <Text style={styles.statValue}>{sessionData.correctAnswers || 0}</Text>
-                <Text style={styles.statLabel}>{t('result.correct_plural')}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <ErrorIcon size={IconSizes.lg} color={IconColors.error} />
-                <Text style={styles.statValue}>{sessionData.incorrectAnswers || 0}</Text>
-                <Text style={styles.statLabel}>{t('result.incorrect_plural')}</Text>
-              </View>
+              {xpToNext > 0 && (
+                <View style={styles.barraXp}>
+                  <View style={[styles.barraXpFill, { width: `${Math.min(100, Math.max(4, xpProgresso))}%` }]} />
+                </View>
+              )}
             </View>
-
-            <View style={styles.statRow}>
-              <View style={styles.statItem}>
-                <FireIcon size={IconSizes.lg} color={IconColors.primary} />
-                <Text style={styles.statValue}>{sessionData.maxStreak || 0}</Text>
-                <Text style={styles.statLabel}>{t('result.maxStreak')}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <TimerIcon size={IconSizes.lg} color={IconColors.white} />
-                <Text style={styles.statValue}>
-                  {Math.round((sessionData.totalTime || 180000) / 1000)}s
-                </Text>
-                <Text style={styles.statLabel}>{t('result.totalTime')}</Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Performance Breakdown */}
-          {isPerfect && (
-            <View style={styles.achievementCard}>
-              <AwardIcon size={IconSizes.xl} color={IconColors.gold} />
-              <Text style={styles.achievementTitle}>{t('result.perfectScore')}</Text>
-              <Text style={styles.achievementText}>
-                {t('result.allCorrect')}
-                {'\n'}{t('result.perfectBonus')}
-              </Text>
-            </View>
-          )}
-
-          {sessionData.maxStreak >= 10 && (
-            <View style={styles.achievementCard}>
-              <FireIcon size={IconSizes.xl} color={IconColors.primary} />
-              <Text style={styles.achievementTitle}>{t('result.streakMaster')}</Text>
-              <Text style={styles.achievementText}>
-                {t('result.consecutiveCorrect', { count: sessionData.maxStreak })}
-              </Text>
-            </View>
-          )}
-
-          {phaseUnlocked && passed && (
-            <View style={[styles.achievementCard, styles.achievementSuccess]}>
-              <SparkleIcon size={IconSizes.xl} color={IconColors.success} />
-              <Text style={[styles.achievementTitle, styles.achievementTitleSuccess]}>
-                {t('result.newPhaseUnlocked')}
-              </Text>
-              <Text style={styles.achievementText}>
-                {t('result.phaseAvailable', { phase: sessionData.phaseNumber + 1 })}
-              </Text>
-            </View>
-          )}
-          {!phaseUnlocked && unlockRequirement && (
-            <View style={[styles.achievementCard, styles.achievementWarning]}>
-              <LockIcon size={IconSizes.xl} color={IconColors.muted} />
-              <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-                {t('result.nextPhaseRequirement')}
-              </Text>
-              <Text style={styles.achievementText}>
-                {t('result.minAccuracy', { percent: unlockRequirement.requiredAccuracy })} {unlockRequirement.specialRequirement ? `• ${unlockRequirement.specialRequirement}` : ''}
-              </Text>
-            </View>
-          )}
-
-          {!passed && (
-            <View style={[styles.achievementCard, styles.achievementWarning]}>
-              <StrengthIcon size={IconSizes.xl} color={IconColors.primary} />
-              <Text style={[styles.achievementTitle, styles.achievementTitleWarning]}>
-                {t('result.keepPracticing')}
-              </Text>
-              <Text style={styles.achievementText}>
-                {t('result.need60')}
-                {'\n'}{t('result.tryAgainConquer')}
-              </Text>
-            </View>
-          )}
+          ) : null}
 
           {/* Botões de Ação */}
           <View style={styles.actions}>
+            {/* O "Nova fase desbloqueada!" era um cartão inteiro logo acima
+                deste botão, dizendo o que o botão já diz. Virou a segunda linha
+                dele: o anúncio e a ação no mesmo lugar. */}
             {passed && phaseUnlocked && (
               <TouchableOpacity
                 style={styles.primaryButton}
@@ -523,21 +501,26 @@ export const QuizResultScreen = () => {
                   colors={COLORS.primaryGradient}
                   style={styles.buttonGradient}
                 >
-                  <Text style={styles.buttonText}>{t('result.nextPhase')}</Text>
+                  <Text style={styles.buttonText}>
+                    {t('result.playPhase', { phase: sessionData.phaseNumber + 1 })}
+                  </Text>
+                  <Text style={styles.buttonSubText}>{t('result.justUnlocked')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             )}
 
+            {/* Vermelho era punição visual por reprovar. Laranja é o mesmo
+                convite de sempre — o jogador já sabe que errou. */}
             {!passed && (
               <TouchableOpacity
                 style={styles.primaryButton}
                 onPress={handlePlayAgain}
               >
                 <LinearGradient
-                  colors={['#EF4444', '#DC2626']}
+                  colors={COLORS.primaryGradient}
                   style={styles.buttonGradient}
                 >
-                  <RefreshIcon size={18} color="#FFFFFF" />
+                  <RefreshIcon size={18} color="#1A1A2E" />
                   <Text style={styles.buttonText}>{t('result.tryAgain')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -595,13 +578,17 @@ export const QuizResultScreen = () => {
           onClose={handleAchievementClose}
         />
       )}
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  // Azul-marinho liso, igual às outras sete telas do app. Esta era a única com
+  // fundo em gradiente, e a troca abrupta ao sair do quiz fazia a tela parecer
+  // de outro aplicativo.
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
   },
   safeArea: {
     flex: 1,
@@ -634,129 +621,142 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  eyebrow: {
+    fontSize: 11,
+    lineHeight: 15,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: COLORS.textTertiary,
+    fontFamily: 'Poppins-Medium',
   },
   performanceIcon: {
-    marginBottom: SPACING.md,
+    marginTop: SPACING.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    ...TYPOGRAPHY.h1,
+    ...TYPOGRAPHY.h2,
     color: COLORS.text,
-    marginBottom: SPACING.xs + 2,
+    marginTop: SPACING.sm,
   },
-  subtitle: {
-    ...TYPOGRAPHY.bodySmall,
+  // O placar sem moldura. O cartao roxo #5A5A9C que ficava aqui nao existia no
+  // design system e era a unica superficie opaca dessa cor no app.
+  heroScore: {
+    alignItems: 'center',
+    marginTop: SPACING.xs,
+  },
+  scoreValue: {
+    fontSize: 68,
+    lineHeight: 76,
+    color: COLORS.primary,
+    fontFamily: 'Poppins-Bold',
+  },
+  // Reprovou: o numero perde o destaque laranja, mas continua legivel.
+  scoreValueMuted: {
     color: COLORS.textSecondary,
-    marginBottom: SPACING.sm,
   },
-  starRow: {
+  scoreLabel: {
+    fontSize: 11,
+    lineHeight: 15,
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+    color: COLORS.textTertiary,
+    fontFamily: 'Poppins-Medium',
+  },
+  // Os quatro tiles viraram esta linha.
+  fatos: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    marginBottom: SPACING.sm,
-  },
-  levelRow: {
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    gap: SPACING.sm,
+    marginTop: SPACING.md,
   },
-  levelTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.xs,
-  },
-  levelText: {
+  fato: {
     ...TYPOGRAPHY.body,
     color: COLORS.text,
     fontFamily: 'Poppins-SemiBold',
   },
-  levelSubText: {
-    ...TYPOGRAPHY.caption,
-    color: COLORS.textSecondary,
-    marginTop: 2,
+  fatoUnidade: {
+    color: COLORS.textTertiary,
+    fontFamily: 'Poppins-Regular',
   },
-  passedBadge: {
-    backgroundColor: 'rgba(15, 181, 126, 0.2)',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
-    borderWidth: 2,
-    borderColor: COLORS.success,
+  separador: {
+    color: COLORS.textDisabled,
+    fontSize: 14,
   },
-  passedText: {
-    ...TYPOGRAPHY.bodySmall,
-    fontWeight: 'bold',
-    color: COLORS.success,
-    fontFamily: 'Poppins-Bold',
-  },
-  failedBadge: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.lg,
-    borderWidth: 2,
-    borderColor: '#EF4444',
-  },
-  failedText: {
-    ...TYPOGRAPHY.bodySmall,
-    fontWeight: 'bold',
-    color: '#EF4444',
-    fontFamily: 'Poppins-Bold',
-  },
-  scoreCard: {
-    marginBottom: SPACING.lg,
-    borderRadius: RADIUS.lg,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  scoreGradient: {
-    padding: SPACING.xl,
-    alignItems: 'center',
-  },
-  scoreLabel: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.textSecondary,
-    marginBottom: SPACING.sm,
-  },
-  scoreValue: {
-    fontSize: 64,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    fontFamily: 'Poppins-Bold',
-    marginBottom: SPACING.sm,
-  },
-  accuracyText: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.success,
-  },
-  statsContainer: {
-    marginBottom: SPACING.lg,
-  },
-  statRow: {
+  medalhas: {
     flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.md,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: SPACING.sm,
+    marginTop: SPACING.lg,
   },
-  statItem: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundHighlight,
+  medalha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(255, 167, 38, 0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 167, 38, 0.36)',
+    borderRadius: 999,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+  },
+  medalhaTexto: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.primary,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  avisoFalha: {
+    backgroundColor: COLORS.backgroundMuted,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.primary,
     borderRadius: RADIUS.md,
     padding: SIZES.screenPadding,
-    alignItems: 'center',
-    gap: SPACING.sm,
+    marginTop: SPACING.lg,
   },
-  statValue: {
-    ...TYPOGRAPHY.h1,
-    color: COLORS.text,
+  avisoTitulo: {
+    ...TYPOGRAPHY.body,
+    color: COLORS.primary,
+    fontFamily: 'Poppins-SemiBold',
     marginBottom: SPACING.xs,
   },
-  statLabel: {
+  avisoTexto: {
+    ...TYPOGRAPHY.bodySmall,
+    color: COLORS.textSecondary,
+  },
+  nivelBloco: {
+    marginTop: SPACING.lg,
+  },
+  nivelLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+  },
+  nivelTexto: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.premium,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  nivelXp: {
     ...TYPOGRAPHY.caption,
     color: COLORS.textTertiary,
+  },
+  barraXp: {
+    height: 4,
+    borderRadius: 999,
+    backgroundColor: COLORS.backgroundMuted,
+    marginTop: SPACING.sm,
+    overflow: 'hidden',
+  },
+  barraXpFill: {
+    height: '100%',
+    borderRadius: 999,
+    backgroundColor: COLORS.premium,
   },
   achievementCard: {
     backgroundColor: 'rgba(255, 167, 38, 0.15)',
@@ -811,9 +811,17 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
   },
+  // Texto escuro sobre o laranja: branco sobre #FFA726 fica em 2,1:1, abaixo
+  // do minimo de 4,5:1 da WCAG. O mesmo par ja e usado no botao "Proxima" da
+  // tela do jogo.
   buttonText: {
     ...TYPOGRAPHY.h3,
-    color: COLORS.text,
+    color: '#1A1A2E',
+  },
+  buttonSubText: {
+    ...TYPOGRAPHY.caption,
+    color: 'rgba(26, 26, 46, 0.62)',
+    marginTop: 3,
   },
   secondaryButton: {
     flexDirection: 'row',

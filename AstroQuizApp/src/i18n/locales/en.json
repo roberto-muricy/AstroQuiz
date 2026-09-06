@@ -72,7 +72,7 @@
     "totalTime": "Total Time",
     "perfectScore": "Perfect Score!",
     "allCorrect": "You got all questions right!",
-    "perfectBonus": "+50% Perfection Bonus applied!",
+    "perfectBonus": "+50% bonus",
     "streakMaster": "Streak Master!",
     "consecutiveCorrect": "{{count}} correct answers in a row!",
     "newPhaseUnlocked": "New Phase Unlocked!",
@@ -90,7 +90,15 @@
     "levelUpFrom": "You went from level {{from}} to {{to}}",
     "xpToNext": "{{xp}} XP to next level",
     "maxLevel": "Maximum level reached",
-    "calculatingResults": "Calculating results..."
+    "calculatingResults": "Calculating results...",
+    "pointsLabel": "points",
+    "inARow": "in a row",
+    "streakOf": "Streak of {{count}}",
+    "playPhase": "Play phase {{phase}}",
+    "justUnlocked": "just unlocked",
+    "retryHint": "You need {{needed}} out of {{total}} to pass. Retry as often as you like — the questions change.",
+    "missedBy_one": "{{count}} answer short",
+    "missedBy_other": "{{count}} answers short"
   },
   "home": {
     "welcome": "Welcome to AstroQuiz!",
