@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>473888146350-1esnht3cntotsqbnu6osf2ovu4ejeho8.apps.googleusercontent.com</string>
+	<string>473888146350-umk5v7brhjrnmh2cf2a027qav8i9japi.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.473888146350-1esnht3cntotsqbnu6osf2ovu4ejeho8</string>
+	<string>com.googleusercontent.apps.473888146350-umk5v7brhjrnmh2cf2a027qav8i9japi</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDiLfkcqWIQwjMd1ABNBcWGbx-jCYzeA0w</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.reactjs.native.example.AstroQuizApp</string>
+	<string>com.astroquiz.app</string>
 	<key>PROJECT_ID</key>
 	<string>astroquiz-3a316</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:473888146350:ios:3f33b4faca6924c70dfe3f</string>
+	<string>1:473888146350:ios:83e7f4f850b81ffa0dfe3f</string>
 </dict>
 </plist>
