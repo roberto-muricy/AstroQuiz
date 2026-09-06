@@ -16,7 +16,7 @@ import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '@/types';
+import { RootStackParamList, PhaseProgress } from '@/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -54,6 +54,12 @@ export const HomeScreen = () => {
   const [xpToNext, setXpToNext] = useState(0);
   const [progressPct, setProgressPct] = useState(0);
   const [unlockedPhase, setUnlockedPhase] = useState(1);
+  // Desempenho gravado da fase que o cartao mostra. null = nunca jogada.
+  //
+  // O cartao recebia questionsCompleted={0} e stars={0} FIXOS no codigo, e o
+  // xp do jogador inteiro como se fosse o da fase. Prometia progresso da fase
+  // e mostrava zeros com um numero global no meio.
+  const [statsDaFase, setStatsDaFase] = useState<PhaseProgress | null>(null);
   const [streak, setStreak] = useState(0);
 
   // Primeiro acesso: nada jogado ainda. A tela inteira foi desenhada para quem
@@ -72,7 +78,9 @@ export const HomeScreen = () => {
       const stats = progress.stats;
       const xp = stats.totalXP || 0;
       setTotalXP(xp);
-      setUnlockedPhase(progress.unlockedPhases || 1);
+      const fase = progress.unlockedPhases || 1;
+      setUnlockedPhase(fase);
+      setStatsDaFase(stats.phaseStats?.[fase] ?? null);
       setStreak(stats.maxStreak || 0);
 
       const level = getPlayerLevel(xp);
@@ -265,11 +273,11 @@ export const HomeScreen = () => {
               levelNumber={unlockedPhase}
               levelName={t('home.phaseName', { phase: unlockedPhase })}
               subtitle={t('home.available')}
-              progress={Math.round(progressPct * 100)}
-              questionsCompleted={0}
-              totalQuestions={10}
-              xp={totalXP}
-              stars={0}
+              progress={statsDaFase?.accuracy ?? 0}
+              questionsCompleted={statsDaFase?.correctAnswers ?? 0}
+              totalQuestions={statsDaFase?.totalQuestions ?? 10}
+              xp={statsDaFase?.score ?? 0}
+              stars={statsDaFase?.stars ?? 0}
               isActive
               onPress={() => handleStartQuiz(unlockedPhase)}
             />

@@ -44,6 +44,19 @@ export const LevelCard: React.FC<LevelCardProps> = ({
   onPress,
 }) => {
   const { t } = useTranslation();
+
+  // Uma fase so tem dois estados: nunca jogada, ou concluida. phaseStats e
+  // gravado apenas em updateAfterPhase, no fim da partida — nao existe
+  // progresso salvo no meio. Por isso "Continuar", que era o rotulo unico,
+  // nunca estava certo: prometia retomar algo que nao ficou guardado.
+  const jaJogada = questionsCompleted > 0;
+
+  const rotuloBotao = isLocked
+    ? t('home.locked')
+    : jaJogada
+      ? t('home.replayPhase')
+      : t('home.playPhase');
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -74,9 +87,12 @@ export const LevelCard: React.FC<LevelCardProps> = ({
             <Text style={styles.levelName}>{levelName}</Text>
             <Text style={styles.subtitle}>{subtitle}</Text>
 
-            {!isLocked && (
+            {/* Numeros e estrelas so aparecem depois de jogar.
+                Antes disto a fase inedita exibia "0/10", "0xp" e tres estrelas
+                vazias — tres maneiras de dizer "voce ainda nao fez nada", num
+                cartao cujo unico proposito e convidar a comecar. */}
+            {!isLocked && jaJogada && (
               <>
-                {/* Stats */}
                 <View style={styles.stats}>
                   <Text style={styles.statText}>
                     {questionsCompleted}/{totalQuestions}
@@ -84,12 +100,10 @@ export const LevelCard: React.FC<LevelCardProps> = ({
                   <Text style={styles.statText}>{xp}xp</Text>
                 </View>
 
-                {/* Progress bar */}
                 <View style={styles.progressContainer}>
                   <ProgressBar progress={progress} height={5} showLabel={false} />
                 </View>
 
-                {/* Stars */}
                 <View style={styles.stars}>
                   <StarsRating stars={stars} size={IconSizes.sm} gap={2} />
                 </View>
@@ -110,7 +124,7 @@ export const LevelCard: React.FC<LevelCardProps> = ({
                 {isLocked ? <LockIcon size={14} /> : <PlayIcon size={12} />}
               </View>
               <Text style={styles.buttonText} numberOfLines={1}>
-                {isLocked ? t('home.locked') : t('common.continue')}
+                {rotuloBotao}
               </Text>
             </TouchableOpacity>
           </View>

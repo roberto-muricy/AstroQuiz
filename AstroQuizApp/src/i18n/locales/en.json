@@ -133,7 +133,9 @@
       "questions": "questions",
       "perQuestion": "per question",
       "cta": "Start the journey"
-    }
+    },
+    "playPhase": "Play",
+    "replayPhase": "Play again"
   },
   "tabs": {
     "home": "Home",

@@ -133,7 +133,9 @@
       "questions": "preguntas",
       "perQuestion": "por pregunta",
       "cta": "Iniciar el viaje"
-    }
+    },
+    "playPhase": "Jugar",
+    "replayPhase": "Jugar de nuevo"
   },
   "tabs": {
     "home": "Home",
