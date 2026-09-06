@@ -13,6 +13,7 @@ import React from 'react';
 import {
   Binoculars,
   Crown,
+  Flame,
   Microscope,
   MoonStar,
   Orbit,
@@ -26,6 +27,7 @@ import type { RankIconName } from '@/utils/progressionSystem';
 
 const ICONES = {
   Sparkle,
+  Flame,
   Binoculars,
   Telescope,
   MoonStar,

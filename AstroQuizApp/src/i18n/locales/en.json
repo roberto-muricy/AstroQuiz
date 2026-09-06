@@ -255,9 +255,27 @@
     "imageCredits": "Image credits"
   },
   "achievements": {
-    "title": "Achievements",
-    "unlocked": "Unlocked!",
-    "locked": "Locked"
+    "unlocked": "Achievement unlocked!",
+    "firstSteps": {
+      "name": "First Steps",
+      "description": "Complete phase 1"
+    },
+    "rookieAstronomer": {
+      "name": "Rookie Astronomer",
+      "description": "Complete 10 phases"
+    },
+    "perfectPhase": {
+      "name": "Perfect Phase",
+      "description": "Get 10 out of 10 in a phase"
+    },
+    "hotStreak": {
+      "name": "Hot Streak",
+      "description": "Get 10 correct answers in a row"
+    },
+    "cosmicMaster": {
+      "name": "Cosmic Master",
+      "description": "Complete all 50 phases"
+    }
   },
   "ranks": {
     "beginner": "Beginner",

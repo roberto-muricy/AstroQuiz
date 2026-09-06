@@ -515,10 +515,12 @@ export const QuizResultScreen = () => {
                   colors={COLORS.primaryGradient}
                   style={styles.buttonGradient}
                 >
-                  <Text style={styles.buttonText}>
-                    {t('result.playPhase', { phase: sessionData.phaseNumber + 1 })}
-                  </Text>
-                  <Text style={styles.buttonSubText}>{t('result.justUnlocked')}</Text>
+                  <View style={styles.buttonTextBlock}>
+                    <Text style={styles.buttonText}>
+                      {t('result.playPhase', { phase: sessionData.phaseNumber + 1 })}
+                    </Text>
+                    <Text style={styles.buttonSubText}>{t('result.justUnlocked')}</Text>
+                  </View>
                 </LinearGradient>
               </TouchableOpacity>
             )}
@@ -819,10 +821,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
+  // justifyContent faltava: sem ele o conteudo encosta na esquerda, porque
+  // flexDirection row so alinha na vertical com alignItems.
   buttonGradient: {
     flexDirection: 'row',
     gap: SPACING.sm,
     paddingVertical: SPACING.lg - 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // O titulo e a legenda do botao empilham. Sem este bloco eles entram como
+  // irmaos na linha do gradiente e saem lado a lado — "Jogar a fase 2
+  // desbloqueada agora" virava uma frase so.
+  buttonTextBlock: {
     alignItems: 'center',
   },
   // Texto escuro sobre o laranja: branco sobre #FFA726 fica em 2,1:1, abaixo
@@ -844,6 +855,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     paddingVertical: SPACING.lg - 2,
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
     borderColor: COLORS.cardBorder,
   },

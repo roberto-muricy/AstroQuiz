@@ -108,6 +108,7 @@ export const calculateXP = (
  */
 export type RankIconName =
   | 'Sparkle'
+  | 'Flame'
   | 'Binoculars'
   | 'Telescope'
   | 'MoonStar'
@@ -207,55 +208,66 @@ export const calculateStarRating = (correctAnswers: number, totalQuestions: numb
   return 0;
 };
 
-// ===== Achievements (placeholder / hook) =====
+// ===== Achievements =====
+/**
+ * Conquistas.
+ *
+ * `nomeChave` e `descricaoChave` sao chaves de i18n, nao texto. Antes eram
+ * strings fixas em ingles, e o pop-up saia meio traduzido: "Conquista
+ * Desbloqueada!" em portugues e "Complete phase I" logo abaixo. Aparece para
+ * todo jogador que termina a fase 1 — ou seja, para todos.
+ *
+ * `icon` e um RankIconName (Lucide), nao emoji. Os cinco emojis que viviam aqui
+ * escaparam da padronizacao de icones do resto do app.
+ */
 export interface Achievement {
   id: string;
-  name: string;
-  description: string;
+  nomeChave: string;
+  descricaoChave: string;
   xpReward: number;
-  icon: string;
+  icon: RankIconName;
   condition: (stats: any) => boolean;
 }
 
 export const achievements: Achievement[] = [
   {
     id: 'first_steps',
-    name: 'First Steps',
-    description: 'Complete phase 1',
+    nomeChave: 'achievements.firstSteps.name',
+    descricaoChave: 'achievements.firstSteps.description',
     xpReward: 50,
-    icon: '🚀',
+    icon: 'Rocket',
     condition: (stats) => stats.phasesCompleted >= 1,
   },
   {
     id: 'rookie_astronomer',
-    name: 'Rookie Astronomer',
-    description: 'Complete 10 phases',
+    nomeChave: 'achievements.rookieAstronomer.name',
+    descricaoChave: 'achievements.rookieAstronomer.description',
     xpReward: 200,
-    icon: '🔭',
+    icon: 'Telescope',
     condition: (stats) => stats.phasesCompleted >= 10,
   },
   {
     id: 'perfect_phase',
-    name: 'Perfect Phase',
-    description: 'Get 10/10 in a phase',
+    nomeChave: 'achievements.perfectPhase.name',
+    descricaoChave: 'achievements.perfectPhase.description',
     xpReward: 100,
-    icon: '⭐',
+    icon: 'Star',
     condition: (stats) => stats.perfectPhases >= 1,
   },
   {
     id: 'hot_streak',
-    name: 'Hot Streak',
-    description: 'Get 10 correct answers in a row',
+    nomeChave: 'achievements.hotStreak.name',
+    descricaoChave: 'achievements.hotStreak.description',
     xpReward: 150,
-    icon: '🔥',
+    icon: 'Flame',
     condition: (stats) => stats.maxStreak >= 10,
   },
   {
     id: 'cosmic_master',
-    name: 'Cosmic Master',
-    description: 'Complete all 50 phases',
+    nomeChave: 'achievements.cosmicMaster.name',
+    descricaoChave: 'achievements.cosmicMaster.description',
     xpReward: 1000,
-    icon: '👑',
+    icon: 'Crown',
     condition: (stats) => stats.phasesCompleted >= 50,
   },
 ];

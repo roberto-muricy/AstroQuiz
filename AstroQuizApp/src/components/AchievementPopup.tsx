@@ -13,14 +13,18 @@ import {
   Animated,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import soundService from '@/services/soundService';
+import { RankIcon } from '@/components/RankIcon';
+import type { RankIconName } from '@/utils/progressionSystem';
 
 interface Achievement {
   id: string;
-  name: string;
-  description: string;
+  /** Chaves de i18n. Antes eram textos fixos em ingles. */
+  nomeChave: string;
+  descricaoChave: string;
   xpReward: number;
-  icon: string;
+  icon: RankIconName;
 }
 
 interface AchievementPopupProps {
@@ -34,6 +38,7 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({
   achievement,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -102,18 +107,18 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({
                 { transform: [{ rotate }] },
               ]}
             >
-              <Text style={styles.icon}>{achievement.icon}</Text>
+              <RankIcon name={achievement.icon} size={52} color="#FFFFFF" />
             </Animated.View>
 
             {/* Título */}
             <View style={styles.shine} />
-            <Text style={styles.title}>Conquista Desbloqueada!</Text>
+            <Text style={styles.title}>{t('achievements.unlocked')}</Text>
             
             {/* Nome da achievement */}
-            <Text style={styles.achievementName}>{achievement.name}</Text>
+            <Text style={styles.achievementName}>{t(achievement.nomeChave)}</Text>
             
             {/* Descrição */}
-            <Text style={styles.description}>{achievement.description}</Text>
+            <Text style={styles.description}>{t(achievement.descricaoChave)}</Text>
             
             {/* XP Reward */}
             <View style={styles.rewardBadge}>
@@ -122,7 +127,7 @@ export const AchievementPopup: React.FC<AchievementPopupProps> = ({
 
             {/* Botão fechar */}
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Continuar</Text>
+              <Text style={styles.closeButtonText}>{t('common.continue')}</Text>
             </TouchableOpacity>
           </LinearGradient>
         </Animated.View>
@@ -166,9 +171,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderWidth: 4,
     borderColor: 'rgba(255, 255, 255, 0.5)',
-  },
-  icon: {
-    fontSize: 56,
   },
   shine: {
     position: 'absolute',

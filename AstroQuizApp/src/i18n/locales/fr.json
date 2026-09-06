@@ -251,9 +251,27 @@
     "imageCredits": "Crédits des images"
   },
   "achievements": {
-    "title": "Réalisations",
-    "unlocked": "Débloqué !",
-    "locked": "Bloqué"
+    "unlocked": "Succès débloqué !",
+    "firstSteps": {
+      "name": "Premiers pas",
+      "description": "Terminez la phase 1"
+    },
+    "rookieAstronomer": {
+      "name": "Astronome débutant",
+      "description": "Terminez 10 phases"
+    },
+    "perfectPhase": {
+      "name": "Phase parfaite",
+      "description": "Obtenez 10 sur 10 dans une phase"
+    },
+    "hotStreak": {
+      "name": "Série en feu",
+      "description": "Obtenez 10 bonnes réponses d'affilée"
+    },
+    "cosmicMaster": {
+      "name": "Maître cosmique",
+      "description": "Terminez les 50 phases"
+    }
   },
   "errors": {
     "loadingFailed": "Échec du chargement des données",
