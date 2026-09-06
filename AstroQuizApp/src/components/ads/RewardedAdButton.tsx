@@ -308,22 +308,27 @@ const styles = StyleSheet.create({
     color: COLORS.background,
   },
 
-  // Usage count
+  // Contador de usos restantes.
+  //
+  // Era `position: absolute` com bottom/right -6, ou seja: pendurado FORA dos
+  // limites do botao, em cima da borda. E o fundo era backgroundElevated, que
+  // e rgba(26,26,46,0.5) — semitransparente, entao a borda laranja atravessava
+  // o circulo e ele parecia cortado.
+  //
+  // Agora entra na propria linha do botao, depois do rotulo. O botao ja e um
+  // flex row com gap, entao o contador se posiciona sozinho e nada escapa.
   usageCount: {
-    position: 'absolute',
-    bottom: -6,
-    right: -6,
-    backgroundColor: COLORS.backgroundElevated,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    width: 20,
+    minWidth: 20,
     height: 20,
+    paddingHorizontal: 5,
     borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   usageCountText: {
-    fontSize: 10,
+    fontSize: 11,
+    lineHeight: 14,
     fontFamily: 'Poppins-Bold',
     color: COLORS.textSecondary,
   },
