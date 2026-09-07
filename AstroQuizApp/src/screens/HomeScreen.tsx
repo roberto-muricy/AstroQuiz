@@ -16,6 +16,7 @@ import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList, PhaseProgress } from '@/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -40,6 +41,9 @@ import { FireIcon, RocketIcon, IconSizes, IconColors } from '@/components/Icons'
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, locale, gameRules } = useApp();
+  // Fixo em 60 nao servia: a barra de status varia por aparelho, e desde o
+  // targetSdk 35 o Android desenha atras dela. Stats e Perfil ja usavam insets.
+  const insets = useSafeAreaInsets();
 
   // Do servidor, nao fixo no codigo: se a regra mudar, o convite acompanha.
   const segundosPorPergunta = Math.round(
@@ -146,7 +150,7 @@ export const HomeScreen = () => {
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + SPACING.md }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -311,7 +315,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: SIZES.screenPadding,
-    paddingTop: 60,
   },
 
   // Header

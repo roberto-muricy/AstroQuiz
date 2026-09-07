@@ -8,12 +8,15 @@ import { TabParamList } from "@/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Home, Gamepad2, BarChart3, User } from "lucide-react-native";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const ICON_SIZE = 24;
+/** Altura util da barra, sem contar o recuo do sistema. */
+const BARRA_ALTURA = 62;
 const ACTIVE_COLOR = "#FFA726";
 const INACTIVE_COLOR = "rgba(255, 255, 255, 0.5)";
 
@@ -35,12 +38,20 @@ const TabIcon = ({ IconComponent, focused, color }: TabIconProps) => (
 
 export const TabNavigator = () => {
   const { t } = useTranslation();
+  // A partir do targetSdk 35 o Android impoe edge-to-edge: o sistema desenha
+  // atras das barras e cabe ao app recuar. Sem isto os rotulos das abas ficam
+  // por baixo da barra de navegacao de tres botoes. No iOS o problema nao
+  // aparecia porque a area segura de baixo ali e so o indicador de home.
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          { height: BARRA_ALTURA + insets.bottom, paddingBottom: insets.bottom },
+        ],
         tabBarActiveTintColor: ACTIVE_COLOR,
         tabBarInactiveTintColor: INACTIVE_COLOR,
         tabBarLabelStyle: styles.tabBarLabel,
@@ -95,7 +106,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(26, 26, 46, 0.95)",
     borderTopWidth: 0,
     elevation: 0,
-    paddingTop: 10,
+    paddingTop: 8,
   },
   tabBarLabel: {
     fontSize: 11,

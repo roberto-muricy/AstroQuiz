@@ -10,6 +10,7 @@ import api from '@/services/api';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { calculateStarRating, getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
@@ -36,6 +37,9 @@ import { StarsRating, LockIcon, PlayIcon, RocketIcon, IconSizes, IconColors } fr
 
 export const QuizListScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // Mesmo motivo da Home: o 60 fixo nao acompanha a barra de status, e o
+  // Android desenha atras dela desde o targetSdk 35.
+  const insets = useSafeAreaInsets();
   const { locale, gameRules } = useApp();
 
   // Vem do servidor (GET /api/quiz/rules). Estava fixo em 30 no código e o
@@ -232,7 +236,7 @@ export const QuizListScreen = () => {
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + SPACING.md }]}
         showsVerticalScrollIndicator={false}
         bounces={true}
         scrollEventThrottle={16}
@@ -305,7 +309,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SIZES.screenPadding,
-    paddingTop: 60,
     gap: SPACING.md,
     paddingBottom: 100,
   },
