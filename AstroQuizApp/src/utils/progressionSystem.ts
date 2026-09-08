@@ -160,17 +160,41 @@ export const getXPToNextLevel = (totalXP: number): number => {
 };
 
 // ===== Phase unlock =====
+/**
+ * Espelha SCORING.passThreshold do servidor (src/services/quiz-logic.ts).
+ * Sao dois lugares porque o app decide o desbloqueio localmente, sem consultar
+ * o servidor. Se um mudar sem o outro, o jogador volta a poder ser aprovado e
+ * barrado ao mesmo tempo.
+ */
+export const MIN_ACERTO_PARA_PASSAR = 60;
+
 export interface UnlockRequirement {
   requiredAccuracy: number;
   specialRequirement?: string;
 }
 
-export const getUnlockRequirement = (phase: number): UnlockRequirement => {
-  if (phase <= 10) return { requiredAccuracy: 0 };
-  if (phase <= 20) return { requiredAccuracy: 50 };
-  if (phase <= 35) return { requiredAccuracy: 60 };
-  if (phase <= 45) return { requiredAccuracy: 70 };
-  return { requiredAccuracy: 80, specialRequirement: 'Complete phase 45 with 10/10 correct' };
+/**
+ * Exigencia para destravar uma fase: 60% em todas as 50.
+ *
+ * Antes era uma escada 0 / 50 / 60 / 70 / 80%, com "10 de 10 na fase anterior"
+ * a partir da 46. Ela nao vinha de lugar nenhum acordado: o SERVIDOR sempre
+ * aprovou com SCORING.passThreshold = 60 para as 50 fases, e o campo
+ * `nextPhaseUnlocked` que ele devolvia era decorativo, porque quem decidia era
+ * esta funcao. Da fase 36 em diante o jogador podia ser aprovado e barrado ao
+ * mesmo tempo.
+ *
+ * A curva ficou plana por decisao de produto: a dificuldade ja sobe pelas
+ * PERGUNTAS — nivel medio 1,0 na fase 1 contra 4,5 na fase 50, por
+ * getDifficultyDistribution. Acertar 60% de perguntas nivel 4-5 e muito mais
+ * dificil que 60% de nivel 1. Uma segunda curva por cima disso compunha, e a
+ * regra do 10 de 10 era a pior parte: uma unica falha em dez perguntas das mais
+ * dificeis travava a progressao.
+ *
+ * Se um dia a analitica mostrar que ninguem trava em lugar nenhum, da para
+ * reintroduzir a escada com dado na mao. Hoje nao ha dado.
+ */
+export const getUnlockRequirement = (_phase: number): UnlockRequirement => {
+  return { requiredAccuracy: MIN_ACERTO_PARA_PASSAR };
 };
 
 export const isPhaseUnlocked = (
@@ -178,10 +202,7 @@ export const isPhaseUnlocked = (
   previousPhaseStats: { accuracy: number; correctAnswers: number }
 ): boolean => {
   if (phase <= 10) return true;
-  const requirement = getUnlockRequirement(phase);
-  if (previousPhaseStats.accuracy < requirement.requiredAccuracy) return false;
-  if (phase >= 46 && previousPhaseStats.correctAnswers < 10) return false;
-  return true;
+  return previousPhaseStats.accuracy >= MIN_ACERTO_PARA_PASSAR;
 };
 
 // ===== Star rating =====
