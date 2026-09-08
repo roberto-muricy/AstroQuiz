@@ -170,6 +170,49 @@ export function requireWriteTokenIfConfigured(ctx: any): void {
 }
 
 /**
+ * Versao que responde em vez de lancar: o chamador apresentou o token de
+ * escrita correto?
+ *
+ * Serve para decidir QUANTO devolver, e nao SE devolver. As rotas GET de
+ * questions continuam abertas; o que muda e que o gabarito so acompanha quem
+ * se identifica.
+ *
+ * Falha fechada de proposito: sem STRAPI_WRITE_TOKEN configurado nenhum bearer
+ * pode conferir, entao ninguem recebe o gabarito. Uma variavel esquecida vira
+ * ausencia de resposta certa, nunca vazamento.
+ */
+export function temTokenDeEscritaValido(ctx: any): boolean {
+  const esperado = process.env.STRAPI_WRITE_TOKEN;
+  if (!esperado) return false;
+
+  const cabecalho = ctx?.request?.headers?.authorization || '';
+  if (!cabecalho.startsWith('Bearer ')) return false;
+  const bearer = cabecalho.slice('Bearer '.length).trim();
+  if (!bearer) return false;
+
+  const { timingSafeEqual } = require('crypto');
+  const a = Buffer.from(bearer);
+  const b = Buffer.from(esperado);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+/** Os campos que revelam a resposta e nao podem sair sem autenticacao. */
+const CAMPOS_DE_GABARITO = ['correctOption', 'explanation'] as const;
+
+/**
+ * Remove o gabarito de uma pergunta.
+ *
+ * `explanation` sai junto de `correctOption` porque 239 das 705 explicacoes em
+ * portugues (34%) contem literalmente o texto da alternativa correta — deixar
+ * a explicacao seria manter a chave de respostas, so que em prosa.
+ */
+export function semGabarito<T extends Record<string, any>>(pergunta: T): Partial<T> {
+  const copia: any = { ...pergunta };
+  for (const campo of CAMPOS_DE_GABARITO) delete copia[campo];
+  return copia;
+}
+
+/**
  * Normalize question object for API response
  */
 export function normalizeQuestion(q: any, defaultLocale: string): any {

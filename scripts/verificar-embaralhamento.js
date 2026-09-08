@@ -23,7 +23,18 @@
  * Sai com codigo 1 em qualquer divergencia.
  */
 
-const BASE = 'http://localhost:1337/api';
+const BASE = process.env.ASTROQUIZ_API || 'http://localhost:1337/api';
+
+// GET /api/questions so devolve `correctOption` para quem apresenta o token de
+// escrita — sem ele nao ha como saber qual alternativa e a certa, e este script
+// nao tem o que conferir.
+const TOKEN = process.env.STRAPI_WRITE_TOKEN;
+if (!TOKEN) {
+  console.error('ERRO: defina STRAPI_WRITE_TOKEN (esta no .env do backend).');
+  console.error('  Sem ele o gabarito nao vem e nao da para verificar nada.');
+  process.exit(1);
+}
+const autenticado = { Authorization: `Bearer ${TOKEN}` };
 
 const post = async (rota, corpo) => {
   const r = await fetch(`${BASE}${rota}`, {
@@ -35,8 +46,8 @@ const post = async (rota, corpo) => {
   if (!r.ok) throw new Error(`POST ${rota} -> ${r.status} ${JSON.stringify(j).slice(0, 200)}`);
   return j;
 };
-const get = async (rota) => {
-  const r = await fetch(`${BASE}${rota}`);
+const get = async (rota, cabecalhos) => {
+  const r = await fetch(`${BASE}${rota}`, cabecalhos ? { headers: cabecalhos } : undefined);
   const j = await r.json();
   if (!r.ok) throw new Error(`GET ${rota} -> ${r.status} ${JSON.stringify(j).slice(0, 200)}`);
   return j;
@@ -46,8 +57,13 @@ const get = async (rota) => {
 let acervo = null;
 const gabaritoOriginal = async (id) => {
   if (!acervo) {
-    const j = await get('/questions?locale=pt&limit=1000');
-    acervo = new Map((j.data || j).map((q) => [String(q.id), q]));
+    const j = await get('/questions?locale=pt&limit=1000', autenticado);
+    const lista = j.data || j;
+    if (lista[0] && !('correctOption' in lista[0])) {
+      console.error('ERRO: o servidor nao devolveu o gabarito — token invalido?');
+      process.exit(1);
+    }
+    acervo = new Map(lista.map((q) => [String(q.id), q]));
   }
   const q = acervo.get(String(id));
   return q ? { correta: q.correctOption, texto: q[`option${q.correctOption}`] } : null;

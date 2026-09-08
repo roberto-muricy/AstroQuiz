@@ -7,6 +7,8 @@ import axios from 'axios';
 import {
   fetchQuestionRowById,
   requireWriteTokenIfConfigured,
+  temTokenDeEscritaValido,
+  semGabarito,
 } from '../services/question-service';
 import {
   createAuthMiddleware,
@@ -42,6 +44,30 @@ function createAdminOrTokenMiddleware(strapi: any) {
     requireWriteTokenIfConfigured(ctx);
     await next();
   };
+}
+
+/**
+ * O chamador pode receber o gabarito junto das perguntas?
+ *
+ * As rotas GET de questions sao abertas de proposito — servem para navegar e
+ * revisar o acervo. O que nao pode sair aberto e a resposta certa: sem esta
+ * checagem, `GET /api/questions?locale=pt&limit=1000` devolvia a chave de
+ * respostas das 705 perguntas, nos quatro idiomas, sem autenticacao nenhuma.
+ *
+ * Nao lanca: quem nao se identifica continua recebendo a pergunta, so que sem
+ * o gabarito.
+ */
+async function podeVerGabarito(strapi: any, ctx: any): Promise<boolean> {
+  if (temTokenDeEscritaValido(ctx)) return true;
+
+  // Admin autenticado pelo Firebase tambem pode.
+  try {
+    const autenticacaoOpcional = createOptionalAuthMiddleware(strapi);
+    await autenticacaoOpcional(ctx, async () => {});
+    return (ctx.state.user as AuthContext | undefined)?.role === 'admin';
+  } catch {
+    return false;
+  }
 }
 
 export function createQuestionRoutes(strapi: any): any[] {
@@ -144,7 +170,11 @@ export function createQuestionRoutes(strapi: any): any[] {
                 : null,
             }));
 
-          ctx.body = { data, meta: { total: rows.length } };
+          const comGabarito = await podeVerGabarito(strapi, ctx);
+          ctx.body = {
+            data: comGabarito ? data : data.map(semGabarito),
+            meta: { total: rows.length },
+          };
         } catch (error: any) {
           strapi.log.error('GET /api/questions error:', error);
           ctx.throw(500, 'Internal server error');
@@ -162,7 +192,8 @@ export function createQuestionRoutes(strapi: any): any[] {
           const { id } = ctx.params;
           const row = await fetchQuestionRowById(strapi, id);
           if (!row) return ctx.notFound('Question not found');
-          ctx.body = { data: row };
+          const comGabarito = await podeVerGabarito(strapi, ctx);
+          ctx.body = { data: comGabarito ? row : semGabarito(row) };
         } catch (error: any) {
           strapi.log.error('GET /api/questions/:id error:', error);
           ctx.throw(500, 'Internal server error');

@@ -72,19 +72,30 @@ function evictLRU() {
 // Generate cache key based on request
 function generateCacheKey(ctx) {
   const { method, path, query } = ctx;
-  
+
   // Don't cache non-GET requests
   if (method !== 'GET') {
     return null;
   }
-  
+
   // Sort query parameters for consistent keys
   const sortedQuery = Object.keys(query || {})
     .sort()
     .map(key => `${key}=${query[key]}`)
     .join('&');
-  
-  const baseKey = `${method}:${path}`;
+
+  // Respostas autenticadas NAO podem cair no mesmo balde das anonimas.
+  //
+  // GET /api/questions devolve o gabarito para quem apresenta o token de
+  // escrita e a pergunta sem gabarito para os demais. Com a chave montada so
+  // com metodo, caminho e query, a resposta COM gabarito seria guardada e
+  // depois servida a um anonimo — o vazamento voltaria pela porta dos fundos.
+  //
+  // Guardamos so um marcador do cabecalho, nunca o token: o segredo nao pode
+  // virar parte de uma chave que aparece em log de debug.
+  const autenticado = ctx.request?.headers?.authorization ? 'auth' : 'anon';
+
+  const baseKey = `${method}:${autenticado}:${path}`;
   return sortedQuery ? `${baseKey}?${sortedQuery}` : baseKey;
 }
 
