@@ -55,6 +55,40 @@ class AnalyticsService {
   }
 
   /**
+   * Até onde o jogador chegou.
+   *
+   * Vai como propriedade de usuário, e não como evento, porque a pergunta é
+   * "onde os jogadores estão" e não "o que aconteceu". Como propriedade, dá
+   * para segmentar QUALQUER relatório por fase alcançada. Como evento, a mesma
+   * resposta exigiria juntar todos os quiz_complete de cada pessoa no BigQuery.
+   *
+   * São dois inteiros. Não identificam ninguém.
+   */
+  async registrarProgresso(params: { faseMaxima: number; fasesCompletas: number }) {
+    await this.setUserProperties({
+      fase_maxima: String(params.faseMaxima),
+      fases_completas: String(params.fasesCompletas),
+    });
+  }
+
+  /**
+   * Se a pessoa está logada — sem dizer quem é.
+   *
+   * `setUserId` não resolve isto: o Firebase não oferece "tem User ID" como
+   * dimensão nos relatórios, então comparar convidado com logado só sairia
+   * exportando para o BigQuery.
+   *
+   * `locale` viaja junto porque é a única propriedade não identificante que já
+   * existia e que só era gravada no ramo autenticado — convidado nunca tinha.
+   */
+  async registrarAutenticacao(autenticado: boolean, locale: string) {
+    await this.setUserProperties({
+      autenticado: autenticado ? 'sim' : 'nao',
+      locale,
+    });
+  }
+
+  /**
    * Registra evento genérico
    */
   async logEvent(eventName: string, params?: Record<string, any>) {

@@ -14,6 +14,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 import { changeLanguage } from "@/i18n";
 import { setSentryUser } from "@/config/sentry";
 import analyticsService from "@/services/analyticsService";
+import { ehUsuarioAutenticado } from "@/utils/autenticacao";
 
 type AuthResponse = { ok: true } | { ok: false; message: string };
 
@@ -168,14 +169,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       analyticsService.setUserId(user.id);
       analyticsService.setUserProperties({
         user_level: String(user.level || 1),
-        locale: user.locale || 'pt',
       });
+      // Decidido pela regra, nao pelo ramo: aqui dentro tambem cai o convidado.
+      analyticsService.registrarAutenticacao(ehUsuarioAutenticado(user), user.locale || locale);
     } else {
       AsyncStorage.removeItem("@user");
       setSentryUser(null);
       analyticsService.setUserId(null);
+      // As propriedades do Firebase persistem no aparelho ate serem
+      // sobrescritas. Antes disto o logout so limpava o userId, e o user_level
+      // do usuario anterior ficava grudado para sempre — qualquer relatorio
+      // segmentado por nivel contava um convidado como se fosse aquela pessoa.
+      analyticsService.setUserProperties({ user_level: null });
+      analyticsService.registrarAutenticacao(false, locale);
     }
-  }, [user]);
+  }, [user, locale]);
 
   /**
    * Função para mudar o locale (salva no storage e sincroniza i18n)
@@ -197,7 +205,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [currentSession]);
 
-  const isAuthenticated = !!user && !user.id.startsWith("anon_") && user.id !== "guest";
+  const isAuthenticated = ehUsuarioAutenticado(user);
 
   const handleFirebaseUser = useCallback(async (fbUser: any): Promise<User> => {
     // Get and save Firebase ID token for backend API authentication

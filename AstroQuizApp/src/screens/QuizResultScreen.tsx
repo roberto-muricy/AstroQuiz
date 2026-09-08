@@ -151,7 +151,11 @@ export const QuizResultScreen = () => {
         setLevelTitle(currentLevel.title);
         setLevelIcon(currentLevel.icon);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
-        setPhaseUnlocked(updated.unlockedPhases > data.phaseNumber);
+        const desbloqueouProxima = updated.unlockedPhases > data.phaseNumber;
+        setPhaseUnlocked(desbloqueouProxima);
+        if (desbloqueouProxima) {
+          analyticsService.logPhaseUnlocked(data.phaseNumber + 1);
+        }
 
         if (currentLevel.level > prevLevel.level) {
           triggerLevelUp(prevLevel.level, currentLevel);
@@ -175,6 +179,19 @@ export const QuizResultScreen = () => {
         }
 
         setTimeout(() => soundService.playUnlock(), 500);
+      }
+
+      // Registrado SEMPRE, e nao so dentro do `if (data.passed)`: quem empaca
+      // reprovando na fase 3 e justamente o caso que o relatorio precisa
+      // enxergar. Contando so quem avanca, a curva pareceria melhor do que e.
+      try {
+        const progressoAtual = await ProgressStorage.getProgress();
+        analyticsService.registrarProgresso({
+          faseMaxima: progressoAtual.unlockedPhases,
+          fasesCompletas: progressoAtual.stats.phasesCompleted,
+        });
+      } catch (e) {
+        // Analytics nunca pode derrubar a tela de resultado.
       }
 
       soundService.playPhaseComplete(isPerfect);
