@@ -20,6 +20,9 @@ import {
   diversifyTopics,
   shuffle,
   preferirIneditas,
+  embaralharAlternativas,
+  letraOriginal,
+  letraEmbaralhada,
   calculatePoints,
   calculateStreakBonus,
   calculatePerfectBonus,
@@ -346,6 +349,16 @@ export function createQuizRoutes(strapi: any): any[] {
             }
           }
 
+          // Embaralha as alternativas de cada pergunta.
+          //
+          // Fica aqui, depois da troca por pergunta com imagem, senao a
+          // substituta escaparia do embaralhamento.
+          //
+          // A ordem sorteada vive na sessao: e ela que o app recebe e e contra
+          // o `correctOption` dela que a resposta e conferida mais abaixo. O
+          // banco continua com a ordem original e nao e tocado.
+          questions = questions.map((q) => embaralharAlternativas(q));
+
           // Create session (with user info if authenticated)
           const sessionId = generateSessionId();
           const sessionObj = createSession({
@@ -505,6 +518,10 @@ export function createQuizRoutes(strapi: any): any[] {
             return ctx.badRequest(formatValidationErrors(validation.errors));
           }
 
+          // A sessao e carregada ANTES da correcao, e nao depois, porque e ela
+          // que sabe em que ordem as alternativas foram entregues.
+          let session = await getSession(strapi, sessionId);
+
           // Get question to check answer
           let isCorrect = false;
           let correctOption = 'A';
@@ -515,6 +532,21 @@ export function createQuizRoutes(strapi: any): any[] {
             `Checking answer - QuestionID: ${questionId}, Selected: ${selectedOption}, Timeout: ${isTimeout}`
           );
 
+          // As alternativas foram embaralhadas quando a sessao foi criada, e a
+          // sessao guarda a permutacao (nunca o gabarito). Traduzimos a letra
+          // que o app mandou de volta para a letra do banco, e a correcao
+          // continua sendo feita contra o banco, como sempre foi.
+          //
+          // Sem sessao, `letraOriginal` devolve a propria letra e o
+          // comportamento e identico ao anterior ao embaralhamento.
+          const perguntaDaSessao = (session?.questions || []).find(
+            (q: any) => String(q?.id) === String(questionId)
+          );
+          const escolhidaNoBanco = letraOriginal(
+            selectedOption,
+            perguntaDaSessao?.ordemAlternativas
+          );
+
           if (questionId) {
             try {
               questionData = await strapi.db.query('api::question.question').findOne({
@@ -523,12 +555,20 @@ export function createQuizRoutes(strapi: any): any[] {
               });
 
               if (questionData) {
-                correctOption = questionData.correctOption;
+                // Devolvido ao app na posicao em que ele desenhou a alternativa,
+                // e nao na do banco: e com esta letra que a tela destaca a
+                // resposta certa depois de responder.
+                correctOption = letraEmbaralhada(
+                  questionData.correctOption,
+                  perguntaDaSessao?.ordemAlternativas
+                );
                 questionLevel = questionData.level || 1;
-                isCorrect = !isTimeout && selectedOption === questionData.correctOption;
+                isCorrect = !isTimeout && escolhidaNoBanco === questionData.correctOption;
 
                 strapi.log.info(
-                  `Question found - Correct: ${correctOption}, Selected: ${selectedOption}, IsCorrect: ${isCorrect}`
+                  `Question found - Correct: ${correctOption}, Selected: ${selectedOption}` +
+                    `${escolhidaNoBanco !== selectedOption ? ` (=${escolhidaNoBanco} no banco)` : ''}` +
+                    `, IsCorrect: ${isCorrect}`
                 );
               } else {
                 strapi.log.warn(`Question not found with ID: ${questionId}`);
@@ -547,9 +587,6 @@ export function createQuizRoutes(strapi: any): any[] {
             });
 
           let totalPoints = initialPoints;
-
-          // Get or create session
-          let session = await getSession(strapi, sessionId);
 
           // Idempotencia: a mesma requisicao repetida devolve o mesmo
           // resultado em vez de contar a resposta de novo.

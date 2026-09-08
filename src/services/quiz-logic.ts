@@ -203,6 +203,89 @@ export function calculatePerfectBonus(score: number): number {
   return Math.round(score * SCORING.perfectBonusMultiplier);
 }
 
+export const LETRAS = ['A', 'B', 'C', 'D'] as const;
+export type Letra = (typeof LETRAS)[number];
+
+/**
+ * Embaralha as quatro alternativas de uma pergunta e devolve a letra correta
+ * na nova posicao.
+ *
+ * As alternativas eram entregues sempre na ordem em que estao no banco
+ * (option_a..option_d), e a posicao da correta virou um padrao: no acervo pt,
+ * das 705 perguntas, B responde 272 (39%) e D so 64 (9%). Chutar B sempre
+ * acertava 39% contra os 25% de um chute honesto.
+ *
+ * Nao ha alternativa posicional no acervo — nada do tipo "todas as anteriores",
+ * verificado nos quatro idiomas —, entao embaralhar nao quebra nenhuma
+ * pergunta. Se um dia entrar uma, ela vai precisar de tratamento aqui.
+ *
+ * Perguntas incompletas (alternativa vazia ou letra correta invalida) passam
+ * intactas: e melhor entregar na ordem antiga do que arriscar corromper o
+ * gabarito de uma pergunta malformada.
+ */
+export function embaralharAlternativas<T extends Record<string, any>>(pergunta: T): T {
+  const textos = LETRAS.map((l) => pergunta[`option${l}`]);
+  if (textos.some((t) => typeof t !== 'string' || t.trim() === '')) return pergunta;
+
+  // Embaralha os indices, nao os textos: assim alternativas com texto repetido
+  // continuam mapeando para a posicao certa.
+  const ordem = shuffle([0, 1, 2, 3]);
+  const resultado: any = { ...pergunta };
+
+  ordem.forEach((origem, destino) => {
+    resultado[`option${LETRAS[destino]}`] = textos[origem];
+  });
+
+  // `ordemAlternativas[destino] = origem`: a posicao `destino` mostra a
+  // alternativa que no banco estava em `origem`. E so isto que vai para a
+  // sessao — nunca o gabarito.
+  //
+  // A distincao importa: GET /api/quiz/session/:id devolve a sessao inteira,
+  // sem autenticacao. Guardar a letra correta ali entregaria as dez respostas
+  // da fase a quem tem o sessionId. A permutacao sozinha nao diz nada.
+  resultado.ordemAlternativas = ordem;
+
+  // Se o gabarito veio junto — fora do fluxo da sessao, por exemplo num teste
+  // ou numa importacao — ele acompanha o embaralhamento.
+  if (LETRAS.includes(pergunta.correctOption)) {
+    const origemCorreta = LETRAS.indexOf(pergunta.correctOption);
+    resultado.correctOption = LETRAS[ordem.indexOf(origemCorreta)];
+  }
+
+  return resultado;
+}
+
+/**
+ * Traduz a letra escolhida pelo jogador, que se refere a ordem embaralhada,
+ * de volta para a letra correspondente no banco.
+ *
+ * Sem `ordem` devolve a propria letra: e o caminho de quando a sessao sumiu, e
+ * equivale ao comportamento anterior ao embaralhamento.
+ */
+export function letraOriginal(escolhida: string, ordem?: number[] | null): string {
+  if (!Array.isArray(ordem) || ordem.length !== LETRAS.length) return escolhida;
+  const destino = LETRAS.indexOf(escolhida as Letra);
+  if (destino < 0) return escolhida;
+  const origem = ordem[destino];
+  return LETRAS[origem] ?? escolhida;
+}
+
+/**
+ * O caminho inverso: leva a letra do banco para a posicao em que ela aparece
+ * na tela do jogador.
+ *
+ * Necessario porque a resposta do /answer devolve `correctOption` e o app usa
+ * essa letra para destacar a alternativa certa depois que o jogador responde.
+ * Devolver a letra do banco destacaria a alternativa errada na tela.
+ */
+export function letraEmbaralhada(doBanco: string, ordem?: number[] | null): string {
+  if (!Array.isArray(ordem) || ordem.length !== LETRAS.length) return doBanco;
+  const origem = LETRAS.indexOf(doBanco as Letra);
+  if (origem < 0) return doBanco;
+  const destino = ordem.indexOf(origem);
+  return destino >= 0 ? LETRAS[destino] : doBanco;
+}
+
 /**
  * Supported locales
  */
