@@ -16,6 +16,9 @@ const mockSaved = {
 const mockGetSettings = jest.fn();
 
 jest.mock('@/utils/settingsStorage', () => ({
+  // DEFAULT_SETTINGS vem do módulo real de propósito: o teste do fallback só
+  // vale se estiver conferindo os padrões de verdade, não uma cópia do mock.
+  DEFAULT_SETTINGS: jest.requireActual('@/utils/settingsStorage').DEFAULT_SETTINGS,
   SettingsStorage: {
     getSettings: mockGetSettings,
     setMusicEnabled: jest.fn().mockResolvedValue(undefined),

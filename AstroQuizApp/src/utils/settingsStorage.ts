@@ -8,6 +8,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const SETTINGS_KEY = '@app_settings';
 
 export interface AppSettings {
+  /**
+   * O onboarding ja foi visto. Vive aqui e nao no progresso porque nao e
+   * progresso: quem apaga o progresso para recomecar do zero nao quer
+   * necessariamente rever a apresentacao.
+   */
+  onboardingVisto: boolean;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   musicEnabled: boolean;
@@ -15,7 +21,10 @@ export interface AppSettings {
   language: 'pt' | 'en' | 'es' | 'fr';
 }
 
-const DEFAULT_SETTINGS: AppSettings = {
+/** Fonte unica dos padroes. O soundService tinha uma copia propria e ela
+ *  ficou para tras quando `onboardingVisto` entrou. */
+export const DEFAULT_SETTINGS: AppSettings = {
+  onboardingVisto: false,
   soundEnabled: true,
   vibrationEnabled: true,
   musicEnabled: false,

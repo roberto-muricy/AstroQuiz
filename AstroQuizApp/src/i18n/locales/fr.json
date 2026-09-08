@@ -353,5 +353,53 @@
     "intro": "Les images des questions sont dans le domaine public ou utilisées sous licence, avec les crédits ci-dessous.",
     "publicDomain": "Domaine public",
     "footer": "Les noms et marques de missions/institutions appartiennent à leurs propriétaires respectifs. Licences CC : creativecommons.org."
+  },
+  "onboarding": {
+    "skip": "Passer",
+    "gotIt": "Compris",
+    "score": {
+      "title": "Chaque réponse vaut plus qu’un point",
+      "subtitle": "Trois choses font bouger votre score.",
+      "base": {
+        "title": "Difficulté",
+        "body": "De 10 à 50 points, selon le niveau de la question."
+      },
+      "speed": {
+        "title": "Rapidité",
+        "body": "En moins de 10s, vous doublez. Jusqu’à 15s, ×1,5. Jusqu’à 20s, ×1,2."
+      },
+      "streak": {
+        "title": "Série",
+        "body": "À partir de la 3e bonne réponse d’affilée : +15, puis +20, +25… jusqu’à +50."
+      },
+      "exampleLabel": "en pratique",
+      "exampleBody": "Question de niveau 2, répondue en 8 s, votre 4e d’affilée :",
+      "exampleMath": "20 base × 2 rapidité + 20 série",
+      "exampleTotal": "60 points"
+    },
+    "phase": {
+      "title": "Dix questions à la fois",
+      "subtitle": "Il y a 50 phases, et elles deviennent plus difficiles.",
+      "questions": {
+        "title": "{{count}} questions, {{seconds}} secondes chacune",
+        "body": "Le chronomètre ne démarre qu’après le compte à rebours."
+      },
+      "pass": {
+        "title": "{{count}} bonnes réponses et c’est réussi",
+        "body": "Valable pour les 50 phases, de la première à la dernière."
+      },
+      "skip": {
+        "title": "1 saut par phase",
+        "body": "Bloqué ? Regardez une pub et continuez. Un saut compte comme une erreur."
+      },
+      "noPenalty": {
+        "title": "Se tromper ne coûte rien",
+        "body": "Cela remet seulement la série à zéro. Rejouez une phase autant que vous voulez — les questions changent."
+      }
+    },
+    "spotlight": {
+      "title": "C’est par ici",
+      "body": "La phase 1 a les questions les plus faciles. Vous pouvez la rejouer autant que vous voulez."
+    }
   }
 }

@@ -369,5 +369,53 @@
     "intro": "The question images are in the public domain or used under license, with proper credits below.",
     "publicDomain": "Public domain",
     "footer": "Mission/institution names and marks belong to their respective owners. CC licenses: creativecommons.org."
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "gotIt": "Got it",
+    "score": {
+      "title": "Every answer is worth more than 1 point",
+      "subtitle": "Three things move your score.",
+      "base": {
+        "title": "Difficulty",
+        "body": "From 10 to 50 points, depending on the question level."
+      },
+      "speed": {
+        "title": "Speed",
+        "body": "Answer within 10s and double it. Within 15s, ×1.5. Within 20s, ×1.2."
+      },
+      "streak": {
+        "title": "Streak",
+        "body": "From the 3rd correct answer in a row: +15, then +20, +25… up to +50."
+      },
+      "exampleLabel": "in practice",
+      "exampleBody": "A level 2 question, answered in 8s, your 4th in a row:",
+      "exampleMath": "20 base × 2 speed + 20 streak",
+      "exampleTotal": "60 points"
+    },
+    "phase": {
+      "title": "Ten questions at a time",
+      "subtitle": "There are 50 phases, and they get harder.",
+      "questions": {
+        "title": "{{count}} questions, {{seconds}} seconds each",
+        "body": "The clock only starts after the countdown."
+      },
+      "pass": {
+        "title": "{{count}} correct and you pass",
+        "body": "Same for all 50 phases, first to last."
+      },
+      "skip": {
+        "title": "1 skip per phase",
+        "body": "Stuck on a question? Watch an ad and move on. A skip counts as a miss."
+      },
+      "noPenalty": {
+        "title": "Wrong answers cost nothing",
+        "body": "They only reset your streak. Retry a phase as often as you like — the questions change."
+      }
+    },
+    "spotlight": {
+      "title": "Start here",
+      "body": "Phase 1 has the easiest questions. You can replay it as often as you like."
+    }
   }
 }

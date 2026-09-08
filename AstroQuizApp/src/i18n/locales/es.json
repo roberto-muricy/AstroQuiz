@@ -353,5 +353,53 @@
     "intro": "Las imágenes de las preguntas son de dominio público o se usan bajo licencia, con los créditos correspondientes abajo.",
     "publicDomain": "Dominio público",
     "footer": "Los nombres y marcas de misiones/instituciones pertenecen a sus respectivos dueños. Licencias CC: creativecommons.org."
+  },
+  "onboarding": {
+    "skip": "Saltar",
+    "gotIt": "Entendido",
+    "score": {
+      "title": "Cada respuesta vale más de 1 punto",
+      "subtitle": "Tres cosas mueven tu puntuación.",
+      "base": {
+        "title": "Dificultad",
+        "body": "De 10 a 50 puntos, según el nivel de la pregunta."
+      },
+      "speed": {
+        "title": "Rapidez",
+        "body": "En menos de 10s duplicas. Hasta 15s, ×1,5. Hasta 20s, ×1,2."
+      },
+      "streak": {
+        "title": "Racha",
+        "body": "Desde el 3er acierto seguido: +15, luego +20, +25… hasta +50."
+      },
+      "exampleLabel": "en la práctica",
+      "exampleBody": "Pregunta de nivel 2, respondida en 8 s, tu 4º acierto seguido:",
+      "exampleMath": "20 base × 2 rapidez + 20 racha",
+      "exampleTotal": "60 puntos"
+    },
+    "phase": {
+      "title": "Diez preguntas por vez",
+      "subtitle": "Son 50 fases, y se vuelven más difíciles.",
+      "questions": {
+        "title": "{{count}} preguntas, {{seconds}} segundos cada una",
+        "body": "El tiempo solo corre después de la cuenta regresiva."
+      },
+      "pass": {
+        "title": "{{count}} aciertos y pasas",
+        "body": "Vale para las 50 fases, de la primera a la última."
+      },
+      "skip": {
+        "title": "1 salto por fase",
+        "body": "¿Atascado? Mira un anuncio y sigue. El salto cuenta como error."
+      },
+      "noPenalty": {
+        "title": "Fallar no quita puntos",
+        "body": "Solo reinicia la racha. Puedes repetir la fase cuantas veces quieras — y las preguntas cambian."
+      }
+    },
+    "spotlight": {
+      "title": "Es por aquí",
+      "body": "La fase 1 tiene las preguntas más fáciles. Puedes repetirla cuantas veces quieras."
+    }
   }
 }

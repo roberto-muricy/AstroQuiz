@@ -8,7 +8,7 @@ import { ToggleSwitch } from '@/components/ToggleSwitch';
 import { useApp } from '@/contexts/AppContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import soundService from '@/services/soundService';
-import { SettingsStorage, AppSettings } from '@/utils/settingsStorage';
+import { SettingsStorage, AppSettings, DEFAULT_SETTINGS } from '@/utils/settingsStorage';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect, useRef } from 'react';
@@ -53,13 +53,7 @@ export const ProfileScreen = () => {
       ).start();
     }
   }, [isPro, proGlowAnim]);
-  const [settings, setSettings] = useState<AppSettings>({
-    soundEnabled: true,
-    vibrationEnabled: true,
-    musicEnabled: false,
-    notificationsEnabled: true,
-    language: 'pt',
-  });
+  const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [totalXP, setTotalXP] = useState(0);
   const [authBusy, setAuthBusy] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(1);

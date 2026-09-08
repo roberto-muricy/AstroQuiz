@@ -6,7 +6,10 @@
  * Visual: IDÊNTICO ao original
  */
 
-import { Button, Card, LevelCard } from '@/components';
+import { Button, Card, LevelCard, Onboarding } from '@/components';
+import type { AreaDestaque } from '@/components/Onboarding';
+import { SettingsStorage } from '@/utils/settingsStorage';
+import { MIN_ACERTO_PARA_PASSAR } from '@/utils/progressionSystem';
 import { StatDisplay } from '@/components/common';
 import { useApp } from '@/contexts/AppContext';
 import quizService from '@/services/quizService';
@@ -64,6 +67,11 @@ export const HomeScreen = () => {
   // xp do jogador inteiro como se fosse o da fase. Prometia progresso da fase
   // e mostrava zeros com um numero global no meio.
   const [statsDaFase, setStatsDaFase] = useState<PhaseProgress | null>(null);
+  // Apresentacao da primeira abertura, e onde o botao dela esta na tela.
+  // A medida e necessaria para o holofote pousar sobre o botao de verdade em
+  // vez de sobre um desenho dele.
+  const [mostrarOnboarding, setMostrarOnboarding] = useState(false);
+  const [areaDoBotao, setAreaDoBotao] = useState<AreaDestaque | null>(null);
   const [streak, setStreak] = useState(0);
 
   // Primeiro acesso: nada jogado ainda. A tela inteira foi desenhada para quem
@@ -74,7 +82,17 @@ export const HomeScreen = () => {
 
   useEffect(() => {
     loadProgress();
+    SettingsStorage.getSettings()
+      .then((s) => setMostrarOnboarding(!s.onboardingVisto))
+      .catch(() => {});
   }, []);
+
+  const fecharOnboarding = () => {
+    setMostrarOnboarding(false);
+    // Falhar aqui so faz a apresentacao reaparecer na proxima abertura — chato,
+    // nao quebrado. Nao vale derrubar a tela por isso.
+    SettingsStorage.saveSettings({ onboardingVisto: true }).catch(() => {});
+  };
 
   const loadProgress = async () => {
     try {
@@ -201,12 +219,22 @@ export const HomeScreen = () => {
                 />
               </View>
 
-              <Button
-                title={t('home.firstRun.cta')}
-                onPress={() => handleStartQuiz(1)}
-                size="large"
-                style={styles.continueButton}
-              />
+              <View
+                onLayout={(e) => {
+                  // measureInWindow, e nao o layout local: o holofote desenha em
+                  // coordenadas de tela, dentro de um Modal.
+                  e.currentTarget.measureInWindow?.((x, y, width, height) =>
+                    setAreaDoBotao({ x, y, width, height }),
+                  );
+                }}
+              >
+                <Button
+                  title={t('home.firstRun.cta')}
+                  onPress={() => handleStartQuiz(1)}
+                  size="large"
+                  style={styles.continueButton}
+                />
+              </View>
             </View>
           ) : (
             <View>
@@ -301,6 +329,21 @@ export const HomeScreen = () => {
 
         <View style={styles.bottomSpace} />
       </ScrollView>
+
+      {/* So para quem nunca jogou: sem isso a apresentacao apareceria para
+          quem volta, e o holofote apontaria um botao que diz "Jogar de novo". */}
+      {primeiroAcesso && (
+        <Onboarding
+          visivel={mostrarOnboarding}
+          areaDoBotao={areaDoBotao}
+          segundosPorPergunta={segundosPorPergunta}
+          perguntasPorFase={gameRules?.general?.questionsPerPhase ?? 10}
+          acertosParaPassar={Math.ceil(
+            ((gameRules?.general?.questionsPerPhase ?? 10) * MIN_ACERTO_PARA_PASSAR) / 100,
+          )}
+          onFechar={fecharOnboarding}
+        />
+      )}
     </View>
   );
 };

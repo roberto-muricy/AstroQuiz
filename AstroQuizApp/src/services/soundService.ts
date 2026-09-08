@@ -11,7 +11,7 @@
  */
 
 import { NativeModules, Vibration } from 'react-native';
-import { SettingsStorage, type AppSettings } from '@/utils/settingsStorage';
+import { SettingsStorage, DEFAULT_SETTINGS, type AppSettings } from '@/utils/settingsStorage';
 
 const RNSound: any = NativeModules?.RNSound ?? null;
 const isSoundAvailable = !!RNSound && typeof RNSound.prepare === 'function';
@@ -60,13 +60,7 @@ const KEYS: Record<SoundKey, number> = {
 };
 
 class SoundService {
-  private readonly defaultSettings: AppSettings = {
-    soundEnabled: true,
-    vibrationEnabled: true,
-    musicEnabled: false,
-    notificationsEnabled: true,
-    language: 'pt',
-  };
+  private readonly defaultSettings: AppSettings = DEFAULT_SETTINGS;
   // Começa com os padrões para que os efeitos (que tocam de forma síncrona)
   // funcionem antes do disco responder; `hydrate()` troca pelo valor real.
   private settings: AppSettings = this.defaultSettings;

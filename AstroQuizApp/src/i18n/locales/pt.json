@@ -369,5 +369,53 @@
     "intro": "As imagens das perguntas são de domínio público ou usadas sob licença, com os devidos créditos abaixo.",
     "publicDomain": "Domínio público",
     "footer": "Nomes e marcas de missões/instituições pertencem aos respectivos detentores. Licenças CC: creativecommons.org."
+  },
+  "onboarding": {
+    "skip": "Pular",
+    "gotIt": "Entendi",
+    "score": {
+      "title": "Cada resposta vale mais que 1 ponto",
+      "subtitle": "Três coisas mexem no seu placar.",
+      "base": {
+        "title": "Dificuldade",
+        "body": "De 10 a 50 pontos, conforme o nível da pergunta."
+      },
+      "speed": {
+        "title": "Rapidez",
+        "body": "Em até 10s você dobra. Até 15s, ×1,5. Até 20s, ×1,2."
+      },
+      "streak": {
+        "title": "Sequência",
+        "body": "A partir do 3º acerto seguido: +15, depois +20, +25… até +50."
+      },
+      "exampleLabel": "na prática",
+      "exampleBody": "Pergunta de nível 2, respondida em 8 s, seu 4º acerto seguido:",
+      "exampleMath": "20 base × 2 rapidez + 20 sequência",
+      "exampleTotal": "60 pontos"
+    },
+    "phase": {
+      "title": "Dez perguntas por vez",
+      "subtitle": "São 50 fases, e elas ficam mais difíceis.",
+      "questions": {
+        "title": "{{count}} perguntas, {{seconds}} segundos cada",
+        "body": "O tempo só corre depois da contagem de início."
+      },
+      "pass": {
+        "title": "{{count}} acertos e você passa",
+        "body": "Vale para as 50 fases, da primeira à última."
+      },
+      "skip": {
+        "title": "1 pulo por fase",
+        "body": "Travou numa pergunta? Assista a um anúncio e siga. A pulada conta como erro."
+      },
+      "noPenalty": {
+        "title": "Errar não tira pontos",
+        "body": "Só zera a sequência. Dá para repetir a fase quantas vezes quiser — e as perguntas mudam."
+      }
+    },
+    "spotlight": {
+      "title": "É por aqui",
+      "body": "A fase 1 tem as perguntas mais fáceis. Você pode repetir quantas vezes quiser."
+    }
   }
 }

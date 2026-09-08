@@ -16,3 +16,4 @@ export { Toast } from './Toast';
 export * from './Icons';
 
 
+export { Onboarding } from './Onboarding';
