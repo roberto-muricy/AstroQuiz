@@ -132,6 +132,13 @@ export const QuizResultScreen = () => {
       // jogador MAIS vai repetir a fase, e mais sente a repetição.
       await ProgressStorage.registrarPerguntasVistas(usedQuestionIds);
 
+      // Conta o dia na sequência de dias jogados — passando ou não.
+      //
+      // Tem que vir ANTES do updateAfterPhase: mais abaixo, o bloco de
+      // conquistas salva `{ ...updated }`, uma cópia do progresso lida naquele
+      // momento. Gravado depois dela, o dia de hoje seria sobrescrito.
+      await ProgressStorage.registrarDiaJogado();
+
       if (data.passed && data.phaseNumber) {
         const prevProgress = await ProgressStorage.getProgress();
         const prevLevel = getPlayerLevel(prevProgress.stats.totalXP);

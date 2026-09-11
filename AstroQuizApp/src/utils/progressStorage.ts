@@ -16,6 +16,7 @@ import {
 } from './progressionSystem';
 import authService from '@/services/authService';
 import strapiSyncService from '@/services/strapiSyncService';
+import { avancarSequencia, SequenciaDiaria } from './sequenciaDiaria';
 
 const PROGRESS_KEY = '@quiz_progress_v2';
 
@@ -24,6 +25,15 @@ export interface GameProgress {
   completedPhases: number[];
   stats: GameStats;
   answeredQuestionIds: number[];
+  /**
+   * Dias seguidos em que o jogador terminou uma fase.
+   *
+   * Opcional porque o progresso salvo por versões anteriores não tem o campo;
+   * `getProgress` espalha o que estiver salvo, e as funções de
+   * `sequenciaDiaria` tratam a ausência como sequência vazia. Fica fora de
+   * `stats` de propósito: `stats` é sincronizado com o Strapi.
+   */
+  sequenciaDiaria?: SequenciaDiaria;
 }
 
 /**
@@ -181,6 +191,19 @@ export const ProgressStorage = {
     const progress = await this.getProgress();
     progress.answeredQuestionIds = mesclarVistas(progress.answeredQuestionIds, questionIds);
     await this.saveProgress(progress);
+  },
+
+  /**
+   * Conta o dia de hoje na sequência de dias jogados.
+   *
+   * Chamado quando o jogador TERMINA uma fase, passando ou não. Chamar duas
+   * vezes no mesmo dia não conta em dobro.
+   */
+  async registrarDiaJogado(agora: Date = new Date()): Promise<SequenciaDiaria> {
+    const progress = await this.getProgress();
+    progress.sequenciaDiaria = avancarSequencia(progress.sequenciaDiaria, agora);
+    await this.saveProgress(progress);
+    return progress.sequenciaDiaria;
   },
 
   async resetProgress(): Promise<void> {

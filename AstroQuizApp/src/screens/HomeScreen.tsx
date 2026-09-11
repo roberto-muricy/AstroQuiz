@@ -15,6 +15,7 @@ import { useApp } from '@/contexts/AppContext';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
 import { ProgressStorage } from '@/utils/progressStorage';
+import { diasVisiveis } from '@/utils/sequenciaDiaria';
 import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
@@ -25,6 +26,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
+  AppState,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -73,6 +75,7 @@ export const HomeScreen = () => {
   const [mostrarOnboarding, setMostrarOnboarding] = useState(false);
   const [areaDoBotao, setAreaDoBotao] = useState<AreaDestaque | null>(null);
   const [streak, setStreak] = useState(0);
+  const [diasSeguidos, setDiasSeguidos] = useState(0);
 
   // Primeiro acesso: nada jogado ainda. A tela inteira foi desenhada para quem
   // volta — sem esta distincao ela recebe o recem-chegado com "bem-vindo de
@@ -85,6 +88,17 @@ export const HomeScreen = () => {
     SettingsStorage.getSettings()
       .then((s) => setMostrarOnboarding(!s.onboardingVisto))
       .catch(() => {});
+  }, []);
+
+  // Recarrega quando o app volta para o primeiro plano. Sem isto, um app que
+  // ficou suspenso por dias voltava mostrando a sequencia calculada la atras —
+  // o mesmo "dias seguidos" que ja nao existia. Voltar de uma fase nao precisa
+  // disto: a tela de resultado sai por navigation.reset, que remonta a Home.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (estado) => {
+      if (estado === 'active') loadProgress();
+    });
+    return () => sub.remove();
   }, []);
 
   const fecharOnboarding = () => {
@@ -104,6 +118,7 @@ export const HomeScreen = () => {
       setUnlockedPhase(fase);
       setStatsDaFase(stats.phaseStats?.[fase] ?? null);
       setStreak(stats.maxStreak || 0);
+      setDiasSeguidos(diasVisiveis(progress.sequenciaDiaria));
 
       const level = getPlayerLevel(xp);
       const xpNext = getXPToNextLevel(xp);
@@ -181,12 +196,15 @@ export const HomeScreen = () => {
                 ? t('home.welcomeFirst', { name: user?.name || t('home.astronaut') })
                 : t('home.welcomeBack', { name: user?.name || t('home.astronaut') })}
             </Text>
-            {/* Uma sequencia de zero dias na abertura so informa ao jogador que
-                ele ainda nao fez nada. Aparece quando houver o que mostrar. */}
-            {streak > 0 && (
+            {/* Dias seguidos em que o jogador terminou uma fase. Este selo
+                mostrava o recorde de ACERTOS seguidos com rotulo de dias: por
+                ser recorde nunca caia, e quem passava dias sem abrir o app
+                continuava vendo "10 dias seguidos". Agora some quando a
+                sequencia quebra; o recorde de acertos segue no cartao abaixo. */}
+            {diasSeguidos > 0 && (
               <View style={styles.streakBadge}>
                 <FireIcon size={IconSizes.sm} color={IconColors.primary} />
-                <Text style={styles.streakText}>{t('home.streakDays', { count: streak })}</Text>
+                <Text style={styles.streakText}>{t('home.streakDays', { count: diasSeguidos })}</Text>
               </View>
             )}
           </View>
