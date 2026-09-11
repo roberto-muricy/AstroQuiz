@@ -20,11 +20,17 @@ import { initSentry, SentryWrap } from "@/config/sentry";
 // AdMob + ATT (App Tracking Transparency) - iOS 14.5+
 import { requestTrackingPermission, loadInterstitialAd, loadAllRewardedAds } from "@/services/adService";
 
+import analyticsService from "@/services/analyticsService";
+
 // Importar configuração de i18n (deve ser antes do App)
 import '@/i18n';
 
 // Inicializa Sentry antes de qualquer coisa
 initSentry();
+
+// Aqui, e não num useEffect: roda antes de qualquer componente montar, então
+// vem antes das propriedades de usuário que o AppContext grava ao carregar.
+analyticsService.configurarColeta();
 
 const App = () => {
   useEffect(() => {

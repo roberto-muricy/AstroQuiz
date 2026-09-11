@@ -33,6 +33,29 @@ export const AnalyticsEvents = {
 
 class AnalyticsService {
   /**
+   * Liga a coleta só em build de release.
+   *
+   * Todo build Debug fala com produção (`USE_PROD_IN_DEV` em api.ts) e, sem
+   * isto, mandava analytics para a mesma propriedade dos jogadores: cada teste
+   * no simulador virava um "jogador" da fase 1, inflando justamente as
+   * dimensões usadas para decidir a curva de dificuldade.
+   *
+   * O SDK nativo persiste a escolha no aparelho, então da segunda abertura em
+   * diante nem os eventos automáticos (first_open, session_start) saem de um
+   * build de desenvolvimento. Release religa a coleta toda vez que abre.
+   *
+   * Cobre só `__DEV__`: TestFlight e o teste interno do Play são builds de
+   * release e continuam coletando.
+   */
+  async configurarColeta() {
+    try {
+      await analytics().setAnalyticsCollectionEnabled(!__DEV__);
+    } catch (error) {
+      console.warn('Analytics setAnalyticsCollectionEnabled error:', error);
+    }
+  }
+
+  /**
    * Define o ID do usuário para associar eventos
    */
   async setUserId(userId: string | null) {
