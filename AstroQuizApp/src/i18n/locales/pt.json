@@ -258,6 +258,7 @@
     "imageCredits": "Créditos de imagens"
   },
   "achievements": {
+    "title": "Conquistas",
     "unlocked": "Conquista desbloqueada!",
     "firstSteps": {
       "name": "Primeiros passos",

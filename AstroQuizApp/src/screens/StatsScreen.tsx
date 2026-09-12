@@ -18,7 +18,6 @@ import { ProgressStorage } from '@/utils/progressStorage';
 import { RootStackParamList } from '@/types';
 
 const TOTAL_PHASES = 50;
-const TOTAL_ACHIEVEMENTS = 6;
 
 interface StatsView {
   totalXP: number;
@@ -28,7 +27,8 @@ interface StatsView {
   accuracy: number;
   totalQuestions: number;
   correctAnswers: number;
-  achievementsUnlocked: number;
+  achievementIds: string[];
+  avgTimeSeconds: number;
 }
 
 const EMPTY_STATS: StatsView = {
@@ -39,7 +39,8 @@ const EMPTY_STATS: StatsView = {
   accuracy: 0,
   totalQuestions: 0,
   correctAnswers: 0,
-  achievementsUnlocked: 0,
+  achievementIds: [],
+  avgTimeSeconds: 0,
 };
 
 export const StatsScreen = () => {
@@ -68,7 +69,13 @@ export const StatsScreen = () => {
             accuracy,
             totalQuestions,
             correctAnswers,
-            achievementsUnlocked: (s.achievements || []).length,
+            achievementIds: s.achievements || [],
+            // Media por pergunta das fases ja terminadas. Comeca em zero para
+            // quem jogou antes desta versao: o tempo nunca foi somado.
+            avgTimeSeconds:
+              totalQuestions > 0
+                ? Math.round((progress.totalTimeMs || 0) / totalQuestions / 1000)
+                : 0,
           });
         }
       })();
@@ -102,14 +109,13 @@ export const StatsScreen = () => {
 
       <PerformanceCard
         accuracy={data.accuracy}
-        avgTime={0}
+        avgTime={data.avgTimeSeconds}
         totalQuestions={data.totalQuestions}
         correctAnswers={data.correctAnswers}
       />
 
       <AchievementsCard
-        unlockedCount={data.achievementsUnlocked}
-        totalCount={TOTAL_ACHIEVEMENTS}
+        unlockedIds={data.achievementIds}
         onStartPress={() => navigation.navigate('Quiz' as never)}
       />
     </ScrollView>

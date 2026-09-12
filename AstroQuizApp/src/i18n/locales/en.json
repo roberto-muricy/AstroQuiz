@@ -258,6 +258,7 @@
     "imageCredits": "Image credits"
   },
   "achievements": {
+    "title": "Achievements",
     "unlocked": "Achievement unlocked!",
     "firstSteps": {
       "name": "First Steps",

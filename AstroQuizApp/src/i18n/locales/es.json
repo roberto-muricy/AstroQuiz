@@ -203,6 +203,8 @@
     "difficultyRange": "Niveles {{min}}-{{max}} de dificultad"
   },
   "stats": {
+    "unlockAchievements": "¡Completa tu primer cuestionario para desbloquear logros!",
+    "startQuiz": "Empezar ahora",
     "title": "Estadísticas",
     "overview": "Resumen",
     "totalXp": "XP total",
@@ -254,6 +256,7 @@
     "imageCredits": "Créditos de imágenes"
   },
   "achievements": {
+    "title": "Logros",
     "unlocked": "¡Logro desbloqueado!",
     "firstSteps": {
       "name": "Primeros pasos",

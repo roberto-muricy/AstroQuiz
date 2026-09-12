@@ -203,6 +203,8 @@
     "difficultyRange": "Niveaux de difficulté {{min}}-{{max}}"
   },
   "stats": {
+    "unlockAchievements": "Terminez votre premier quiz pour débloquer des succès !",
+    "startQuiz": "Commencer maintenant",
     "title": "Statistiques",
     "overview": "Aperçu",
     "totalXp": "XP total",
@@ -254,6 +256,7 @@
     "imageCredits": "Crédits des images"
   },
   "achievements": {
+    "title": "Succès",
     "unlocked": "Succès débloqué !",
     "firstSteps": {
       "name": "Premiers pas",

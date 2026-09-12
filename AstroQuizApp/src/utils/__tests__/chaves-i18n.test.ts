@@ -62,6 +62,23 @@ describe('chaves de i18n das conquistas', () => {
     expect(faltando).toEqual([]);
   });
 
+  it('as chaves do cartao de conquistas existem nos quatro idiomas', () => {
+    // `achievements.title` nao existia em idioma nenhum, e a tela de
+    // Estatisticas mostrava o proprio caminho da chave como titulo do cartao.
+    const chaves = ['achievements.title', 'stats.unlockAchievements', 'stats.startQuiz'];
+    const faltando: string[] = [];
+
+    for (const loc of LOCALES) {
+      for (const chave of chaves) {
+        if (typeof buscar(traducoes[loc], chave) !== 'string') {
+          faltando.push(`${loc} -> ${chave}`);
+        }
+      }
+    }
+
+    expect(faltando).toEqual([]);
+  });
+
   it('o icone de cada conquista e um nome do Lucide, nao um emoji', () => {
     // Um emoji sobreviveu aqui a padronizacao de icones do resto do app e so
     // apareceu quando alguem terminou a fase 1 — ou seja, para todo jogador.

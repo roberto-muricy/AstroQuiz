@@ -34,6 +34,15 @@ export interface GameProgress {
    * `stats` de propósito: `stats` é sincronizado com o Strapi.
    */
   sequenciaDiaria?: SequenciaDiaria;
+  /**
+   * Tempo somado das fases terminadas, em ms, para o tempo medio por pergunta.
+   *
+   * Fica aqui e nao em `stats` pelo mesmo motivo da sequencia diaria: o
+   * saveProgress manda `stats` inteiro para PUT /user-profile/:uid/stats, e
+   * aquela rota espalha o corpo direto no update do Strapi. Um campo que nao
+   * existe em user_profiles quebraria a sincronizacao de quem esta logado.
+   */
+  totalTimeMs?: number;
 }
 
 /**
@@ -148,6 +157,7 @@ export const ProgressStorage = {
     progress.stats.phaseStats[phaseNumber] = phaseStats;
     progress.stats.totalQuestionsAnswered += totalQuestions;
     progress.stats.totalCorrectAnswers += correctAnswers;
+    progress.totalTimeMs = (progress.totalTimeMs || 0) + (params.totalTimeMs || 0);
     progress.stats.maxStreak = Math.max(progress.stats.maxStreak, maxStreak);
     progress.stats.totalXP += gainedXP;
     if (phaseStats.completed) {
