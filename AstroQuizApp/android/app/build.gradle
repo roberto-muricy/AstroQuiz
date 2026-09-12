@@ -94,8 +94,8 @@ android {
         // (36) e versionName a versao publicada. Nada foi publicado no Play
         // ainda, entao o valor e livre — e igualar remove ambiguidade quando um
         // relatorio de erro chegar de uma das duas lojas.
-        versionCode 58
-        versionName "1.2.0"
+        versionCode 59
+        versionName "1.2.1"
     }
     signingConfigs {
         debug {
