@@ -23,17 +23,27 @@ describe('Quiz Logic Service', () => {
       expect(getDifficultyDistribution(3)).toEqual([{ level: 1, count: 10 }]);
     });
 
+    // A curva foi recalibrada para a oferta real de perguntas por nivel (ver o
+    // comentario em getDifficultyDistribution). Estes dois testes ainda
+    // esperavam a curva antiga e falhavam desde entao.
     it('should return mixed levels for middle phases', () => {
-      const dist = getDifficultyDistribution(15);
-      expect(dist).toEqual([
-        { level: 2, count: 5 },
-        { level: 3, count: 5 },
+      expect(getDifficultyDistribution(15)).toEqual([
+        { level: 2, count: 6 },
+        { level: 3, count: 4 },
       ]);
     });
 
-    it('should return 100% level 5 for phases 46-50', () => {
-      expect(getDifficultyDistribution(46)).toEqual([{ level: 5, count: 10 }]);
-      expect(getDifficultyDistribution(50)).toEqual([{ level: 5, count: 10 }]);
+    it('should mix levels 2 to 5 in expert phases and 4/5 in the last ones', () => {
+      expect(getDifficultyDistribution(46)).toEqual([
+        { level: 2, count: 1 },
+        { level: 3, count: 2 },
+        { level: 4, count: 4 },
+        { level: 5, count: 3 },
+      ]);
+      expect(getDifficultyDistribution(50)).toEqual([
+        { level: 4, count: 5 },
+        { level: 5, count: 5 },
+      ]);
     });
 
     it('should always return total of 10 questions', () => {

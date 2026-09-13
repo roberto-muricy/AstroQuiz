@@ -125,3 +125,49 @@ export function createSession(params: {
 export function generateSessionId(): string {
   return `quiz_${Date.now()}_${randomBytes(12).toString('base64url')}`;
 }
+
+/**
+ * Serializa o processamento de uma mesma sessao.
+ *
+ * Entre decidir o que fazer com uma resposta e grava-la ha um await (a busca do
+ * gabarito no banco). Duas requisicoes da mesma sessao chegando juntas — o
+ * toque e o tempo esgotado, ou uma repeticao de rede — liam o mesmo estado e
+ * contavam a pergunta duas vezes.
+ *
+ * Vale para uma unica instancia do servidor, que e como o Railway roda hoje.
+ * Com mais de uma, isto precisa virar uma trava no banco.
+ */
+const filasPorSessao = new Map<string, Promise<void>>();
+
+export async function comTravaDaSessao<T>(sessionId: string, tarefa: () => Promise<T>): Promise<T> {
+  const anterior = filasPorSessao.get(sessionId) ?? Promise.resolve();
+  let liberar!: () => void;
+  const minhaVez = new Promise<void>((resolve) => {
+    liberar = resolve;
+  });
+  const fila = anterior.then(() => minhaVez);
+  filasPorSessao.set(sessionId, fila);
+
+  await anterior;
+  try {
+    return await tarefa();
+  } finally {
+    liberar();
+    if (filasPorSessao.get(sessionId) === fila) filasPorSessao.delete(sessionId);
+  }
+}
+
+/**
+ * Tira o uid do jogador das sessoes em memoria. Usado na exclusao de conta,
+ * para que uma partida em andamento nao grave resultado com o uid apagado.
+ */
+export function esquecerJogadorNasSessoes(firebaseUid: string): number {
+  let alteradas = 0;
+  for (const session of quizSessions.values()) {
+    if (session?.firebaseUid === firebaseUid) {
+      session.firebaseUid = null;
+      alteradas++;
+    }
+  }
+  return alteradas;
+}

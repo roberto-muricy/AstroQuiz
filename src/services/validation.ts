@@ -152,6 +152,13 @@ export function validateTimeUsed(timeUsed: any): ValidationResult {
 }
 
 /**
+ * Formato de generateSessionId: quiz_<timestamp>_<base64url>. O teto de
+ * tamanho e o conjunto de caracteres evitam que lixo arbitrario chegue aos
+ * logs, ao mapa de sessoes em memoria e as travas por sessao.
+ */
+const SESSION_ID_FORMAT = /^quiz_[A-Za-z0-9_-]{1,64}$/;
+
+/**
  * Validate session ID format
  */
 export function validateSessionId(sessionId: any): ValidationResult {
@@ -161,11 +168,108 @@ export function validateSessionId(sessionId: any): ValidationResult {
     errors.push({ field: 'sessionId', message: 'Session ID is required' });
   } else if (typeof sessionId !== 'string') {
     errors.push({ field: 'sessionId', message: 'Session ID must be a string' });
-  } else if (!sessionId.startsWith('quiz_')) {
+  } else if (!SESSION_ID_FORMAT.test(sessionId)) {
     errors.push({ field: 'sessionId', message: 'Invalid session ID format' });
   }
 
   return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate the optional idempotency key sent with /quiz/answer.
+ * The app sends `ans_<timestamp>_<base36>`; it is stored with the answer.
+ */
+export function validateRequestId(requestId: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (requestId !== undefined && requestId !== null) {
+    if (typeof requestId !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(requestId)) {
+      errors.push({ field: 'requestId', message: 'Invalid request ID format' });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Campos que PUT /api/user-profile/:uid/stats aceita.
+ *
+ * Aquela rota espalhava o corpo inteiro no update: o dono do perfil podia
+ * reescrever firebaseUid, email, displayName ou qualquer outro campo. Agora so
+ * passam as estatisticas que o app de fato envia (GameStats), e com formato
+ * valido.
+ *
+ * O que nao passa e descartado em silencio, e nao recusado: versoes antigas do
+ * app mandam o objeto de estatisticas inteiro, e um 400 aqui quebraria a
+ * sincronizacao delas.
+ *
+ * Estas estatisticas continuam vindo do app e nao valem para o ranking, que usa
+ * so a pontuacao gravada pelo servidor em phase_results.
+ */
+const STATS_INTEGER_FIELDS = [
+  'totalXP',
+  'phasesCompleted',
+  'perfectPhases',
+  'totalQuestionsAnswered',
+  'totalCorrectAnswers',
+  'maxStreak',
+  'currentStreak',
+  'fastAnswers',
+] as const;
+const STATS_INTEGER_CEILING = 1_000_000_000;
+const MAX_ACHIEVEMENTS = 100;
+const MAX_ACHIEVEMENT_ID_LENGTH = 64;
+const MAX_PHASE_STATS_BYTES = 32 * 1024;
+
+export function sanitizeStatsUpdate(body: any): Record<string, any> {
+  const sanitized: Record<string, any> = {};
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return sanitized;
+
+  for (const field of STATS_INTEGER_FIELDS) {
+    const value = body[field];
+    if (
+      typeof value === 'number' &&
+      Number.isInteger(value) &&
+      value >= 0 &&
+      value <= STATS_INTEGER_CEILING
+    ) {
+      sanitized[field] = value;
+    }
+  }
+
+  const achievements = body.achievements;
+  if (
+    Array.isArray(achievements) &&
+    achievements.length <= MAX_ACHIEVEMENTS &&
+    achievements.every(
+      (id) => typeof id === 'string' && id.length > 0 && id.length <= MAX_ACHIEVEMENT_ID_LENGTH
+    )
+  ) {
+    sanitized.achievements = achievements;
+  }
+
+  const phaseStats = body.phaseStats;
+  if (phaseStats && typeof phaseStats === 'object' && !Array.isArray(phaseStats)) {
+    const keys = Object.keys(phaseStats);
+    const validKeys = keys.every((key) => {
+      if (!/^\d{1,2}$/.test(key)) return false;
+      const phase = Number(key);
+      return phase >= MIN_PHASE && phase <= MAX_PHASE;
+    });
+
+    let size = Infinity;
+    try {
+      size = Buffer.byteLength(JSON.stringify(phaseStats), 'utf8');
+    } catch {
+      // objeto circular ou nao serializavel: descartado
+    }
+
+    if (keys.length <= MAX_PHASE && validKeys && size <= MAX_PHASE_STATS_BYTES) {
+      sanitized.phaseStats = phaseStats;
+    }
+  }
+
+  return sanitized;
 }
 
 /**

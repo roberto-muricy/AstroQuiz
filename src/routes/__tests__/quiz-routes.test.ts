@@ -155,8 +155,11 @@ describe('Quiz Routes - Validation Integration', () => {
     });
 
     it('should return correct distribution for master phases', () => {
-      // Phases 46-50: 100% Level 5
-      expect(getDifficultyDistribution(50)).toEqual([{ level: 5, count: 10 }]);
+      // Phases 48-50: levels 4 and 5 (curve recalibrated to the question pool)
+      expect(getDifficultyDistribution(50)).toEqual([
+        { level: 4, count: 5 },
+        { level: 5, count: 5 },
+      ]);
     });
 
     it('should always sum to 10 questions', () => {

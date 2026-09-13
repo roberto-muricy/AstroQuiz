@@ -9,6 +9,7 @@ import {
   saveQuizSession,
   createSession,
   generateSessionId,
+  comTravaDaSessao,
 } from '../services/quiz-session';
 import {
   fetchImageUrlsByQuestionIds,
@@ -23,13 +24,20 @@ import {
   embaralharAlternativas,
   letraOriginal,
   letraEmbaralhada,
-  calculatePoints,
-  calculateStreakBonus,
-  calculatePerfectBonus,
   isValidLocale,
   SUPPORTED_LOCALES,
   SCORING,
 } from '../services/quiz-logic';
+import {
+  decidirResposta,
+  aplicarResposta,
+  tempoEfetivo,
+  marcarEntrega,
+  encerrarSessao,
+  sessaoParaCliente,
+  corpoDeRegistroAntigo,
+} from '../services/quiz-answer-rules';
+import { registrarResultadoDaSessao } from '../services/phase-results';
 import {
   createOptionalAuthMiddleware,
   AuthContext,
@@ -41,12 +49,23 @@ import {
   validateOption,
   validateTimeUsed,
   validateQuestionId,
+  validateRequestId,
   combineValidations,
   formatValidationErrors,
 } from '../services/validation';
 
 export function createQuizRoutes(strapi: any): any[] {
   const optionalAuth = createOptionalAuthMiddleware(strapi);
+
+  // Grava o resultado da fase uma unica vez. Uma falha aqui nao derruba a
+  // resposta do jogador: /finish tenta gravar de novo.
+  async function registrarResultado(session: any): Promise<void> {
+    try {
+      await registrarResultadoDaSessao(strapi.db.connection, session);
+    } catch (error: any) {
+      strapi.log.error(`Error recording phase result for ${session?.sessionId}:`, error);
+    }
+  }
 
   return [
     // Health check
@@ -447,6 +466,10 @@ export function createQuizRoutes(strapi: any): any[] {
             return ctx.notFound('No more questions available');
           }
 
+          // Relogio do servidor para esta pergunta. So a primeira entrega
+          // conta: buscar a mesma pergunta de novo nao zera o tempo.
+          marcarEntrega(session, session.currentQuestionIndex, Date.now());
+
           ctx.body = {
             success: true,
             data: {
@@ -485,6 +508,10 @@ export function createQuizRoutes(strapi: any): any[] {
     },
 
     // Submit answer
+    //
+    // As decisoes (repeticao, ordem, fim da fase, tempo e pontos) vivem em
+    // src/services/quiz-answer-rules.ts, que e puro e testado. Aqui so se busca
+    // o gabarito no banco e se persiste o resultado.
     {
       method: 'POST',
       path: '/api/quiz/answer',
@@ -498,11 +525,9 @@ export function createQuizRoutes(strapi: any): any[] {
             isTimeout = false,
             isSkipped = false,
             requestId,
-          } = ctx.request.body;
+          } = ctx.request.body || {};
 
-          // Validate inputs
-          const validations = [validateSessionId(sessionId)];
-
+          const validations = [validateSessionId(sessionId), validateRequestId(requestId)];
           if (!isTimeout) {
             validations.push(validateOption(selectedOption));
           }
@@ -518,212 +543,99 @@ export function createQuizRoutes(strapi: any): any[] {
             return ctx.badRequest(formatValidationErrors(validation.errors));
           }
 
-          // A sessao e carregada ANTES da correcao, e nao depois, porque e ela
-          // que sabe em que ordem as alternativas foram entregues.
-          let session = await getSession(strapi, sessionId);
+          // Uma resposta por vez por sessao. Entre decidir e gravar ha um await
+          // (a busca do gabarito); sem a trava, o toque e o tempo esgotado
+          // chegando juntos contavam a mesma pergunta duas vezes.
+          await comTravaDaSessao(sessionId, async () => {
+            const session = await getSession(strapi, sessionId);
 
-          // Get question to check answer
-          let isCorrect = false;
-          let correctOption = 'A';
-          let questionData: any = null;
-          let questionLevel = 1;
-
-          strapi.log.info(
-            `Checking answer - QuestionID: ${questionId}, Selected: ${selectedOption}, Timeout: ${isTimeout}`
-          );
-
-          // As alternativas foram embaralhadas quando a sessao foi criada, e a
-          // sessao guarda a permutacao (nunca o gabarito). Traduzimos a letra
-          // que o app mandou de volta para a letra do banco, e a correcao
-          // continua sendo feita contra o banco, como sempre foi.
-          //
-          // Sem sessao, `letraOriginal` devolve a propria letra e o
-          // comportamento e identico ao anterior ao embaralhamento.
-          const perguntaDaSessao = (session?.questions || []).find(
-            (q: any) => String(q?.id) === String(questionId)
-          );
-          const escolhidaNoBanco = letraOriginal(
-            selectedOption,
-            perguntaDaSessao?.ordemAlternativas
-          );
-
-          if (questionId) {
-            try {
-              questionData = await strapi.db.query('api::question.question').findOne({
-                where: { id: questionId },
-                select: ['id', 'correctOption', 'explanation', 'level'],
-              });
-
-              if (questionData) {
-                // Devolvido ao app na posicao em que ele desenhou a alternativa,
-                // e nao na do banco: e com esta letra que a tela destaca a
-                // resposta certa depois de responder.
-                correctOption = letraEmbaralhada(
-                  questionData.correctOption,
-                  perguntaDaSessao?.ordemAlternativas
-                );
-                questionLevel = questionData.level || 1;
-                isCorrect = !isTimeout && escolhidaNoBanco === questionData.correctOption;
-
-                strapi.log.info(
-                  `Question found - Correct: ${correctOption}, Selected: ${selectedOption}` +
-                    `${escolhidaNoBanco !== selectedOption ? ` (=${escolhidaNoBanco} no banco)` : ''}` +
-                    `, IsCorrect: ${isCorrect}`
-                );
-              } else {
-                strapi.log.warn(`Question not found with ID: ${questionId}`);
-              }
-            } catch (error: any) {
-              strapi.log.error(`Error fetching question ${questionId}:`, error);
-            }
-          }
-
-          // Calculate points
-          const { basePoints, speedBonus, speedMultiplier, totalPoints: initialPoints } =
-            calculatePoints({
-              level: questionLevel,
-              timeUsed,
-              isCorrect,
-            });
-
-          let totalPoints = initialPoints;
-
-          // Idempotencia: a mesma requisicao repetida devolve o mesmo
-          // resultado em vez de contar a resposta de novo.
-          //
-          // Necessario porque o app repete requisicoes que falham sem resposta
-          // HTTP — no Android o fluxo HTTP/2 e cancelado DEPOIS de o servidor
-          // ter respondido 200, entao a resposta ja foi processada aqui mesmo
-          // que o app nunca a receba. Sem esta guarda, a repeticao contaria a
-          // pergunta duas vezes e a fase pularia uma.
-          if (requestId && session) {
-            const jaProcessada = (session.answers || []).find(
-              (a: any) => a.requestId === requestId
-            );
-            if (jaProcessada?.resposta) {
-              strapi.log.info(`Answer ${requestId} ja processada; devolvendo resultado guardado`);
-              ctx.body = jaProcessada.resposta;
+            // Sessao desconhecida nao e mais criada na hora. Aquilo existia para
+            // nao perder respostas de sessoes expiradas, mas deixava qualquer um
+            // corrigir perguntas avulsas do banco e ler o gabarito delas.
+            if (!session) {
+              ctx.notFound('Session not found or expired');
               return;
             }
-          }
-          if (!session) {
-            session = {
-              sessionId,
-              phaseNumber: 1,
-              answers: [],
-              score: 0,
-              streakCount: 0,
-              maxStreak: 0,
-              correctAnswers: 0,
-              incorrectAnswers: 0,
-              totalTime: 0,
-              currentQuestionIndex: 0,
-              totalQuestions: 10,
-              status: 'active',
-            };
-          }
 
-          // Update session stats
-          session.score += totalPoints;
-          session.currentQuestionIndex += 1;
-          session.totalTime += timeUsed;
+            const decisao = decidirResposta(session, { questionId, requestId });
 
-          let streakBonus = 0;
-          if (isCorrect) {
-            session.correctAnswers += 1;
-            session.streakCount += 1;
-            session.maxStreak = Math.max(session.maxStreak, session.streakCount);
-
-            streakBonus = calculateStreakBonus(session.streakCount);
-            if (streakBonus > 0) {
-              session.score += streakBonus;
-              totalPoints += streakBonus;
-              strapi.log.info(
-                `Streak bonus: ${streakBonus} points (streak: ${session.streakCount})`
-              );
+            if (decisao.tipo === 'repetida') {
+              ctx.body =
+                decisao.registro.resposta || corpoDeRegistroAntigo(session, decisao.registro);
+              return;
             }
-          } else {
-            session.incorrectAnswers += 1;
-            session.streakCount = 0;
-          }
-
-          // Record answer
-          // Pular chega como isTimeout=true (mesma pontuação: zero) acrescido de
-          // isSkipped, que separa a desistência voluntária do tempo esgotado.
-          const registro: any = {
-            questionId,
-            selectedOption,
-            correctOption,
-            isCorrect,
-            isTimeout,
-            isSkipped: !!isSkipped,
-            timeUsed,
-            points: totalPoints,
-            requestId,
-          };
-          session.answers.push(registro);
-
-          // Check if phase complete
-          const isPhaseComplete = session.currentQuestionIndex >= 10;
-          if (isPhaseComplete) {
-            session.status = 'completed';
-            session.completedAt = new Date().toISOString();
-
-            // Perfect bonus
-            if (session.correctAnswers === 10) {
-              const perfectBonus = calculatePerfectBonus(session.score);
-              session.score += perfectBonus;
-              strapi.log.info(`Perfect Bonus: +${perfectBonus} points!`);
+            if (decisao.tipo === 'encerrada') {
+              ctx.conflict('Session already completed');
+              return;
             }
-          }
+            if (decisao.tipo === 'fora-de-ordem') {
+              ctx.conflict('Question does not match session');
+              return;
+            }
 
-          // O corpo e montado antes de salvar para ficar guardado junto do
-          // registro: e ele que uma requisicao repetida recebe de volta.
-          const corpoDaResposta = {
-            success: true,
-            data: {
-              answerRecord: {
-                selectedOption,
-                correctOption,
-                isCorrect,
-                isTimeout,
-                isSkipped: !!isSkipped,
-                timeUsed,
-                points: totalPoints,
-                level: questionLevel,
-              },
-              scoreResult: {
-                basePoints,
-                speedBonus,
-                speedMultiplier,
-                totalPoints,
-                streakBonus,
-              },
-              sessionStatus: {
-                currentQuestionIndex: session.currentQuestionIndex,
-                totalQuestions: 10,
-                score: session.score,
-                streakCount: session.streakCount,
-                maxStreak: session.maxStreak,
-                correctAnswers: session.correctAnswers,
-                incorrectAnswers: session.incorrectAnswers,
-                isPhaseComplete,
-              },
-            },
-          };
+            const { pergunta, indice } = decisao;
 
-          // Guardado junto da resposta: e isto que a repeticao recebe de volta,
-          // identico ao original, sem reprocessar nada.
-          if (requestId) registro.resposta = corpoDaResposta;
+            // As alternativas foram embaralhadas quando a sessao foi criada, e a
+            // sessao guarda a permutacao (nunca o gabarito). A letra que o app
+            // mandou e traduzida para a do banco, e a correcao e feita contra o
+            // banco. So a pergunta atual da sessao e corrigida.
+            const escolhidaNoBanco = letraOriginal(selectedOption, pergunta.ordemAlternativas);
 
-          quizSessions.set(sessionId, session);
-          await saveQuizSession(strapi, session);
+            let questionData: any = null;
+            try {
+              questionData = await strapi.db.query('api::question.question').findOne({
+                where: { id: pergunta.id },
+                select: ['id', 'correctOption', 'explanation', 'level'],
+              });
+            } catch (error: any) {
+              strapi.log.error(`Error fetching question ${pergunta.id}:`, error);
+            }
+            if (!questionData) {
+              strapi.log.warn(`Question not found with ID: ${pergunta.id}`);
+            }
 
-          strapi.log.info(
-            `Session ${sessionId} - Score: ${session.score}, Streak: ${session.streakCount}, Progress: ${session.currentQuestionIndex}/10`
-          );
+            const isCorrect =
+              !isTimeout && !!questionData && escolhidaNoBanco === questionData.correctOption;
+            // Devolvido na posicao em que o app desenhou a alternativa: e com
+            // esta letra que a tela destaca a resposta certa.
+            const correctOption = questionData
+              ? letraEmbaralhada(questionData.correctOption, pergunta.ordemAlternativas)
+              : 'A';
+            const agora = Date.now();
 
-          ctx.body = corpoDaResposta;
+            const { corpo, completouAgora } = aplicarResposta(session, {
+              questionId: pergunta.id,
+              indice,
+              selectedOption,
+              correctOption,
+              isCorrect,
+              isTimeout: !!isTimeout,
+              isSkipped: !!isSkipped,
+              level: questionData?.level || pergunta.level || 1,
+              requestId,
+              explanation: questionData?.explanation ?? null,
+              tempo: tempoEfetivo({
+                clienteMs: timeUsed,
+                entregueEm: session.servedAt?.[indice],
+                agora,
+                indice,
+              }),
+              agora,
+            });
+
+            quizSessions.set(sessionId, session);
+            await saveQuizSession(strapi, session);
+
+            if (completouAgora) {
+              await registrarResultado(session);
+            }
+
+            strapi.log.info(
+              `Session ${sessionId} - Question ${pergunta.id} correct: ${isCorrect}, Score: ${session.score}, Progress: ${session.currentQuestionIndex}/${session.totalQuestions}`
+            );
+
+            ctx.body = corpo;
+          });
         } catch (error: any) {
           strapi.log.error('Error submitting answer:', error);
           ctx.internalServerError('Failed to submit answer');
@@ -740,14 +652,22 @@ export function createQuizRoutes(strapi: any): any[] {
         try {
           const { sessionId } = ctx.params;
 
+          const validation = validateSessionId(sessionId);
+          if (!validation.valid) {
+            return ctx.badRequest(formatValidationErrors(validation.errors));
+          }
+
           const session = await getSession(strapi, sessionId);
           if (!session) {
             return ctx.notFound('Session not found or expired');
           }
 
+          // Rota publica e o app nao a usa. Sai sem o uid do dono, sem os
+          // instantes de entrega, sem os corpos guardados das respostas e sem
+          // as explicacoes, que muitas vezes contem a resposta certa.
           ctx.body = {
             success: true,
-            data: session,
+            data: sessaoParaCliente(session, { comPerguntas: true }),
           };
         } catch (error: any) {
           strapi.log.error('Error getting session:', error);
@@ -761,61 +681,70 @@ export function createQuizRoutes(strapi: any): any[] {
     {
       method: 'POST',
       path: '/api/quiz/finish/:sessionId',
-      handler: async (ctx: any) => {
-        try {
-          const { sessionId } = ctx.params;
+      handler: [
+        optionalAuth,
+        async (ctx: any) => {
+          try {
+            const { sessionId } = ctx.params;
 
-          let session = await getSession(strapi, sessionId);
-          if (!session) {
-            return ctx.notFound('Session not found');
+            const validation = validateSessionId(sessionId);
+            if (!validation.valid) {
+              return ctx.badRequest(formatValidationErrors(validation.errors));
+            }
+
+            await comTravaDaSessao(sessionId, async () => {
+              const session = await getSession(strapi, sessionId);
+              if (!session) {
+                ctx.notFound('Session not found');
+                return;
+              }
+
+              // Token ausente ou vencido segue em frente: o id da sessao ja e o
+              // segredo, e tudo aqui e idempotente. So um token VALIDO de outra
+              // pessoa e recusado. Exigir login prenderia a tela de resultado de
+              // versoes antigas, que guardam o token mesmo depois de vencido.
+              const user = ctx.state.user as AuthContext | undefined;
+              if (user && session.firebaseUid && user.firebaseUid !== session.firebaseUid) {
+                ctx.forbidden('Session belongs to another user');
+                return;
+              }
+
+              const resumo = encerrarSessao(session, Date.now());
+              if (resumo.mudou) {
+                quizSessions.set(sessionId, session);
+                await saveQuizSession(strapi, session);
+              }
+
+              // Normalmente ja foi gravado na ultima resposta. Aqui cobre o caso
+              // em que aquela gravacao falhou; a linha nunca e duplicada.
+              if (session.status === 'completed') {
+                await registrarResultado(session);
+              }
+
+              strapi.log.info(
+                `Phase ${session.phaseNumber} finished - Score: ${session.score}, Accuracy: ${resumo.accuracy}%, Passed: ${resumo.passed}, Status: ${session.status}`
+              );
+
+              ctx.body = {
+                success: true,
+                message: 'Quiz session completed',
+                data: {
+                  ...sessaoParaCliente(session, { comPerguntas: false }),
+                  finalScore: session.score,
+                  accuracy: resumo.accuracy,
+                  passed: resumo.passed,
+                  averageTimePerQuestion: resumo.averageTimePerQuestion,
+                  achievements: resumo.achievements,
+                  nextPhaseUnlocked: resumo.passed,
+                },
+              };
+            });
+          } catch (error: any) {
+            strapi.log.error('Error finishing quiz:', error);
+            ctx.internalServerError('Failed to finish quiz');
           }
-
-          session.status = 'completed';
-          session.completedAt = new Date().toISOString();
-
-          const accuracy =
-            session.totalQuestions > 0
-              ? Math.round((session.correctAnswers / session.totalQuestions) * 100)
-              : 0;
-
-          const passed = accuracy >= SCORING.passThreshold;
-
-          const avgTime =
-            session.answers.length > 0
-              ? Math.round(session.totalTime / session.answers.length)
-              : 0;
-
-          // Detect achievements
-          const achievements: string[] = [];
-          if (session.correctAnswers === 10) achievements.push('perfect_score');
-          if (session.maxStreak >= 10) achievements.push('streak_master');
-          if (avgTime < 10000) achievements.push('speed_demon');
-
-          quizSessions.set(sessionId, session);
-          await saveQuizSession(strapi, session);
-
-          strapi.log.info(
-            `Phase ${session.phaseNumber} finished - Score: ${session.score}, Accuracy: ${accuracy}%, Passed: ${passed}`
-          );
-
-          ctx.body = {
-            success: true,
-            message: 'Quiz session completed',
-            data: {
-              ...session,
-              finalScore: session.score,
-              accuracy,
-              passed,
-              averageTimePerQuestion: avgTime,
-              achievements,
-              nextPhaseUnlocked: passed,
-            },
-          };
-        } catch (error: any) {
-          strapi.log.error('Error finishing quiz:', error);
-          ctx.internalServerError('Failed to finish quiz');
-        }
-      },
+        },
+      ],
       config: { auth: false },
     },
   ];

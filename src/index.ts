@@ -10,6 +10,7 @@ import {
   ensureQuizSessionTable,
   cleanupExpiredQuizSessions,
 } from './services/quiz-session';
+import { garantirTabelaDeResultados } from './services/phase-results';
 import { initializeFirebase } from './services/firebase-auth';
 import { createRateLimitMiddleware } from './middlewares/rate-limit';
 import { createQuizRoutes } from './routes/quiz-routes';
@@ -47,6 +48,11 @@ export default {
     // Initialize quiz session table and cleanup expired sessions
     await ensureQuizSessionTable(strapi);
     await cleanupExpiredQuizSessions(strapi);
+
+    // Resultados de fase: historico permanente, que a limpeza acima nao toca
+    if (await garantirTabelaDeResultados(strapi.db.connection)) {
+      strapi.log.info('Created phase_results table');
+    }
 
     // Apply global rate limiting (100 requests per minute per IP)
     strapi.server.use(createRateLimitMiddleware({

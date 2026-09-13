@@ -12,7 +12,7 @@ interface RateLimitEntry {
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 // Cleanup expired entries every 5 minutes
-setInterval(() => {
+const cleanup = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of rateLimitStore.entries()) {
     if (entry.resetAt < now) {
@@ -20,12 +20,21 @@ setInterval(() => {
     }
   }
 }, 5 * 60 * 1000);
+// Nao segura o processo aberto (testes, scripts) so por causa da limpeza.
+cleanup.unref?.();
 
 export interface RateLimitConfig {
   windowMs: number;      // Time window in milliseconds
   maxRequests: number;   // Max requests per window
   message?: string;      // Error message
   skipPaths?: string[];  // Paths to skip rate limiting
+  /**
+   * Separa o contador deste limitador dos outros. Todos dividem o mesmo store,
+   * chaveado por ip e caminho: sem prefixo, um limitador mais rigido aplicado a
+   * uma rota que o limitador global tambem cobre contaria cada requisicao duas
+   * vezes no mesmo contador.
+   */
+  keyPrefix?: string;
 }
 
 const DEFAULT_CONFIG: RateLimitConfig = {
@@ -74,7 +83,7 @@ export function createRateLimitMiddleware(config: Partial<RateLimitConfig> = {})
     }
 
     const clientIp = getClientIp(ctx);
-    const key = `${clientIp}:${path}`;
+    const key = `${cfg.keyPrefix || ''}${clientIp}:${path}`;
     const now = Date.now();
 
     let entry = rateLimitStore.get(key);
@@ -126,6 +135,7 @@ export function createStrictRateLimitMiddleware() {
     windowMs: 60 * 1000,   // 1 minute
     maxRequests: 10,       // Only 10 requests per minute
     message: 'Rate limit exceeded for this endpoint. Please wait.',
+    keyPrefix: 'strict:',
   });
 }
 
@@ -137,5 +147,6 @@ export function createAuthRateLimitMiddleware() {
     windowMs: 15 * 60 * 1000,  // 15 minutes
     maxRequests: 5,            // 5 attempts per 15 min
     message: 'Too many authentication attempts. Please try again later.',
+    keyPrefix: 'auth:',
   });
 }

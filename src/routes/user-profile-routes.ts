@@ -7,6 +7,11 @@ import {
   createAuthMiddleware,
   AuthContext,
 } from '../middlewares/auth';
+import { sanitizeStatsUpdate } from '../services/validation';
+import { apagarResultadosDoJogador } from '../services/phase-results';
+import { esquecerJogadorNasSessoes } from '../services/quiz-session';
+
+const VALID_ROLES = ['user', 'premium', 'admin'];
 
 export function createUserProfileRoutes(strapi: any): any[] {
   const authMiddleware = createAuthMiddleware(strapi);
@@ -146,10 +151,13 @@ export function createUserProfileRoutes(strapi: any): any[] {
               return ctx.forbidden('Cannot update other user stats');
             }
 
-            // Prevent non-admins from changing role or isBlocked
-            if (user.role !== 'admin') {
-              delete updates.role;
-              delete updates.isBlocked;
+            // So estatisticas, com formato valido. Ver sanitizeStatsUpdate.
+            const data: Record<string, any> = sanitizeStatsUpdate(updates);
+
+            // Papel e bloqueio continuam restritos a administradores.
+            if (user.role === 'admin') {
+              if (VALID_ROLES.includes(updates?.role)) data.role = updates.role;
+              if (typeof updates?.isBlocked === 'boolean') data.isBlocked = updates.isBlocked;
             }
 
             const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
@@ -165,7 +173,7 @@ export function createUserProfileRoutes(strapi: any): any[] {
               .update({
                 where: { id: profile.id },
                 data: {
-                  ...updates,
+                  ...data,
                   lastSyncedAt: new Date(),
                 },
               });
@@ -191,6 +199,14 @@ export function createUserProfileRoutes(strapi: any): any[] {
           try {
             const user = ctx.state.user as AuthContext;
 
+            // Os resultados de fase saem mesmo que o perfil ja nao exista
+            // (exclusao repetida, ou conta que nunca sincronizou o perfil).
+            const deletedResults = await apagarResultadosDoJogador(
+              strapi.db.connection,
+              user.firebaseUid
+            );
+            esquecerJogadorNasSessoes(user.firebaseUid);
+
             const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
               where: { firebaseUid: user.firebaseUid },
             });
@@ -200,6 +216,9 @@ export function createUserProfileRoutes(strapi: any): any[] {
                 where: { id: profile.id },
               });
               strapi.log.info('Deleted user profile');
+            }
+            if (deletedResults > 0) {
+              strapi.log.info(`Deleted ${deletedResults} phase results`);
             }
 
             ctx.body = { success: true };
