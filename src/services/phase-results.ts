@@ -17,6 +17,7 @@
  */
 
 import { SCORING } from './quiz-logic';
+import { eTabelaInexistente } from './database-errors';
 import {
   totalDePerguntas,
   pontuacaoMaximaDasPerguntas,
@@ -82,11 +83,6 @@ export async function garantirTabelaDeResultados(knex: any): Promise<boolean> {
   if (await knex.schema.hasTable(TABELA_DE_RESULTADOS)) return false;
   await criarTabela(knex);
   return true;
-}
-
-/** Postgres (42P01) e SQLite descrevem assim a tabela que nao existe. */
-function eTabelaInexistente(erro: any): boolean {
-  return erro?.code === '42P01' || /no such table/i.test(String(erro?.message));
 }
 
 /**

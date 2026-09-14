@@ -9,6 +9,7 @@ import {
 } from '../middlewares/auth';
 import { sanitizeStatsUpdate } from '../services/validation';
 import { apagarResultadosDoJogador } from '../services/phase-results';
+import { apagarJogador } from '../services/leaderboard-players';
 import { esquecerJogadorNasSessoes } from '../services/quiz-session';
 
 const VALID_ROLES = ['user', 'premium', 'admin'];
@@ -199,12 +200,13 @@ export function createUserProfileRoutes(strapi: any): any[] {
           try {
             const user = ctx.state.user as AuthContext;
 
-            // Os resultados de fase saem mesmo que o perfil ja nao exista
-            // (exclusao repetida, ou conta que nunca sincronizou o perfil).
+            // Resultados de fase e cadastro no ranking saem mesmo que o perfil
+            // ja nao exista (exclusao repetida, ou conta que nunca sincronizou).
             const deletedResults = await apagarResultadosDoJogador(
               strapi.db.connection,
               user.firebaseUid
             );
+            await apagarJogador(strapi.db.connection, user.firebaseUid);
             esquecerJogadorNasSessoes(user.firebaseUid);
 
             const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
