@@ -50,9 +50,7 @@ export interface LinhaDeResultado {
   finished_at: string;
 }
 
-export async function garantirTabelaDeResultados(knex: any): Promise<boolean> {
-  if (await knex.schema.hasTable(TABELA_DE_RESULTADOS)) return false;
-
+async function criarTabela(knex: any): Promise<void> {
   await knex.schema.createTable(TABELA_DE_RESULTADOS, (t: any) => {
     t.bigIncrements('id');
     t.string('session_id', 64).notNullable().unique();
@@ -78,8 +76,41 @@ export async function garantirTabelaDeResultados(knex: any): Promise<boolean> {
     t.index(['firebase_uid', 'phase', 'score']);
     t.index(['finished_at']);
   });
+}
 
+export async function garantirTabelaDeResultados(knex: any): Promise<boolean> {
+  if (await knex.schema.hasTable(TABELA_DE_RESULTADOS)) return false;
+  await criarTabela(knex);
   return true;
+}
+
+/** Postgres (42P01) e SQLite descrevem assim a tabela que nao existe. */
+function eTabelaInexistente(erro: any): boolean {
+  return erro?.code === '42P01' || /no such table/i.test(String(erro?.message));
+}
+
+/**
+ * Executa a operacao e, se a tabela nao existir, cria e tenta de novo.
+ *
+ * No primeiro deploy (13/09/2026) a tabela nao apareceu em producao, embora a
+ * inicializacao que deveria cria-la tenha rodado. Sem esta volta, cada fase
+ * terminada falhava ao gravar e o historico nao comecava. A criacao na
+ * inicializacao continua; isto so garante que a ausencia da tabela nunca
+ * derrube o que depende dela.
+ */
+async function comTabela<T>(knex: any, operacao: () => Promise<T>): Promise<T> {
+  try {
+    return await operacao();
+  } catch (erro) {
+    if (!eTabelaInexistente(erro)) throw erro;
+    try {
+      await criarTabela(knex);
+    } catch (erroAoCriar: any) {
+      // Outra requisicao pode ter criado a tabela no meio do caminho.
+      if (!/already exists/i.test(String(erroAoCriar?.message))) throw erroAoCriar;
+    }
+    return operacao();
+  }
 }
 
 /**
@@ -153,29 +184,38 @@ export async function registrarResultadoDaSessao(
   const linha = montarResultadoDaFase(session, agora);
   if (!linha) return false;
 
-  const jaGravada = await knex(TABELA_DE_RESULTADOS)
-    .where({ session_id: linha.session_id })
-    .first('id');
-  if (jaGravada) return false;
-
-  if (linha.firebase_uid && linha.phase > FASE_ALTA_NA_PRIMEIRA_APARICAO) {
-    const anterior = await knex(TABELA_DE_RESULTADOS)
-      .where({ firebase_uid: linha.firebase_uid })
+  return comTabela(knex, async () => {
+    const jaGravada = await knex(TABELA_DE_RESULTADOS)
+      .where({ session_id: linha.session_id })
       .first('id');
-    if (!anterior) {
-      linha.flags = [linha.flags, 'first_seen_high'].filter(Boolean).join(',');
+    if (jaGravada) return false;
+
+    let flags = linha.flags;
+    if (linha.firebase_uid && linha.phase > FASE_ALTA_NA_PRIMEIRA_APARICAO) {
+      const anterior = await knex(TABELA_DE_RESULTADOS)
+        .where({ firebase_uid: linha.firebase_uid })
+        .first('id');
+      if (!anterior) flags = [flags, 'first_seen_high'].filter(Boolean).join(',');
     }
-  }
 
-  await knex(TABELA_DE_RESULTADOS)
-    .insert({ ...linha, created_at: agora.toISOString() })
-    .onConflict('session_id')
-    .ignore();
+    await knex(TABELA_DE_RESULTADOS)
+      .insert({ ...linha, flags, created_at: agora.toISOString() })
+      .onConflict('session_id')
+      .ignore();
 
-  return true;
+    return true;
+  });
 }
 
-/** Usado na exclusao de conta. */
+/**
+ * Usado na exclusao de conta. Sem a tabela nao ha o que apagar — e a exclusao
+ * da conta nao pode falhar por isso.
+ */
 export async function apagarResultadosDoJogador(knex: any, firebaseUid: string): Promise<number> {
-  return knex(TABELA_DE_RESULTADOS).where({ firebase_uid: firebaseUid }).del();
+  try {
+    return await knex(TABELA_DE_RESULTADOS).where({ firebase_uid: firebaseUid }).del();
+  } catch (erro) {
+    if (eTabelaInexistente(erro)) return 0;
+    throw erro;
+  }
 }
