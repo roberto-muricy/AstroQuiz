@@ -38,6 +38,7 @@ import {
   corpoDeRegistroAntigo,
 } from '../services/quiz-answer-rules';
 import { registrarResultadoDaSessao } from '../services/phase-results';
+import { limparCacheDoRanking } from '../services/leaderboard-service';
 import {
   createOptionalAuthMiddleware,
   AuthContext,
@@ -61,7 +62,10 @@ export function createQuizRoutes(strapi: any): any[] {
   // resposta do jogador: /finish tenta gravar de novo.
   async function registrarResultado(session: any): Promise<void> {
     try {
-      await registrarResultadoDaSessao(strapi.db.connection, session);
+      // Resultado novo muda o ranking: a proxima leitura recalcula.
+      if (await registrarResultadoDaSessao(strapi.db.connection, session)) {
+        limparCacheDoRanking();
+      }
     } catch (error: any) {
       strapi.log.error(`Error recording phase result for ${session?.sessionId}:`, error);
     }

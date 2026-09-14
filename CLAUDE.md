@@ -76,7 +76,13 @@ AstroQuizApp/              # React Native mobile app
 - `questions/*` - CRUD + bulk import + i18n import
 - `user-profile/*` - Profile management with Firebase UID
 - `i18n-setup/*` - Language configuration
+- `leaderboard/*` - Ranking, read-only and public (`all-time`, `weekly`, `phase`, `country/:country`)
 - `debug/*` - Dev-only tools
+
+### Estado em memoria (vale para uma instancia so)
+- **Cache do ranking** (`src/services/leaderboard-service.ts`): fica na memoria do processo, por 30 s. A invalidacao (`limparCacheDoRanking`, chamada quando uma fase e gravada) so limpa o cache da instancia que gravou; com mais de uma instancia, as outras podem servir o ranking antigo por ate 30 s.
+- Tambem sao por instancia: o rate limit (`src/middlewares/rate-limit.ts`) e a trava por sessao do quiz (`comTravaDaSessao` em `src/services/quiz-session.ts`).
+- Hoje o Railway roda uma instancia. Antes de escalar, mover isso para o banco ou para um store compartilhado.
 
 ### API Response Format
 ```typescript

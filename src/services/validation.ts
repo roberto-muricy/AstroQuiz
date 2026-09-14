@@ -345,6 +345,79 @@ export function validateQuestionData(data: any): ValidationResult {
 }
 
 /**
+ * Ranking: tipos, paginacao e pais.
+ *
+ * Parametros de consulta chegam como texto, ou como lista quando se repetem na
+ * URL; qualquer forma diferente de um valor unico valido e recusada.
+ */
+export const LEADERBOARD_BOARDS = ['all-time', 'weekly', 'phase'];
+export const LEADERBOARD_DEFAULT_PAGE_SIZE = 20;
+export const LEADERBOARD_MAX_PAGE_SIZE = 50;
+export const LEADERBOARD_MAX_PAGE = 1000;
+
+function queryInteger(value: any): number | null {
+  if (typeof value === 'number' && Number.isInteger(value)) return value;
+  if (typeof value === 'string' && /^\d{1,6}$/.test(value)) return Number(value);
+  return null;
+}
+
+export function validateLeaderboardPage(page: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (page !== undefined) {
+    const num = queryInteger(page);
+    if (num === null || num < 1 || num > LEADERBOARD_MAX_PAGE) {
+      errors.push({
+        field: 'page',
+        message: `page must be an integer between 1 and ${LEADERBOARD_MAX_PAGE}`,
+      });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateLeaderboardPageSize(pageSize: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (pageSize !== undefined) {
+    const num = queryInteger(pageSize);
+    if (num === null || num < 1 || num > LEADERBOARD_MAX_PAGE_SIZE) {
+      errors.push({
+        field: 'pageSize',
+        message: `pageSize must be an integer between 1 and ${LEADERBOARD_MAX_PAGE_SIZE}`,
+      });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+export function validateLeaderboardBoard(board: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (board !== undefined && (typeof board !== 'string' || !LEADERBOARD_BOARDS.includes(board))) {
+    errors.push({
+      field: 'board',
+      message: `board must be one of: ${LEADERBOARD_BOARDS.join(', ')}`,
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/** Formato ISO 3166-1 alfa-2, em maiusculas ou minusculas. */
+export function validateCountryCode(code: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (typeof code !== 'string' || !/^[A-Za-z]{2}$/.test(code)) {
+    errors.push({ field: 'country', message: 'country must be a two-letter ISO 3166-1 code' });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * Combine multiple validation results
  */
 export function combineValidations(...results: ValidationResult[]): ValidationResult {

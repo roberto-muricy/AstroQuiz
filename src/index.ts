@@ -17,6 +17,7 @@ import { createQuizRoutes } from './routes/quiz-routes';
 import { createQuestionRoutes } from './routes/question-routes';
 import { createUserProfileRoutes } from './routes/user-profile-routes';
 import { createI18nSetupRoutes } from './routes/i18n-setup-routes';
+import { createLeaderboardRoutes } from './routes/leaderboard-routes';
 import { createDebugRoutes } from './routes/debug-routes';
 
 export default {
@@ -55,10 +56,12 @@ export default {
     }
 
     // Apply global rate limiting (100 requests per minute per IP)
+    // /api/leaderboard tem limitador proprio, mais alto (120/min), porque em rede
+    // movel muitos usuarios compartilham o mesmo IP.
     strapi.server.use(createRateLimitMiddleware({
       windowMs: 60 * 1000,    // 1 minute
       maxRequests: 100,       // 100 requests per minute
-      skipPaths: ['/api/quiz/health', '/_health', '/admin', '/api/questions/import-v2'],
+      skipPaths: ['/api/quiz/health', '/_health', '/admin', '/api/questions/import-v2', '/api/leaderboard'],
     }));
     strapi.log.info('Rate limiting enabled: 100 req/min per IP (import excluded)');
 
@@ -68,6 +71,7 @@ export default {
       ...createQuestionRoutes(strapi),
       ...createUserProfileRoutes(strapi),
       ...createI18nSetupRoutes(strapi),
+      ...createLeaderboardRoutes(strapi),
       // Only register debug routes in non-production environments
       ...(process.env.NODE_ENV !== 'production' ? createDebugRoutes(strapi) : []),
     ];
@@ -81,5 +85,6 @@ export default {
       strapi.log.info('Debug routes registered (dev only)');
     }
     strapi.log.info('I18n Setup routes registered successfully');
+    strapi.log.info('Leaderboard routes registered successfully');
   },
 };
