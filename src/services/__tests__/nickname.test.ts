@@ -1,22 +1,32 @@
 /**
  * Regras do apelido.
  *
- * O teste de conteudo monta, em tempo de execucao, um texto que o proprio
+ * Os testes de conteudo montam, em tempo de execucao, um texto que o proprio
  * conjunto de dados da biblioteca bloqueia: nenhum termo aparece no codigo, e
  * as assercoes sobre ele sao booleanas para que nenhum termo apareca na saida.
+ * A unica expressao citada e a da allowlist, um termo tecnico de astronomia.
  */
 
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import { englishDataset } from 'obscenity';
-import { validarApelido, contemTermoBloqueado, termosCarregadosPorIdioma } from '../nickname';
+import {
+  validarApelido,
+  contemTermoBloqueado,
+  termosCarregadosPorIdioma,
+  carregarAllowlist,
+  expressoesPermitidas,
+} from '../nickname';
 
 const NO_LITERAL = 2; // SyntaxKind.Literal na obscenity
 
-function textoBloqueadoPelaBiblioteca(): string {
+function textoBloqueadoPelaBiblioteca(maximo = 9): string {
   for (const termo of englishDataset.build().blacklistedTerms) {
     const nos: any[] = termo.pattern.nodes;
     if (nos.length === 0 || !nos.every((no) => no.kind === NO_LITERAL)) continue;
     const texto = nos.map((no) => String.fromCodePoint(...no.chars)).join('');
-    if (/^\p{L}{4,9}$/u.test(texto) && contemTermoBloqueado(texto)) return texto;
+    if (new RegExp(`^\\p{L}{4,${maximo}}$`, 'u').test(texto) && contemTermoBloqueado(texto)) return texto;
   }
   throw new Error('conjunto de dados sem termo utilizavel no teste');
 }
@@ -32,6 +42,56 @@ describe('listas do naughty-words', () => {
     for (const idioma of ['pt', 'es', 'fr', 'en']) {
       expect(quantidades[idioma]).toBeGreaterThan(50);
     }
+  });
+});
+
+describe('allowlist', () => {
+  const EXPRESSAO = 'Buraco Negro';
+
+  it('e carregada do arquivo de configuracao', () => {
+    expect(expressoesPermitidas()).toContain('buraco negro');
+  });
+
+  it('libera apelidos com a expressao de astronomia', () => {
+    for (const apelido of [EXPRESSAO, 'BURACO NEGRO', 'Buraco Negro 42', 'Meu Buraco Negro']) {
+      expect(validarApelido(apelido).ok).toBe(true);
+    }
+  });
+
+  it('libera so a expressao inteira: a palavra sozinha e outros termos continuam barrados', () => {
+    const [, segunda] = EXPRESSAO.split(' ');
+    expect(recusadoPor(segunda, 'not_allowed')).toBe(true);
+    expect(recusadoPor(`Capitao ${segunda}`, 'not_allowed')).toBe(true);
+    expect(recusadoPor(`${EXPRESSAO} ${textoBloqueadoPelaBiblioteca(7)}`, 'not_allowed')).toBe(true);
+  });
+
+  describe('carregarAllowlist', () => {
+    const arquivo = (conteudo: string) => {
+      const pasta = fs.mkdtempSync(path.join(os.tmpdir(), 'allowlist-'));
+      const caminho = path.join(pasta, 'nickname-allowlist.json');
+      fs.writeFileSync(caminho, conteudo);
+      return caminho;
+    };
+
+    it('normaliza as expressoes e remove repetidas', () => {
+      const caminho = arquivo(JSON.stringify({ expressions: ['Via  Láctea', 'via lactea', 'Anã Branca'] }));
+      expect(carregarAllowlist(caminho)).toEqual([
+        { escrita: 'via láctea', normalizada: 'via lactea' },
+        { escrita: 'anã branca', normalizada: 'ana branca' },
+      ]);
+    });
+
+    it('arquivo ausente vira lista vazia', () => {
+      expect(carregarAllowlist(path.join(os.tmpdir(), 'nao-existe', 'nickname-allowlist.json'))).toEqual([]);
+    });
+
+    it('formato invalido e erro, e expressao de uma palavra so nao e aceita', () => {
+      expect(() => carregarAllowlist(arquivo('{"expressions": "buraco negro"}'))).toThrow();
+      expect(() => carregarAllowlist(arquivo('{"expressions": [42]}'))).toThrow();
+      expect(() => carregarAllowlist(arquivo('{"expressions": ["cometa"]}'))).toThrow();
+      expect(() => carregarAllowlist(arquivo('{"expressions": ["buraco-negro 42"]}'))).toThrow();
+      expect(() => carregarAllowlist(arquivo('nao e json'))).toThrow();
+    });
   });
 });
 

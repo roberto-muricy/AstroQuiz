@@ -20,8 +20,16 @@
  * motor: com o skipNonAlphabetic a fronteira de palavra deixa de funcionar, e
  * termos curtos apareciam dentro de palavras comuns. Eles sao conferidos so
  * como palavra inteira do apelido.
+ *
+ * Allowlist: expressoes legitimas barradas por engano ficam em
+ * config/nickname-allowlist.json. Elas entram como termos permitidos da
+ * obscenity, que ignora um termo bloqueado so quando ele esta dentro da
+ * expressao permitida inteira; qualquer outro termo no apelido continua
+ * barrando.
  */
 
+import fs from 'fs';
+import path from 'path';
 import {
   RegExpMatcher,
   DataSet,
@@ -37,6 +45,8 @@ import { normalizarApelido } from './leaderboard-players';
 const listasDoPacote: Record<string, unknown> = require('naughty-words');
 
 export const IDIOMAS_DAS_LISTAS = ['pt', 'es', 'fr', 'en'] as const;
+
+export const ARQUIVO_DA_ALLOWLIST = path.join('config', 'nickname-allowlist.json');
 
 export const TAMANHO_MINIMO_DO_APELIDO = 3;
 export const TAMANHO_MAXIMO_DO_APELIDO = 20;
@@ -57,9 +67,54 @@ export type ResultadoDoApelido =
 /** Devolve true quando o texto contem termo bloqueado. */
 export type VerificadorDeConteudo = (texto: string) => boolean;
 
+export interface ExpressaoPermitida {
+  /** Como esta no arquivo, em minusculas. */
+  escrita: string;
+  /** Sem acentos, minusculas e espacos simples. */
+  normalizada: string;
+}
+
 /** Letras ASCII minusculas, sem acentos: e a forma que o motor compara. */
 function formaComparavel(texto: string): string {
   return texto.normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().replace(/[^a-z]/g, '');
+}
+
+/**
+ * Le a allowlist. Arquivo ausente vira lista vazia; formato invalido e erro,
+ * para uma configuracao errada nao passar despercebida. Cada expressao precisa
+ * ter duas palavras ou mais, para que a allowlist nunca libere um termo sozinho.
+ */
+export function carregarAllowlist(
+  caminho: string = path.resolve(process.cwd(), ARQUIVO_DA_ALLOWLIST)
+): ExpressaoPermitida[] {
+  let conteudo: string;
+  try {
+    conteudo = fs.readFileSync(caminho, 'utf8');
+  } catch (erro: any) {
+    if (erro?.code === 'ENOENT') return [];
+    throw erro;
+  }
+
+  const lista = JSON.parse(conteudo)?.expressions;
+  if (!Array.isArray(lista)) {
+    throw new Error(`${ARQUIVO_DA_ALLOWLIST}: "expressions" must be an array`);
+  }
+
+  const porForma = new Map<string, ExpressaoPermitida>();
+  for (const item of lista) {
+    if (typeof item !== 'string') {
+      throw new Error(`${ARQUIVO_DA_ALLOWLIST}: every expression must be a string`);
+    }
+    const normalizada = normalizarApelido(item);
+    if (!/^\p{L}+( \p{L}+)+$/u.test(normalizada)) {
+      throw new Error(`${ARQUIVO_DA_ALLOWLIST}: every expression must have two or more words made of letters`);
+    }
+    // Repetida (mesma forma normalizada): vale a primeira.
+    if (porForma.has(normalizada)) continue;
+    const escrita = item.normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+    porForma.set(normalizada, { escrita, normalizada });
+  }
+  return [...porForma.values()];
 }
 
 function carregarListas() {
@@ -88,11 +143,18 @@ function carregarListas() {
 }
 
 const listas = carregarListas();
+const allowlist = carregarAllowlist();
 
 const conjunto = new DataSet<any>().addAll(englishDataset as any);
 for (const termo of listas.paraOMotor) {
   // So letras a-z depois de formaComparavel: nada que a sintaxe de padroes interprete.
   conjunto.addPhrase((frase) => frase.addPattern(parseRawPattern(termo)));
+}
+for (const expressao of allowlist) {
+  // As duas formas: o validador confere o apelido digitado e o sem acentos.
+  for (const termo of new Set([expressao.escrita, expressao.normalizada])) {
+    conjunto.addPhrase((frase) => frase.addWhitelistedTerm(termo));
+  }
 }
 
 const matcher = new RegExpMatcher({
@@ -104,14 +166,32 @@ const matcher = new RegExpMatcher({
   whitelistMatcherTransformers: englishRecommendedWhitelistMatcherTransformers,
 });
 
+// Para a conferencia por palavra inteira: tira as expressoes permitidas antes
+// de separar as palavras. So letras e espacos (validado ao carregar), entao a
+// expressao nao tem nada que a expressao regular interprete.
+const expressoesPermitidasNoTexto = allowlist.map(
+  ({ normalizada }) => new RegExp(`(^|[^\\p{L}])${normalizada.replace(/ /g, '[^\\p{L}]+')}(?=$|[^\\p{L}])`, 'gu')
+);
+
+function palavrasForaDaAllowlist(texto: string): string[] {
+  let restante = normalizarApelido(texto);
+  for (const expressao of expressoesPermitidasNoTexto) restante = restante.replace(expressao, '$1 ');
+  return restante.split(/[^\p{L}]+/u);
+}
+
 /** Quantos termos de cada idioma foram carregados do pacote. */
 export function termosCarregadosPorIdioma(): Record<string, number> {
   return { ...listas.quantidadePorIdioma };
 }
 
+/** Expressoes carregadas da allowlist, na forma normalizada. */
+export function expressoesPermitidas(): string[] {
+  return allowlist.map((expressao) => expressao.normalizada);
+}
+
 export const contemTermoBloqueado: VerificadorDeConteudo = (texto) =>
   matcher.hasMatch(texto) ||
-  texto.split(/[^\p{L}]+/u).some((palavra) => listas.soPalavraInteira.has(formaComparavel(palavra)));
+  palavrasForaDaAllowlist(texto).some((palavra) => listas.soPalavraInteira.has(formaComparavel(palavra)));
 
 export function validarApelido(
   entrada: unknown,

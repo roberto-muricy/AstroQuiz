@@ -19,6 +19,7 @@ import {
   validateQuestionData,
   validateLocale,
   validateLevel,
+  validateQuestionId,
   formatValidationErrors,
 } from '../services/validation';
 
@@ -190,6 +191,12 @@ export function createQuestionRoutes(strapi: any): any[] {
       handler: async (ctx: any) => {
         try {
           const { id } = ctx.params;
+          // Id que nao e numero nao e pergunta: 404, sem ir ao banco. Esta rota
+          // e registrada antes das outras de um segmento (debug-structure, e a
+          // antiga diagnose-document-id), e o id invalido virava erro do banco (500).
+          if (id === undefined || !validateQuestionId(id).valid) {
+            return ctx.notFound('Question not found');
+          }
           const row = await fetchQuestionRowById(strapi, id);
           if (!row) return ctx.notFound('Question not found');
           const comGabarito = await podeVerGabarito(strapi, ctx);
@@ -886,68 +893,6 @@ export function createQuestionRoutes(strapi: any): any[] {
           }
         },
       ],
-      config: { auth: false },
-    },
-
-    // DIAGNOSE: Check document_id status (simplified)
-    {
-      method: 'GET',
-      path: '/api/questions/diagnose-document-id',
-      handler: async (ctx: any) => {
-        try {
-          const knex = strapi.db.connection;
-
-          // Simple count query
-          const rows = await knex('questions')
-            .select('id', 'document_id', 'topic_key', 'question_type', 'locale')
-            .limit(10);
-
-          const totalCount = await knex('questions').count('* as count').first();
-
-          const analysis = {
-            total: totalCount?.count || 0,
-            withDocumentId: 0,
-            withoutDocumentId: 0,
-            withTopicKey: 0,
-            withoutTopicKey: 0,
-            sample: [],
-          };
-
-          for (const row of rows) {
-            if (row.document_id && row.document_id.length === 24) {
-              analysis.withDocumentId++;
-            } else {
-              analysis.withoutDocumentId++;
-            }
-
-            if (row.topic_key) {
-              analysis.withTopicKey++;
-            } else {
-              analysis.withoutTopicKey++;
-            }
-
-            analysis.sample.push({
-              id: row.id,
-              documentId: row.document_id,
-              documentIdLength: row.document_id ? row.document_id.length : 0,
-              topicKey: row.topic_key,
-              questionType: row.question_type,
-              locale: row.locale,
-            });
-          }
-
-          ctx.body = {
-            success: true,
-            diagnosis: analysis,
-          };
-        } catch (error: any) {
-          strapi.log.error('Diagnose document_id error:', error);
-          ctx.body = {
-            success: false,
-            error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
-          };
-        }
-      },
       config: { auth: false },
     },
 
