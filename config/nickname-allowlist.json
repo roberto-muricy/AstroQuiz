@@ -1,4 +1,4 @@
 {
   "description": "Expressoes legitimas que o filtro de apelido barra por engano. Cada entrada libera apenas a expressao inteira, sem diferenciar maiusculas e acentos; qualquer outro termo bloqueado no apelido continua barrando. Cada entrada precisa ter duas palavras ou mais. Lida por src/services/nickname.ts.",
-  "expressions": ["buraco negro"]
+  "expressions": ["buraco negro", "agujero negro"]
 }

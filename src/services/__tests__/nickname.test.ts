@@ -49,7 +49,13 @@ describe('allowlist', () => {
   const EXPRESSAO = 'Buraco Negro';
 
   it('e carregada do arquivo de configuracao', () => {
-    expect(expressoesPermitidas()).toContain('buraco negro');
+    expect(expressoesPermitidas()).toEqual(expect.arrayContaining(['buraco negro', 'agujero negro']));
+  });
+
+  it('cada expressao da allowlist passa como apelido', () => {
+    const recusadas = expressoesPermitidas().filter((expressao) => !validarApelido(expressao).ok);
+    expect(recusadas).toEqual([]);
+    expect(validarApelido('Agujero Negro').ok).toBe(true);
   });
 
   it('libera apelidos com a expressao de astronomia', () => {
