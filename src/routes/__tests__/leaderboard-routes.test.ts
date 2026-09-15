@@ -93,13 +93,14 @@ async function chamar(
 }
 
 it('registra as quatro rotas de leitura, publicas', () => {
-  expect(rotas.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
+  const leitura = rotas.filter((r) => r.method === 'GET');
+  expect(leitura.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
     'GET /api/leaderboard/all-time',
     'GET /api/leaderboard/country/:country',
     'GET /api/leaderboard/phase',
     'GET /api/leaderboard/weekly',
   ]);
-  expect(rotas.every((r) => r.config?.auth === false)).toBe(true);
+  expect(leitura.every((r) => r.config?.auth === false && r.handler.length === 2)).toBe(true);
 });
 
 it('devolve a pagina no formato da API, com paginacao padrao', async () => {

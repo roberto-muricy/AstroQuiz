@@ -2,18 +2,22 @@
  * Jogadores do ranking
  *
  * Como cada conta aparece na classificacao: apelido escolhido ou nome gerado,
- * pais e visibilidade. A tabela e criada pela migracao
- * database/migrations/2026.09.14T00.00.00.create-leaderboard-players.js.
+ * pais e visibilidade. A tabela vem da migracao
+ * database/migrations/2026.09.14T00.00.00.create-leaderboard-players.js, e as
+ * datas do apelido da 2026.09.17T00.00.00.leaderboard-nickname-rules.js.
  *
- * As regras de apelido (tamanho, caracteres permitidos, nomes bloqueados) ainda
- * nao existem. Este modulo so garante a unicidade e o limite da coluna; nenhum
- * apelido deve chegar a atualizarJogador sem passar por aquelas regras.
+ * Este modulo so persiste, e garante a unicidade e o limite da coluna. As
+ * regras de conteudo do apelido ficam em nickname.ts; as de troca, prazo e
+ * reserva, em leaderboard-settings.ts. Nenhum apelido deve chegar a
+ * atualizarJogador sem passar por elas.
  *
- * Recebe o knex, e nao o strapi, para ser testado contra SQLite.
+ * Recebe o knex (ou uma transacao), e nao o strapi, para ser testado contra
+ * SQLite.
  */
 
 import { randomBytes } from 'crypto';
 import { eTabelaInexistente, eViolacaoDeUnicidade } from './database-errors';
+import { sortearPseudonimo } from './pseudonym';
 
 export const TABELA_DE_JOGADORES = 'leaderboard_players';
 
@@ -31,12 +35,16 @@ export interface JogadorDoRanking {
   idPublico: string;
   pseudonimo: Pseudonimo;
   apelido: string | null;
+  /** Primeira vez que definiu um apelido. */
+  apelidoDefinidoEm: string | null;
+  /** Ultima troca de apelido (a primeira definicao nao conta). */
   apelidoAlteradoEm: string | null;
   pais: string | null;
   mostrarPais: boolean;
   visivel: boolean;
   ocultoPelaModeracao: boolean;
   apelidoOcultoPelaModeracao: boolean;
+  apelidoOcultoEm: string | null;
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -44,6 +52,10 @@ export interface JogadorDoRanking {
 export interface AlteracoesDoJogador {
   /** null ou texto vazio remove o apelido, e volta a valer o nome gerado. */
   apelido?: string | null;
+  apelidoDefinidoEm?: Date | null;
+  apelidoAlteradoEm?: Date | null;
+  apelidoOculto?: boolean;
+  apelidoOcultoEm?: Date | null;
   pais?: string | null;
   mostrarPais?: boolean;
   visivel?: boolean;
@@ -124,6 +136,14 @@ function conferirBooleano(valor: unknown, campo: string): boolean {
   return valor;
 }
 
+function conferirData(valor: unknown, campo: string): string | null {
+  if (valor === null) return null;
+  if (!(valor instanceof Date) || Number.isNaN(valor.getTime())) {
+    throw new Error(`${campo} must be a date`);
+  }
+  return valor.toISOString();
+}
+
 // SQLite devolve booleanos como 0/1 e datas como texto; o Postgres, como
 // boolean e Date.
 const comoBooleano = (v: any): boolean => v === true || v === 1 || v === '1' || v === 't';
@@ -139,12 +159,14 @@ function paraJogador(linha: any): JogadorDoRanking {
       numero: Number(linha.pseudonym_number),
     },
     apelido: linha.nickname ?? null,
+    apelidoDefinidoEm: comoData(linha.nickname_first_set_at),
     apelidoAlteradoEm: comoData(linha.nickname_changed_at),
     pais: linha.country_code ?? null,
     mostrarPais: comoBooleano(linha.show_country),
     visivel: comoBooleano(linha.visible),
     ocultoPelaModeracao: comoBooleano(linha.hidden_by_admin),
     apelidoOcultoPelaModeracao: comoBooleano(linha.nickname_hidden),
+    apelidoOcultoEm: comoData(linha.nickname_hidden_at),
     criadoEm: comoData(linha.created_at) as string,
     atualizadoEm: comoData(linha.updated_at) as string,
   };
@@ -212,10 +234,9 @@ export async function criarJogador(
 }
 
 /**
- * Altera o que o proprio jogador pode mudar. Devolve null se a conta nao
- * estiver cadastrada.
- *
- * A data de alteracao do apelido so muda quando o apelido muda de fato.
+ * Grava as alteracoes informadas. Devolve null se a conta nao estiver
+ * cadastrada. As datas do apelido so mudam quando vierem nas alteracoes: quem
+ * decide o que e troca e leaderboard-settings.ts.
  */
 export async function atualizarJogador(
   knex: any,
@@ -233,8 +254,19 @@ export async function atualizarJogador(
     if (apelido !== atual.apelido) {
       campos.nickname = apelido;
       campos.nickname_normalized = apelido === null ? null : normalizarApelido(apelido);
-      campos.nickname_changed_at = agora.toISOString();
     }
+  }
+  if ('apelidoDefinidoEm' in alteracoes) {
+    campos.nickname_first_set_at = conferirData(alteracoes.apelidoDefinidoEm, 'apelidoDefinidoEm');
+  }
+  if ('apelidoAlteradoEm' in alteracoes) {
+    campos.nickname_changed_at = conferirData(alteracoes.apelidoAlteradoEm, 'apelidoAlteradoEm');
+  }
+  if ('apelidoOculto' in alteracoes) {
+    campos.nickname_hidden = conferirBooleano(alteracoes.apelidoOculto, 'apelidoOculto');
+  }
+  if ('apelidoOcultoEm' in alteracoes) {
+    campos.nickname_hidden_at = conferirData(alteracoes.apelidoOcultoEm, 'apelidoOcultoEm');
   }
   if ('pais' in alteracoes) campos.country_code = normalizarCodigoDePais(alteracoes.pais);
   if ('mostrarPais' in alteracoes) {
@@ -259,6 +291,31 @@ export async function atualizarJogador(
   }
 
   return buscarJogador(knex, firebaseUid);
+}
+
+const TENTATIVAS_DE_PSEUDONIMO = 10;
+
+/**
+ * Devolve o cadastro da conta, criando-o com um nome gerado se ainda nao
+ * existir. Se o nome sorteado ja estiver em uso, sorteia de novo.
+ */
+export async function garantirJogador(
+  knex: any,
+  firebaseUid: string,
+  opcoes: { sortear?: () => Pseudonimo; agora?: Date } = {}
+): Promise<JogadorDoRanking> {
+  const existente = await buscarJogador(knex, firebaseUid);
+  if (existente) return existente;
+
+  const sortear = opcoes.sortear ?? sortearPseudonimo;
+  for (let tentativa = 0; tentativa < TENTATIVAS_DE_PSEUDONIMO; tentativa++) {
+    try {
+      return await criarJogador(knex, { firebaseUid, pseudonimo: sortear() }, opcoes.agora ?? new Date());
+    } catch (erro) {
+      if (!(erro instanceof ErroDePseudonimoEmUso)) throw erro;
+    }
+  }
+  throw new Error('Could not allocate a pseudonym');
 }
 
 /**

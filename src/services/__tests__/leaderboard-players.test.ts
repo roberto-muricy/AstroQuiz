@@ -16,8 +16,10 @@ import {
   ErroDePseudonimoEmUso,
 } from '../leaderboard-players';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+/* eslint-disable @typescript-eslint/no-var-requires */
 const migracao = require('../../../database/migrations/2026.09.14T00.00.00.create-leaderboard-players.js');
+const migracaoDasRegras = require('../../../database/migrations/2026.09.17T00.00.00.leaderboard-nickname-rules.js');
+/* eslint-enable @typescript-eslint/no-var-requires */
 
 const AGORA = new Date(Date.UTC(2026, 8, 14, 12, 0, 0));
 const DEPOIS = new Date(Date.UTC(2026, 8, 15, 12, 0, 0));
@@ -30,6 +32,7 @@ const novoKnex = () =>
 beforeEach(async () => {
   knex = novoKnex();
   await migracao.up(knex);
+  await migracaoDasRegras.up(knex);
 });
 
 afterEach(async () => {
@@ -120,17 +123,30 @@ describe('atualizarJogador', () => {
     await criarJogador(knex, { firebaseUid: 'uid_jogador_dois', pseudonimo: pseudonimo(2) }, AGORA);
   });
 
-  it('guarda o apelido limpo e a data da troca', async () => {
+  it('guarda o apelido limpo; as datas do apelido so mudam quando informadas', async () => {
     const jogador = await atualizarJogador(knex, 'uid_jogador_um', { apelido: '  Cometa   Azul ' }, DEPOIS);
     expect(jogador).toEqual(
-      expect.objectContaining({ apelido: 'Cometa Azul', apelidoAlteradoEm: DEPOIS.toISOString() })
+      expect.objectContaining({ apelido: 'Cometa Azul', apelidoDefinidoEm: null, apelidoAlteradoEm: null })
     );
-  });
 
-  it('repetir o mesmo apelido nao muda a data da troca', async () => {
-    await atualizarJogador(knex, 'uid_jogador_um', { apelido: 'Cometa Azul' }, AGORA);
-    const jogador = await atualizarJogador(knex, 'uid_jogador_um', { apelido: 'Cometa Azul' }, DEPOIS);
-    expect(jogador?.apelidoAlteradoEm).toBe(AGORA.toISOString());
+    const comDatas = await atualizarJogador(knex, 'uid_jogador_um', {
+      apelidoDefinidoEm: AGORA,
+      apelidoAlteradoEm: DEPOIS,
+      apelidoOculto: true,
+      apelidoOcultoEm: DEPOIS,
+    });
+    expect(comDatas).toEqual(
+      expect.objectContaining({
+        apelidoDefinidoEm: AGORA.toISOString(),
+        apelidoAlteradoEm: DEPOIS.toISOString(),
+        apelidoOcultoPelaModeracao: true,
+        apelidoOcultoEm: DEPOIS.toISOString(),
+      })
+    );
+
+    await expect(
+      atualizarJogador(knex, 'uid_jogador_um', { apelidoAlteradoEm: 'ontem' as any })
+    ).rejects.toThrow('apelidoAlteradoEm must be a date');
   });
 
   it('apelido igual ao de outro jogador, escrito de outro jeito, e recusado', async () => {

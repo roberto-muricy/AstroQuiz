@@ -76,7 +76,7 @@ AstroQuizApp/              # React Native mobile app
 - `questions/*` - CRUD + bulk import + i18n import
 - `user-profile/*` - Profile management with Firebase UID
 - `i18n-setup/*` - Language configuration
-- `leaderboard/*` - Ranking, read-only and public (`all-time`, `weekly`, `phase`, `country/:country`)
+- `leaderboard/*` - Ranking: public reads (`all-time`, `weekly`, `phase`, `country/:country`); authenticated writes (`PUT me` for nickname/country, `POST report` for nickname reports); admin `POST admin/players/:playerId/restore-nickname`. Regras de apelido em `src/services/leaderboard-settings.ts` (primeira definicao livre, troca a cada 7 dias, apelido deixado reservado 30 dias ao dono) e de denuncia em `src/services/leaderboard-reports.ts` (5 por dia por conta, oculta o apelido com 5 pendentes de contas distintas)
 - `debug/*` - Dev-only tools
 
 ### Estado em memoria (vale para uma instancia so)
@@ -102,9 +102,12 @@ AstroQuizApp/              # React Native mobile app
 - Coverage collected from `src/**/*.ts`
 
 ### Deployment
-- **Railway** with Nixpacks (no Dockerfile)
-- Build: `npm run railway:build` / Start: `npm run railway:start`
+- **Railway** with Nixpacks (no Dockerfile), configurado em `railway.json`:
+  - Build: `npm run railway:build` → `rm -rf dist build .cache && npm run build` (`strapi build`)
+  - Start: `npm run start` → `strapi start`. O `nixpacks.toml` declara `npm run railway:start`, mas o `startCommand` do `railway.json` prevalece; mantenha os dois coerentes ao mudar.
 - Health check: `GET /api/quiz/health`
+- **`dist/` nunca deve voltar a ser versionado.** Ate 14/09/2026 o git guardava um `dist/src/index.js` de fevereiro que, em producao, prevalecia sobre o compilado: a inicializacao nova nao rodava e rotas novas davam 404, sem nenhum erro. `dist/` esta no `.gitignore`; `git ls-files dist` deve sair vazio.
+- Tabelas novas: migracao do Strapi em `database/migrations/*.js`, idempotente (`hasTable`). Ela roda na sincronizacao do schema, antes da inicializacao, e fica registrada em `strapi_migrations`.
 
 ## Code Conventions
 

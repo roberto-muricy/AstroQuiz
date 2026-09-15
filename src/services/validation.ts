@@ -418,6 +418,54 @@ export function validateCountryCode(code: any): ValidationResult {
 }
 
 /**
+ * Corpo JSON com campos conhecidos: precisa ser objeto, e qualquer campo fora
+ * da lista e recusado (sem repetir o nome recebido na mensagem).
+ */
+export function validateKnownFields(body: any, allowed: string[]): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    errors.push({ field: 'body', message: 'Body must be a JSON object' });
+  } else if (Object.keys(body).some((key) => !allowed.includes(key))) {
+    errors.push({ field: 'body', message: `Only these fields are allowed: ${allowed.join(', ')}` });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/** Pais opcional: null ou texto vazio removem o pais. */
+export function validateOptionalCountryCode(code: any): ValidationResult {
+  if (code === null || code === '') return { valid: true, errors: [] };
+  return validateCountryCode(code);
+}
+
+/** Id publico do jogador no ranking (base64url, ate 16 caracteres). */
+export function validatePublicPlayerId(id: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,16}$/.test(id)) {
+    errors.push({ field: 'playerId', message: 'Invalid player ID' });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+export const LEADERBOARD_REPORT_REASONS = ['offensive', 'impersonation', 'spam'];
+
+export function validateReportReason(reason: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (typeof reason !== 'string' || !LEADERBOARD_REPORT_REASONS.includes(reason)) {
+    errors.push({
+      field: 'reason',
+      message: `reason must be one of: ${LEADERBOARD_REPORT_REASONS.join(', ')}`,
+    });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * Combine multiple validation results
  */
 export function combineValidations(...results: ValidationResult[]): ValidationResult {

@@ -10,6 +10,8 @@ import {
 import { sanitizeStatsUpdate } from '../services/validation';
 import { apagarResultadosDoJogador } from '../services/phase-results';
 import { apagarJogador } from '../services/leaderboard-players';
+import { apagarDenunciasDoJogador } from '../services/leaderboard-reports';
+import { apagarReservasDoJogador } from '../services/leaderboard-settings';
 import { esquecerJogadorNasSessoes } from '../services/quiz-session';
 
 const VALID_ROLES = ['user', 'premium', 'admin'];
@@ -207,6 +209,8 @@ export function createUserProfileRoutes(strapi: any): any[] {
               user.firebaseUid
             );
             await apagarJogador(strapi.db.connection, user.firebaseUid);
+            await apagarDenunciasDoJogador(strapi.db.connection, user.firebaseUid);
+            await apagarReservasDoJogador(strapi.db.connection, user.firebaseUid);
             esquecerJogadorNasSessoes(user.firebaseUid);
 
             const profile = await strapi.db.query('api::user-profile.user-profile').findOne({
