@@ -57,6 +57,7 @@
     "csv-stringify": "^6.7.0",
     "dotenv": "^17.4.1",
     "firebase-admin": "^13.8.0",
+    "naughty-words": "^1.2.0",
     "obscenity": "^0.4.6",
     "pg": "^8.20.0",
     "pg-connection-string": "^2.12.0",

@@ -889,65 +889,6 @@ export function createQuestionRoutes(strapi: any): any[] {
       config: { auth: false },
     },
 
-    // DEBUG: Check how different APIs read the data
-    {
-      method: 'GET',
-      path: '/api/questions/debug-all-methods/:id',
-      handler: async (ctx: any) => {
-        try {
-          const { id } = ctx.params;
-          const knex = strapi.db.connection;
-
-          // 1. Raw SQL
-          const sqlRows = await knex.raw(`
-            SELECT id, document_id, base_id, topic, topic_key, question_type, locale, question
-            FROM questions
-            WHERE id = ?
-            LIMIT 1
-          `, [Number(id)]);
-          const sqlRow = sqlRows.rows?.[0] || sqlRows[0];
-
-          // 2. Knex with column mapping
-          const knexRow = await knex('questions')
-            .select('id', 'document_id as documentId', 'base_id as baseId', 'topic', 'topic_key as topicKey', 'question_type as questionType')
-            .where('id', Number(id))
-            .first();
-
-          // 3. Entity Service (Strapi v4 style)
-          let entityServiceResult = null;
-          try {
-            entityServiceResult = await strapi.entityService.findOne('api::question.question', id);
-          } catch (e: any) {
-            entityServiceResult = { error: e.message };
-          }
-
-          // 4. Documents API findOne
-          let documentsResult = null;
-          try {
-            documentsResult = await strapi.documents('api::question.question').findOne({
-              documentId: sqlRow.document_id,
-            });
-          } catch (e: any) {
-            documentsResult = { error: e.message };
-          }
-
-          ctx.body = {
-            success: true,
-            note: 'Compare the topicKey field across different methods',
-            methods: {
-              '1_rawSQL': sqlRow,
-              '2_knexMapped': knexRow,
-              '3_entityService': entityServiceResult,
-              '4_documentsAPI': documentsResult,
-            },
-          };
-        } catch (error: any) {
-          strapi.log.error('GET /api/questions/debug-all-methods error:', error);
-          ctx.throw(500, 'Internal server error');
-        }
-      },
-      config: { auth: false },
-    },
     // DIAGNOSE: Check document_id status (simplified)
     {
       method: 'GET',

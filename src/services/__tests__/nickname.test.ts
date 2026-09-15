@@ -7,7 +7,7 @@
  */
 
 import { englishDataset } from 'obscenity';
-import { validarApelido, contemTermoBloqueado } from '../nickname';
+import { validarApelido, contemTermoBloqueado, termosCarregadosPorIdioma } from '../nickname';
 
 const NO_LITERAL = 2; // SyntaxKind.Literal na obscenity
 
@@ -25,6 +25,15 @@ const recusadoPor = (entrada: unknown, motivo: string, verificar?: (texto: strin
   const resultado = verificar ? validarApelido(entrada, verificar) : validarApelido(entrada);
   return resultado.ok === false && resultado.motivo === motivo;
 };
+
+describe('listas do naughty-words', () => {
+  it('carrega pt, es, fr e en em tempo de execucao, cada uma com mais de 50 entradas', () => {
+    const quantidades = termosCarregadosPorIdioma();
+    for (const idioma of ['pt', 'es', 'fr', 'en']) {
+      expect(quantidades[idioma]).toBeGreaterThan(50);
+    }
+  });
+});
 
 describe('validarApelido', () => {
   it('aceita apelidos comuns nos quatro idiomas do app e em outros alfabetos', () => {
