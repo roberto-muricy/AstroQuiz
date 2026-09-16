@@ -447,6 +447,38 @@
     },
     "error": {
       "title": "Não foi possível carregar o ranking"
+    },
+    "guest": {
+      "title": "Entre para aparecer no ranking",
+      "subtitle": "Quem tem conta aparece na lista e acompanha a própria posição.",
+      "hypothetical": "Com o que você já pontuou, entraria em {{position}}.",
+      "action": "Entrar"
+    },
+    "hidden": {
+      "title": "Você não está aparecendo",
+      "subtitle": "Ninguém vê seu nome na lista enquanto isso estiver desligado.",
+      "withPosition": "Ninguém vê seu nome na lista. Se voltasse, você estaria em {{position}}.",
+      "action": "Voltar a aparecer"
+    },
+    "intro": {
+      "title": "Você já está no ranking",
+      "explanation": "É assim que os outros jogadores veem você. Dá para trocar o apelido no perfil quando quiser.",
+      "draw": "Sortear outro",
+      "continue": "Continuar",
+      "optOut": "Não quero aparecer"
+    },
+    "report": {
+      "title": "Denunciar este nome",
+      "message": "A denúncia vai para revisão. O nome não some de imediato.",
+      "hint": "Toque e segure para denunciar o nome",
+      "reasons": {
+        "offensive": "Ofensivo",
+        "impersonation": "Finge ser outra pessoa",
+        "spam": "Propaganda ou spam"
+      },
+      "sentTitle": "Denúncia recebida",
+      "sentMessage": "Obrigado. Vamos revisar esse nome.",
+      "close": "Fechar"
     }
   }
 }

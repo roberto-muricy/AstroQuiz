@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Crown, Medal } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
@@ -27,9 +27,21 @@ interface Props {
   metrica: MetricaDoRanking;
   /** A linha do próprio jogador, destacada na lista e fixada no rodapé. */
   destacada?: boolean;
+  /**
+   * Toque longo abre a denúncia do nome. Só existe para quem tem conta e para
+   * linhas de outras pessoas — e é toque longo, e não toque, para ninguém
+   * denunciar alguém tentando rolar a lista.
+   */
+  aoDenunciar?: () => void;
 }
 
-export const LinhaDoRanking: React.FC<Props> = ({ entrada, idioma, metrica, destacada }) => {
+export const LinhaDoRanking: React.FC<Props> = ({
+  entrada,
+  idioma,
+  metrica,
+  destacada,
+  aoDenunciar,
+}) => {
   const { t } = useTranslation();
 
   const noPodio = entrada.position >= 1 && entrada.position <= 3;
@@ -40,10 +52,13 @@ export const LinhaDoRanking: React.FC<Props> = ({ entrada, idioma, metrica, dest
       : formatarPontuacao(entrada.score, idioma);
 
   return (
-    <View
+    <Pressable
       style={[styles.linha, destacada && styles.linhaDestacada]}
       testID={`linha-${entrada.publicId}`}
-      accessibilityRole="text"
+      onLongPress={aoDenunciar}
+      disabled={!aoDenunciar}
+      accessibilityRole={aoDenunciar ? 'button' : 'text'}
+      accessibilityHint={aoDenunciar ? t('leaderboard.report.hint') : undefined}
     >
       <View style={styles.posicao} testID="posicao">
         {noPodio ? (
@@ -70,7 +85,7 @@ export const LinhaDoRanking: React.FC<Props> = ({ entrada, idioma, metrica, dest
       <Text style={styles.valor} testID="valor">
         {valor}
       </Text>
-    </View>
+    </Pressable>
   );
 };
 

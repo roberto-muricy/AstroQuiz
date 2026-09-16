@@ -433,6 +433,38 @@
     },
     "error": {
       "title": "No se pudo cargar la clasificación"
+    },
+    "guest": {
+      "title": "Inicia sesión para aparecer en la clasificación",
+      "subtitle": "Quien tiene cuenta aparece en la lista y sigue su propia posición.",
+      "hypothetical": "Con lo que ya has puntuado, entrarías en {{position}}.",
+      "action": "Iniciar sesión"
+    },
+    "hidden": {
+      "title": "No estás apareciendo",
+      "subtitle": "Nadie ve tu nombre en la lista mientras esto esté desactivado.",
+      "withPosition": "Nadie ve tu nombre en la lista. Si volvieras, estarías en {{position}}.",
+      "action": "Volver a aparecer"
+    },
+    "intro": {
+      "title": "Ya estás en la clasificación",
+      "explanation": "Así te ven los demás jugadores. Puedes cambiar el apodo en tu perfil cuando quieras.",
+      "draw": "Sortear otro",
+      "continue": "Continuar",
+      "optOut": "No quiero aparecer"
+    },
+    "report": {
+      "title": "Denunciar este nombre",
+      "message": "La denuncia va a revisión. El nombre no desaparece de inmediato.",
+      "hint": "Mantén pulsado para denunciar el nombre",
+      "reasons": {
+        "offensive": "Ofensivo",
+        "impersonation": "Se hace pasar por otra persona",
+        "spam": "Publicidad o spam"
+      },
+      "sentTitle": "Denuncia recibida",
+      "sentMessage": "Gracias. Vamos a revisar ese nombre.",
+      "close": "Cerrar"
     }
   }
 }

@@ -447,6 +447,38 @@
     },
     "error": {
       "title": "Couldn't load the ranking"
+    },
+    "guest": {
+      "title": "Sign in to join the ranking",
+      "subtitle": "Players with an account appear on the list and can follow their own position.",
+      "hypothetical": "With what you have scored so far, you would be {{position}}.",
+      "action": "Sign in"
+    },
+    "hidden": {
+      "title": "You're not showing up",
+      "subtitle": "No one sees your name on the list while this is turned off.",
+      "withPosition": "No one sees your name on the list. If you came back, you would be {{position}}.",
+      "action": "Show me again"
+    },
+    "intro": {
+      "title": "You're already on the ranking",
+      "explanation": "This is how other players see you. You can pick a nickname in your profile whenever you want.",
+      "draw": "Draw another",
+      "continue": "Continue",
+      "optOut": "I don't want to appear"
+    },
+    "report": {
+      "title": "Report this name",
+      "message": "The report goes to review. The name does not disappear right away.",
+      "hint": "Press and hold to report the name",
+      "reasons": {
+        "offensive": "Offensive",
+        "impersonation": "Pretends to be someone else",
+        "spam": "Advertising or spam"
+      },
+      "sentTitle": "Report received",
+      "sentMessage": "Thank you. We'll review this name.",
+      "close": "Close"
     }
   }
 }

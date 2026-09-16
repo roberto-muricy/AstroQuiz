@@ -433,6 +433,38 @@
     },
     "error": {
       "title": "Impossible de charger le classement"
+    },
+    "guest": {
+      "title": "Connectez-vous pour figurer au classement",
+      "subtitle": "Les joueurs avec un compte apparaissent dans la liste et suivent leur position.",
+      "hypothetical": "Avec vos points actuels, vous seriez {{position}}.",
+      "action": "Se connecter"
+    },
+    "hidden": {
+      "title": "Vous n'apparaissez pas",
+      "subtitle": "Personne ne voit votre nom dans la liste tant que ceci est désactivé.",
+      "withPosition": "Personne ne voit votre nom dans la liste. En revenant, vous seriez {{position}}.",
+      "action": "Réapparaître"
+    },
+    "intro": {
+      "title": "Vous êtes déjà au classement",
+      "explanation": "C'est ainsi que les autres joueurs vous voient. Vous pouvez choisir un pseudo dans votre profil quand vous voulez.",
+      "draw": "Tirer un autre",
+      "continue": "Continuer",
+      "optOut": "Je ne veux pas apparaître"
+    },
+    "report": {
+      "title": "Signaler ce nom",
+      "message": "Le signalement part en révision. Le nom ne disparaît pas immédiatement.",
+      "hint": "Appuyez longuement pour signaler le nom",
+      "reasons": {
+        "offensive": "Offensant",
+        "impersonation": "Se fait passer pour quelqu'un d'autre",
+        "spam": "Publicité ou spam"
+      },
+      "sentTitle": "Signalement reçu",
+      "sentMessage": "Merci. Nous allons examiner ce nom.",
+      "close": "Fermer"
     }
   }
 }

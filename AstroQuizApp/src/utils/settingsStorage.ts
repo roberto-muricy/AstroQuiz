@@ -14,6 +14,14 @@ export interface AppSettings {
    * necessariamente rever a apresentacao.
    */
   onboardingVisto: boolean;
+  /**
+   * A apresentacao do ranking ja foi vista — aquela que diz com que nome o
+   * jogador aparece e oferece nao aparecer.
+   *
+   * Vive aqui, e nao no progresso, pelo mesmo motivo do onboarding: quem apaga
+   * o progresso para recomecar nao quer necessariamente rever a apresentacao.
+   */
+  apresentacaoDoRankingVista: boolean;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   musicEnabled: boolean;
@@ -25,6 +33,7 @@ export interface AppSettings {
  *  ficou para tras quando `onboardingVisto` entrou. */
 export const DEFAULT_SETTINGS: AppSettings = {
   onboardingVisto: false,
+  apresentacaoDoRankingVista: false,
   soundEnabled: true,
   vibrationEnabled: true,
   musicEnabled: false,
