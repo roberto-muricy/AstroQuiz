@@ -82,6 +82,28 @@ export interface MudancasDoJogador {
 
 export type MotivoDaDenuncia = 'offensive' | 'impersonation' | 'spam';
 
+/**
+ * O motivo que o servidor deu para recusar, quando deu.
+ *
+ * O axios lanca em 4xx, entao o corpo da recusa fica em `response.data` e nao
+ * chega pelo caminho normal. Os nomes sao os mesmos que a validacao local usa,
+ * para a tela ter uma frase por motivo — venha ela daqui ou de la.
+ */
+export function motivoDoErro(erro: any): string | null {
+  const detalhes = erro?.response?.data?.error?.details;
+  if (detalhes?.reason) return String(detalhes.reason);
+
+  const status = erro?.response?.status;
+  if (status === 409) return 'taken';
+  if (status === 429) return 'tooSoon';
+  return null;
+}
+
+/** Quando a proxima troca de apelido fica liberada, se o servidor disse. */
+export function proximaTrocaDoErro(erro: any): string | null {
+  return erro?.response?.data?.error?.details?.nextNicknameChangeAt ?? null;
+}
+
 function conteudo<T>(resposta: ApiResponse<T>, oQue: string): T {
   if (!resposta?.success || resposta.data === undefined || resposta.data === null) {
     throw new Error(resposta?.error || resposta?.message || `Erro ao ${oQue}`);

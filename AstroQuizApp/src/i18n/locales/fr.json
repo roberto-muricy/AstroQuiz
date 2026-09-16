@@ -255,7 +255,8 @@
     "version": "Version",
     "terms": "Conditions d'utilisation",
     "privacy": "Confidentialité",
-    "imageCredits": "Crédits des images"
+    "imageCredits": "Crédits des images",
+    "contact": "Nous contacter"
   },
   "achievements": {
     "title": "Succès",
@@ -485,6 +486,44 @@
       "yours": "sur {{total}} joueurs cette semaine",
       "guest": "Voyez à quelle place vous seriez",
       "empty": "Personne n'a marqué cette semaine"
+    },
+    "profile": {
+      "title": "Classement",
+      "offline": "Impossible de charger vos réglages de classement.",
+      "appearAs": "Vous apparaissez comme",
+      "showCountry": "Afficher mon pays",
+      "visible": "Apparaître au classement",
+      "visibleHelp": "Désactivé, personne ne voit votre nom dans la liste.",
+      "nickname": {
+        "title": "Votre pseudo",
+        "explanation": "De 3 à 20 caractères. Sans pseudo, vous apparaissez avec le nom tiré au sort.",
+        "placeholder": "Choisissez un pseudo",
+        "clear": "Effacer",
+        "nextChange": "Vous pourrez le changer à nouveau à partir du {{date}}.",
+        "errors": {
+          "too_short": "Trop court : utilisez au moins 3 caractères.",
+          "too_long": "Trop long : utilisez au maximum 20 caractères.",
+          "invalid_characters": "Utilisez lettres, chiffres, espace, point, tiret ou tiret bas.",
+          "too_few_letters": "Utilisez au moins deux lettres.",
+          "reserved": "Ce nom est réservé. Choisissez-en un autre.",
+          "not_allowed": "Ce pseudo n'est pas autorisé. Choisissez-en un autre.",
+          "taken": "Quelqu'un utilise déjà ce pseudo.",
+          "tooSoon": "Vous avez changé de pseudo récemment."
+        }
+      },
+      "country": {
+        "label": "Pays",
+        "title": "Choisissez votre pays",
+        "search": "Rechercher un pays",
+        "none": "Préfère ne pas dire",
+        "noResults": "Aucun pays trouvé."
+      },
+      "delete": {
+        "action": "Supprimer mes données de classement",
+        "title": "Supprimer vos données de classement ?",
+        "message": "Votre pseudo, pays et position sont supprimés. Vos parties cessent de compter pour le classement. Cela ne supprime pas votre compte.",
+        "confirm": "Supprimer"
+      }
     }
   }
 }

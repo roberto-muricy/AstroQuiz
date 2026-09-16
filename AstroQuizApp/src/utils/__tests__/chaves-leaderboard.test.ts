@@ -37,11 +37,26 @@ const ARQUIVOS = [
     .map((nome) => path.join(raiz, 'components', 'leaderboard', nome)),
 ];
 
-/** Montadas em tempo de execução: `t(\`leaderboard.report.reasons.${motivo}\`)`. */
+/**
+ * Montadas em tempo de execução, a partir do motivo que vem do servidor ou da
+ * validação local — nenhuma busca por texto as encontra.
+ *
+ * Os motivos de apelido são os mesmos nos dois lados: os quatro de formato
+ * também existem em utils/apelido.ts, e `reserved` e `not_allowed` só o
+ * servidor sabe julgar. `taken` e `tooSoon` vêm do código HTTP.
+ */
 const CHAVES_DINAMICAS = [
   'leaderboard.report.reasons.offensive',
   'leaderboard.report.reasons.impersonation',
   'leaderboard.report.reasons.spam',
+  'leaderboard.profile.nickname.errors.too_short',
+  'leaderboard.profile.nickname.errors.too_long',
+  'leaderboard.profile.nickname.errors.invalid_characters',
+  'leaderboard.profile.nickname.errors.too_few_letters',
+  'leaderboard.profile.nickname.errors.reserved',
+  'leaderboard.profile.nickname.errors.not_allowed',
+  'leaderboard.profile.nickname.errors.taken',
+  'leaderboard.profile.nickname.errors.tooSoon',
 ];
 
 function chavesUsadas(): string[] {
@@ -83,7 +98,7 @@ describe('chaves de i18n do ranking', () => {
     // e o link esta na tela de resultado.
     const faltando: string[] = [];
     for (const idioma of LOCALES) {
-      for (const chave of ['tabs.leaderboard', 'result.seeRanking']) {
+      for (const chave of ['tabs.leaderboard', 'result.seeRanking', 'profile.contact']) {
         if (!existe(traducoes[idioma], chave)) faltando.push(`${idioma}: ${chave}`);
       }
     }

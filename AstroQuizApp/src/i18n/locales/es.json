@@ -255,7 +255,8 @@
     "version": "Versión",
     "terms": "Términos de uso",
     "privacy": "Privacidad",
-    "imageCredits": "Créditos de imágenes"
+    "imageCredits": "Créditos de imágenes",
+    "contact": "Contáctanos"
   },
   "achievements": {
     "title": "Logros",
@@ -485,6 +486,44 @@
       "yours": "de {{total}} jugadores esta semana",
       "guest": "Mira en qué posición entrarías",
       "empty": "Nadie ha puntuado esta semana todavía"
+    },
+    "profile": {
+      "title": "Clasificación",
+      "offline": "No se pudieron cargar tus ajustes de clasificación.",
+      "appearAs": "Apareces como",
+      "showCountry": "Mostrar mi país",
+      "visible": "Aparecer en la clasificación",
+      "visibleHelp": "Desactivado, nadie ve tu nombre en la lista.",
+      "nickname": {
+        "title": "Tu apodo",
+        "explanation": "De 3 a 20 caracteres. Sin apodo, apareces con el nombre sorteado.",
+        "placeholder": "Elige un apodo",
+        "clear": "Borrar",
+        "nextChange": "Podrás cambiarlo de nuevo a partir del {{date}}.",
+        "errors": {
+          "too_short": "Demasiado corto: usa al menos 3 caracteres.",
+          "too_long": "Demasiado largo: usa como máximo 20 caracteres.",
+          "invalid_characters": "Usa letras, números, espacio, punto, guion o guion bajo.",
+          "too_few_letters": "Usa al menos dos letras.",
+          "reserved": "Ese nombre está reservado. Elige otro.",
+          "not_allowed": "Ese apodo no está permitido. Elige otro.",
+          "taken": "Alguien ya está usando ese apodo.",
+          "tooSoon": "Cambiaste tu apodo hace poco."
+        }
+      },
+      "country": {
+        "label": "País",
+        "title": "Elige tu país",
+        "search": "Buscar país",
+        "none": "Prefiero no decirlo",
+        "noResults": "Ningún país encontrado."
+      },
+      "delete": {
+        "action": "Borrar mis datos de la clasificación",
+        "title": "¿Borrar tus datos de la clasificación?",
+        "message": "Se borran tu apodo, país y posición. Tus partidas dejan de contar para la clasificación. Esto no borra tu cuenta.",
+        "confirm": "Borrar"
+      }
     }
   }
 }

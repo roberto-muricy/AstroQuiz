@@ -5,6 +5,8 @@
 
 import { Button, Card, Toast } from '@/components';
 import { ToggleSwitch } from '@/components/ToggleSwitch';
+import { CartaoDoPerfil } from '@/components/leaderboard';
+import { IdiomaSuportado } from '@/utils/pseudonimo';
 import { useApp } from '@/contexts/AppContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import soundService from '@/services/soundService';
@@ -39,7 +41,8 @@ export const ProfileScreen = () => {
   const navigation = useNavigation<ProfileNav>();
   const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, deleteAccount, isLoading } = useApp();
   const { isPro } = useSubscription();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const idiomaAtual = ((i18n.language || 'pt').slice(0, 2) as IdiomaSuportado) || 'pt';
   const insets = useSafeAreaInsets();
   const proGlowAnim = useRef(new Animated.Value(0)).current;
 
@@ -392,9 +395,29 @@ export const ProfileScreen = () => {
           </View>
         </Card>
 
+        {/* Ranking: como o jogador aparece para os outros. Só para quem tem
+            conta — convidado não tem cadastro no ranking. */}
+        {isAuthenticated && <CartaoDoPerfil idioma={idiomaAtual} />}
+
         {/* Sobre */}
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>{t('profile.about')}</Text>
+
+          {/* Contato publicado no app, e não só nas páginas legais: a Apple
+              exige um canal de contato quando há conteúdo criado por usuário,
+              e o ranking passou a ter apelidos escritos por jogadores. */}
+          <TouchableOpacity
+            style={styles.settingItem}
+            onPress={() => Linking.openURL('mailto:robertomuricy@gmail.com')}
+          >
+            <View style={styles.settingLeft}>
+              <View style={styles.settingIconContainer}>
+                <InfoIcon size={IconSizes.md} color={IconColors.white} />
+              </View>
+              <Text style={styles.settingText}>{t('profile.contact')}</Text>
+            </View>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>

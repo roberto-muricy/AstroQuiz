@@ -7,3 +7,6 @@ export { AvisoDeOculto } from './AvisoDeOculto';
 export { ApresentacaoDoRanking } from './ApresentacaoDoRanking';
 export { ModalDeDenuncia } from './ModalDeDenuncia';
 export { CartaoDoRanking } from './CartaoDoRanking';
+export { CartaoDoPerfil } from './CartaoDoPerfil';
+export { SeletorDePais } from './SeletorDePais';
+export { EditorDeApelido } from './EditorDeApelido';

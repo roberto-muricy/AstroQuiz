@@ -255,7 +255,8 @@
     "version": "Version",
     "terms": "Terms of Use",
     "privacy": "Privacy",
-    "imageCredits": "Image credits"
+    "imageCredits": "Image credits",
+    "contact": "Contact us"
   },
   "achievements": {
     "title": "Achievements",
@@ -485,6 +486,44 @@
       "yours": "of {{total}} players this week",
       "guest": "See where you would land",
       "empty": "No one has scored this week yet"
+    },
+    "profile": {
+      "title": "Ranking",
+      "offline": "Couldn't load your ranking settings.",
+      "appearAs": "You appear as",
+      "showCountry": "Show my country",
+      "visible": "Appear on the ranking",
+      "visibleHelp": "When off, no one sees your name on the list.",
+      "nickname": {
+        "title": "Your nickname",
+        "explanation": "From 3 to 20 characters. Without a nickname, you appear with the drawn name.",
+        "placeholder": "Choose a nickname",
+        "clear": "Clear",
+        "nextChange": "You can change it again from {{date}}.",
+        "errors": {
+          "too_short": "Too short: use at least 3 characters.",
+          "too_long": "Too long: use at most 20 characters.",
+          "invalid_characters": "Use letters, numbers, space, dot, hyphen or underscore.",
+          "too_few_letters": "Use at least two letters.",
+          "reserved": "That name is reserved. Pick another one.",
+          "not_allowed": "That nickname isn't allowed. Pick another one.",
+          "taken": "Someone is already using that nickname.",
+          "tooSoon": "You changed your nickname recently."
+        }
+      },
+      "country": {
+        "label": "Country",
+        "title": "Choose your country",
+        "search": "Search country",
+        "none": "Prefer not to say",
+        "noResults": "No country found."
+      },
+      "delete": {
+        "action": "Delete my ranking data",
+        "title": "Delete your ranking data?",
+        "message": "Your nickname, country and position are deleted. Your games stop counting for the ranking. This does not delete your account.",
+        "confirm": "Delete"
+      }
     }
   }
 }

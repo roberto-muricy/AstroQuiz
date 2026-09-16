@@ -255,7 +255,8 @@
     "version": "Versão",
     "terms": "Termos de Uso",
     "privacy": "Privacidade",
-    "imageCredits": "Créditos de imagens"
+    "imageCredits": "Créditos de imagens",
+    "contact": "Fale conosco"
   },
   "achievements": {
     "title": "Conquistas",
@@ -485,6 +486,44 @@
       "yours": "de {{total}} jogadores nesta semana",
       "guest": "Veja em que posição você entraria",
       "empty": "Ninguém pontuou nesta semana ainda"
+    },
+    "profile": {
+      "title": "Ranking",
+      "offline": "Não foi possível carregar suas configurações do ranking.",
+      "appearAs": "Você aparece como",
+      "showCountry": "Mostrar meu país",
+      "visible": "Aparecer no ranking",
+      "visibleHelp": "Desligado, ninguém vê seu nome na lista.",
+      "nickname": {
+        "title": "Seu apelido",
+        "explanation": "De 3 a 20 caracteres. Sem apelido, você aparece com o nome sorteado.",
+        "placeholder": "Escolha um apelido",
+        "clear": "Limpar",
+        "nextChange": "Você poderá trocar de novo a partir de {{date}}.",
+        "errors": {
+          "too_short": "Curto demais: use pelo menos 3 caracteres.",
+          "too_long": "Longo demais: use no máximo 20 caracteres.",
+          "invalid_characters": "Use letras, números, espaço, ponto, hífen ou sublinhado.",
+          "too_few_letters": "Use pelo menos duas letras.",
+          "reserved": "Esse nome é reservado. Escolha outro.",
+          "not_allowed": "Esse apelido não é permitido. Escolha outro.",
+          "taken": "Alguém já está usando esse apelido.",
+          "tooSoon": "Você trocou de apelido há pouco tempo."
+        }
+      },
+      "country": {
+        "label": "País",
+        "title": "Escolha seu país",
+        "search": "Buscar país",
+        "none": "Não informar",
+        "noResults": "Nenhum país encontrado."
+      },
+      "delete": {
+        "action": "Apagar meus dados do ranking",
+        "title": "Apagar seus dados do ranking?",
+        "message": "Seu apelido, país e posição são apagados. Suas partidas deixam de contar para o ranking. Isso não apaga sua conta.",
+        "confirm": "Apagar"
+      }
     }
   }
 }
