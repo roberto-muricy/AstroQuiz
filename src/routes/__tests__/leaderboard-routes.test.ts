@@ -92,15 +92,20 @@ async function chamar(
   return ctx;
 }
 
-it('registra as quatro rotas de leitura, publicas', () => {
-  const leitura = rotas.filter((r) => r.method === 'GET');
-  expect(leitura.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
+it('registra as quatro rotas de leitura publicas; /me exige login', () => {
+  // GET /api/leaderboard/me le as configuracoes do proprio jogador: e a unica
+  // leitura com login, e por isso leva o middleware de autenticacao a mais.
+  const publicas = rotas.filter((r) => r.method === 'GET' && r.path !== '/api/leaderboard/me');
+  expect(publicas.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
     'GET /api/leaderboard/all-time',
     'GET /api/leaderboard/country/:country',
     'GET /api/leaderboard/phase',
     'GET /api/leaderboard/weekly',
   ]);
-  expect(leitura.every((r) => r.config?.auth === false && r.handler.length === 2)).toBe(true);
+  expect(publicas.every((r) => r.config?.auth === false && r.handler.length === 2)).toBe(true);
+
+  const minhasConfiguracoes = rotas.find((r) => r.method === 'GET' && r.path === '/api/leaderboard/me');
+  expect(minhasConfiguracoes.handler).toHaveLength(3);
 });
 
 it('devolve a pagina no formato da API, com paginacao padrao', async () => {

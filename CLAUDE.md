@@ -76,7 +76,12 @@ AstroQuizApp/              # React Native mobile app
 - `questions/*` - CRUD + bulk import + i18n import
 - `user-profile/*` - Profile management with Firebase UID
 - `i18n-setup/*` - Language configuration
-- `leaderboard/*` - Ranking: public reads (`all-time`, `weekly`, `phase`, `country/:country`); authenticated writes (`PUT me` for nickname/country, `POST report` for nickname reports); admin `POST admin/players/:playerId/restore-nickname`. Regras de apelido em `src/services/leaderboard-settings.ts` (primeira definicao livre, troca a cada 7 dias, apelido deixado reservado 30 dias ao dono) e de denuncia em `src/services/leaderboard-reports.ts` (5 por dia por conta, oculta o apelido com 5 pendentes de contas distintas)
+- `leaderboard/*` - Ranking:
+  - leitura publica: `all-time`, `weekly`, `phase`, `country/:country`
+  - com login: `GET me` (le as configuracoes e cria o cadastro se faltar), `PUT me` (apelido, pais, `showCountry`, `visible`), `POST me/pseudonym` (sorteia outro nome gerado), `DELETE me` (sai do ranking), `POST report` (denuncia de apelido)
+  - admin: `POST admin/players/:playerId/restore-nickname`
+  - regras de apelido em `src/services/leaderboard-settings.ts` (primeira definicao livre, troca a cada 7 dias, apelido deixado reservado 30 dias ao dono) e de denuncia em `src/services/leaderboard-reports.ts` (5 por dia por conta, oculta o apelido com 5 pendentes de contas distintas)
+  - `DELETE me` apaga o cadastro, as reservas e as denuncias, mas **anonimiza** `phase_results` (`firebase_uid` nulo, `eligible` falso) em vez de apagar: as partidas saem do ranking e deixam de apontar para a pessoa, e as estatisticas de uso continuam. `DELETE /api/user-profile/me` (conta inteira) continua apagando as linhas.
 - `debug/*` - Dev-only tools
 
 ### Estado em memoria (vale para uma instancia so)
@@ -90,7 +95,7 @@ AstroQuizApp/              # React Native mobile app
 ```
 
 ### Game Mechanics
-- 50 phases, 10 questions each, 30s per question
+- 50 phases, 10 questions each, 45s per question (`SCORING.timePerQuestion`)
 - Difficulty scales: Phase 1-3 = Level 1 only, Phase 46-50 = Level 5 only
 - Scoring: base points (10-50 by level) x speed multiplier (1.0-2.0x) + streak bonus
 - Sessions expire after 6 hours

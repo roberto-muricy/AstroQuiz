@@ -204,6 +204,25 @@ export async function registrarResultadoDaSessao(
 }
 
 /**
+ * Desliga as partidas da conta, sem apaga-las: `firebase_uid` fica nulo e
+ * `eligible` falso, entao o jogador some do ranking e as linhas deixam de
+ * apontar para uma pessoa, mas continuam contando nas estatisticas de uso.
+ *
+ * E o que usa quem pede para sair do ranking (DELETE /api/leaderboard/me).
+ * Apagar a conta inteira continua removendo as linhas.
+ */
+export async function anonimizarResultadosDoJogador(knex: any, firebaseUid: string): Promise<number> {
+  try {
+    return await knex(TABELA_DE_RESULTADOS)
+      .where({ firebase_uid: firebaseUid })
+      .update({ firebase_uid: null, eligible: false });
+  } catch (erro) {
+    if (eTabelaInexistente(erro)) return 0;
+    throw erro;
+  }
+}
+
+/**
  * Usado na exclusao de conta. Sem a tabela nao ha o que apagar — e a exclusao
  * da conta nao pode falhar por isso.
  */

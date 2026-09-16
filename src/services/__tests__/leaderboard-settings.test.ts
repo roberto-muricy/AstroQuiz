@@ -6,15 +6,25 @@
 import knexFactory from 'knex';
 import {
   definirConfiguracoes,
+  sortearNovoPseudonimo,
+  apagarDadosDoRanking,
   apagarReservasDoJogador,
   proximaTrocaDeApelido,
   TABELA_DE_RESERVAS,
+  PedidoDeConfiguracoes,
 } from '../leaderboard-settings';
 import { buscarJogador, atualizarJogador, TABELA_DE_JOGADORES } from '../leaderboard-players';
+import { anonimizarResultadosDoJogador, TABELA_DE_RESULTADOS } from '../phase-results';
+import { registrarDenuncia, TABELA_DE_DENUNCIAS } from '../leaderboard-reports';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const migracaoDeJogadores = require('../../../database/migrations/2026.09.14T00.00.00.create-leaderboard-players.js');
-const migracaoDasRegras = require('../../../database/migrations/2026.09.17T00.00.00.leaderboard-nickname-rules.js');
+const migracoes = [
+  '2026.09.14T00.00.00.create-leaderboard-players.js',
+  '2026.09.15T00.00.00.create-phase-results.js',
+  '2026.09.16T00.00.00.create-leaderboard-reports.js',
+  '2026.09.17T00.00.00.leaderboard-nickname-rules.js',
+].map((nome) => require(`../../../database/migrations/${nome}`));
+const migracaoDasRegras = migracoes[3];
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const INICIO = new Date('2026-09-17T12:00:00.000Z');
@@ -25,15 +35,38 @@ let knex: any;
 
 beforeEach(async () => {
   knex = knexFactory({ client: 'better-sqlite3', connection: { filename: ':memory:' }, useNullAsDefault: true });
-  await migracaoDeJogadores.up(knex);
-  await migracaoDasRegras.up(knex);
+  for (const migracao of migracoes) await migracao.up(knex);
 });
+
+let sessoes = 0;
+async function resultadoDeFase(uid: string, extra: Record<string, any> = {}) {
+  sessoes++;
+  await knex(TABELA_DE_RESULTADOS).insert({
+    session_id: `quiz_config_${sessoes}`,
+    firebase_uid: uid,
+    phase: 1,
+    locale: 'pt',
+    score: 500,
+    max_possible_score: 690,
+    correct_answers: 10,
+    total_questions: 10,
+    total_time_ms: 50000,
+    client_time_ms: 50000,
+    server_time_ms: 51000,
+    passed: true,
+    eligible: true,
+    started_at: INICIO.toISOString(),
+    finished_at: INICIO.toISOString(),
+    created_at: INICIO.toISOString(),
+    ...extra,
+  });
+}
 
 afterEach(async () => {
   await knex.destroy();
 });
 
-const definir = (uid: string, pedido: { apelido?: string | null; pais?: string | null }, dias = 0) =>
+const definir = (uid: string, pedido: PedidoDeConfiguracoes, dias = 0) =>
   definirConfiguracoes(knex, uid, pedido, depoisDe(dias));
 
 const apelidoDe = async (uid: string) => (await buscarJogador(knex, uid))?.apelido ?? null;
@@ -163,6 +196,170 @@ describe('reserva do apelido deixado', () => {
 
     expect(await apagarReservasDoJogador(knex, 'uid_um')).toBe(1);
     expect((await definir('uid_dois', { apelido: 'Órion Azul' }, 1)).tipo).toBe('ok');
+  });
+});
+
+describe('visibilidade e pais', () => {
+  it('liga e desliga aparecer no ranking e mostrar o pais, sem prazo', async () => {
+    await definir('uid_um', { apelido: 'Cometa Azul', pais: 'BR' });
+
+    const escondido = await definir('uid_um', { visivel: false, mostrarPais: false }, 0.1);
+    expect(escondido.tipo).toBe('ok');
+    expect((escondido as any).jogador).toEqual(
+      expect.objectContaining({ visivel: false, mostrarPais: false, apelido: 'Cometa Azul', pais: 'BR' })
+    );
+
+    const devolta = await definir('uid_um', { visivel: true, mostrarPais: true }, 0.2);
+    expect((devolta as any).jogador).toEqual(expect.objectContaining({ visivel: true, mostrarPais: true }));
+  });
+
+  it('mudar so a visibilidade nao conta como troca de apelido', async () => {
+    await definir('uid_um', { apelido: 'Cometa Azul' });
+    await definir('uid_um', { apelido: 'Nebulosa Rosa' });
+
+    await definir('uid_um', { visivel: false }, 1);
+    expect((await buscarJogador(knex, 'uid_um'))?.apelidoAlteradoEm).toBe(INICIO.toISOString());
+  });
+
+  it('cria o cadastro mesmo quando o pedido e so de visibilidade', async () => {
+    const resultado = await definir('uid_novo', { visivel: false });
+    expect((resultado as any).jogador).toEqual(expect.objectContaining({ visivel: false, apelido: null }));
+  });
+});
+
+describe('sortearNovoPseudonimo', () => {
+  const nome = (numero: number) => ({ adjetivo: 'swift', objeto: 'comet', numero });
+
+  it('cria o cadastro se faltar e troca por um nome diferente', async () => {
+    const jogador = await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => nome(7) });
+    expect(jogador.pseudonimo).toEqual(nome(7));
+    expect(await knex(TABELA_DE_JOGADORES)).toHaveLength(1);
+  });
+
+  it('nao devolve o mesmo nome: sorteia de novo', async () => {
+    const antes = (await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => nome(7) })).pseudonimo;
+
+    const sorteios = [nome(7), nome(7), nome(8)];
+    let chamadas = 0;
+    const depois = await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => sorteios[chamadas++] });
+
+    expect(depois.pseudonimo).not.toEqual(antes);
+    expect(chamadas).toBe(3);
+  });
+
+  it('pula o nome que ja e de outra conta', async () => {
+    await sortearNovoPseudonimo(knex, 'uid_outro', { sortear: () => nome(7) });
+    await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => nome(1) });
+
+    const sorteios = [nome(7), nome(9)];
+    let chamadas = 0;
+    const jogador = await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => sorteios[chamadas++] });
+
+    expect(jogador.pseudonimo).toEqual(nome(9));
+    expect(chamadas).toBe(2);
+  });
+
+  it('nao mexe no apelido nem nas datas dele', async () => {
+    await definir('uid_um', { apelido: 'Cometa Azul' });
+    const jogador = await sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => nome(7) });
+
+    expect(jogador).toEqual(
+      expect.objectContaining({ apelido: 'Cometa Azul', apelidoDefinidoEm: INICIO.toISOString(), apelidoAlteradoEm: null })
+    );
+  });
+
+  it('desiste quando nao acha nome livre', async () => {
+    await sortearNovoPseudonimo(knex, 'uid_outro', { sortear: () => nome(7) });
+    await expect(sortearNovoPseudonimo(knex, 'uid_um', { sortear: () => nome(7) })).rejects.toThrow(
+      'Could not allocate a pseudonym'
+    );
+  });
+});
+
+describe('apagarDadosDoRanking', () => {
+  beforeEach(async () => {
+    await definir('uid_um', { apelido: 'Órion Azul' });
+    await definir('uid_um', { apelido: 'Nebulosa Rosa' }); // deixa uma reserva
+    await definir('uid_outro', { apelido: 'Luz Verde' });
+
+    const eu = await buscarJogador(knex, 'uid_um');
+    const outro = await buscarJogador(knex, 'uid_outro');
+    await registrarDenuncia(knex, {
+      denuncianteUid: 'uid_um',
+      denunciadoUid: 'uid_outro',
+      denunciadoIdPublico: outro!.idPublico,
+      apelido: 'Luz Verde',
+      motivo: 'offensive',
+    });
+    await registrarDenuncia(knex, {
+      denuncianteUid: 'uid_outro',
+      denunciadoUid: 'uid_um',
+      denunciadoIdPublico: eu!.idPublico,
+      apelido: 'Nebulosa Rosa',
+      motivo: 'spam',
+    });
+
+    await resultadoDeFase('uid_um');
+    await resultadoDeFase('uid_um', { session_id: 'quiz_config_meu_2', phase: 2 });
+    await resultadoDeFase('uid_outro', { session_id: 'quiz_config_outro' });
+  });
+
+  it('apaga cadastro, reservas e denuncias, e libera o apelido', async () => {
+    const resumo = await apagarDadosDoRanking(knex, 'uid_um');
+
+    expect(resumo).toEqual(
+      expect.objectContaining({ jogadorApagado: true, reservas: 1, denuncias: 2, resultadosAnonimizados: 2 })
+    );
+    expect(await buscarJogador(knex, 'uid_um')).toBeNull();
+    expect(await knex(TABELA_DE_RESERVAS)).toHaveLength(0);
+    expect(await knex(TABELA_DE_DENUNCIAS)).toHaveLength(0);
+
+    // O apelido que ele deixou volta a ficar livre para outra conta.
+    expect((await definir('uid_terceiro', { apelido: 'Órion Azul' }, 1)).tipo).toBe('ok');
+  });
+
+  it('as partidas ficam sem dono, em vez de sumir', async () => {
+    await apagarDadosDoRanking(knex, 'uid_um');
+
+    const linhas = await knex(TABELA_DE_RESULTADOS).orderBy('id');
+    expect(linhas).toHaveLength(3);
+    const minhas = linhas.filter((l: any) => l.session_id !== 'quiz_config_outro');
+    expect(minhas.every((l: any) => l.firebase_uid === null && !l.eligible)).toBe(true);
+    // A partida de outra conta continua intacta.
+    const daOutra = linhas.find((l: any) => l.session_id === 'quiz_config_outro');
+    expect(daOutra.firebase_uid).toBe('uid_outro');
+    expect(Boolean(daOutra.eligible)).toBe(true);
+  });
+
+  it('nao toca no cadastro das outras contas', async () => {
+    await apagarDadosDoRanking(knex, 'uid_um');
+    expect(await buscarJogador(knex, 'uid_outro')).not.toBeNull();
+  });
+
+  it('repetir e seguro, e quem nunca teve cadastro nao quebra', async () => {
+    await apagarDadosDoRanking(knex, 'uid_um');
+
+    expect(await apagarDadosDoRanking(knex, 'uid_um')).toEqual({
+      jogadorApagado: false,
+      reservas: 0,
+      denuncias: 0,
+      resultadosAnonimizados: 0,
+    });
+    expect(await apagarDadosDoRanking(knex, 'uid_que_nunca_existiu')).toEqual(
+      expect.objectContaining({ jogadorApagado: false })
+    );
+  });
+
+  it('sem as tabelas nao falha', async () => {
+    const vazio = knexFactory({ client: 'better-sqlite3', connection: { filename: ':memory:' }, useNullAsDefault: true });
+    await expect(apagarDadosDoRanking(vazio, 'uid_qualquer')).resolves.toEqual({
+      jogadorApagado: false,
+      reservas: 0,
+      denuncias: 0,
+      resultadosAnonimizados: 0,
+    });
+    await expect(anonimizarResultadosDoJogador(vazio, 'uid_qualquer')).resolves.toBe(0);
+    await vazio.destroy();
   });
 });
 

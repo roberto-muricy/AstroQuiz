@@ -450,6 +450,17 @@ export function validatePublicPlayerId(id: any): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
+/** Campo que so aceita true ou false — nunca "true", 1 ou null. */
+export function validateBooleanField(value: any, fieldName: string): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (typeof value !== 'boolean') {
+    errors.push({ field: fieldName, message: `${fieldName} must be true or false` });
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 export const LEADERBOARD_REPORT_REASONS = ['offensive', 'impersonation', 'spam'];
 
 export function validateReportReason(reason: any): ValidationResult {

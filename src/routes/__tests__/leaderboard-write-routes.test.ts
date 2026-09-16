@@ -114,6 +114,9 @@ async function chamar(
 }
 
 const definir = (uid: string | undefined, body: any) => chamar('PUT', '/api/leaderboard/me', { uid, body });
+const ler = (uid: string | undefined) => chamar('GET', '/api/leaderboard/me', { uid });
+const sortear = (uid: string | undefined) => chamar('POST', '/api/leaderboard/me/pseudonym', { uid });
+const apagar = (uid: string | undefined) => chamar('DELETE', '/api/leaderboard/me', { uid });
 const denunciar = (uid: string | undefined, body: any) => chamar('POST', '/api/leaderboard/report', { uid, body });
 const restaurar = (uid: string | undefined, playerId: string) =>
   chamar('POST', '/api/leaderboard/admin/players/:playerId/restore-nickname', { uid, params: { playerId } });
@@ -243,7 +246,8 @@ describe('PUT /api/leaderboard/me', () => {
   });
 
   it('recusa corpo invalido e pais invalido', async () => {
-    for (const body of [undefined, [], {}, { nickname: 'Cometa Azul', visible: false }, { country: 'BRA' }, { country: 'B1' }]) {
+    // `hidden` nao existe na API: campo desconhecido e recusado, e nao ignorado.
+    for (const body of [undefined, [], {}, { nickname: 'Cometa Azul', hidden: true }, { country: 'BRA' }, { country: 'B1' }]) {
       expect((await definir('uid_um', body)).status).toBe(400);
     }
   });
@@ -259,6 +263,167 @@ describe('PUT /api/leaderboard/me', () => {
       type: 'nickname',
       text: 'Cometa Azul',
     });
+  });
+});
+
+describe('GET /api/leaderboard/me', () => {
+  it('exige login', async () => {
+    expect((await ler(undefined)).status).toBe(401);
+  });
+
+  it('na primeira leitura cria o cadastro e devolve o nome gerado', async () => {
+    const ctx = await ler('uid_um');
+
+    expect(ctx.status).toBe(200);
+    expect(ctx.body.data).toEqual(
+      expect.objectContaining({ nickname: null, country: null, visible: true, showCountry: true })
+    );
+    expect(ctx.body.data.name.type).toBe('generated');
+    expect(ctx.body.data.publicId).toMatch(/^[A-Za-z0-9_-]{16}$/);
+    expect(JSON.stringify(ctx.body)).not.toContain('uid_um');
+    expect(await knex('leaderboard_players')).toHaveLength(1);
+  });
+
+  it('a segunda leitura devolve o mesmo cadastro', async () => {
+    const primeira = await ler('uid_um');
+    const segunda = await ler('uid_um');
+
+    expect(segunda.body.data).toEqual(primeira.body.data);
+    expect(await knex('leaderboard_players')).toHaveLength(1);
+  });
+
+  it('mostra o que foi definido, inclusive depois de esconder', async () => {
+    await definir('uid_um', { nickname: 'Cometa Azul', country: 'BR' });
+    await definir('uid_um', { visible: false, showCountry: false });
+
+    expect((await ler('uid_um')).body.data).toEqual(
+      expect.objectContaining({
+        name: { type: 'nickname', text: 'Cometa Azul' },
+        nickname: 'Cometa Azul',
+        country: 'BR',
+        visible: false,
+        showCountry: false,
+      })
+    );
+  });
+});
+
+describe('PUT /api/leaderboard/me: visibilidade e pais', () => {
+  it('liga e desliga aparecer no ranking e mostrar o pais', async () => {
+    await definir('uid_um', { nickname: 'Cometa Azul', country: 'BR' });
+
+    const escondido = await definir('uid_um', { visible: false, showCountry: false });
+    expect(escondido.status).toBe(200);
+    expect(escondido.body.data).toEqual(expect.objectContaining({ visible: false, showCountry: false }));
+
+    const devolta = await definir('uid_um', { visible: true });
+    expect(devolta.body.data).toEqual(expect.objectContaining({ visible: true, showCountry: false }));
+  });
+
+  it('quem desliga some do ranking e volta ao ligar', async () => {
+    await resultadoNoRanking('uid_um');
+    await definir('uid_um', { nickname: 'Cometa Azul' });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.totalPlayers).toBe(1);
+
+    await definir('uid_um', { visible: false });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.totalPlayers).toBe(0);
+
+    await definir('uid_um', { visible: true });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.totalPlayers).toBe(1);
+  });
+
+  it('desligar o pais tira a sigla do ranking, sem apagar o pais', async () => {
+    await resultadoNoRanking('uid_um');
+    await definir('uid_um', { country: 'BR' });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.entries[0].country).toBe('BR');
+
+    await definir('uid_um', { showCountry: false });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.entries[0].country).toBeNull();
+    expect((await ler('uid_um')).body.data.country).toBe('BR');
+  });
+
+  it('so aceita true ou false', async () => {
+    for (const body of [{ visible: 'sim' }, { visible: 1 }, { showCountry: null }, { showCountry: 'false' }]) {
+      expect((await definir('uid_um', body)).status).toBe(400);
+    }
+  });
+});
+
+describe('POST /api/leaderboard/me/pseudonym', () => {
+  it('exige login', async () => {
+    expect((await sortear(undefined)).status).toBe(401);
+  });
+
+  it('troca o nome gerado por outro', async () => {
+    const antes = (await ler('uid_um')).body.data.generatedName;
+    const ctx = await sortear('uid_um');
+
+    expect(ctx.status).toBe(200);
+    expect(ctx.body.data.generatedName).not.toEqual(antes);
+    expect(ctx.body.data.name.type).toBe('generated');
+  });
+
+  it('cria o cadastro quando ainda nao existe', async () => {
+    expect((await sortear('uid_novo')).status).toBe(200);
+    expect(await knex('leaderboard_players')).toHaveLength(1);
+  });
+
+  it('nao mexe no apelido de quem tem um', async () => {
+    await definir('uid_um', { nickname: 'Cometa Azul' });
+    const ctx = await sortear('uid_um');
+
+    expect(ctx.body.data.nickname).toBe('Cometa Azul');
+    expect(ctx.body.data.name).toEqual({ type: 'nickname', text: 'Cometa Azul' });
+  });
+});
+
+describe('DELETE /api/leaderboard/me', () => {
+  it('exige login', async () => {
+    expect((await apagar(undefined)).status).toBe(401);
+  });
+
+  it('tira o jogador do ranking e apaga o cadastro', async () => {
+    await resultadoNoRanking('uid_um');
+    await definir('uid_um', { nickname: 'Cometa Azul', country: 'BR' });
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.totalPlayers).toBe(1);
+
+    const ctx = await apagar('uid_um');
+    expect(ctx.status).toBe(200);
+    expect(ctx.body).toEqual({ success: true, data: { removed: true, anonymizedResults: 1 } });
+
+    expect(await knex('leaderboard_players')).toHaveLength(0);
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.totalPlayers).toBe(0);
+  });
+
+  it('as partidas ficam sem dono, em vez de sumir', async () => {
+    await resultadoNoRanking('uid_um');
+    await definir('uid_um', { nickname: 'Cometa Azul' });
+    await apagar('uid_um');
+
+    const linhas = await knex('phase_results');
+    expect(linhas).toHaveLength(1);
+    expect(linhas[0].firebase_uid).toBeNull();
+    expect(Boolean(linhas[0].eligible)).toBe(false);
+  });
+
+  it('depois de apagar, ler de novo cria outro cadastro, com outro id publico', async () => {
+    const antes = (await ler('uid_um')).body.data.publicId;
+    await apagar('uid_um');
+
+    const depois = (await ler('uid_um')).body.data;
+    expect(depois.publicId).not.toBe(antes);
+    expect(depois.nickname).toBeNull();
+  });
+
+  it('repetir responde igual, e quem nunca teve cadastro tambem', async () => {
+    await definir('uid_um', { nickname: 'Cometa Azul' });
+
+    const primeira = await apagar('uid_um');
+    const segunda = await apagar('uid_um');
+    expect(segunda.status).toBe(primeira.status);
+    expect(segunda.body.data.removed).toBe(true);
+
+    expect((await apagar('uid_sem_cadastro')).status).toBe(200);
   });
 });
 

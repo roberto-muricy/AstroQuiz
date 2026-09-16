@@ -5,12 +5,13 @@
  * ranking. Nao expoe nada alem do id publico, do nome exibido, do pais que o
  * jogador escolheu mostrar, da posicao, da pontuacao e da fase alcancada.
  *
- * Escrita: exige login (Firebase), como as rotas de perfil. O jogador define o
- * proprio apelido e pais, e pode denunciar o apelido de outro. A moderacao
- * (papel admin) pode desfazer a ocultacao automatica de um apelido.
+ * Escrita: exige login (Firebase), como as rotas de perfil. O jogador cuida do
+ * proprio cadastro — apelido, pais, visibilidade, nome gerado e exclusao — e
+ * pode denunciar o apelido de outro. A moderacao (papel admin) pode desfazer a
+ * ocultacao automatica de um apelido.
  *
- * As regras ficam nos servicos: leaderboard-settings.ts (troca, prazo e
- * reserva de apelido) e leaderboard-reports.ts (denuncias e ocultacao).
+ * As regras ficam nos servicos: leaderboard-settings.ts (troca, prazo, reserva
+ * de apelido e exclusao) e leaderboard-reports.ts (denuncias e ocultacao).
  *
  * O limitador global pula /api/leaderboard; cada rota tem limitador proprio.
  */
@@ -27,8 +28,18 @@ import {
   TipoDeRanking,
   NomeExibido,
 } from '../services/leaderboard-service';
-import { buscarJogadorPorIdPublico, JogadorDoRanking } from '../services/leaderboard-players';
-import { definirConfiguracoes, proximaTrocaDeApelido } from '../services/leaderboard-settings';
+import {
+  buscarJogadorPorIdPublico,
+  garantirJogador,
+  JogadorDoRanking,
+} from '../services/leaderboard-players';
+import {
+  definirConfiguracoes,
+  sortearNovoPseudonimo,
+  apagarDadosDoRanking,
+  proximaTrocaDeApelido,
+  PedidoDeConfiguracoes,
+} from '../services/leaderboard-settings';
 import { validarApelido } from '../services/nickname';
 import {
   registrarDenuncia,
@@ -44,6 +55,7 @@ import {
   validateLeaderboardBoard,
   validateCountryCode,
   validateOptionalCountryCode,
+  validateBooleanField,
   validateKnownFields,
   validatePublicPlayerId,
   validateReportReason,
@@ -131,15 +143,38 @@ export function createLeaderboardRoutes(
     }
   }
 
+  /**
+   * Le as configuracoes do proprio jogador, criando o cadastro com um nome
+   * gerado se ainda nao existir: e nele que o app mostra "voce aparece como
+   * Cometa Veloz 42" na primeira visita, e o nome precisa estar reservado para
+   * nao mudar depois. Quem nao quiser aparecer desliga em seguida com
+   * `visible: false`, ou apaga tudo com DELETE.
+   */
+  async function lerMinhasConfiguracoes(ctx: any): Promise<void> {
+    const user = ctx.state.user as AuthContext | undefined;
+    if (!user?.firebaseUid) return ctx.unauthorized('Authentication required');
+
+    try {
+      const instante = agora();
+      const jogador = await comTravaDaSessao(`leaderboard-player:${user.firebaseUid}`, () =>
+        garantirJogador(strapi.db.connection, user.firebaseUid, { agora: instante })
+      );
+      ctx.body = { success: true, data: configuracoesDoJogador(jogador, instante) };
+    } catch (error: any) {
+      strapi.log.error('Error reading leaderboard settings:', error);
+      ctx.internalServerError('Failed to load leaderboard settings');
+    }
+  }
+
   async function atualizarMinhasConfiguracoes(ctx: any): Promise<void> {
     const user = ctx.state.user as AuthContext | undefined;
     if (!user?.firebaseUid) return ctx.unauthorized('Authentication required');
 
     const body = ctx.request.body;
-    const campos = validateKnownFields(body, ['nickname', 'country']);
+    const campos = validateKnownFields(body, ['nickname', 'country', 'showCountry', 'visible']);
     if (!campos.valid) return ctx.badRequest(formatValidationErrors(campos.errors));
 
-    const pedido: { apelido?: string | null; pais?: string | null } = {};
+    const pedido: PedidoDeConfiguracoes = {};
 
     if ('nickname' in body) {
       const digitado = body.nickname;
@@ -160,8 +195,18 @@ export function createLeaderboardRoutes(
       pedido.pais = body.country ? String(body.country).toUpperCase() : null;
     }
 
+    for (const [campo, chave] of [
+      ['showCountry', 'mostrarPais'],
+      ['visible', 'visivel'],
+    ] as Array<[string, 'mostrarPais' | 'visivel']>) {
+      if (!(campo in body)) continue;
+      const booleano = validateBooleanField(body[campo], campo);
+      if (!booleano.valid) return ctx.badRequest(formatValidationErrors(booleano.errors));
+      pedido[chave] = body[campo];
+    }
+
     if (Object.keys(pedido).length === 0) {
-      return ctx.badRequest('body: nickname or country is required');
+      return ctx.badRequest('body: nickname, country, showCountry or visible is required');
     }
 
     try {
@@ -185,6 +230,43 @@ export function createLeaderboardRoutes(
     } catch (error: any) {
       strapi.log.error('Error updating leaderboard settings:', error);
       ctx.internalServerError('Failed to update leaderboard settings');
+    }
+  }
+
+  async function trocarNomeGerado(ctx: any): Promise<void> {
+    const user = ctx.state.user as AuthContext | undefined;
+    if (!user?.firebaseUid) return ctx.unauthorized('Authentication required');
+
+    try {
+      const instante = agora();
+      const jogador = await comTravaDaSessao(`leaderboard-player:${user.firebaseUid}`, () =>
+        sortearNovoPseudonimo(strapi.db.connection, user.firebaseUid, { agora: instante })
+      );
+
+      limparCacheDoRanking();
+      ctx.body = { success: true, data: configuracoesDoJogador(jogador, instante) };
+    } catch (error: any) {
+      strapi.log.error('Error drawing a new pseudonym:', error);
+      ctx.internalServerError('Failed to draw a new name');
+    }
+  }
+
+  async function apagarMeusDados(ctx: any): Promise<void> {
+    const user = ctx.state.user as AuthContext | undefined;
+    if (!user?.firebaseUid) return ctx.unauthorized('Authentication required');
+
+    try {
+      const resumo = await comTravaDaSessao(`leaderboard-player:${user.firebaseUid}`, () =>
+        apagarDadosDoRanking(strapi.db.connection, user.firebaseUid)
+      );
+
+      limparCacheDoRanking();
+      strapi.log.info('Leaderboard data deleted at the player request');
+      // A mesma resposta para quem tinha cadastro e para quem nao tinha.
+      ctx.body = { success: true, data: { removed: true, anonymizedResults: resumo.resultadosAnonimizados } };
+    } catch (error: any) {
+      strapi.log.error('Error deleting leaderboard data:', error);
+      ctx.internalServerError('Failed to delete leaderboard data');
     }
   }
 
@@ -322,11 +404,35 @@ export function createLeaderboardRoutes(
       config: { auth: false },
     },
 
-    // Apelido e pais do proprio jogador (cria o cadastro no ranking se faltar)
+    // Configuracoes do proprio jogador (cria o cadastro no ranking se faltar)
+    {
+      method: 'GET',
+      path: '/api/leaderboard/me',
+      handler: [limitador, authMiddleware, lerMinhasConfiguracoes],
+      config: { auth: false },
+    },
+
+    // Apelido, pais, "mostrar pais" e "aparecer no ranking"
     {
       method: 'PUT',
       path: '/api/leaderboard/me',
       handler: [limitadorDeEscrita, authMiddleware, atualizarMinhasConfiguracoes],
+      config: { auth: false },
+    },
+
+    // Sorteia outro nome gerado
+    {
+      method: 'POST',
+      path: '/api/leaderboard/me/pseudonym',
+      handler: [limitadorDeEscrita, authMiddleware, trocarNomeGerado],
+      config: { auth: false },
+    },
+
+    // Sai do ranking e apaga o cadastro, as reservas e as denuncias
+    {
+      method: 'DELETE',
+      path: '/api/leaderboard/me',
+      handler: [limitadorDeEscrita, authMiddleware, apagarMeusDados],
       config: { auth: false },
     },
 
