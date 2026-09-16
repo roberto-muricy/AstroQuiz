@@ -163,7 +163,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       AsyncStorage.setItem("@user", JSON.stringify(user));
       setSentryUser({
         id: user.id,
-        email: user.email,
         name: user.name,
       });
       analyticsService.setUserId(user.id);

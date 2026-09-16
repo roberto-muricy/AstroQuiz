@@ -64,12 +64,16 @@ export const initSentry = () => {
 
 /**
  * Define o usuário atual para contexto de erros
+ *
+ * Só o id vai, e ele basta para o que o Sentry precisa responder: quantas
+ * pessoas distintas um erro atinge e se é sempre a mesma. O e-mail ia junto de
+ * cada relatório de falha até 16/09/2026, sem acrescentar nada ao diagnóstico —
+ * era endereço de e-mail guardado por terceiro sem motivo.
  */
-export const setSentryUser = (user: { id: string; email?: string; name?: string } | null) => {
+export const setSentryUser = (user: { id: string; name?: string } | null) => {
   if (user) {
     Sentry.setUser({
       id: user.id,
-      email: user.email,
       username: user.name,
     });
   } else {
