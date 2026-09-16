@@ -110,7 +110,7 @@ AstroQuizApp/              # React Native mobile app
 - **Railway** with Nixpacks (no Dockerfile), configurado em `railway.json`:
   - Build: `npm run railway:build` → `rm -rf dist build .cache && npm run build` (`strapi build`)
   - Start: `npm run start` → `strapi start`. O `nixpacks.toml` declara `npm run railway:start`, mas o `startCommand` do `railway.json` prevalece; mantenha os dois coerentes ao mudar.
-- Health check: `GET /api/quiz/health`
+- Health check: `GET /api/quiz/health`, declarado em `railway.json` (`healthcheckPath`). Devolve **503** quando o banco nao responde (`select 1`, limite de 2 s) e 200 so quando ele responde. Ate 16/09/2026 devolvia 200 sempre: uma instancia com o banco fora passava por saudavel, e uma queda de producao durou horas sem ninguem ser avisado.
 - **`dist/` nunca deve voltar a ser versionado.** Ate 14/09/2026 o git guardava um `dist/src/index.js` de fevereiro que, em producao, prevalecia sobre o compilado: a inicializacao nova nao rodava e rotas novas davam 404, sem nenhum erro. `dist/` esta no `.gitignore`; `git ls-files dist` deve sair vazio.
 - Tabelas novas: migracao do Strapi em `database/migrations/*.js`, idempotente (`hasTable`). Ela roda na sincronizacao do schema, antes da inicializacao, e fica registrada em `strapi_migrations`.
 

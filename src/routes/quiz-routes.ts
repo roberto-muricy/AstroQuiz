@@ -55,6 +55,34 @@ import {
   formatValidationErrors,
 } from '../services/validation';
 
+/**
+ * Quanto o health check espera pelo banco antes de considerar que ele nao
+ * responde. Curto de proposito: um banco que trava e tao ruim quanto um banco
+ * fora, e o health nao pode ficar pendurado ate o tempo de conexao (60 s).
+ */
+export const TEMPO_LIMITE_DO_HEALTH_MS = 2000;
+
+/**
+ * O banco responde? Uma consulta minima, sem contar linhas: o health e chamado
+ * com frequencia, inclusive pelo Railway a cada deploy.
+ */
+async function bancoRespondendo(strapi: any): Promise<boolean> {
+  let temporizador: any;
+  try {
+    await Promise.race([
+      strapi.db.connection.raw('select 1'),
+      new Promise((_, rejeitar) => {
+        temporizador = setTimeout(() => rejeitar(new Error('tempo esgotado')), TEMPO_LIMITE_DO_HEALTH_MS);
+      }),
+    ]);
+    return true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(temporizador);
+  }
+}
+
 export function createQuizRoutes(strapi: any): any[] {
   const optionalAuth = createOptionalAuthMiddleware(strapi);
 
@@ -73,37 +101,39 @@ export function createQuizRoutes(strapi: any): any[] {
 
   return [
     // Health check
+    //
+    // Responde 503 quando o banco nao responde. Ate 16/09/2026 devolvia 200
+    // sempre: uma instancia com o banco fora passava por saudavel, e o Railway
+    // promovia e mantinha um container que so sabia devolver erro 500. Quem
+    // consome isto (o Railway e o app) trata 2xx como saudavel, entao o codigo
+    // e o que importa aqui, mais do que o corpo.
     {
       method: 'GET',
       path: '/api/quiz/health',
       handler: async (ctx: any) => {
-        // Debug: Check database configuration
-        const knex = strapi.db.connection;
-        const clientName = knex?.client?.constructor?.name || 'unknown';
+        const instante = new Date().toISOString();
 
-        let questionCount = 0;
-        try {
-          const result = await knex('questions').count('* as count');
-          questionCount = parseInt(result[0]?.count || '0', 10);
-        } catch (err) {
-          questionCount = -1;
+        if (!(await bancoRespondendo(strapi))) {
+          strapi.log.error('Health check failed: database is not responding');
+          ctx.status = 503;
+          ctx.body = {
+            success: false,
+            message: 'Database is not responding',
+            data: { status: 'degraded', database: 'down', timestamp: instante, version: '1.0.0' },
+          };
+          return;
         }
 
         const response: any = {
           success: true,
           message: 'Quiz service is healthy',
-          data: {
-            status: 'ok',
-            timestamp: new Date().toISOString(),
-            version: '1.0.0',
-            questionCount: questionCount,
-          },
+          data: { status: 'ok', database: 'up', timestamp: instante, version: '1.0.0' },
         };
 
         // Only expose debug info in non-production
         if (process.env.NODE_ENV !== 'production') {
           response.data.debug = {
-            databaseClient: clientName,
+            databaseClient: strapi.db.connection?.client?.constructor?.name || 'unknown',
             env: {
               DATABASE_CLIENT: process.env.DATABASE_CLIENT || 'not set',
               DATABASE_URL_SET: !!process.env.DATABASE_URL,
