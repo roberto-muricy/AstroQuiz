@@ -222,7 +222,9 @@
     "correctAnswers": "Bonnes réponses",
     "accuracy": "Précision",
     "bestStreak": "Meilleure série",
-    "timePlayed": "Temps joué"
+    "timePlayed": "Temps joué",
+    "xpToRank": "{{xp}} XP jusqu'à {{rank}}",
+    "phasesWithPerfect": "{{count}} phase(s) avec 100 % de réussite"
   },
   "profile": {
     "title": "Profil",
@@ -278,6 +280,18 @@
       "name": "Maître cosmique",
       "description": "Terminez les 50 phases"
     }
+  },
+  "ranks": {
+    "beginner": "Débutant",
+    "rookie": "Space Rookie",
+    "apprentice": "Apprenti",
+    "cadet": "Cadet",
+    "explorer": "Explorateur",
+    "challenger": "Challenger",
+    "navigator": "Navigateur",
+    "specialist": "Spécialiste",
+    "commander": "Commandant",
+    "elite": "Élite"
   },
   "errors": {
     "loadingFailed": "Échec du chargement des données",

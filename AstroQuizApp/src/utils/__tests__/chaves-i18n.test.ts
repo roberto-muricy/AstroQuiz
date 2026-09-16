@@ -86,3 +86,47 @@ describe('chaves de i18n das conquistas', () => {
     expect(comEmoji.map((a) => `${a.id}: ${a.icon}`)).toEqual([]);
   });
 });
+
+describe('paridade entre os quatro idiomas', () => {
+  /**
+   * Os testes acima cobrem chaves escolhidas a dedo, uma de cada vez, depois de
+   * cada problema aparecer na tela. Este cobre o arquivo inteiro: espanhol e
+   * frances ficaram sem a secao `ranks` e sem duas chaves de `stats`, e quem
+   * jogava nesses idiomas via "ranks.beginner" no lugar do nome da patente.
+   */
+  const achatar = (obj: any, prefixo = ''): string[] =>
+    Object.entries(obj).flatMap(([chave, valor]) =>
+      valor && typeof valor === 'object'
+        ? achatar(valor, `${prefixo}${chave}.`)
+        : [`${prefixo}${chave}`],
+    );
+
+  const chavesDe = (loc: string) => achatar(traducoes[loc]).sort();
+
+  it('portugues tem chaves suficientes para valer como referencia', () => {
+    expect(chavesDe('pt').length).toBeGreaterThan(300);
+  });
+
+  for (const loc of LOCALES) {
+    it(`${loc}: mesmas chaves do portugues, sem faltar nem sobrar`, () => {
+      const referencia = new Set(chavesDe('pt'));
+      const doIdioma = new Set(chavesDe(loc));
+
+      const faltando = [...referencia].filter((chave) => !doIdioma.has(chave));
+      const sobrando = [...doIdioma].filter((chave) => !referencia.has(chave));
+
+      expect({ faltando, sobrando }).toEqual({ faltando: [], sobrando: [] });
+    });
+  }
+
+  it('nenhuma traducao ficou vazia', () => {
+    const vazias: string[] = [];
+    for (const loc of LOCALES) {
+      for (const chave of chavesDe(loc)) {
+        const valor = buscar(traducoes[loc], chave);
+        if (typeof valor !== 'string' || valor.trim() === '') vazias.push(`${loc} -> ${chave}`);
+      }
+    }
+    expect(vazias).toEqual([]);
+  });
+});

@@ -222,7 +222,9 @@
     "correctAnswers": "Respuestas correctas",
     "accuracy": "Precisión",
     "bestStreak": "Mejor racha",
-    "timePlayed": "Tiempo jugado"
+    "timePlayed": "Tiempo jugado",
+    "xpToRank": "{{xp}} XP para {{rank}}",
+    "phasesWithPerfect": "{{count}} fase(s) con 100% de aciertos"
   },
   "profile": {
     "title": "Perfil",
@@ -278,6 +280,18 @@
       "name": "Maestro cósmico",
       "description": "Completa las 50 fases"
     }
+  },
+  "ranks": {
+    "beginner": "Principiante",
+    "rookie": "Space Rookie",
+    "apprentice": "Aprendiz",
+    "cadet": "Cadete",
+    "explorer": "Explorador",
+    "challenger": "Retador",
+    "navigator": "Navegante",
+    "specialist": "Especialista",
+    "commander": "Comandante",
+    "elite": "Élite"
   },
   "errors": {
     "loadingFailed": "Error al cargar datos",
