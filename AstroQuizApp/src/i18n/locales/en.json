@@ -441,6 +441,7 @@
     "players_other": "{{count}} players",
     "yourPosition": "Your position",
     "phaseValue": "Phase {{phase}}",
+    "pointsValue": "{{score}} pts",
     "savedList": "Showing the last saved list",
     "empty": {
       "title": "No one on the ranking yet",

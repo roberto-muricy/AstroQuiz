@@ -57,10 +57,16 @@ export const LinhaDoRanking: React.FC<Props> = ({
   const podio = CORES_DO_PODIO[entrada.position];
   // Sem bandeira (código inválido ou fonte sem o glifo) a sigla continua valendo.
   const simboloDoPais = entrada.country ? bandeira(entrada.country) : '';
+  // A coluna da direita muda de conteúdo com o seletor de ordem, então ela diz o
+  // que é. "Fase 22" já dizia; a pontuação era um número pelado, e quem olhava
+  // tinha de deduzir. Dizer na própria linha, e não num cabeçalho, é o que
+  // continua valendo depois que a lista rola.
   const valor =
     metrica === 'fase'
       ? t('leaderboard.phaseValue', { phase: entrada.highestPhase })
-      : formatarPontuacao(entrada.score, idioma);
+      : t('leaderboard.pointsValue', {
+          score: formatarPontuacao(entrada.score, idioma),
+        });
 
   return (
     <Pressable

@@ -441,6 +441,7 @@
     "players_other": "{{count}} jugadores",
     "yourPosition": "Tu posición",
     "phaseValue": "Fase {{phase}}",
+    "pointsValue": "{{score}} pts",
     "savedList": "Mostrando la última lista guardada",
     "empty": {
       "title": "Todavía no hay nadie en la clasificación",
