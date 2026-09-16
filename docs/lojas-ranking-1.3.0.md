@@ -137,7 +137,7 @@ AstroQuiz 1.3.0 adds a public leaderboard.
 User-generated content is limited to a single field: a display nickname of up
 to 20 characters. There is no chat, messaging, commenting, image upload, user
 profile page, or any other way for players to communicate. Players only see
-each other's nickname, two-letter country code, score and rank in a list.
+each other's nickname, country flag, score and rank in a list.
 
 Moderation, per Guideline 1.2:
 - Nicknames are screened automatically on creation and on every change, in

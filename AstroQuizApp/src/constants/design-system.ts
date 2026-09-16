@@ -46,6 +46,16 @@ export const COLORS = {
   premiumBorder: 'rgba(255, 215, 0, 0.40)',
   premiumMuted: 'rgba(255, 215, 0, 0.70)',
 
+  // Pódio do ranking — metais de medalha, deliberadamente fora do dourado
+  // premium: ali o dourado quer dizer "assinante", e num app com assinatura o
+  // mesmo tom dizendo "é o primeiro" confunde as duas coisas.
+  podiumFirst: '#E8B923',
+  podiumFirstSurface: 'rgba(232, 185, 35, 0.16)',
+  podiumSecond: '#C7CBD1',
+  podiumSecondSurface: 'rgba(199, 203, 209, 0.16)',
+  podiumThird: '#C98A52',
+  podiumThirdSurface: 'rgba(201, 138, 82, 0.16)',
+
   // Special
   streakBadge: '#4A3F35',
   bottomNav: '#1A1B26',

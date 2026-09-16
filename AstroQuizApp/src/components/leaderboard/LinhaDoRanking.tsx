@@ -5,19 +5,29 @@
  * chaves que o app monta no idioma de quem está vendo. Quem não escolheu
  * apelido — a maioria, no começo — cai na segunda.
  *
- * O pódio usa ícone em vez do número, e ícone do Lucide em vez de emoji: emoji
- * muda de desenho em cada plataforma e não acompanha o tamanho da fonte.
+ * A coluna da esquerda mostra a colocação em TODAS as linhas. Antes ela trocava
+ * de significado no meio da lista — ícone nas três primeiras, número da quarta
+ * em diante — e quem olhava de relance não sabia se o pódio estava em primeiro,
+ * segundo ou terceiro. Agora o número fica sempre, e o pódio é o disco colorido
+ * em volta dele: distingue sem esconder.
  */
 
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Crown, Medal } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 import { SPACING, TYPOGRAPHY, COLORS, RADIUS } from '@/constants/design-system';
 import { EntradaDoRanking } from '@/services/leaderboardService';
 import { IdiomaSuportado, nomeDeExibicao } from '@/utils/pseudonimo';
 import { formatarPontuacao } from '@/utils/classificacao';
+import { bandeira, nomeDoPais } from '@/utils/pais';
+
+/** Ouro, prata e bronze. Índice = colocação. */
+const CORES_DO_PODIO: Record<number, { texto: string; fundo: string }> = {
+  1: { texto: COLORS.podiumFirst, fundo: COLORS.podiumFirstSurface },
+  2: { texto: COLORS.podiumSecond, fundo: COLORS.podiumSecondSurface },
+  3: { texto: COLORS.podiumThird, fundo: COLORS.podiumThirdSurface },
+};
 
 export type MetricaDoRanking = 'pontos' | 'fase';
 
@@ -44,8 +54,9 @@ export const LinhaDoRanking: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
 
-  const noPodio = entrada.position >= 1 && entrada.position <= 3;
-  const corDoPodio = entrada.position === 1 ? COLORS.premium : COLORS.textSecondary;
+  const podio = CORES_DO_PODIO[entrada.position];
+  // Sem bandeira (código inválido ou fonte sem o glifo) a sigla continua valendo.
+  const simboloDoPais = entrada.country ? bandeira(entrada.country) : '';
   const valor =
     metrica === 'fase'
       ? t('leaderboard.phaseValue', { phase: entrada.highestPhase })
@@ -60,16 +71,13 @@ export const LinhaDoRanking: React.FC<Props> = ({
       accessibilityRole={aoDenunciar ? 'button' : 'text'}
       accessibilityHint={aoDenunciar ? t('leaderboard.report.hint') : undefined}
     >
-      <View style={styles.posicao} testID="posicao">
-        {noPodio ? (
-          entrada.position === 1 ? (
-            <Crown size={20} color={corDoPodio} testID="icone-primeiro" />
-          ) : (
-            <Medal size={20} color={corDoPodio} testID="icone-podio" />
-          )
-        ) : (
-          <Text style={styles.numeroDaPosicao}>{entrada.position}</Text>
-        )}
+      <View
+        style={[styles.posicao, !!podio && { backgroundColor: podio.fundo }]}
+        testID="posicao"
+      >
+        <Text style={[styles.numeroDaPosicao, !!podio && { color: podio.texto }]}>
+          {entrada.position}
+        </Text>
       </View>
 
       <Text style={[styles.nome, destacada && styles.nomeDestacado]} numberOfLines={1}>
@@ -77,8 +85,14 @@ export const LinhaDoRanking: React.FC<Props> = ({
       </Text>
 
       {!!entrada.country && (
-        <Text style={styles.pais} testID="pais">
-          {entrada.country}
+        <Text
+          style={simboloDoPais ? styles.bandeira : styles.pais}
+          testID="pais"
+          // A bandeira sozinha é lida como "bandeira do Brasil" ou pior; o nome
+          // do país é o que a pessoa precisa ouvir.
+          accessibilityLabel={nomeDoPais(entrada.country, idioma)}
+        >
+          {simboloDoPais || entrada.country}
         </Text>
       )}
 
@@ -105,14 +119,22 @@ const styles = StyleSheet.create({
   },
   posicao: {
     width: 28,
+    height: 28,
+    borderRadius: RADIUS.round,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   numeroDaPosicao: {
     ...TYPOGRAPHY.bodySmall,
     color: COLORS.textSecondary,
-    fontWeight: '600',
+    fontWeight: '700',
     // Números alinham em coluna, e não dançam conforme o dígito.
     fontVariant: ['tabular-nums'],
+  },
+  bandeira: {
+    // A bandeira é emoji: o tamanho vem da fonte, e não de um ícone vetorial.
+    fontSize: 18,
+    lineHeight: 22,
   },
   nome: {
     ...TYPOGRAPHY.body,
