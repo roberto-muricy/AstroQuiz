@@ -336,18 +336,27 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   /**
    * Excluir conta - remove dados do backend e deleta usuário no Firebase
+   *
+   * A ordem importa, e é nesta. Só o token do Firebase prova quem é o dono de
+   * um UID, e é por UID que o backend apaga tudo. Apagar a conta do Firebase
+   * primeiro — ou mesmo continuar depois de o backend falhar — deixaria o
+   * perfil, os resultados de fase e o cadastro no ranking no banco sem nenhum
+   * caminho de exclusão, porque aquele UID nunca mais conseguiria se
+   * autenticar. O apelido continuaria aparecendo na lista pública de alguém
+   * que excluiu a conta.
+   *
+   * Por isso o erro do backend interrompe tudo: é melhor não excluir nada e a
+   * pessoa tentar de novo. A rota aguenta a repetição — ela apaga resultados e
+   * cadastro no ranking mesmo quando o perfil já não existe.
    */
   const deleteAccount = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Deletar dados do perfil no Strapi backend
-      try {
-        await api.delete('/user-profile/me');
-      } catch (backendError) {
-        console.warn('⚠️ Could not delete backend profile:', backendError);
-      }
+      // repetirEmFalhaDeRede: a rota é idempotente, e uma conexão instável é
+      // justamente o caso em que a exclusão não pode ficar pela metade.
+      await api.delete('/user-profile/me', { repetirEmFalhaDeRede: true });
 
-      // Deletar usuário no Firebase Auth
+      // Só agora, com os dados fora do servidor, a conta pode ir embora.
       await authService.deleteAccount();
       await api.clearAuthToken();
 

@@ -138,7 +138,7 @@ export const ProfileScreen = () => {
             } catch (err: any) {
               const isReauthError = err?.code === 'auth/requires-recent-login';
               Alert.alert(
-                'Erro',
+                t('common.error'),
                 isReauthError
                   ? t('profile.deleteAccountReauthError')
                   : t('profile.deleteAccountError'),

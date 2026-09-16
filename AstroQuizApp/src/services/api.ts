@@ -294,8 +294,8 @@ class ApiService {
   /**
    * DELETE request
    */
-  async delete<T>(endpoint: string): Promise<T> {
-    const response = await this.api.delete<T>(endpoint);
+  async delete<T>(endpoint: string, config?: any): Promise<T> {
+    const response = await this.api.delete<T>(endpoint, config);
     return response.data;
   }
 
