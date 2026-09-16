@@ -25,6 +25,7 @@ import leaderboardService, {
   proximaTrocaDoErro,
 } from '@/services/leaderboardService';
 import { LeaderboardStorage } from '@/utils/leaderboardStorage';
+import analyticsService from '@/services/analyticsService';
 import { IdiomaSuportado, nomeDeExibicao } from '@/utils/pseudonimo';
 import { nomeDoPais, bandeira } from '@/utils/pais';
 import { SeletorDePais } from './SeletorDePais';
@@ -236,8 +237,16 @@ export const CartaoDoPerfil: React.FC<Props> = ({ idioma }) => {
         salvando={salvando}
         erroDoServidor={erroDoApelido}
         idioma={idioma}
-        aoSalvar={(apelido) => salvar({ nickname: apelido })}
-        aoLimpar={() => salvar({ nickname: null })}
+        aoSalvar={async (apelido) => {
+          if (await salvar({ nickname: apelido })) {
+            analyticsService.logLeaderboardNicknameSet('definido');
+          }
+        }}
+        aoLimpar={async () => {
+          if (await salvar({ nickname: null })) {
+            analyticsService.logLeaderboardNicknameSet('limpo');
+          }
+        }}
         aoFechar={() => {
           setEditandoApelido(false);
           setErroDoApelido(null);

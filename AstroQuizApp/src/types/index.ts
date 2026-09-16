@@ -212,10 +212,13 @@ export type RootStackParamList = {
   Upgrade: undefined;
 };
 
+/** De onde a pessoa chegou ao ranking — separa a aba dos dois atalhos novos. */
+export type OrigemDoRanking = 'aba' | 'inicio' | 'resultado';
+
 export type TabParamList = {
   Home: undefined;
   Quiz: undefined;
-  Leaderboard: undefined;
+  Leaderboard: { origem?: OrigemDoRanking } | undefined;
   Stats: undefined;
   Profile: undefined;
 };

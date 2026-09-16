@@ -355,7 +355,7 @@ export const HomeScreen = () => {
             semana, ou a que o convidado teria. */}
         <CartaoDoRanking
           idioma={idiomaAtual}
-          aoAbrir={() => navegacaoDasAbas.navigate('Leaderboard')}
+          aoAbrir={() => navegacaoDasAbas.navigate('Leaderboard', { origem: 'inicio' })}
         />
 
         <View style={styles.bottomSpace} />

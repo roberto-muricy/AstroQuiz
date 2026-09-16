@@ -29,6 +29,14 @@ export const AnalyticsEvents = {
   // Settings
   LANGUAGE_CHANGED: 'language_changed',
   SETTINGS_CHANGED: 'settings_changed',
+
+  // Ranking
+  LEADERBOARD_VIEW: 'leaderboard_view',
+  LEADERBOARD_FILTER_CHANGE: 'leaderboard_filter_change',
+  LEADERBOARD_LOGIN_CTA: 'leaderboard_login_cta_click',
+  LEADERBOARD_ENROLL: 'leaderboard_enroll',
+  LEADERBOARD_NICKNAME_SET: 'leaderboard_nickname_set',
+  LEADERBOARD_REPORT: 'leaderboard_report',
 } as const;
 
 class AnalyticsService {
@@ -256,6 +264,65 @@ class AnalyticsService {
   /**
    * Idioma alterado
    */
+  /**
+   * O ranking foi aberto.
+   *
+   * `origem` separa quem procurou o ranking na aba de quem foi levado pelo
+   * cartão da Início ou pelo fim da fase — é o que diz se os dois pontos de
+   * entrada novos valem a pena. `tem_posicao` distingue quem já pontuou de quem
+   * abriu e não se encontrou.
+   */
+  async logLeaderboardView(params: {
+    origem: 'aba' | 'inicio' | 'resultado';
+    periodo: string;
+    escopo: string;
+    metrica: string;
+    autenticado: boolean;
+    temPosicao: boolean;
+  }) {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_VIEW, {
+      origem: params.origem,
+      periodo: params.periodo,
+      escopo: params.escopo,
+      metrica: params.metrica,
+      autenticado: params.autenticado ? 'sim' : 'nao',
+      tem_posicao: params.temPosicao ? 'sim' : 'nao',
+    });
+  }
+
+  /** Qual recorte as pessoas realmente trocam — e quais ninguém toca. */
+  async logLeaderboardFilterChange(controle: 'periodo' | 'escopo' | 'metrica', valor: string) {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_FILTER_CHANGE, {
+      controle,
+      valor,
+    });
+  }
+
+  /**
+   * O convidado tocou no convite para entrar. É a metade do funil que importa:
+   * o ranking existe para trazer conta, e sem isto só se sabe quem entrou, não
+   * quem se interessou.
+   */
+  async logLeaderboardLoginCta(posicaoHipotetica: number | null) {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_LOGIN_CTA, {
+      posicao_hipotetica: posicaoHipotetica ?? 0,
+    });
+  }
+
+  /** O que a pessoa fez na apresentação da primeira visita. */
+  async logLeaderboardEnroll(acao: 'continuar' | 'sortear' | 'nao_aparecer') {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_ENROLL, { acao });
+  }
+
+  async logLeaderboardNicknameSet(acao: 'definido' | 'limpo') {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_NICKNAME_SET, { acao });
+  }
+
+  /** Quantas denúncias chegam, e por quê — a moderação é manual. */
+  async logLeaderboardReport(motivo: string) {
+    await this.logEvent(AnalyticsEvents.LEADERBOARD_REPORT, { motivo });
+  }
+
   async logLanguageChanged(newLocale: string, previousLocale: string) {
     await this.logEvent(AnalyticsEvents.LANGUAGE_CHANGED, {
       new_locale: newLocale,

@@ -16,7 +16,7 @@
  *   - erro e lista vazia, que são estados da própria lista.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -26,7 +26,13 @@ import {
   RefreshControl,
   Pressable,
 } from 'react-native';
-import { useFocusEffect, useNavigation, NavigationProp } from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  NavigationProp,
+  RouteProp,
+} from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -53,7 +59,8 @@ import { SettingsStorage } from '@/utils/settingsStorage';
 import { paisDoAparelho } from '@/utils/pais';
 import { IdiomaSuportado, nomeDeExibicao } from '@/utils/pseudonimo';
 import { useApp } from '@/contexts/AppContext';
-import { RootStackParamList } from '@/types';
+import analyticsService from '@/services/analyticsService';
+import { RootStackParamList, TabParamList } from '@/types';
 
 type Periodo = 'weekly' | 'all-time';
 type Escopo = 'mundo' | 'pais';
@@ -65,6 +72,8 @@ export const LeaderboardScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const rota = useRoute<RouteProp<TabParamList, 'Leaderboard'>>();
+  const origem = rota.params?.origem ?? 'aba';
   const { isAuthenticated } = useApp();
   const idioma = ((i18n.language || 'pt').slice(0, 2) as IdiomaSuportado) || 'pt';
 
@@ -85,6 +94,9 @@ export const LeaderboardScreen: React.FC = () => {
   const [sorteando, setSorteando] = useState(false);
   const [salvandoVisibilidade, setSalvandoVisibilidade] = useState(false);
 
+  /** Uma abertura registra um evento só, mesmo com recarga e puxar-para-atualizar. */
+  const aberturaRegistrada = useRef(false);
+
   const [denunciando, setDenunciando] = useState<EntradaDoRanking | null>(null);
   const [enviandoDenuncia, setEnviandoDenuncia] = useState(false);
   const [denunciaEnviada, setDenunciaEnviada] = useState(false);
@@ -97,6 +109,17 @@ export const LeaderboardScreen: React.FC = () => {
   const trocarPeriodo = (novo: Periodo) => {
     setPeriodo(novo);
     if (novo === 'weekly') setMetrica('pontos');
+    analyticsService.logLeaderboardFilterChange('periodo', novo);
+  };
+
+  const trocarEscopo = (novo: Escopo) => {
+    setEscopo(novo);
+    analyticsService.logLeaderboardFilterChange('escopo', novo);
+  };
+
+  const trocarMetrica = (nova: MetricaDoRanking) => {
+    setMetrica(nova);
+    analyticsService.logLeaderboardFilterChange('metrica', nova);
   };
 
   const carregar = useCallback(
@@ -126,6 +149,20 @@ export const LeaderboardScreen: React.FC = () => {
         setErro(false);
         setMostrandoSalvo(false);
         await LeaderboardStorage.guardar(recorte, pais, nova);
+
+        // Depois da resposta, e não ao abrir: só aqui se sabe se a pessoa tem
+        // posição, que é o que separa quem se encontra de quem não se encontra.
+        if (!aberturaRegistrada.current) {
+          aberturaRegistrada.current = true;
+          analyticsService.logLeaderboardView({
+            origem,
+            periodo,
+            escopo,
+            metrica,
+            autenticado: isAuthenticated,
+            temPosicao: !!nova.me,
+          });
+        }
       } catch {
         // Com algo salvo na tela, a falha vira um aviso; sem nada, vira erro.
         setErro((atual) => atual || !pagina);
@@ -167,6 +204,7 @@ export const LeaderboardScreen: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
+      aberturaRegistrada.current = false;
       carregar({ doZero: true });
       carregarConfiguracoes();
     }, [carregar, carregarConfiguracoes]),
@@ -177,8 +215,14 @@ export const LeaderboardScreen: React.FC = () => {
     await SettingsStorage.saveSettings({ apresentacaoDoRankingVista: true });
   };
 
+  const continuarDaApresentacao = async () => {
+    analyticsService.logLeaderboardEnroll('continuar');
+    await marcarApresentacaoVista();
+  };
+
   const sortearOutroNome = async () => {
     setSorteando(true);
+    analyticsService.logLeaderboardEnroll('sortear');
     try {
       setConfiguracoes(await leaderboardService.sortearNome());
     } catch {
@@ -201,6 +245,7 @@ export const LeaderboardScreen: React.FC = () => {
   };
 
   const naoQuererAparecer = async () => {
+    analyticsService.logLeaderboardEnroll('nao_aparecer');
     await marcarApresentacaoVista();
     await trocarVisibilidade(false);
   };
@@ -211,6 +256,7 @@ export const LeaderboardScreen: React.FC = () => {
     try {
       await leaderboardService.denunciar(denunciando.publicId, motivo);
       setDenunciaEnviada(true);
+      analyticsService.logLeaderboardReport(motivo);
     } catch {
       // Falhou: fecha sem afirmar que recebeu.
       setDenunciando(null);
@@ -240,7 +286,7 @@ export const LeaderboardScreen: React.FC = () => {
           idioma={idioma}
           sorteando={sorteando}
           aoSortearOutro={sortearOutroNome}
-          aoContinuar={marcarApresentacaoVista}
+          aoContinuar={continuarDaApresentacao}
           aoNaoQuererAparecer={naoQuererAparecer}
         />
       )}
@@ -250,7 +296,10 @@ export const LeaderboardScreen: React.FC = () => {
           posicaoHipotetica={pagina?.hypotheticalPosition ?? null}
           totalDeJogadores={pagina?.totalPlayers ?? 0}
           idioma={idioma}
-          aoEntrar={() => navigation.navigate('Login')}
+          aoEntrar={() => {
+            analyticsService.logLeaderboardLoginCta(pagina?.hypotheticalPosition ?? null);
+            navigation.navigate('Login');
+          }}
         />
       )}
 
@@ -278,7 +327,7 @@ export const LeaderboardScreen: React.FC = () => {
           <SeletorDeRecorte<Escopo>
             rotuloDoGrupo={t('leaderboard.scope.label')}
             valor={escopo}
-            aoTrocar={setEscopo}
+            aoTrocar={trocarEscopo}
             opcoes={[
               { valor: 'mundo', rotulo: t('leaderboard.scope.world') },
               { valor: 'pais', rotulo: paisDoJogador },
@@ -290,7 +339,7 @@ export const LeaderboardScreen: React.FC = () => {
           <SeletorDeRecorte<MetricaDoRanking>
             rotuloDoGrupo={t('leaderboard.metric.label')}
             valor={metrica}
-            aoTrocar={setMetrica}
+            aoTrocar={trocarMetrica}
             opcoes={[
               { valor: 'pontos', rotulo: t('leaderboard.metric.points') },
               { valor: 'fase', rotulo: t('leaderboard.metric.phase') },

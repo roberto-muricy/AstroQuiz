@@ -313,7 +313,9 @@ export const QuizResultScreen = () => {
     runAdThen(() =>
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Main', params: { screen: 'Leaderboard' } }],
+        routes: [
+          { name: 'Main', params: { screen: 'Leaderboard', params: { origem: 'resultado' } } },
+        ],
       })
     );
   };
