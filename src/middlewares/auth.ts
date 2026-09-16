@@ -9,9 +9,17 @@ import {
   isFirebaseConfigured,
 } from '../services/firebase-auth';
 
+/**
+ * O e-mail nao entra aqui de proposito.
+ *
+ * Ele e a credencial de quem entra por e-mail e senha, entao o Firebase precisa
+ * dele — mas o nosso lado nunca precisou: nada consulta por e-mail, nada envia
+ * e-mail, e o app le o endereco do proprio SDK do Firebase. Deixar o campo no
+ * estado da requisicao so convidava a grava-lo de novo, que e o que acontecia
+ * ate 16/09/2026.
+ */
 export interface AuthContext {
   firebaseUid: string;
-  email?: string;
   role: 'user' | 'premium' | 'admin';
   isBlocked: boolean;
 }
@@ -58,7 +66,6 @@ export function createAuthMiddleware(strapi: any) {
     // Add user context to request
     ctx.state.user = {
       firebaseUid: decodedToken.uid,
-      email: decodedToken.email,
       role: profile?.role || 'user',
       isBlocked: profile?.isBlocked || false,
     } as AuthContext;
@@ -113,7 +120,6 @@ export function createOptionalAuthMiddleware(strapi: any) {
         if (!profile?.isBlocked) {
           ctx.state.user = {
             firebaseUid: decodedToken.uid,
-            email: decodedToken.email,
             role: profile?.role || 'user',
             isBlocked: false,
           } as AuthContext;

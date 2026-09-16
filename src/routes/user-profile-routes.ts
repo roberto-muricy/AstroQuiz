@@ -33,7 +33,6 @@ export function createUserProfileRoutes(strapi: any): any[] {
 
             // Always use authenticated UID from token (never from body)
             const firebaseUid = user?.firebaseUid;
-            const email = user?.email || body.email;
             const { displayName, photoURL } = body;
 
             if (!firebaseUid) {
@@ -48,7 +47,6 @@ export function createUserProfileRoutes(strapi: any): any[] {
               profile = await strapi.db.query('api::user-profile.user-profile').create({
                 data: {
                   firebaseUid,
-                  email,
                   displayName,
                   photoURL,
                   totalXP: 0,
@@ -77,7 +75,6 @@ export function createUserProfileRoutes(strapi: any): any[] {
               profile = await strapi.db.query('api::user-profile.user-profile').update({
                 where: { id: profile.id },
                 data: {
-                  email,
                   displayName,
                   photoURL,
                   lastSyncedAt: new Date(),
