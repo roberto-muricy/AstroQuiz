@@ -26,6 +26,10 @@
  * obscenity, que ignora um termo bloqueado so quando ele esta dentro da
  * expressao permitida inteira; qualquer outro termo no apelido continua
  * barrando.
+ *
+ * Nomes reservados: config/nickname-reserved.json guarda os nomes que ninguem
+ * pode usar, para que nenhum jogador se passe pelo AstroQuiz, pela moderacao ou
+ * por uma empresa. Nao e lista de palavrao: e protecao contra falsa identidade.
  */
 
 import fs from 'fs';
@@ -47,6 +51,7 @@ const listasDoPacote: Record<string, unknown> = require('naughty-words');
 export const IDIOMAS_DAS_LISTAS = ['pt', 'es', 'fr', 'en'] as const;
 
 export const ARQUIVO_DA_ALLOWLIST = path.join('config', 'nickname-allowlist.json');
+export const ARQUIVO_DE_RESERVADOS = path.join('config', 'nickname-reserved.json');
 
 export const TAMANHO_MINIMO_DO_APELIDO = 3;
 export const TAMANHO_MAXIMO_DO_APELIDO = 20;
@@ -58,6 +63,7 @@ export type MotivoDeApelidoInvalido =
   | 'too_long'
   | 'invalid_characters'
   | 'too_few_letters'
+  | 'reserved'
   | 'not_allowed';
 
 export type ResultadoDoApelido =
@@ -117,6 +123,38 @@ export function carregarAllowlist(
   return [...porForma.values()];
 }
 
+/**
+ * Le os nomes reservados. Arquivo ausente vira conjunto vazio; formato invalido
+ * e erro, para uma configuracao errada nao passar despercebida.
+ */
+export function carregarReservados(
+  caminho: string = path.resolve(process.cwd(), ARQUIVO_DE_RESERVADOS)
+): Set<string> {
+  let conteudo: string;
+  try {
+    conteudo = fs.readFileSync(caminho, 'utf8');
+  } catch (erro: any) {
+    if (erro?.code === 'ENOENT') return new Set();
+    throw erro;
+  }
+
+  const lista = JSON.parse(conteudo)?.names;
+  if (!Array.isArray(lista)) {
+    throw new Error(`${ARQUIVO_DE_RESERVADOS}: "names" must be an array`);
+  }
+
+  const nomes = new Set<string>();
+  for (const item of lista) {
+    if (typeof item !== 'string') {
+      throw new Error(`${ARQUIVO_DE_RESERVADOS}: every name must be a string`);
+    }
+    const canonico = formaComparavel(item);
+    if (!canonico) throw new Error(`${ARQUIVO_DE_RESERVADOS}: every name must have letters`);
+    nomes.add(canonico);
+  }
+  return nomes;
+}
+
 function carregarListas() {
   const quantidadePorIdioma: Record<string, number> = {};
   const paraOMotor = new Set<string>();
@@ -144,6 +182,27 @@ function carregarListas() {
 
 const listas = carregarListas();
 const allowlist = carregarAllowlist();
+const reservados = carregarReservados();
+
+/**
+ * O apelido tenta se passar por um nome reservado? Pega o apelido inteiro
+ * ("Astro Quiz", "A.d.m.i.n") e tambem o nome reservado usado como palavra
+ * ("Admin Cometa"). Pontuacao e numeros nao disfarcam.
+ */
+export function eNomeReservado(apelido: string): boolean {
+  if (reservados.has(formaComparavel(apelido))) return true;
+  return apelido
+    .split(/[^\p{L}\p{N}]+/u)
+    .some((palavra) => {
+      const canonico = formaComparavel(palavra);
+      return canonico.length > 0 && reservados.has(canonico);
+    });
+}
+
+/** Nomes reservados carregados, na forma comparavel. */
+export function nomesReservados(): string[] {
+  return [...reservados];
+}
 
 const conjunto = new DataSet<any>().addAll(englishDataset as any);
 for (const termo of listas.paraOMotor) {
@@ -208,6 +267,7 @@ export function validarApelido(
   if ((apelido.match(/\p{L}/gu) ?? []).length < MINIMO_DE_LETRAS) {
     return { ok: false, motivo: 'too_few_letters' };
   }
+  if (eNomeReservado(apelido)) return { ok: false, motivo: 'reserved' };
 
   // A forma digitada e a forma sem acentos: o motor compara letras ASCII.
   if (verificar(apelido) || verificar(normalizarApelido(apelido))) {

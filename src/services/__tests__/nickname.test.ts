@@ -17,6 +17,8 @@ import {
   termosCarregadosPorIdioma,
   carregarAllowlist,
   expressoesPermitidas,
+  carregarReservados,
+  nomesReservados,
 } from '../nickname';
 
 const NO_LITERAL = 2; // SyntaxKind.Literal na obscenity
@@ -98,6 +100,59 @@ describe('allowlist', () => {
       expect(() => carregarAllowlist(arquivo('{"expressions": ["buraco-negro 42"]}'))).toThrow();
       expect(() => carregarAllowlist(arquivo('nao e json'))).toThrow();
     });
+  });
+});
+
+describe('nomes reservados', () => {
+  const arquivo = (conteudo: string) => {
+    const pasta = fs.mkdtempSync(path.join(os.tmpdir(), 'reservados-'));
+    const caminho = path.join(pasta, 'nickname-reserved.json');
+    fs.writeFileSync(caminho, conteudo);
+    return caminho;
+  };
+
+  it('sao carregados do arquivo de configuracao', () => {
+    expect(nomesReservados()).toEqual(expect.arrayContaining(['astroquiz', 'admin', 'suporte']));
+  });
+
+  it('recusa o nome reservado, mesmo disfarcado', () => {
+    for (const apelido of ['AstroQuiz', 'Astro Quiz', 'astro  quiz', 'A.d.m.i.n', 'ADMIN', 'Suporte', 'Moderador']) {
+      expect(recusadoPor(apelido, 'reserved')).toBe(true);
+    }
+  });
+
+  it('recusa o nome reservado usado como palavra dentro do apelido', () => {
+    for (const apelido of ['Admin Cometa', 'Cometa Admin', 'Equipe AstroQuiz', 'Suporte 42']) {
+      expect(recusadoPor(apelido, 'reserved')).toBe(true);
+    }
+  });
+
+  it('nao barra apelidos legitimos parecidos', () => {
+    const recusados = [
+      'Sistema Solar',
+      'Equipe Estelar',
+      'Administradora Lua',
+      'Astronauta',
+      'Astro Fa',
+      'Officina Estelar',
+    ].filter((apelido) => !validarApelido(apelido).ok);
+    expect(recusados).toEqual([]);
+  });
+
+  it('arquivo ausente vira conjunto vazio', () => {
+    expect(carregarReservados(path.join(os.tmpdir(), 'nao-existe', 'nickname-reserved.json')).size).toBe(0);
+  });
+
+  it('formato invalido e erro', () => {
+    expect(() => carregarReservados(arquivo('{"names": "admin"}'))).toThrow();
+    expect(() => carregarReservados(arquivo('{"names": [42]}'))).toThrow();
+    expect(() => carregarReservados(arquivo('{"names": ["123"]}'))).toThrow();
+    expect(() => carregarReservados(arquivo('nao e json'))).toThrow();
+  });
+
+  it('normaliza ao carregar: acentos, maiusculas e pontuacao nao escapam', () => {
+    const nomes = carregarReservados(arquivo('{"names": ["Moderação", "S.U.P.O.R.T.E"]}'));
+    expect([...nomes].sort()).toEqual(['moderacao', 'suporte']);
   });
 });
 

@@ -1,0 +1,21 @@
+{
+  "description": "Nomes que ninguem pode usar como apelido, para que nenhum jogador se passe pelo AstroQuiz, pela moderacao ou por uma empresa. A comparacao ignora acentos, maiusculas, pontuacao e numeros, e pega tanto o apelido inteiro quanto o nome reservado usado como palavra dentro dele. Por isso a lista so tem nomes que soam como identidade oficial: palavras comuns como sistema ou equipe ficam de fora, senao barrariam apelidos legitimos como Sistema Solar. Lido por src/services/nickname.ts.",
+  "names": [
+    "astroquiz",
+    "astro quiz",
+    "admin",
+    "administrador",
+    "administrator",
+    "moderador",
+    "moderator",
+    "suporte",
+    "support",
+    "soporte",
+    "oficial",
+    "official",
+    "officiel",
+    "root",
+    "apple",
+    "google"
+  ]
+}

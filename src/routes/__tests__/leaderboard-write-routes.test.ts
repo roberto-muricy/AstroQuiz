@@ -231,6 +231,8 @@ describe('PUT /api/leaderboard/me', () => {
       ['nome@site', 'invalid_characters'],
       [42, 'invalid_characters'],
       ['1234', 'too_few_letters'],
+      ['AstroQuiz', 'reserved'],
+      ['Admin Cometa', 'reserved'],
     ];
     for (const [nickname, motivo] of casos) {
       const ctx = await definir('uid_um', { nickname });
