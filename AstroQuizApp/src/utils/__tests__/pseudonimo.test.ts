@@ -12,7 +12,13 @@
  * crua no lugar do nome.
  */
 
-import { montarNomeGerado, OBJETOS, ADJETIVOS, IdiomaSuportado } from '../pseudonimo';
+import {
+  montarNomeGerado,
+  nomeDeExibicao,
+  OBJETOS,
+  ADJETIVOS,
+  IdiomaSuportado,
+} from '../pseudonimo';
 
 // As listas de verdade, direto do servidor (mesmo repositório).
 const servidor = require('../../../../src/services/pseudonym');
@@ -62,6 +68,29 @@ describe('montarNomeGerado', () => {
   it('numero estranho nao aparece', () => {
     expect(montarNomeGerado({ adjective: 'swift', object: 'comet', number: NaN }, 'pt')).toBe(
       'Cometa Veloz',
+    );
+  });
+});
+
+describe('nomeDeExibicao', () => {
+  it('quem escolheu apelido aparece pelo apelido, sem tradução', () => {
+    expect(nomeDeExibicao({ type: 'nickname', text: 'Cometa Azul' }, 'en')).toBe('Cometa Azul');
+  });
+
+  it('quem nao escolheu aparece pelo nome gerado, no idioma de quem ve', () => {
+    const gerado = { type: 'generated', adjective: 'swift', object: 'comet', number: 42 };
+    expect(nomeDeExibicao(gerado, 'pt')).toBe('Cometa Veloz 42');
+    expect(nomeDeExibicao(gerado, 'en')).toBe('Swift Comet 42');
+  });
+
+  it('nome ausente ou estranho nao deixa a linha em branco sem motivo', () => {
+    expect(nomeDeExibicao(null, 'pt')).toBe('');
+    expect(nomeDeExibicao(undefined, 'pt')).toBe('');
+    // Apelido vazio: o servidor nao manda isso, mas a linha nao pode quebrar.
+    expect(nomeDeExibicao({ type: 'nickname', text: '' }, 'pt')).toBe('');
+    // Tipo desconhecido cai no nome gerado, que sabe se virar com chave crua.
+    expect(nomeDeExibicao({ type: 'outro', adjective: 'swift', object: 'comet', number: 1 }, 'pt')).toBe(
+      'Cometa Veloz 1',
     );
   });
 });

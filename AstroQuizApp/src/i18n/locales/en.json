@@ -419,5 +419,34 @@
       "title": "Start here",
       "body": "Phase 1 has the easiest questions. You can replay it as often as you like."
     }
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "period": {
+      "label": "Period",
+      "week": "Week",
+      "allTime": "All time"
+    },
+    "scope": {
+      "label": "Scope",
+      "world": "World"
+    },
+    "metric": {
+      "label": "Sort by",
+      "points": "Points",
+      "phase": "Phase"
+    },
+    "players_one": "{{count}} player",
+    "players_other": "{{count}} players",
+    "yourPosition": "Your position",
+    "phaseValue": "Phase {{phase}}",
+    "savedList": "Showing the last saved list",
+    "empty": {
+      "title": "No one on the ranking yet",
+      "hint": "Finish a phase to show up here."
+    },
+    "error": {
+      "title": "Couldn't load the ranking"
+    }
   }
 }

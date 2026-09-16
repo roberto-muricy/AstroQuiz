@@ -405,5 +405,34 @@
       "title": "C’est par ici",
       "body": "La phase 1 a les questions les plus faciles. Vous pouvez la rejouer autant que vous voulez."
     }
+  },
+  "leaderboard": {
+    "title": "Classement",
+    "period": {
+      "label": "Période",
+      "week": "Semaine",
+      "allTime": "Général"
+    },
+    "scope": {
+      "label": "Portée",
+      "world": "Monde"
+    },
+    "metric": {
+      "label": "Tri",
+      "points": "Points",
+      "phase": "Phase"
+    },
+    "players_one": "{{count}} joueur",
+    "players_other": "{{count}} joueurs",
+    "yourPosition": "Votre position",
+    "phaseValue": "Phase {{phase}}",
+    "savedList": "Affichage de la dernière liste enregistrée",
+    "empty": {
+      "title": "Personne dans le classement pour le moment",
+      "hint": "Terminez une phase pour apparaître ici."
+    },
+    "error": {
+      "title": "Impossible de charger le classement"
+    }
   }
 }

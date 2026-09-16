@@ -405,5 +405,34 @@
       "title": "Es por aquí",
       "body": "La fase 1 tiene las preguntas más fáciles. Puedes repetirla cuantas veces quieras."
     }
+  },
+  "leaderboard": {
+    "title": "Clasificación",
+    "period": {
+      "label": "Periodo",
+      "week": "Semana",
+      "allTime": "General"
+    },
+    "scope": {
+      "label": "Alcance",
+      "world": "Mundo"
+    },
+    "metric": {
+      "label": "Orden",
+      "points": "Puntos",
+      "phase": "Fase"
+    },
+    "players_one": "{{count}} jugador",
+    "players_other": "{{count}} jugadores",
+    "yourPosition": "Tu posición",
+    "phaseValue": "Fase {{phase}}",
+    "savedList": "Mostrando la última lista guardada",
+    "empty": {
+      "title": "Todavía no hay nadie en la clasificación",
+      "hint": "Termina una fase para aparecer aquí."
+    },
+    "error": {
+      "title": "No se pudo cargar la clasificación"
+    }
   }
 }

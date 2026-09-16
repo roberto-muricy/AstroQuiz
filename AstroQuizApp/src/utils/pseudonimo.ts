@@ -158,3 +158,37 @@ export function montarNomeGerado(
   const { texto, genero } = objeto[idioma];
   return [texto, adjetivo[idioma][genero], numero].filter(Boolean).join(' ');
 }
+
+/** O nome como o servidor manda: apelido escrito, ou nome gerado em chaves. */
+export interface NomeDoServidor {
+  type?: string;
+  text?: string;
+  adjective?: string;
+  object?: string;
+  number?: number;
+}
+
+/**
+ * O que a lista mostra: o apelido de quem escolheu um, e o nome gerado para
+ * todo o resto.
+ *
+ * Mora aqui, e não na linha da lista, para poder ser testado — o app não tem
+ * configuração de jest para componentes de React Native, e esta é justamente a
+ * decisão que erraria calado, deixando a linha em branco.
+ */
+export function nomeDeExibicao(
+  nome: NomeDoServidor | null | undefined,
+  idioma: IdiomaSuportado,
+): string {
+  if (!nome) return '';
+  if (nome.type === 'nickname') return nome.text || '';
+
+  return montarNomeGerado(
+    {
+      adjective: nome.adjective || '',
+      object: nome.object || '',
+      number: Number(nome.number),
+    },
+    idioma,
+  );
+}

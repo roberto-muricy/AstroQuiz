@@ -419,5 +419,34 @@
       "title": "É por aqui",
       "body": "A fase 1 tem as perguntas mais fáceis. Você pode repetir quantas vezes quiser."
     }
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "period": {
+      "label": "Período",
+      "week": "Semana",
+      "allTime": "Geral"
+    },
+    "scope": {
+      "label": "Alcance",
+      "world": "Mundo"
+    },
+    "metric": {
+      "label": "Ordem",
+      "points": "Pontos",
+      "phase": "Fase"
+    },
+    "players_one": "{{count}} jogador",
+    "players_other": "{{count}} jogadores",
+    "yourPosition": "Sua posição",
+    "phaseValue": "Fase {{phase}}",
+    "savedList": "Mostrando a última lista salva",
+    "empty": {
+      "title": "Ninguém no ranking ainda",
+      "hint": "Termine uma fase para aparecer aqui."
+    },
+    "error": {
+      "title": "Não foi possível carregar o ranking"
+    }
   }
 }
