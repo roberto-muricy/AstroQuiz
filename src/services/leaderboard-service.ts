@@ -42,6 +42,11 @@ export interface EntradaDoRanking {
   highestPhase: number;
 }
 
+export interface PosicaoDoJogador extends EntradaDoRanking {
+  /** Aparece na lista publica? Falso para quem desligou "aparecer no ranking". */
+  inBoard: boolean;
+}
+
 export interface PaginaDoRanking {
   board: TipoDeRanking;
   country: string | null;
@@ -52,6 +57,18 @@ export interface PaginaDoRanking {
   totalPlayers: number;
   totalPages: number;
   entries: EntradaDoRanking[];
+  /**
+   * Posicao de quem pediu a pagina, quando identificado. Null para convidado,
+   * para quem ainda nao tem partida que conte e para quem esta fora deste
+   * recorte (outro pais). Quem esta oculto recebe a posicao que teria.
+   */
+  me: PosicaoDoJogador | null;
+  /**
+   * Posicao que a pontuacao enviada em `score` ocuparia — e o que o app mostra
+   * ao convidado, a partir do que ele tem guardado no aparelho. Null no recorte
+   * por fase, onde pontos nao ordenam.
+   */
+  hypotheticalPosition: number | null;
 }
 
 const FUSO_DE_BRASILIA_MS = 3 * 60 * 60 * 1000;
@@ -74,6 +91,8 @@ interface ProgressoDaFase {
 }
 
 interface Classificado {
+  /** Nunca sai deste modulo: serve so para achar quem pediu a pagina. */
+  firebaseUid: string;
   publicId: string;
   name: NomeExibido;
   countryCode: string | null;
@@ -82,6 +101,8 @@ interface Classificado {
   highestPhase: number;
   alcancadoEm: number;
   faseAlcancadaEm: number;
+  /** Entra na lista publica? Falso para oculto pelo jogador ou pela moderacao. */
+  visivel: boolean;
 }
 
 // Duas variantes fixas; nada vindo da requisicao entra no texto do SQL.
@@ -199,20 +220,25 @@ async function carregarProgresso(knex: any): Promise<Map<string, ProgressoDaFase
   }));
 }
 
-function carregarJogadoresVisiveis(knex: any): Promise<any[]> {
-  return knex(TABELA_DE_JOGADORES)
-    .select(
-      'firebase_uid',
-      'public_id',
-      'pseudonym_adjective',
-      'pseudonym_object',
-      'pseudonym_number',
-      'nickname',
-      'nickname_hidden',
-      'country_code',
-      'show_country'
-    )
-    .where({ visible: true, hidden_by_admin: false });
+/**
+ * Todos os cadastrados, inclusive os ocultos. Eles nao entram na lista publica,
+ * mas precisam ser calculados: e assim que quem desligou "aparecer no ranking"
+ * consegue ver a posicao que teria se voltasse a aparecer.
+ */
+function carregarJogadores(knex: any): Promise<any[]> {
+  return knex(TABELA_DE_JOGADORES).select(
+    'firebase_uid',
+    'public_id',
+    'pseudonym_adjective',
+    'pseudonym_object',
+    'pseudonym_number',
+    'nickname',
+    'nickname_hidden',
+    'country_code',
+    'show_country',
+    'visible',
+    'hidden_by_admin'
+  );
 }
 
 const porPontos = (a: Classificado, b: Classificado): number =>
@@ -230,7 +256,7 @@ async function calcularClassificacao(
   semana: { inicio: Date; fim: Date } | null
 ): Promise<Classificado[]> {
   const [jogadores, progresso, melhores] = await Promise.all([
-    carregarJogadoresVisiveis(knex),
+    carregarJogadores(knex),
     carregarProgresso(knex),
     carregarMelhores(knex, semana),
   ]);
@@ -260,6 +286,7 @@ async function calcularClassificacao(
     if (tipo === 'phase' ? highestPhase === 0 : fasesContadas === 0) continue;
 
     lista.push({
+      firebaseUid: jogador.firebase_uid,
       publicId: jogador.public_id,
       name: nomeExibido(jogador),
       countryCode: jogador.country_code ?? null,
@@ -268,6 +295,7 @@ async function calcularClassificacao(
       highestPhase,
       alcancadoEm,
       faseAlcancadaEm: maiorAprovada?.aprovadaEm ?? 0,
+      visivel: verdadeiro(jogador.visible) && !verdadeiro(jogador.hidden_by_admin),
     });
   }
 
@@ -319,6 +347,10 @@ export async function montarPaginaDoRanking(
     pagina?: number;
     tamanho?: number;
     agora?: Date;
+    /** Quem pediu a pagina, quando identificado. Nunca sai na resposta. */
+    firebaseUid?: string | null;
+    /** Pontuacao que o convidado tem guardada no aparelho. */
+    pontuacaoHipotetica?: number | null;
   }
 ): Promise<PaginaDoRanking> {
   const pagina = Math.max(1, Math.floor(opcoes.pagina ?? 1));
@@ -330,8 +362,37 @@ export async function montarPaginaDoRanking(
   const semana = opcoes.tipo === 'weekly' ? semanaDoRanking(opcoes.agora ?? new Date()) : null;
 
   const lista = await classificacaoEmCache(knex, opcoes.tipo, semana);
-  const filtrada = pais ? lista.filter((e) => e.showCountry && e.countryCode === pais) : lista;
+  const noRecorte = (e: Classificado) => !pais || (e.showCountry && e.countryCode === pais);
+  const publica = lista.filter((e) => e.visivel && noRecorte(e));
   const inicio = (pagina - 1) * tamanho;
+  const comparar = opcoes.tipo === 'phase' ? porFase : porPontos;
+
+  const paraEntrada = (e: Classificado, position: number): EntradaDoRanking => ({
+    position,
+    publicId: e.publicId,
+    name: { ...e.name },
+    country: e.showCountry ? e.countryCode : null,
+    score: e.score,
+    highestPhase: e.highestPhase,
+  });
+
+  let me: PosicaoDoJogador | null = null;
+  if (opcoes.firebaseUid) {
+    const eu = lista.find((e) => e.firebaseUid === opcoes.firebaseUid);
+    if (eu && noRecorte(eu)) {
+      const naLista = publica.indexOf(eu);
+      // Oculto nao ocupa lugar: conta quantos visiveis ficariam na frente dele.
+      const position =
+        naLista >= 0 ? naLista + 1 : publica.filter((outro) => comparar(outro, eu) < 0).length + 1;
+      me = { ...paraEntrada(eu, position), inBoard: naLista >= 0 };
+    }
+  }
+
+  const pontuacao = opcoes.pontuacaoHipotetica;
+  const hypotheticalPosition =
+    typeof pontuacao === 'number' && opcoes.tipo !== 'phase'
+      ? publica.filter((e) => e.score > pontuacao).length + 1
+      : null;
 
   return {
     board: opcoes.tipo,
@@ -340,15 +401,10 @@ export async function montarPaginaDoRanking(
     periodEnd: semana ? semana.fim.toISOString() : null,
     page: pagina,
     pageSize: tamanho,
-    totalPlayers: filtrada.length,
-    totalPages: Math.ceil(filtrada.length / tamanho),
-    entries: filtrada.slice(inicio, inicio + tamanho).map((e, i) => ({
-      position: inicio + i + 1,
-      publicId: e.publicId,
-      name: { ...e.name },
-      country: e.showCountry ? e.countryCode : null,
-      score: e.score,
-      highestPhase: e.highestPhase,
-    })),
+    totalPlayers: publica.length,
+    totalPages: Math.ceil(publica.length / tamanho),
+    entries: publica.slice(inicio, inicio + tamanho).map((e, i) => paraEntrada(e, inicio + i + 1)),
+    me,
+    hypotheticalPosition,
   };
 }

@@ -23,6 +23,11 @@ import {
   AuthContext,
 } from '../middlewares/auth';
 import {
+  isFirebaseConfigured,
+  extractBearerToken,
+  verifyFirebaseToken,
+} from '../services/firebase-auth';
+import {
   montarPaginaDoRanking,
   limparCacheDoRanking,
   TipoDeRanking,
@@ -53,6 +58,7 @@ import {
   validateLeaderboardPage,
   validateLeaderboardPageSize,
   validateLeaderboardBoard,
+  validateLeaderboardScore,
   validateCountryCode,
   validateOptionalCountryCode,
   validateBooleanField,
@@ -99,6 +105,33 @@ export function createLeaderboardRoutes(
   const authMiddleware = createAuthMiddleware(strapi);
   const adminMiddleware = createAdminMiddleware(strapi);
 
+  /**
+   * Quem esta pedindo a pagina, quando da para saber. A leitura do ranking e
+   * publica: token ausente, token invalido ou Firebase fora nao podem derrubar
+   * a resposta — perde-se so a posicao propria.
+   *
+   * Nao usa createOptionalAuthMiddleware de proposito: em producao ele recusa a
+   * requisicao com 503 quando o Firebase nao esta configurado, mesmo sem token.
+   */
+  async function identificarChamador(ctx: any): Promise<string | null> {
+    try {
+      if (!isFirebaseConfigured()) return null;
+      const token = extractBearerToken(ctx.request?.headers?.authorization);
+      if (!token) return null;
+
+      const decodificado = await verifyFirebaseToken(token);
+      if (!decodificado?.uid) return null;
+
+      const perfil = await strapi.db.query('api::user-profile.user-profile').findOne({
+        where: { firebaseUid: decodificado.uid },
+      });
+      return perfil?.isBlocked ? null : decodificado.uid;
+    } catch (error: any) {
+      strapi.log.warn('Leaderboard: could not identify the caller; continuing as guest');
+      return null;
+    }
+  }
+
   // 120 por minuto por IP: em rede movel muitos usuarios saem pelo mesmo IP.
   // O limitador global (100/min) pula /api/leaderboard, senao cortaria antes
   // deste; ver src/index.ts.
@@ -119,11 +152,12 @@ export function createLeaderboardRoutes(
   });
 
   async function responder(ctx: any, tipo: TipoDeRanking, pais: string | null): Promise<void> {
-    const { page, pageSize } = ctx.query || {};
+    const { page, pageSize, score } = ctx.query || {};
 
     const validation = combineValidations(
       validateLeaderboardPage(page),
-      validateLeaderboardPageSize(pageSize)
+      validateLeaderboardPageSize(pageSize),
+      validateLeaderboardScore(score)
     );
     if (!validation.valid) {
       return ctx.badRequest(formatValidationErrors(validation.errors));
@@ -135,6 +169,8 @@ export function createLeaderboardRoutes(
         pais,
         pagina: page === undefined ? 1 : Number(page),
         tamanho: pageSize === undefined ? LEADERBOARD_DEFAULT_PAGE_SIZE : Number(pageSize),
+        firebaseUid: await identificarChamador(ctx),
+        pontuacaoHipotetica: score === undefined ? null : Number(score),
       });
       ctx.body = { success: true, data };
     } catch (error: any) {

@@ -342,6 +342,96 @@ describe('paginacao', () => {
   });
 });
 
+describe('posicao do proprio jogador', () => {
+  beforeEach(async () => {
+    await jogador('uid_1', 'pub-1');
+    await jogador('uid_2', 'pub-2');
+    await jogador('uid_3', 'pub-3');
+    await resultado('uid_1', 1, 900, '2026-09-15T10:00:00.000Z');
+    await resultado('uid_2', 1, 600, '2026-09-15T10:00:00.000Z');
+    await resultado('uid_3', 1, 300, '2026-09-15T10:00:00.000Z');
+  });
+
+  it('convidado nao recebe posicao', async () => {
+    const pagina = await ranking('all-time');
+    expect(pagina.me).toBeNull();
+    expect(pagina.hypotheticalPosition).toBeNull();
+  });
+
+  it('quem esta logado recebe a propria posicao', async () => {
+    const pagina = await ranking('all-time', { firebaseUid: 'uid_2' });
+    expect(pagina.me).toEqual(
+      expect.objectContaining({ position: 2, publicId: 'pub-2', score: 600, inBoard: true })
+    );
+  });
+
+  it('a posicao vale mesmo quando o jogador esta fora da pagina mostrada', async () => {
+    const pagina = await ranking('all-time', { firebaseUid: 'uid_3', tamanho: 1 });
+    expect(pagina.entries).toHaveLength(1);
+    expect(pagina.me).toEqual(expect.objectContaining({ position: 3, inBoard: true }));
+  });
+
+  it('quem desligou aparecer no ranking recebe a posicao que teria', async () => {
+    await knex('leaderboard_players').where({ firebase_uid: 'uid_2' }).update({ visible: false });
+    limparCacheDoRanking();
+
+    const pagina = await ranking('all-time', { firebaseUid: 'uid_2' });
+    expect(pagina.totalPlayers).toBe(2);
+    expect(ids(pagina)).toEqual(['pub-1', 'pub-3']);
+    expect(pagina.me).toEqual(expect.objectContaining({ position: 2, inBoard: false }));
+  });
+
+  it('sem partida que conte, nao ha posicao', async () => {
+    await jogador('uid_sem_partida', 'pub-sem-partida');
+    expect((await ranking('all-time', { firebaseUid: 'uid_sem_partida' })).me).toBeNull();
+    expect((await ranking('all-time', { firebaseUid: 'uid_sem_cadastro' })).me).toBeNull();
+  });
+
+  it('no recorte por pais, so quem e daquele pais tem posicao', async () => {
+    await knex('leaderboard_players').where({ firebase_uid: 'uid_2' }).update({ country_code: 'PT' });
+    limparCacheDoRanking();
+
+    expect((await ranking('all-time', { firebaseUid: 'uid_2', pais: 'BR' })).me).toBeNull();
+    expect((await ranking('all-time', { firebaseUid: 'uid_2', pais: 'PT' })).me).toEqual(
+      expect.objectContaining({ position: 1, inBoard: true })
+    );
+  });
+
+  it('nunca expoe o firebase_uid', async () => {
+    const pagina = await ranking('all-time', { firebaseUid: 'uid_2' });
+    expect(JSON.stringify(pagina)).not.toContain('uid_2');
+  });
+});
+
+describe('posicao hipotetica', () => {
+  beforeEach(async () => {
+    await jogador('uid_1', 'pub-1');
+    await jogador('uid_2', 'pub-2');
+    await resultado('uid_1', 1, 900, '2026-09-15T10:00:00.000Z');
+    await resultado('uid_2', 1, 600, '2026-09-15T10:00:00.000Z');
+  });
+
+  it('diz onde a pontuacao guardada no aparelho entraria', async () => {
+    expect((await ranking('all-time', { pontuacaoHipotetica: 1000 })).hypotheticalPosition).toBe(1);
+    expect((await ranking('all-time', { pontuacaoHipotetica: 700 })).hypotheticalPosition).toBe(2);
+    expect((await ranking('all-time', { pontuacaoHipotetica: 100 })).hypotheticalPosition).toBe(3);
+  });
+
+  it('empate mostra a mesma posicao de quem ja esta la', async () => {
+    expect((await ranking('all-time', { pontuacaoHipotetica: 600 })).hypotheticalPosition).toBe(2);
+  });
+
+  it('nao vale no recorte por fase, onde pontos nao ordenam', async () => {
+    expect((await ranking('phase', { pontuacaoHipotetica: 1000 })).hypotheticalPosition).toBeNull();
+  });
+
+  it('conta so dentro do pais pedido', async () => {
+    await knex('leaderboard_players').where({ firebase_uid: 'uid_1' }).update({ country_code: 'PT' });
+    limparCacheDoRanking();
+    expect((await ranking('all-time', { pais: 'BR', pontuacaoHipotetica: 100 })).hypotheticalPosition).toBe(2);
+  });
+});
+
 describe('cache e tabelas ausentes', () => {
   it('um resultado novo aparece depois de limpar o cache', async () => {
     await jogador('uid_a', 'pub-a');

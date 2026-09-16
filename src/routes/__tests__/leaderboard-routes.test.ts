@@ -93,8 +93,9 @@ async function chamar(
 }
 
 it('registra as quatro rotas de leitura publicas; /me exige login', () => {
-  // GET /api/leaderboard/me le as configuracoes do proprio jogador: e a unica
-  // leitura com login, e por isso leva o middleware de autenticacao a mais.
+  // As quatro sao abertas a convidados: limitador + handler, sem middleware de
+  // autenticacao. Quem pediu e identificado dentro do handler, tolerando falha,
+  // para que o Firebase fora nao derrube a leitura publica.
   const publicas = rotas.filter((r) => r.method === 'GET' && r.path !== '/api/leaderboard/me');
   expect(publicas.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
     'GET /api/leaderboard/all-time',
@@ -123,6 +124,17 @@ it('devolve a pagina no formato da API, com paginacao padrao', async () => {
       highestPhase: 1,
     });
   }
+});
+
+it('sem Firebase configurado, a leitura publica continua respondendo', async () => {
+  // Neste arquivo o Firebase nao esta simulado, entao identificarChamador
+  // desiste: a pagina sai, so sem a posicao propria. Antes desta versao, o
+  // middleware de autenticacao opcional derrubava a requisicao com 503.
+  const ctx = await chamar('/api/leaderboard/all-time');
+
+  expect(ctx.status).toBe(200);
+  expect(ctx.body.data.me).toBeNull();
+  expect(ctx.body.data.hypotheticalPosition).toBeNull();
 });
 
 it('recusa paginacao invalida', async () => {

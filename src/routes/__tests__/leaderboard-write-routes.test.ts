@@ -72,13 +72,13 @@ afterEach(async () => {
 async function chamar(
   method: string,
   path: string,
-  entrada: { uid?: string; body?: any; params?: any } = {}
+  entrada: { uid?: string; body?: any; params?: any; query?: any } = {}
 ) {
   const rota = rotas.find((r) => r.method === method && r.path === path);
   contador++;
   const ctx: any = {
     params: entrada.params || {},
-    query: {},
+    query: entrada.query || {},
     request: {
       path,
       ip: `10.3.${Math.floor(contador / 250)}.${contador % 250}`,
@@ -539,6 +539,37 @@ describe('POST /api/leaderboard/report', () => {
 
     expect(Boolean((await alvoNoBanco()).nickname_hidden)).toBe(false);
     expect((await denuncias()).filter((d: any) => d.reported_nickname === 'Luz Azul')).toHaveLength(4);
+  });
+});
+
+describe('posicao propria nas rotas de leitura', () => {
+  beforeEach(async () => {
+    await resultadoNoRanking('uid_um');
+    await definir('uid_um', { nickname: 'Cometa Azul', country: 'BR' });
+  });
+
+  it('convidado nao recebe posicao; quem esta logado recebe', async () => {
+    expect((await chamar('GET', '/api/leaderboard/all-time')).body.data.me).toBeNull();
+
+    const logado = await chamar('GET', '/api/leaderboard/all-time', { uid: 'uid_um' });
+    expect(logado.body.data.me).toEqual(
+      expect.objectContaining({ position: 1, inBoard: true, score: 500 })
+    );
+    expect(JSON.stringify(logado.body)).not.toContain('uid_um');
+  });
+
+  it('o convidado pede a posicao hipotetica pela pontuacao que tem guardada', async () => {
+    const abaixo = await chamar('GET', '/api/leaderboard/all-time', { query: { score: '100' } });
+    expect(abaixo.body.data.hypotheticalPosition).toBe(2);
+
+    const acima = await chamar('GET', '/api/leaderboard/all-time', { query: { score: '9000' } });
+    expect(acima.body.data.hypotheticalPosition).toBe(1);
+  });
+
+  it('recusa pontuacao invalida', async () => {
+    for (const score of ['-1', 'abc', '66331', '1.5']) {
+      expect((await chamar('GET', '/api/leaderboard/all-time', { query: { score } })).status).toBe(400);
+    }
   });
 });
 

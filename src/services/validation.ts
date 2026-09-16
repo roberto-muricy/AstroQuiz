@@ -393,6 +393,26 @@ export function validateLeaderboardPageSize(pageSize: any): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
+/** Soma maxima possivel das 50 fases; ver pontuacaoMaximaDaFase. */
+export const LEADERBOARD_MAX_SCORE = 66330;
+
+/** Pontuacao que o convidado tem guardada, para saber a posicao que teria. */
+export function validateLeaderboardScore(score: any): ValidationResult {
+  const errors: ValidationError[] = [];
+
+  if (score !== undefined) {
+    const num = queryInteger(score);
+    if (num === null || num < 0 || num > LEADERBOARD_MAX_SCORE) {
+      errors.push({
+        field: 'score',
+        message: `score must be an integer between 0 and ${LEADERBOARD_MAX_SCORE}`,
+      });
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
 export function validateLeaderboardBoard(board: any): ValidationResult {
   const errors: ValidationError[] = [];
 

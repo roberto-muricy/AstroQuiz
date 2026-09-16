@@ -77,7 +77,7 @@ AstroQuizApp/              # React Native mobile app
 - `user-profile/*` - Profile management with Firebase UID
 - `i18n-setup/*` - Language configuration
 - `leaderboard/*` - Ranking:
-  - leitura publica: `all-time`, `weekly`, `phase`, `country/:country`
+  - leitura publica: `all-time`, `weekly`, `phase`, `country/:country`. Com login (opcional), a resposta traz `me` — a posicao de quem perguntou, com `inBoard: false` e a posicao que teria para quem desligou "aparecer no ranking". Com `?score=N`, traz `hypotheticalPosition`: onde essa pontuacao entraria, que e o que o app mostra ao convidado.
   - com login: `GET me` (le as configuracoes e cria o cadastro se faltar), `PUT me` (apelido, pais, `showCountry`, `visible`), `POST me/pseudonym` (sorteia outro nome gerado), `DELETE me` (sai do ranking), `POST report` (denuncia de apelido)
   - admin: `POST admin/players/:playerId/restore-nickname`
   - regras de apelido em `src/services/leaderboard-settings.ts` (primeira definicao livre, troca a cada 7 dias, apelido deixado reservado 30 dias ao dono) e de denuncia em `src/services/leaderboard-reports.ts` (5 por dia por conta, oculta o apelido com 5 pendentes de contas distintas)
