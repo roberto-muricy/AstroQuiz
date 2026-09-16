@@ -3,6 +3,8 @@
  * Baseados na API do Strapi
  */
 
+import type { NavigatorScreenParams } from '@react-navigation/native';
+
 // ===== USER TYPES =====
 export interface User {
   id: string;
@@ -190,7 +192,11 @@ export interface DailyChallenge {
 // ===== NAVIGATION TYPES =====
 export type RootStackParamList = {
   Login: undefined;
-  Main: undefined;
+  /**
+   * As abas. Recebe parametros para quem esta FORA delas poder abrir uma aba
+   * especifica — a tela de resultado manda para o ranking assim.
+   */
+  Main: NavigatorScreenParams<TabParamList> | undefined;
   QuizGame: {
     phaseNumber: number;
     sessionId?: string;
@@ -209,6 +215,7 @@ export type RootStackParamList = {
 export type TabParamList = {
   Home: undefined;
   Quiz: undefined;
+  Leaderboard: undefined;
   Stats: undefined;
   Profile: undefined;
 };

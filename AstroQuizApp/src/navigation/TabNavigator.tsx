@@ -3,14 +3,20 @@
  * Navegação principal com bottom tabs usando ícones Lucide
  */
 
-import { HomeScreen, QuizListScreen, ProfileScreen, StatsScreen } from "@/screens";
+import {
+  HomeScreen,
+  QuizListScreen,
+  ProfileScreen,
+  StatsScreen,
+  LeaderboardScreen,
+} from "@/screens";
 import { TabParamList } from "@/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { Home, Gamepad2, BarChart3, User } from "lucide-react-native";
+import { Home, Gamepad2, BarChart3, User, Trophy } from "lucide-react-native";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -77,6 +83,19 @@ export const TabNavigator = () => {
           ),
         }}
       />
+      {/* O ranking fica no meio: e o que o jogador abre depois de jogar, e nao
+          uma tela de conta. Com cinco abas os rotulos ficam estreitos — ver o
+          tamanho da fonte em tabBarLabel. */}
+      <Tab.Screen
+        name="Leaderboard"
+        component={LeaderboardScreen}
+        options={{
+          tabBarLabel: t("tabs.leaderboard"),
+          tabBarIcon: ({ focused, color }) => (
+            <TabIcon IconComponent={Trophy} focused={focused} color={color} />
+          ),
+        }}
+      />
       <Tab.Screen
         name="Stats"
         component={StatsScreen}
@@ -109,7 +128,9 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   tabBarLabel: {
-    fontSize: 11,
+    // 10, e nao 11: com cinco abas o rotulo mais longo ("Classement", em
+    // frances) nao cabia na largura do iPhone SE.
+    fontSize: 10,
     fontFamily: "Poppins-Medium",
     marginTop: 2,
   },

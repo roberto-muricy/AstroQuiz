@@ -309,6 +309,15 @@ export const QuizResultScreen = () => {
     next();
   };
 
+  const handleVerRanking = () => {
+    runAdThen(() =>
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main', params: { screen: 'Leaderboard' } }],
+      })
+    );
+  };
+
   const handleBackToMenu = () => {
     runAdThen(() =>
       navigation.reset({
@@ -589,6 +598,17 @@ export const QuizResultScreen = () => {
                 <Text style={styles.secondaryButtonText}>{t('result.playAgain')}</Text>
               </TouchableOpacity>
             )}
+
+            {/* O ranking logo depois da fase, que é quando a pontuação acabou
+                de mudar. Sai da tela de resultado como o "voltar ao menu": sem
+                deixar o resultado no histórico, para o voltar do aparelho não
+                trazer a pessoa de volta a uma fase já terminada. */}
+            <TouchableOpacity
+              style={styles.tertiaryButton}
+              onPress={handleVerRanking}
+            >
+              <Text style={styles.tertiaryButtonText}>{t('result.seeRanking')}</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.tertiaryButton}

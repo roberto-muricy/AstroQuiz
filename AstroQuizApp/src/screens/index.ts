@@ -12,5 +12,6 @@ export { QuizScreen } from './QuizScreen';
 export { QuizListScreen } from './QuizListScreen';
 export { QuizResultScreen } from './QuizResultScreen';
 export { StatsScreen } from './StatsScreen';
+export { LeaderboardScreen } from './LeaderboardScreen';
 
 

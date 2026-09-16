@@ -6,3 +6,4 @@ export { CartaoDeConvite } from './CartaoDeConvite';
 export { AvisoDeOculto } from './AvisoDeOculto';
 export { ApresentacaoDoRanking } from './ApresentacaoDoRanking';
 export { ModalDeDenuncia } from './ModalDeDenuncia';
+export { CartaoDoRanking } from './CartaoDoRanking';

@@ -78,6 +78,18 @@ describe('chaves de i18n do ranking', () => {
     });
   }
 
+  it('os pontos de entrada do ranking tem texto nos quatro idiomas', () => {
+    // Ficam fora dos arquivos do ranking: o rotulo da aba esta no TabNavigator
+    // e o link esta na tela de resultado.
+    const faltando: string[] = [];
+    for (const idioma of LOCALES) {
+      for (const chave of ['tabs.leaderboard', 'result.seeRanking']) {
+        if (!existe(traducoes[idioma], chave)) faltando.push(`${idioma}: ${chave}`);
+      }
+    }
+    expect(faltando).toEqual([]);
+  });
+
   it('as quatro traducoes tem exatamente as mesmas chaves', () => {
     const achatar = (obj: any, prefixo = ''): string[] =>
       Object.entries(obj).flatMap(([k, v]) =>

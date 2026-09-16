@@ -98,7 +98,8 @@
     "justUnlocked": "just unlocked",
     "retryHint": "You need {{needed}} out of {{total}} to pass. Retry as often as you like — the questions change.",
     "missedBy_one": "{{count}} answer short",
-    "missedBy_other": "{{count}} answers short"
+    "missedBy_other": "{{count}} answers short",
+    "seeRanking": "See ranking"
   },
   "home": {
     "welcome": "Welcome to AstroQuiz!",
@@ -113,8 +114,6 @@
     "inLevel": "In level",
     "nextLevel": "Next level",
     "continueWhereLeftOff": "Continue where you left off",
-    "weeklyRankingTitle": "Weekly Ranking",
-    "weeklyRankingSubtitle": "You climbed 8 positions this week!",
     "progressLevelsTitle": "Level progress",
     "seeAll": "See all",
     "phaseName": "Phase {{phase}}",
@@ -142,7 +141,8 @@
     "home": "Home",
     "quiz": "Quiz",
     "stats": "Stats",
-    "profile": "Profile"
+    "profile": "Profile",
+    "leaderboard": "Ranking"
   },
   "login": {
     "saveProgressTitle": "Save Progress to the Cloud",
@@ -479,6 +479,12 @@
       "sentTitle": "Report received",
       "sentMessage": "Thank you. We'll review this name.",
       "close": "Close"
+    },
+    "home": {
+      "title": "Ranking this week",
+      "yours": "of {{total}} players this week",
+      "guest": "See where you would land",
+      "empty": "No one has scored this week yet"
     }
   }
 }

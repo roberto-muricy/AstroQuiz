@@ -21,9 +21,11 @@ import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { RootStackParamList, PhaseProgress } from '@/types';
+import { RootStackParamList, TabParamList, PhaseProgress } from '@/types';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CartaoDoRanking } from '@/components/leaderboard';
+import { IdiomaSuportado } from '@/utils/pseudonimo';
 import {
   Alert,
   AppState,
@@ -45,6 +47,9 @@ import { FireIcon, RocketIcon, IconSizes, IconColors } from '@/components/Icons'
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  // O mesmo objeto de navegação, tipado pelas abas: a Início está dentro do
+  // navegador de abas, então trocar de aba é navegar para uma irmã.
+  const navegacaoDasAbas = useNavigation<NavigationProp<TabParamList>>();
   const { user, locale, gameRules } = useApp();
   // Fixo em 60 nao servia: a barra de status varia por aparelho, e desde o
   // targetSdk 35 o Android desenha atras dela. Stats e Perfil ja usavam insets.
@@ -54,7 +59,8 @@ export const HomeScreen = () => {
   const segundosPorPergunta = Math.round(
     (gameRules?.general?.timePerQuestion ?? 45000) / 1000,
   );
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const idiomaAtual = ((i18n.language || 'pt').slice(0, 2) as IdiomaSuportado) || 'pt';
   const [refreshing, setRefreshing] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
   const [levelTitle, setLevelTitle] = useState('');
@@ -345,6 +351,13 @@ export const HomeScreen = () => {
           </View>
         </View>
 
+        {/* O ranking no caminho de quem não foi até a aba: mostra a posição da
+            semana, ou a que o convidado teria. */}
+        <CartaoDoRanking
+          idioma={idiomaAtual}
+          aoAbrir={() => navegacaoDasAbas.navigate('Leaderboard')}
+        />
+
         <View style={styles.bottomSpace} />
       </ScrollView>
 
@@ -581,39 +594,6 @@ const styles = StyleSheet.create({
   continueButton: {
     width: '100%',
     borderRadius: RADIUS.lg,
-  },
-
-  // Weekly Ranking
-  weeklyRanking: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SIZES.cardGap,
-  },
-  rankingBadge: {
-    width: SIZES.iconBadge,
-    height: SIZES.iconBadge,
-    borderRadius: SIZES.iconBadge / 2,
-    backgroundColor: COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  rankingBadgeText: {
-    ...TYPOGRAPHY.h3,
-    color: COLORS.text,
-  },
-  rankingContent: {
-    flex: 1,
-  },
-  rankingTitle: {
-    ...TYPOGRAPHY.body,
-    fontWeight: '700',
-    color: COLORS.text,
-    fontFamily: 'Poppins-Bold',
-  },
-  rankingSubtitle: {
-    ...TYPOGRAPHY.bodySmall,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
   },
 
   // Progress Levels Section
