@@ -8,6 +8,8 @@ import auth from '@react-native-firebase/auth';
 
 import { NativeModules, Platform } from 'react-native';
 
+import { tokenParaRequisicao } from '../utils/autenticacao';
+
 // Configuração da API
 // iOS Simulator usa localhost, dispositivo físico usa IP da rede
 const PROD_API_BASE_URL = 'https://astroquiz-production.up.railway.app/api';
@@ -114,18 +116,10 @@ class ApiService {
           config.baseURL = resolvedBaseUrl;
         }
 
-        // Buscar token diretamente do Firebase Auth (persistido pelo SDK
-        // nativo via Keychain/EncryptedSharedPreferences). Em memória apenas.
-        if (!this.authToken) {
-          try {
-            const fbUser = auth().currentUser;
-            if (fbUser) {
-              this.authToken = await fbUser.getIdToken();
-            }
-          } catch {
-            // sem token: segue como guest
-          }
-        }
+        // Token do Firebase a cada requisição — ver tokenParaRequisicao. O SDK
+        // devolve o que tem em cache e renova sozinho perto do vencimento; o
+        // valor em memória serve só de reserva para quando ele falha.
+        this.authToken = await tokenParaRequisicao(auth().currentUser, this.authToken);
 
         if (this.authToken) {
           config.headers.Authorization = `Bearer ${this.authToken}`;
