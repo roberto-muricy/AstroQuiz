@@ -201,26 +201,9 @@ class QuizService {
     return response.data;
   }
 
-  /**
-   * Obter leaderboard
-   */
-  async getLeaderboard(
-    category: string = 'total_score',
-    period: string = 'all_time',
-    limit: number = 10,
-  ): Promise<any> {
-    const response = await api.get<ApiResponse<any>>('/quiz/leaderboard', {
-      category,
-      period,
-      limit,
-    });
-
-    if (!response.success || !response.data) {
-      throw new Error(response.error || 'Erro ao buscar leaderboard');
-    }
-
-    return response.data;
-  }
+  // O ranking mora em services/leaderboardService.ts. O getLeaderboard que
+  // existia aqui chamava /quiz/leaderboard, rota que nunca existiu no servidor,
+  // e nao era chamado por ninguem.
 }
 
 export default new QuizService();

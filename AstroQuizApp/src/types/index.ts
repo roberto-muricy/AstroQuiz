@@ -172,14 +172,9 @@ export interface UserStats {
   achievements: string[];
 }
 
-export interface LeaderboardEntry {
-  rank: number;
-  userId: string;
-  username: string;
-  score: number;
-  perfectPhases: number;
-  avatar?: string;
-}
+// LeaderboardEntry saiu daqui: as entradas do ranking sao tipadas em
+// services/leaderboardService.ts, junto das chamadas que as trazem. A antiga
+// nao correspondia ao que o servidor devolve e ninguem a usava.
 
 // ===== DAILY CHALLENGE TYPES =====
 export interface DailyChallenge {

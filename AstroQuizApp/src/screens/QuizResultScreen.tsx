@@ -139,6 +139,19 @@ export const QuizResultScreen = () => {
       // momento. Gravado depois dela, o dia de hoje seria sobrescrito.
       await ProgressStorage.registrarDiaJogado();
 
+      // Pontuação do servidor, que alimenta a posição hipotética no ranking.
+      //
+      // Vem antes do teste de aprovação porque fase reprovada também pontua no
+      // ranking, e antes do `updateAfterPhase` pelo mesmo motivo da sequência
+      // diária: o bloco de conquistas mais abaixo salva uma cópia lida lá
+      // dentro, e sobrescreveria o que fosse gravado depois.
+      if (data.phaseNumber) {
+        await ProgressStorage.registrarPontuacaoDoServidor(
+          data.phaseNumber,
+          data.finalScore ?? data.score ?? 0,
+        );
+      }
+
       if (data.passed && data.phaseNumber) {
         const prevProgress = await ProgressStorage.getProgress();
         const prevLevel = getPlayerLevel(prevProgress.stats.totalXP);

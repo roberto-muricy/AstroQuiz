@@ -43,6 +43,18 @@ export interface GameProgress {
    * existe em user_profiles quebraria a sincronizacao de quem esta logado.
    */
   totalTimeMs?: number;
+  /**
+   * Melhor pontuação que o SERVIDOR deu em cada fase, pelo número da fase.
+   *
+   * Existe para o app dizer ao convidado a posição que ele teria no ranking
+   * antes de criar conta: somar a melhor de cada fase é a mesma regra que o
+   * servidor usa.
+   *
+   * Fica fora de `stats` pelo mesmo motivo da sequência diária e do
+   * `totalTimeMs`: `stats` inteiro vai para PUT /user-profile/:uid/stats, e um
+   * campo que não existe em user_profiles quebraria a sincronização.
+   */
+  pontuacoesDoServidor?: Record<string, number>;
 }
 
 /**
@@ -214,6 +226,43 @@ export const ProgressStorage = {
     progress.sequenciaDiaria = avancarSequencia(progress.sequenciaDiaria, agora);
     await this.saveProgress(progress);
     return progress.sequenciaDiaria;
+  },
+
+  /**
+   * Guarda a pontuação que o SERVIDOR deu para a fase, mantendo só a melhor.
+   *
+   * Chamado ao TERMINAR a fase, passando ou não: no ranking, fase reprovada
+   * também pontua. Como a sequência diária, precisa ser gravado antes do
+   * `updateAfterPhase` — o bloco de conquistas salva uma cópia lida lá dentro e
+   * sobrescreveria o que viesse depois.
+   *
+   * A soma disto é uma estimativa: o servidor ainda aplica a contagem
+   * anti-salto, que aqui não dá para reproduzir. Para o convidado, que nem está
+   * no ranking, basta.
+   */
+  async registrarPontuacaoDoServidor(fase: number, pontos: number): Promise<GameProgress> {
+    const progress = await this.getProgress();
+    if (!Number.isFinite(fase) || fase < 1) return progress;
+
+    const chave = String(Math.floor(fase));
+    const pontuacoes = progress.pontuacoesDoServidor || {};
+    const anterior = pontuacoes[chave];
+    const nova = Math.max(0, Math.floor(Number(pontos) || 0));
+    if (anterior !== undefined && nova <= anterior) return progress;
+
+    progress.pontuacoesDoServidor = { ...pontuacoes, [chave]: nova };
+    await this.saveProgress(progress);
+    return progress;
+  },
+
+  /** Soma das melhores pontuações por fase — a mesma regra do ranking. */
+  async pontuacaoTotalDoServidor(): Promise<number> {
+    const { pontuacoesDoServidor } = await this.getProgress();
+    const pontuacoes: Record<string, number> = pontuacoesDoServidor || {};
+    return Object.values(pontuacoes).reduce<number>(
+      (soma, valor) => soma + (Number(valor) || 0),
+      0,
+    );
   },
 
   async resetProgress(): Promise<void> {
