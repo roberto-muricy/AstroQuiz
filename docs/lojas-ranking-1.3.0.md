@@ -5,11 +5,8 @@ outra vê. Isso muda três formulários que já estavam respondidos: os rótulos
 privacidade da App Store, a classificação etária da Apple e o Data Safety do
 Google Play. Este documento traz as respostas prontas para copiar.
 
-Não tenho acesso ao App Store Connect nem ao Play Console, então **não sei o que
-está respondido hoje**. As seções abaixo marcam o que é novo por causa do
-ranking; o resto está aqui para você conferir se já bate com o que está no ar.
-
-Datas e fatos conferidos no código em 16/09/2026.
+A seção 2 foi conferida contra o App Store Connect e contra o código em
+17/09/2026. As demais foram escritas em 16/09/2026 a partir do código.
 
 ---
 
@@ -38,57 +35,52 @@ Três fatos que valem para os dois formulários:
 
 ## 2. App Store — rótulos de privacidade (App Privacy)
 
-### 2.1. O que acrescentar por causa do ranking
+**Regra que a própria tela da Apple impõe:** a declaração descreve a versão
+**que está no ar**, não a próxima. E ela é publicada na hora, sem revisão. Por
+isso a atualização acontece em dois momentos.
 
-**User Content → Other User Content**
-- Coletado: sim
-- Linked to You: sim
-- Used to Track You: não
-- Finalidade: *App Functionality*
-- Por quê: o apelido é escrito pela pessoa e fica visível para outras.
+### 2.1. Publicado em 17/09/2026 (versão no ar: 1.2.0)
 
-**User Content → Gameplay Content**
-- Coletado: sim
-- Linked to You: sim
-- Used to Track You: não
-- Finalidade: *App Functionality*
-- Por quê: pontuação, acertos e tempo de cada fase vão para o servidor e a
-  pontuação aparece na lista pública.
+A declaração anterior era de fevereiro e estava incompleta. Conferida contra o
+código, ficou assim:
 
-**Location → Coarse Location**
-- Coletado: sim
-- Linked to You: sim
-- Used to Track You: não
-- Finalidade: *App Functionality*
-- Por quê: o país. Aqui há uma escolha real. A definição da Apple para
-  *Coarse Location* fala em resolução menor que latitude/longitude, o que
-  descreve melhor um dado vindo do aparelho do que um país digitado — há quem
-  declare isso como *Other Data Types*. **Recomendo declarar como Coarse
-  Location**: declarar a mais nunca derrubou uma revisão, declarar a menos já.
-  Se a Apple perguntar, a resposta é a da seção 4.
-
-### 2.2. Ficha inteira, para conferência
-
-O que já devia estar lá antes da 1.3.0, pelo que o código mostra:
-
-| Tipo de dado | SDK/origem | Linked | Track | Finalidade |
+| Tipo de dado | Finalidade | Vinculado | Rastreamento | Origem no código |
 |---|---|---|---|---|
-| Contact Info → Email Address | Firebase Auth | sim | não | App Functionality |
-| Contact Info → Name | Firebase Auth (Google/Apple) | sim | não | App Functionality |
-| Identifiers → User ID | Firebase Auth (UID) | sim | não | App Functionality, Analytics |
-| Identifiers → Device ID | AdMob (IDFA) | sim | **sim** | Third-Party Advertising |
-| Usage Data → Product Interaction | Firebase Analytics | sim | não | Analytics |
-| Usage Data → Advertising Data | AdMob | sim | **sim** | Third-Party Advertising |
-| Purchases → Purchase History | RevenueCat | sim | não | App Functionality |
-| Diagnostics → Crash Data | Sentry | sim | não | App Functionality |
-| Diagnostics → Performance Data | Sentry | sim | não | App Functionality |
-| **User Content → Other User Content** | ranking (apelido) | sim | não | App Functionality |
-| **User Content → Gameplay Content** | ranking (pontuação) | sim | não | App Functionality |
-| **Location → Coarse Location** | ranking (país, digitado) | sim | não | App Functionality |
+| Nome | Funcionalidade do app | sim | não | Firebase Auth; Sentry recebe o nome |
+| Endereço de e-mail | Funcionalidade do app | sim | não | Firebase Auth |
+| ID de usuário | Funcionalidade do app, Análise | sim | não | UID do Firebase; `analyticsService.setUserId` |
+| ID do dispositivo | Publicidade de terceiros | não | **sim** | AdMob (IDFA) |
+| Dados de publicidade | Publicidade de terceiros | não | **sim** | AdMob |
+| Interações com o produto | Análise | sim | não | Firebase Analytics com `setUserId` — *era "não vinculado"* |
+| Dados de falhas | Funcionalidade do app | sim | não | Sentry com id e nome do usuário — *era "não vinculado"* |
+| Localização aproximada | Análise | sim | não | Firebase Analytics estima a região pelo IP — *faltava* |
+| Histórico de compras | Funcionalidade do app, Análise | sim | não | RevenueCat (`Purchases.logIn`) e compras registradas pelo Analytics — *faltava* |
+| Dados de desempenho | Funcionalidade do app | sim | não | Sentry, `tracesSampleRate: 0.2` — *faltava* |
 
-As três últimas linhas são as novas. As anteriores estão aqui para você comparar
-com o que já está respondido — se alguma faltar, é um problema que já existe e
-vale corrigir na mesma submissão.
+Fontes do Google sobre o Firebase Analytics: "Analytics derives general location
+data from users' masked IP addresses", e registro automático de compras dentro
+do app — https://support.google.com/analytics/answer/10285841
+
+Regra prática: **vinculado = passa pela conta do jogador**; **rastreamento = só
+anúncio (AdMob)**.
+
+### 2.2. No envio da 1.3.0
+
+Fazer junto do envio da build, não antes — antes disso o ranking não existe na
+versão do ar.
+
+1. **Tipos de dados → Editar** e marcar:
+   - **Conteúdos de jogos** — Funcionalidade do app, vinculado, sem rastreamento. É a pontuação que aparece no ranking.
+   - **Outros conteúdos de usuário** — Funcionalidade do app, vinculado, sem rastreamento. É o apelido.
+2. **Localização aproximada → Editar** e acrescentar **Funcionalidade do app** à
+   finalidade (fica Análise + Funcionalidade do app). É o país do ranking.
+3. **URL das opções de privacidade do usuário:** trocar
+   `privacy.html#9-como-excluir-sua-conta` por
+   `privacy.html#como-excluir-sua-conta`. A âncora antiga nunca existiu na página
+   (o link abria o topo) e a seção virou a 10. A nova âncora, sem número, está
+   no `privacy.html` e não quebra em renumeração. Essa URL só muda criando a
+   versão nova, como a tela avisa — e a página precisa estar publicada no Vercel
+   antes.
 
 ---
 
@@ -143,16 +135,19 @@ Moderation, per Guideline 1.2:
 - Nicknames are screened automatically on creation and on every change, in
   Portuguese, English, Spanish and French, and names impersonating AstroQuiz,
   our team or other companies are rejected.
-- Every row in the leaderboard has a Report button, available to any signed-in
-  player. A nickname reported by 5 distinct accounts is hidden immediately and
-  replaced by a generated name, before any manual review.
+- Any signed-in player can report a nickname: long-press that player's row in
+  the leaderboard (Ranking tab) and choose a reason. A nickname reported by 5
+  distinct accounts is hidden immediately and replaced by a generated name,
+  before any manual review.
 - An administrator can block an abusive account; blocked accounts are rejected
   at authentication.
 - Our contact address is published in the Terms and the Privacy Policy.
 
 Location: the app does not request location permission on either platform. The
-country shown next to a player is typed by that player, is optional, and is
-only visible if the player turns on "Show my country".
+country shown next to a player is chosen from a list by that player, is
+optional, and is only visible if the player turns on "Show my country". The
+approximate location declared in App Privacy refers to the general region that
+Firebase Analytics derives from masked IP addresses.
 
 Leaving the leaderboard: Profile > Ranking offers "Appear in the leaderboard"
 and "Show my country" toggles, and a "Delete my leaderboard data" action that
