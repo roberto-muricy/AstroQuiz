@@ -89,17 +89,53 @@ describe('nomeDoPais', () => {
     expect(nomeDoPais(null, 'pt')).toBe('');
   });
 
-  it('sem Intl.DisplayNames, o pais aparece pelo codigo em vez de sumir', () => {
-    const original = (Intl as any).DisplayNames;
-    (Intl as any).DisplayNames = undefined;
-    limparCacheDeNomes();
-    try {
-      expect(nomeDoPais('BR', 'pt')).toBe('BR');
-      expect(bandeira('BR')).toBe('🇧🇷');
-    } finally {
-      (Intl as any).DisplayNames = original;
+  /**
+   * O Hermes não implementa Intl.DisplayNames, então este é o caso REAL do
+   * aparelho, não uma borda: antes da tabela, a tela mostrava "AD, AE, AF…" e
+   * buscar "Brasil" não achava nada. Os testes passavam porque o Node tem a
+   * base de idiomas completa — este bloco simula o aparelho.
+   */
+  describe('sem Intl.DisplayNames, como no Hermes', () => {
+    const semIntl = (executar: () => void) => {
+      const original = (Intl as any).DisplayNames;
+      (Intl as any).DisplayNames = undefined;
       limparCacheDeNomes();
-    }
+      try {
+        executar();
+      } finally {
+        (Intl as any).DisplayNames = original;
+        limparCacheDeNomes();
+      }
+    };
+
+    it('o nome continua vindo da tabela, nos quatro idiomas', () => {
+      semIntl(() => {
+        expect(nomeDoPais('BR', 'pt')).toBe('Brasil');
+        expect(nomeDoPais('BR', 'en')).toBe('Brazil');
+        expect(nomeDoPais('US', 'es')).toBe('Estados Unidos');
+        expect(nomeDoPais('BR', 'fr')).toBe('Brésil');
+        expect(bandeira('BR')).toBe('🇧🇷');
+      });
+    });
+
+    it('a busca pelo nome do pais funciona', () => {
+      semIntl(() => {
+        const achados = filtrarPaises(listaDePaises('pt'), 'brasil');
+        expect(achados.map((p) => p.codigo)).toEqual(['BR']);
+      });
+    });
+
+    it('nenhum pais da lista fica sem nome, em nenhum idioma', () => {
+      semIntl(() => {
+        for (const idioma of ['pt', 'en', 'es', 'fr'] as const) {
+          const semNome = CODIGOS_DE_PAIS.filter((codigo) => {
+            const nome = nomeDoPais(codigo, idioma);
+            return !nome || nome === codigo;
+          });
+          expect(semNome).toEqual([]);
+        }
+      });
+    });
   });
 });
 

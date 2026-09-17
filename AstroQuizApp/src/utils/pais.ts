@@ -1,14 +1,13 @@
 /**
  * Países do ranking: detecção, validação, bandeira e nome traduzido.
  *
- * Aqui ficam só os 249 códigos ISO 3166-1 alfa-2. Os NOMES vêm do `Intl` do
- * aparelho, que já traz todos os países em todos os idiomas — escrever 249
- * nomes em quatro idiomas à mão seria mil textos para manter, com erro de
- * grafia garantido em algum deles.
+ * Aqui ficam só os 249 códigos ISO 3166-1 alfa-2. Os NOMES vêm da tabela
+ * gerada em `nomes-de-paises.ts` — ninguém digita esses mil textos à mão: o
+ * gerador os tira da base de idiomas do Node.
  *
- * O RN 0.81 usa Hermes com Intl nas duas plataformas, mas a queda existe: se o
- * `Intl.DisplayNames` faltar, o país aparece pelo código ("BR"), junto da
- * bandeira — a lista continua utilizável e pesquisável, só menos bonita.
+ * Eles já vieram do `Intl.DisplayNames` do aparelho, e isso estava quebrado sem
+ * ninguém notar: o Hermes não implementa essa API, então a lista mostrava só
+ * siglas e buscar "Brasil" não achava nada. O `Intl` ficou como reserva.
  *
  * A bandeira é derivada do próprio código, sem tabela: cada letra vira o
  * indicador regional correspondente.
@@ -17,6 +16,7 @@
 import { NativeModules, Platform } from 'react-native';
 
 import { IdiomaSuportado } from './pseudonimo';
+import { NOMES_DE_PAISES } from './nomes-de-paises';
 
 /** ISO 3166-1 alfa-2. O servidor aceita qualquer par de letras; a lista daqui é o que o app oferece. */
 export const CODIGOS_DE_PAIS: readonly string[] = [
@@ -76,6 +76,17 @@ export function bandeira(codigo: string | null | undefined): string {
   );
 }
 
+/**
+ * O nome do país vem de uma tabela embutida, não do `Intl`.
+ *
+ * O Hermes não implementa `Intl.DisplayNames`, então no aparelho o tradutor
+ * nunca existe: até 17/09/2026 o seletor mostrava só siglas ("AD", "AE"…) e
+ * buscar "Brasil" não achava nada. Os testes rodam no Node, que tem a base de
+ * idiomas completa, e por isso não pegaram.
+ *
+ * A tabela é gerada por `scripts/gerar-nomes-de-paises.js`. O `Intl` fica como
+ * reserva para um código que exista na lista e não esteja na tabela.
+ */
 const tradutores = new Map<string, Intl.DisplayNames | null>();
 
 function tradutorDe(idioma: IdiomaSuportado): Intl.DisplayNames | null {
@@ -98,6 +109,9 @@ export function limparCacheDeNomes(): void {
 export function nomeDoPais(codigo: string | null | undefined, idioma: IdiomaSuportado): string {
   const valido = normalizarCodigoDePais(codigo);
   if (!valido) return '';
+
+  const daTabela = NOMES_DE_PAISES[idioma]?.[valido];
+  if (daTabela) return daTabela;
 
   try {
     return tradutorDe(idioma)?.of(valido) || valido;
