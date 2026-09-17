@@ -74,7 +74,11 @@ versão do ar.
    - **Outros conteúdos de usuário** — Funcionalidade do app, vinculado, sem rastreamento. É o apelido.
 2. **Localização aproximada → Editar** e acrescentar **Funcionalidade do app** à
    finalidade (fica Análise + Funcionalidade do app). É o país do ranking.
-3. **URL das opções de privacidade do usuário:** trocar
+3. **Conta de demonstração:** preencher usuário e senha em *Informações para a
+   revisão do app*. Sem isso o revisor navega como convidado e **não encontra a
+   denúncia**, que é justamente o que a Guideline 1.2 exige — descoberto em
+   17/09/2026 testando no aparelho.
+4. **URL das opções de privacidade do usuário:** trocar
    `privacy.html#9-como-excluir-sua-conta` por
    `privacy.html#como-excluir-sua-conta`. A âncora antiga nunca existiu na página
    (o link abria o topo) e a seção virou a 10. A nova âncora, sem número, está
@@ -139,6 +143,9 @@ Moderation, per Guideline 1.2:
   the leaderboard (Ranking tab) and choose a reason. A nickname reported by 5
   distinct accounts is hidden immediately and replaced by a generated name,
   before any manual review.
+- **Reporting requires an account.** Guests can browse the leaderboard but
+  cannot report, so please sign in with the demo account below before checking
+  the moderation tools; long-press does nothing while signed out.
 - An administrator can block an abusive account; blocked accounts are rejected
   at authentication.
 - Our contact address is published in the Terms and the Privacy Policy.
