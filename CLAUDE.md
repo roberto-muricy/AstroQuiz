@@ -61,8 +61,12 @@ AstroQuizApp/              # React Native mobile app
 ## Key Technical Details
 
 ### Database
-- **Dev**: SQLite (`.tmp/data.db`)
-- **Prod**: PostgreSQL via `DATABASE_URL` (Railway)
+- **Dev**: SQLite (`.tmp/data.db`). O `.env` local usa SQLite de proposito: ate 16/09/2026 ele apontava para o Postgres de producao, e `npm run develop` escrevia no banco real sem aviso.
+- **Prod**: PostgreSQL via `DATABASE_URL` (Railway), pela **rede privada**. No servico AstroQuiz a variavel e uma referencia, nao uma string:
+  `postgresql://${{Postgres.PGUSER}}:${{Postgres.POSTGRES_PASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/${{Postgres.PGDATABASE}}`
+  - **Nunca colar uma URL literal nela.** A URL que o psql usa de fora (`yamabiko.proxy.rlwy.net:55170`) passa pelo proxy publico: funciona, mas e mais lenta, gasta banda de saida e expoe mais. Foi assim ate 17/09/2026. E uma string colada no painel foi o que derrubou producao por 8 horas em 16/09 (valor duplicado).
+  - Com a referencia, trocar a senha do banco (`ALTER USER` + `POSTGRES_PASSWORD` no servico Postgres) chega ao backend sozinho no proximo deploy. `PGPASSWORD`, `DATABASE_URL` e `DATABASE_PUBLIC_URL` do servico Postgres ainda sao literais e precisam ser atualizadas a mao.
+  - Para conferir por onde o backend chega: `select client_addr from pg_stat_activity`. Rede privada aparece como IPv6 `fd12:...`; proxy publico, como `100.64.x.x`.
 - Custom routes use **Knex.js** directly (not Strapi entity service)
 - Connection pool: 2-10 connections
 
