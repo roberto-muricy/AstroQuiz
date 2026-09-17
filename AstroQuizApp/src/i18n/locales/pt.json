@@ -249,7 +249,7 @@
     "deleteAccountConfirmMessage": "Tem certeza que deseja excluir sua conta? Todos os dados serão perdidos permanentemente.",
     "deleteAccountError": "Não foi possível excluir a conta. Tente novamente.",
     "deleteAccountReauthError": "Por segurança, saia e entre novamente antes de excluir sua conta.",
-    "guest": "Visitante",
+    "guest": "Jogando como convidado",
     "level": "Nível",
     "about": "Sobre",
     "version": "Versão",
@@ -444,8 +444,18 @@
     "pointsValue": "{{score}} pts",
     "savedList": "Mostrando a última lista salva",
     "empty": {
-      "title": "Ninguém no ranking ainda",
-      "hint": "Termine uma fase para aparecer aqui."
+      "ninguem": {
+        "title": "Ninguém no ranking ainda",
+        "hint": "Termine uma fase para aparecer aqui."
+      },
+      "oculto": {
+        "title": "A lista está vazia",
+        "hint": "Você escolheu não aparecer. Sua posição fica só para você, no rodapé."
+      },
+      "paisOculto": {
+        "title": "Você não aparece nesta lista",
+        "hint": "Para entrar no ranking do seu país, ligue \"Mostrar meu país\" no perfil."
+      }
     },
     "error": {
       "title": "Não foi possível carregar o ranking"
@@ -484,9 +494,10 @@
     },
     "home": {
       "title": "Ranking da semana",
-      "yours": "de {{total}} jogadores nesta semana",
       "guest": "Veja em que posição você entraria",
-      "empty": "Ninguém pontuou nesta semana ainda"
+      "empty": "Ninguém pontuou nesta semana ainda",
+      "yours_one": "de {{count}} jogador nesta semana",
+      "yours_other": "de {{count}} jogadores nesta semana"
     },
     "profile": {
       "title": "Ranking",
@@ -494,7 +505,7 @@
       "appearAs": "Você aparece como",
       "showCountry": "Mostrar meu país",
       "visible": "Aparecer no ranking",
-      "visibleHelp": "Desligado, ninguém vê seu nome na lista.",
+      "visibleHelp": "Quando desligado, ninguém vê seu nome na lista.",
       "nickname": {
         "title": "Seu apelido",
         "explanation": "De 3 a 20 caracteres. Sem apelido, você aparece com o nome sorteado.",

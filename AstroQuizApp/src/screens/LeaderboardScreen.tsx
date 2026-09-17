@@ -358,6 +358,19 @@ export const LeaderboardScreen: React.FC = () => {
     </View>
   );
 
+  /**
+   * A lista pode estar vazia por três motivos, e eles pedem textos diferentes.
+   *
+   * Dizer "termine uma fase para aparecer aqui" para quem já terminou uma é
+   * confuso — e ficava contraditório quando a própria posição aparecia fixada
+   * no rodapé, logo abaixo da frase.
+   */
+  const motivoDoVazio = eu
+    ? 'oculto' // tem posição, mas escolheu não aparecer
+    : escopo === 'pais' && configuracoes && !configuracoes.showCountry
+      ? 'paisOculto' // fora da lista do país porque escolheu não mostrá-lo
+      : 'ninguem';
+
   const vazio = carregando ? (
     <ActivityIndicator color={COLORS.primary} style={styles.espera} />
   ) : erro ? (
@@ -373,8 +386,8 @@ export const LeaderboardScreen: React.FC = () => {
     </View>
   ) : (
     <View style={styles.estado}>
-      <Text style={styles.estadoTitulo}>{t('leaderboard.empty.title')}</Text>
-      <Text style={styles.estadoDica}>{t('leaderboard.empty.hint')}</Text>
+      <Text style={styles.estadoTitulo}>{t(`leaderboard.empty.${motivoDoVazio}.title`)}</Text>
+      <Text style={styles.estadoDica}>{t(`leaderboard.empty.${motivoDoVazio}.hint`)}</Text>
     </View>
   );
 

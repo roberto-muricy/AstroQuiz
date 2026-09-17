@@ -249,7 +249,7 @@
     "deleteAccountConfirmMessage": "Are you sure you want to delete your account? All data will be permanently lost.",
     "deleteAccountError": "Could not delete account. Please try again.",
     "deleteAccountReauthError": "For security, sign out and sign in again before deleting your account.",
-    "guest": "Guest",
+    "guest": "Playing as a guest",
     "level": "Level",
     "about": "About",
     "version": "Version",
@@ -444,8 +444,18 @@
     "pointsValue": "{{score}} pts",
     "savedList": "Showing the last saved list",
     "empty": {
-      "title": "No one on the ranking yet",
-      "hint": "Finish a phase to show up here."
+      "ninguem": {
+        "title": "No one on the leaderboard yet",
+        "hint": "Finish a phase to show up here."
+      },
+      "oculto": {
+        "title": "The list is empty",
+        "hint": "You chose not to appear. Your position is shown only to you, at the bottom."
+      },
+      "paisOculto": {
+        "title": "You don't appear on this list",
+        "hint": "To join your country’s leaderboard, turn on \"Show my country\" in your profile."
+      }
     },
     "error": {
       "title": "Couldn't load the ranking"
@@ -484,9 +494,10 @@
     },
     "home": {
       "title": "Ranking this week",
-      "yours": "of {{total}} players this week",
       "guest": "See where you would land",
-      "empty": "No one has scored this week yet"
+      "empty": "No one has scored this week yet",
+      "yours_one": "of {{count}} player this week",
+      "yours_other": "of {{count}} players this week"
     },
     "profile": {
       "title": "Ranking",

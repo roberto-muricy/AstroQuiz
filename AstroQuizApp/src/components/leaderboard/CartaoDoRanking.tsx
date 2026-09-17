@@ -73,7 +73,9 @@ export const CartaoDoRanking: React.FC<Props> = ({ idioma, aoAbrir }) => {
       : null;
 
   const legenda = eu
-    ? t('leaderboard.home.yours', { total: pagina?.totalPlayers ?? 0 })
+    ? // `count` e não `total`: é o nome que o i18next usa para escolher entre
+      // singular e plural. Com `total`, um jogador virava "de 1 jogadores".
+      t('leaderboard.home.yours', { count: pagina?.totalPlayers ?? 0 })
     : hipotetica && temGente
       ? t('leaderboard.home.guest')
       : t('leaderboard.home.empty');

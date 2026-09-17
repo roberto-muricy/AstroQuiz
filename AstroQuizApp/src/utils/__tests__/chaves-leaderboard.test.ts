@@ -127,4 +127,33 @@ describe('chaves de i18n do ranking', () => {
     }
     expect(comEmoji).toEqual([]);
   });
+/**
+   * "de 1 jogadores" apareceu no cartão da Home porque o texto interpolava
+   * {{total}}, e o i18next só escolhe singular ou plural quando a variável se
+   * chama {{count}}. Este teste tranca as duas coisas: as formas existirem e a
+   * variável ter o nome certo.
+   */
+  it('o cartao da Home tem singular e plural, e usa count', () => {
+    for (const idioma of LOCALES) {
+      const home = (traducoes[idioma].leaderboard as any).home;
+      expect(typeof home.yours_one).toBe('string');
+      expect(typeof home.yours_other).toBe('string');
+      expect(home.yours).toBeUndefined();
+      for (const forma of [home.yours_one, home.yours_other]) {
+        expect(forma).toContain('{{count}}');
+        expect(forma).not.toContain('{{total}}');
+      }
+      expect(home.yours_one).not.toBe(home.yours_other);
+    }
+  });
+
+  it('cada motivo de lista vazia tem titulo e dica nos quatro idiomas', () => {
+    for (const idioma of LOCALES) {
+      const vazio = (traducoes[idioma].leaderboard as any).empty;
+      for (const motivo of ['ninguem', 'oculto', 'paisOculto']) {
+        expect(typeof vazio[motivo]?.title).toBe('string');
+        expect(typeof vazio[motivo]?.hint).toBe('string');
+      }
+    }
+  });
 });

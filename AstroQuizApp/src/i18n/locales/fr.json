@@ -249,7 +249,7 @@
     "deleteAccountConfirmMessage": "Êtes-vous sûr de vouloir supprimer votre compte ? Toutes les données seront définitivement perdues.",
     "deleteAccountError": "Impossible de supprimer le compte. Veuillez réessayer.",
     "deleteAccountReauthError": "Pour des raisons de sécurité, déconnectez-vous et reconnectez-vous avant de supprimer votre compte.",
-    "guest": "Invité",
+    "guest": "En mode invité",
     "level": "Niveau",
     "about": "À propos",
     "version": "Version",
@@ -444,8 +444,18 @@
     "pointsValue": "{{score}} pts",
     "savedList": "Affichage de la dernière liste enregistrée",
     "empty": {
-      "title": "Personne dans le classement pour le moment",
-      "hint": "Terminez une phase pour apparaître ici."
+      "ninguem": {
+        "title": "Personne dans le classement",
+        "hint": "Terminez une phase pour apparaître ici."
+      },
+      "oculto": {
+        "title": "La liste est vide",
+        "hint": "Vous avez choisi de ne pas apparaître. Votre place est affichée pour vous seul, en bas."
+      },
+      "paisOculto": {
+        "title": "Vous n’apparaissez pas dans cette liste",
+        "hint": "Pour rejoindre le classement de votre pays, activez « Afficher mon pays » dans le profil."
+      }
     },
     "error": {
       "title": "Impossible de charger le classement"
@@ -484,9 +494,10 @@
     },
     "home": {
       "title": "Classement de la semaine",
-      "yours": "sur {{total}} joueurs cette semaine",
       "guest": "Voyez à quelle place vous seriez",
-      "empty": "Personne n'a marqué cette semaine"
+      "empty": "Personne n'a marqué cette semaine",
+      "yours_one": "sur {{count}} joueur cette semaine",
+      "yours_other": "sur {{count}} joueurs cette semaine"
     },
     "profile": {
       "title": "Classement",
@@ -494,7 +505,7 @@
       "appearAs": "Vous apparaissez comme",
       "showCountry": "Afficher mon pays",
       "visible": "Apparaître au classement",
-      "visibleHelp": "Désactivé, personne ne voit votre nom dans la liste.",
+      "visibleHelp": "Quand c’est désactivé, personne ne voit votre nom dans la liste.",
       "nickname": {
         "title": "Votre pseudo",
         "explanation": "De 3 à 20 caractères. Sans pseudo, vous apparaissez avec le nom tiré au sort.",

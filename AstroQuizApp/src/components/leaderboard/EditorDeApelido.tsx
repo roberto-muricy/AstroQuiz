@@ -57,10 +57,21 @@ export const EditorDeApelido: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [texto, setTexto] = useState(apelidoAtual ?? '');
+  /**
+   * O erro de formato só aparece depois de a pessoa digitar.
+   *
+   * Sem isso, quem não tem apelido abre o editor e recebe de cara "Curto
+   * demais: use pelo menos 3 caracteres." num campo vazio — como se já tivesse
+   * errado antes de escrever.
+   */
+  const [mexeu, setMexeu] = useState(false);
 
   // Reabrir o editor recomeça do apelido atual, e não do que foi digitado antes.
   useEffect(() => {
-    if (visivel) setTexto(apelidoAtual ?? '');
+    if (visivel) {
+      setTexto(apelidoAtual ?? '');
+      setMexeu(false);
+    }
   }, [visivel, apelidoAtual]);
 
   const local = validarApelidoLocalmente(texto);
@@ -69,7 +80,7 @@ export const EditorDeApelido: React.FC<Props> = ({
 
   // Erro do servidor só enquanto o texto não muda: depois de editar, a pessoa
   // está tentando outra coisa e a mensagem antiga só atrapalha.
-  const motivo = local.ok ? erroDoServidor : local.motivo;
+  const motivo = local.ok ? erroDoServidor : mexeu ? local.motivo : null;
   const restantes = caracteresRestantes(texto);
 
   const bloqueadoAte =
@@ -89,7 +100,10 @@ export const EditorDeApelido: React.FC<Props> = ({
 
           <TextInput
             value={texto}
-            onChangeText={setTexto}
+            onChangeText={(valor) => {
+              setTexto(valor);
+              setMexeu(true);
+            }}
             placeholder={t('leaderboard.profile.nickname.placeholder')}
             placeholderTextColor={COLORS.textTertiary}
             style={[styles.entrada, !!motivo && styles.entradaComErro]}

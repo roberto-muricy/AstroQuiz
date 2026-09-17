@@ -206,7 +206,11 @@ export const ProfileScreen = () => {
             </View>
           </View>
           <Text style={styles.userName}>{user?.name || 'Astronauta'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'guest@astroquiz.com'}</Text>
+          {/* Convidado não tem e-mail: o `anon_…@guest.astroquiz.com` do estado
+              interno aparecia aqui como se fosse o endereço da pessoa. */}
+          <Text style={styles.userEmail}>
+            {isAuthenticated ? (user?.email ?? '') : t('profile.guest')}
+          </Text>
           <View style={styles.userStats}>
             <View style={styles.userStat}>
               <Text style={styles.userStatValue}>{totalXP.toLocaleString()}</Text>

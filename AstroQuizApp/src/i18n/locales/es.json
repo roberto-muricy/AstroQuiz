@@ -249,7 +249,7 @@
     "deleteAccountConfirmMessage": "¿Estás seguro de que deseas eliminar tu cuenta? Todos los datos se perderán permanentemente.",
     "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
     "deleteAccountReauthError": "Por seguridad, cierra sesión e inicia sesión de nuevo antes de eliminar tu cuenta.",
-    "guest": "Invitado",
+    "guest": "Jugando como invitado",
     "level": "Nivel",
     "about": "Acerca de",
     "version": "Versión",
@@ -444,8 +444,18 @@
     "pointsValue": "{{score}} pts",
     "savedList": "Mostrando la última lista guardada",
     "empty": {
-      "title": "Todavía no hay nadie en la clasificación",
-      "hint": "Termina una fase para aparecer aquí."
+      "ninguem": {
+        "title": "Nadie en la clasificación todavía",
+        "hint": "Termina una fase para aparecer aquí."
+      },
+      "oculto": {
+        "title": "La lista está vacía",
+        "hint": "Elegiste no aparecer. Tu posición se muestra solo para ti, abajo."
+      },
+      "paisOculto": {
+        "title": "No apareces en esta lista",
+        "hint": "Para entrar en la clasificación de tu país, activa \"Mostrar mi país\" en el perfil."
+      }
     },
     "error": {
       "title": "No se pudo cargar la clasificación"
@@ -484,9 +494,10 @@
     },
     "home": {
       "title": "Clasificación de la semana",
-      "yours": "de {{total}} jugadores esta semana",
       "guest": "Mira en qué posición entrarías",
-      "empty": "Nadie ha puntuado esta semana todavía"
+      "empty": "Nadie ha puntuado esta semana todavía",
+      "yours_one": "de {{count}} jugador esta semana",
+      "yours_other": "de {{count}} jugadores esta semana"
     },
     "profile": {
       "title": "Clasificación",
@@ -494,7 +505,7 @@
       "appearAs": "Apareces como",
       "showCountry": "Mostrar mi país",
       "visible": "Aparecer en la clasificación",
-      "visibleHelp": "Desactivado, nadie ve tu nombre en la lista.",
+      "visibleHelp": "Cuando está desactivado, nadie ve tu nombre en la lista.",
       "nickname": {
         "title": "Tu apodo",
         "explanation": "De 3 a 20 caracteres. Sin apodo, apareces con el nombre sorteado.",
