@@ -121,22 +121,29 @@ export type RankIconName =
 
 export interface PlayerLevel {
   level: number;
-  title: string;
+  /**
+   * A chave da tradução do nome do nível.
+   *
+   * Aqui ficava o nome em inglês, escrito direto, e era ele que aparecia na
+   * Início e no fim da fase: quem jogava em português via "Space Rookie".
+   * Como nas conquistas, o arquivo guarda a chave e quem desenha traduz.
+   */
+  tituloChave: string;
   xpRequired: number;
   icon: RankIconName;
 }
 
 export const playerLevels: PlayerLevel[] = [
-  { level: 1, title: 'Space Rookie', xpRequired: 0, icon: 'Sparkle' },
-  { level: 2, title: 'Curious Observer', xpRequired: 500, icon: 'Binoculars' },
-  { level: 3, title: 'Explorer Beginner', xpRequired: 1200, icon: 'Telescope' },
-  { level: 4, title: 'Amateur Astronomer', xpRequired: 2500, icon: 'MoonStar' },
-  { level: 5, title: 'Junior Scientist', xpRequired: 5000, icon: 'Microscope' },
-  { level: 6, title: 'Intermediate Explorer', xpRequired: 8000, icon: 'Rocket' },
-  { level: 7, title: 'Expert Astronomer', xpRequired: 12000, icon: 'Star' },
-  { level: 8, title: 'Stellar Master', xpRequired: 18000, icon: 'Sparkles' },
-  { level: 9, title: 'Cosmic Sage', xpRequired: 25000, icon: 'Orbit' },
-  { level: 10, title: 'Galactic Guardian', xpRequired: 35000, icon: 'Crown' },
+  { level: 1, tituloChave: 'levels.spaceRookie', xpRequired: 0, icon: 'Sparkle' },
+  { level: 2, tituloChave: 'levels.curiousObserver', xpRequired: 500, icon: 'Binoculars' },
+  { level: 3, tituloChave: 'levels.explorerBeginner', xpRequired: 1200, icon: 'Telescope' },
+  { level: 4, tituloChave: 'levels.amateurAstronomer', xpRequired: 2500, icon: 'MoonStar' },
+  { level: 5, tituloChave: 'levels.juniorScientist', xpRequired: 5000, icon: 'Microscope' },
+  { level: 6, tituloChave: 'levels.intermediateExplorer', xpRequired: 8000, icon: 'Rocket' },
+  { level: 7, tituloChave: 'levels.expertAstronomer', xpRequired: 12000, icon: 'Star' },
+  { level: 8, tituloChave: 'levels.stellarMaster', xpRequired: 18000, icon: 'Sparkles' },
+  { level: 9, tituloChave: 'levels.cosmicSage', xpRequired: 25000, icon: 'Orbit' },
+  { level: 10, tituloChave: 'levels.galacticGuardian', xpRequired: 35000, icon: 'Crown' },
 ];
 
 export const getPlayerLevel = (totalXP: number): PlayerLevel => {

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SPACING, TYPOGRAPHY, COLORS, SIZES, RADIUS } from '@/constants/design-system';
 import { RankData } from '@/constants/ranks';
 import {
@@ -63,6 +64,7 @@ export const RankBadge: React.FC<RankBadgeProps> = ({
   showLevel = false,
   style,
 }) => {
+  const { t } = useTranslation();
   const badgeSize = SIZE_MAP[size];
   const iconSize = ICON_SIZE_MAP[size];
 
@@ -92,9 +94,11 @@ export const RankBadge: React.FC<RankBadgeProps> = ({
         </View>
       )}
 
+      {/* `displayName` esta em portugues para todo mundo em constants/ranks.ts.
+          A traducao da patente vive em `ranks.<id>`, como no OverallStatsCard. */}
       {showLabel && (
         <Text style={styles.label} numberOfLines={1}>
-          {rank.displayName}
+          {t(`ranks.${rank.id}`)}
         </Text>
       )}
     </View>

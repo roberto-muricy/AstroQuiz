@@ -284,7 +284,7 @@
   },
   "ranks": {
     "beginner": "Beginner",
-    "rookie": "Space Rookie",
+    "rookie": "Rookie",
     "apprentice": "Apprentice",
     "cadet": "Cadet",
     "explorer": "Explorer",
@@ -293,6 +293,18 @@
     "specialist": "Specialist",
     "commander": "Commander",
     "elite": "Elite"
+  },
+  "levels": {
+    "spaceRookie": "Space Rookie",
+    "curiousObserver": "Curious Observer",
+    "explorerBeginner": "Beginner Explorer",
+    "amateurAstronomer": "Amateur Astronomer",
+    "juniorScientist": "Junior Scientist",
+    "intermediateExplorer": "Intermediate Explorer",
+    "expertAstronomer": "Expert Astronomer",
+    "stellarMaster": "Stellar Master",
+    "cosmicSage": "Cosmic Sage",
+    "galacticGuardian": "Galactic Guardian"
   },
   "errors": {
     "loadingFailed": "Failed to load data",

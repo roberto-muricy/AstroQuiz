@@ -132,7 +132,7 @@ export const HomeScreen = () => {
       // Só o título. O ícone é desenhado à parte: desde que as patentes
       // passaram a guardar o *nome* do ícone Lucide em vez de um emoji, esta
       // interpolação imprimia "Sparkle Space Rookie" na tela.
-      setLevelTitle(level.title);
+      setLevelTitle(t(level.tituloChave));
       setLevelIcon(level.icon);
       setXpToNext(xpNext);
 

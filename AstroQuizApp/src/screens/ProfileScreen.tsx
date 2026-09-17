@@ -16,7 +16,7 @@ import { getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
+import { Alert, Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
@@ -34,6 +34,7 @@ import {
   IconSizes,
   IconColors,
 } from '@/components/Icons';
+import { versaoParaExibir } from '@/constants/versao';
 
 type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
@@ -429,7 +430,7 @@ export const ProfileScreen = () => {
               </View>
               <Text style={styles.settingText}>{t('profile.version')}</Text>
             </View>
-            <Text style={styles.settingValue}>1.0.0</Text>
+            <Text style={styles.settingValue}>{versaoParaExibir(Platform.OS)}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingItem}

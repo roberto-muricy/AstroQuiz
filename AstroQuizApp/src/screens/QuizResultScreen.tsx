@@ -8,7 +8,7 @@
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
-import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP } from '@/utils/progressionSystem';
+import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP, PlayerLevel } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import analyticsService from '@/services/analyticsService';
@@ -168,7 +168,7 @@ export const QuizResultScreen = () => {
 
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
         setTotalXP(updated.stats.totalXP);
-        setLevelTitle(currentLevel.title);
+        setLevelTitle(t(currentLevel.tituloChave));
         setLevelIcon(currentLevel.icon);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
         const desbloqueouProxima = updated.unlockedPhases > data.phaseNumber;
@@ -329,11 +329,12 @@ export const QuizResultScreen = () => {
     );
   };
 
-  const triggerLevelUp = (fromLevel: number, toLevel: { level: number; title: string; icon: RankIconName }) => {
+  const triggerLevelUp = (fromLevel: number, toLevel: PlayerLevel) => {
     setLevelUpInfo({
       from: fromLevel,
       to: toLevel.level,
-      title: toLevel.title,
+      // O cartão de subida de nível também mostrava o nome em inglês.
+      title: t(toLevel.tituloChave),
       icon: toLevel.icon,
     });
     levelUpScale.setValue(0.4);

@@ -18,7 +18,7 @@
  * progressionSystem.ts e por isso escapam de qualquer busca por texto.
  */
 
-import { achievements } from '../progressionSystem';
+import { achievements, playerLevels } from '../progressionSystem';
 
 const LOCALES = ['pt', 'en', 'es', 'fr'] as const;
 
@@ -85,6 +85,55 @@ describe('chaves de i18n das conquistas', () => {
     const comEmoji = achievements.filter((a) => /\p{Extended_Pictographic}/u.test(a.icon));
     expect(comEmoji.map((a) => `${a.id}: ${a.icon}`)).toEqual([]);
   });
+});
+
+describe('nomes dos níveis', () => {
+  /**
+   * Os nomes dos níveis ficavam escritos em inglês dentro de progressionSystem,
+   * e apareciam assim na Início, no fim da fase e no cartão de subida de nível:
+   * quem jogava em português lia "Space Rookie".
+   *
+   * A patente `rookie` tinha o mesmo problema pelo outro lado — a chave existia
+   * nos quatro idiomas, mas o valor era o texto em inglês em três deles. Uma
+   * conferência de chaves não pega isso; só comparar os valores pega.
+   */
+  it('todos os níveis buscam o nome na tradução', () => {
+    expect(playerLevels.length).toBeGreaterThan(0);
+    for (const nivel of playerLevels) {
+      expect(nivel.tituloChave).toMatch(/^levels\./);
+    }
+  });
+
+  for (const loc of LOCALES) {
+    it(`${loc}: todo nível tem nome`, () => {
+      const faltando = playerLevels
+        .filter((nivel) => typeof buscar(traducoes[loc], nivel.tituloChave) !== 'string')
+        .map((nivel) => nivel.tituloChave);
+
+      expect(faltando).toEqual([]);
+    });
+  }
+
+  for (const loc of ['pt', 'es', 'fr'] as const) {
+    it(`${loc}: nenhum nome de nível ficou igual ao inglês`, () => {
+      // Vale para os níveis porque nenhum dos dez se escreve igual nos dois
+      // idiomas. Em outras seções há coincidência legítima ("Elite"), então
+      // esta comparação não serve como regra geral.
+      const iguais = playerLevels
+        .filter(
+          (nivel) =>
+            buscar(traducoes[loc], nivel.tituloChave) ===
+            buscar(traducoes.en, nivel.tituloChave),
+        )
+        .map((nivel) => nivel.tituloChave);
+
+      expect(iguais).toEqual([]);
+    });
+
+    it(`${loc}: a patente rookie não está em inglês`, () => {
+      expect(traducoes[loc].ranks.rookie).not.toBe(traducoes.en.ranks.rookie);
+    });
+  }
 });
 
 describe('paridade entre os quatro idiomas', () => {
