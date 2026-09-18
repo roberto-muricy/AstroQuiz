@@ -63,7 +63,11 @@ export const HomeScreen = () => {
   const idiomaAtual = ((i18n.language || 'pt').slice(0, 2) as IdiomaSuportado) || 'pt';
   const [refreshing, setRefreshing] = useState(false);
   const [totalXP, setTotalXP] = useState(0);
-  const [levelTitle, setLevelTitle] = useState('');
+  // A chave, e nao o texto: traduzir na hora de desenhar faz o nome acompanhar
+  // o idioma. Guardado ja traduzido, ele ficava no idioma de quando a tela
+  // carregou — e o i18n nasce em portugues e so depois recebe o idioma salvo,
+  // entao quem usa o app em ingles via "Explorador Iniciante".
+  const [levelTitleKey, setLevelTitleKey] = useState('');
   const [levelIcon, setLevelIcon] = useState<RankIconName>('Sparkle');
   const [currentLevel, setCurrentLevel] = useState(1);
   const [xpToNext, setXpToNext] = useState(0);
@@ -132,7 +136,7 @@ export const HomeScreen = () => {
       // Só o título. O ícone é desenhado à parte: desde que as patentes
       // passaram a guardar o *nome* do ícone Lucide em vez de um emoji, esta
       // interpolação imprimia "Sparkle Space Rookie" na tela.
-      setLevelTitle(t(level.tituloChave));
+      setLevelTitleKey(level.tituloChave);
       setLevelIcon(level.icon);
       setXpToNext(xpNext);
 
@@ -266,7 +270,7 @@ export const HomeScreen = () => {
             <View>
               <View style={styles.mainLevelTitleRow}>
                 <RankIcon name={levelIcon} size={20} filled={currentLevel >= 8} />
-                <Text style={styles.mainLevelTitle}>{levelTitle || t('home.levelNumber', { level: currentLevel })}</Text>
+                <Text style={styles.mainLevelTitle}>{levelTitleKey ? t(levelTitleKey) : t('home.levelNumber', { level: currentLevel })}</Text>
               </View>
               <Text style={styles.mainLevelSubtitle}>
                 {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
@@ -601,6 +605,11 @@ const styles = StyleSheet.create({
     // Sem marginTop de proposito: mainLevelCard ja aplica marginBottom de 24.
     // No React Native margens nao colapsam como no CSS — elas somam, e as duas
     // juntas abriam 48dp de vazio entre o cartao e este titulo.
+    //
+    // Embaixo, o mesmo espaco que o cartao principal deixa: sem ele o cartao do
+    // ranking encostava nas fases, e as duas bordas coladas pareciam um cartao
+    // passando por cima do outro.
+    marginBottom: SIZES.screenPadding,
   },
   sectionHeader: {
     flexDirection: 'row',

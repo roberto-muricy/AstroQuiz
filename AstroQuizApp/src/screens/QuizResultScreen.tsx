@@ -74,13 +74,15 @@ export const QuizResultScreen = () => {
   const [levelUpInfo, setLevelUpInfo] = useState<{
     from: number;
     to: number;
-    title: string;
+    /** Chave de tradução; traduzida na hora de desenhar, como na Início. */
+    tituloChave: string;
     icon: RankIconName;
   } | null>(null);
   const [stars, setStars] = useState(0);
   const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
   const [totalXP, setTotalXP] = useState(0);
-  const [levelTitle, setLevelTitle] = useState('');
+  // A chave, e não o texto — ver a mesma escolha em HomeScreen.
+  const [levelTitleKey, setLevelTitleKey] = useState('');
   const [levelIcon, setLevelIcon] = useState<RankIconName | null>(null);
   const [xpToNext, setXpToNext] = useState(0);
 
@@ -168,7 +170,7 @@ export const QuizResultScreen = () => {
 
         const currentLevel = getPlayerLevel(updated.stats.totalXP);
         setTotalXP(updated.stats.totalXP);
-        setLevelTitle(t(currentLevel.tituloChave));
+        setLevelTitleKey(currentLevel.tituloChave);
         setLevelIcon(currentLevel.icon);
         setXpToNext(getXPToNextLevel(updated.stats.totalXP));
         const desbloqueouProxima = updated.unlockedPhases > data.phaseNumber;
@@ -333,8 +335,7 @@ export const QuizResultScreen = () => {
     setLevelUpInfo({
       from: fromLevel,
       to: toLevel.level,
-      // O cartão de subida de nível também mostrava o nome em inglês.
-      title: t(toLevel.tituloChave),
+      tituloChave: toLevel.tituloChave,
       icon: toLevel.icon,
     });
     levelUpScale.setValue(0.4);
@@ -532,11 +533,11 @@ export const QuizResultScreen = () => {
           )}
 
           {/* ——— Nível e XP, numa linha ——— */}
-          {levelTitle ? (
+          {levelTitleKey ? (
             <View style={styles.nivelBloco}>
               <View style={styles.nivelLinha}>
                 {levelIcon && <RankIcon name={levelIcon} size={15} color={IconColors.gold} />}
-                <Text style={styles.nivelTexto}>{levelTitle}</Text>
+                <Text style={styles.nivelTexto}>{t(levelTitleKey)}</Text>
                 <Text style={styles.nivelXp}>
                   {xpToNext > 0 ? t('result.xpToNext', { xp: xpToNext }) : t('result.maxLevel')}
                 </Text>
@@ -637,7 +638,7 @@ export const QuizResultScreen = () => {
             </Text>
             <View style={styles.levelUpBadgeRow}>
               <RankIcon name={levelUpInfo.icon} size={22} color={IconColors.gold} filled />
-              <Text style={styles.levelUpBadge}>{levelUpInfo.title}</Text>
+              <Text style={styles.levelUpBadge}>{t(levelUpInfo.tituloChave)}</Text>
             </View>
             <TouchableOpacity style={styles.levelUpButton} onPress={closeLevelUp} activeOpacity={0.85}>
               <Text style={styles.levelUpButtonText}>{t('common.continue')}</Text>
