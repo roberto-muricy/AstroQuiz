@@ -280,6 +280,10 @@ export const CartaoDoPerfil: React.FC<Props> = ({ idioma }) => {
 const styles = StyleSheet.create({
   cartao: {
     gap: SPACING.sm,
+    // O Perfil separa cada cartão com 16 em cima (`styles.card` da tela). Este
+    // cartão é um componente à parte e ficou sem esse espaço: encostava no de
+    // Configurações, e as bordas coladas pareciam um cartão sobre o outro.
+    marginTop: SPACING.md,
   },
   titulo: {
     ...TYPOGRAPHY.h3,
