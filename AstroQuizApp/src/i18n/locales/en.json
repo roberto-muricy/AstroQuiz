@@ -170,6 +170,10 @@
       "fillEmailPassword": "Please enter email and password.",
       "authFailed": "Could not authenticate.",
       "authUnexpected": "Unexpected error while authenticating."
+    },
+    "sessionExpired": {
+      "title": "You were signed out",
+      "message": "This account is no longer signed in on this device. Log in again so your phases count in the ranking."
     }
   },
   "quizList": {

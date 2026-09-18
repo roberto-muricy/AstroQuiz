@@ -170,6 +170,10 @@
       "fillEmailPassword": "Completa e-mail y contraseña.",
       "authFailed": "No se pudo autenticar.",
       "authUnexpected": "Error inesperado al autenticar."
+    },
+    "sessionExpired": {
+      "title": "Tu sesión terminó",
+      "message": "Esta cuenta ya no está conectada en este dispositivo. Inicia sesión de nuevo para que tus fases cuenten en la clasificación."
     }
   },
   "quizList": {

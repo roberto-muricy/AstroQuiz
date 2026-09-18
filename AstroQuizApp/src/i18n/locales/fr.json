@@ -170,6 +170,10 @@
       "fillEmailPassword": "Veuillez saisir l'e-mail et le mot de passe.",
       "authFailed": "Impossible de s'authentifier.",
       "authUnexpected": "Erreur inattendue lors de l'authentification."
+    },
+    "sessionExpired": {
+      "title": "Vous avez été déconnecté",
+      "message": "Ce compte n'est plus connecté sur cet appareil. Reconnectez-vous pour que vos phases comptent dans le classement."
     }
   },
   "quizList": {

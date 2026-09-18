@@ -17,6 +17,32 @@
 export const ehUsuarioAutenticado = (u: { id: string } | null | undefined): boolean =>
   !!u && !u.id.startsWith('anon_') && u.id !== 'guest';
 
+/**
+ * A tela mostra uma conta que o Firebase nao sustenta mais?
+ *
+ * O `user` do app e uma copia salva no login, e nada a mantinha em dia com o
+ * Firebase. Quando a conta era apagada em outro aparelho, o Firebase encerrava
+ * a sessao por conta propria e o app seguia exibindo "Conectado como ..." —
+ * enquanto as fases iam como convidado, porque nao havia mais token, e ficavam
+ * de fora do ranking sem nenhum aviso. Visto em 18/09/2026 com uma conta de
+ * teste recriada.
+ *
+ * `uidDoFirebase` e o usuario atual do Firebase (null = ninguem). Um uid
+ * diferente do exibido tambem conta como sessao perdida: a tela estaria
+ * mostrando uma pessoa e mandando o token de outra.
+ *
+ * `saindo` cobre sair e excluir a conta, em que o proprio app desliga o
+ * Firebase de proposito e nao ha nada para avisar.
+ */
+export function sessaoPerdida(
+  usuarioLocal: { id: string } | null | undefined,
+  uidDoFirebase: string | null,
+  saindo: boolean,
+): boolean {
+  if (saindo || !ehUsuarioAutenticado(usuarioLocal)) return false;
+  return uidDoFirebase !== usuarioLocal!.id;
+}
+
 /** So o que precisamos do usuario do Firebase, para testar sem os modulos nativos. */
 export interface UsuarioComToken {
   getIdToken(forcarAtualizacao?: boolean): Promise<string>;

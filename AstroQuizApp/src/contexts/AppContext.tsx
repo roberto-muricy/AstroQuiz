@@ -10,11 +10,13 @@ import strapiSyncService from "@/services/strapiSyncService";
 import { ProgressStorage } from "@/utils/progressStorage";
 import { GameRules, QuizSession, User } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { changeLanguage } from "@/i18n";
+import auth from "@react-native-firebase/auth";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Alert } from "react-native";
+import i18n, { changeLanguage } from "@/i18n";
 import { setSentryUser } from "@/config/sentry";
 import analyticsService from "@/services/analyticsService";
-import { ehUsuarioAutenticado } from "@/utils/autenticacao";
+import { ehUsuarioAutenticado, sessaoPerdida } from "@/utils/autenticacao";
 
 type AuthResponse = { ok: true } | { ok: false; message: string };
 
@@ -49,6 +51,21 @@ interface AppContextData {
 
 const AppContext = createContext<AppContextData>({} as AppContextData);
 
+/** Quem fica depois de sair, excluir a conta ou perder a sessão. */
+const usuarioConvidado = (locale: string): User => ({
+  id: "guest",
+  name: "Astronauta",
+  email: "guest@astroquiz.com",
+  level: 1,
+  xp: 0,
+  totalXP: 0,
+  streak: 0,
+  avatarUrl: null,
+  locale,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
 interface AppProviderProps {
   children: ReactNode;
 }
@@ -62,6 +79,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [locale, setLocaleState] = useState<string>("pt");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const localeLoadedRef = React.useRef(false);
+
+  /** Quem o Firebase diz que está conectado; undefined até ele responder. */
+  const [uidDoFirebase, setUidDoFirebase] = useState<string | null | undefined>(undefined);
+  /**
+   * Sair e excluir a conta desligam o Firebase de propósito. Enquanto isso
+   * acontece, a queda da sessão é esperada e não merece aviso.
+   */
+  const saindoRef = useRef(false);
 
   // Carregar dados ao iniciar o app
   useEffect(() => {
@@ -350,6 +375,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
    */
   const deleteAccount = useCallback(async () => {
     setIsLoading(true);
+    saindoRef.current = true;
     try {
       // repetirEmFalhaDeRede: a rota é idempotente, e uma conexão instável é
       // justamente o caso em que a exclusão não pode ficar pela metade.
@@ -360,20 +386,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       await api.clearAuthToken();
 
       // Limpar estado local (volta para usuário anônimo)
-      setUser({
-        id: 'guest',
-        name: 'Astronauta',
-        email: 'guest@astroquiz.com',
-        level: 1,
-        xp: 0,
-        totalXP: 0,
-        streak: 0,
-        avatarUrl: null,
-        locale: locale || 'pt',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      setUser(usuarioConvidado(locale || 'pt'));
     } finally {
+      saindoRef.current = false;
       setIsLoading(false);
     }
   }, [locale]);
@@ -383,29 +398,54 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
    */
   const signOut = useCallback(async () => {
     setIsLoading(true);
+    saindoRef.current = true;
     try {
       analyticsService.logLogout();
-      await authService.signOut();
+      try {
+        await authService.signOut();
+      } catch {
+        // Sem ninguém no Firebase — a sessão já tinha caído sozinha — o
+        // signOut lança "no-current-user". Antes isso interrompia a função
+        // antes de limpar o estado local, e o botão Sair não fazia nada.
+        console.warn('signOut do Firebase falhou; limpando o estado local mesmo assim');
+      }
       await api.clearAuthToken();
       console.log('🔓 Auth token cleared');
       setCurrentSession(null);
-      setUser({
-        id: "guest",
-        name: "Astronauta",
-        email: "guest@astroquiz.com",
-        level: 1,
-        xp: 0,
-        totalXP: 0,
-        streak: 0,
-        avatarUrl: null,
-        locale: locale || "pt",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
+      setUser(usuarioConvidado(locale || "pt"));
     } finally {
+      saindoRef.current = false;
       setIsLoading(false);
     }
   }, [locale]);
+
+  // O Firebase avisa aqui quando a sessão muda, inclusive quando cai sozinha:
+  // conta apagada ou desativada em outro lugar, sessão revogada. Antes nada
+  // escutava isso, e a tela seguia com a conta antiga.
+  useEffect(() => auth().onAuthStateChanged((fb) => setUidDoFirebase(fb ? fb.uid : null)), []);
+
+  // Tela e Firebase discordando: volta para convidado e explica por quê, para
+  // a pessoa não seguir jogando achando que as fases vão para o ranking.
+  useEffect(() => {
+    if (uidDoFirebase === undefined) return;
+    if (!sessaoPerdida(user, uidDoFirebase, saindoRef.current)) return;
+
+    saindoRef.current = true;
+    (async () => {
+      try {
+        // Com outro uid ainda há alguém no Firebase, e ele precisa sair também,
+        // senão o token dessa pessoa continuaria indo nas requisições. Sem
+        // ninguém, o signOut lança erro, e aqui isso não importa.
+        await authService.signOut().catch(() => undefined);
+        await api.clearAuthToken();
+        setCurrentSession(null);
+        setUser(usuarioConvidado(locale || "pt"));
+      } finally {
+        saindoRef.current = false;
+      }
+      Alert.alert(i18n.t("login.sessionExpired.title"), i18n.t("login.sessionExpired.message"));
+    })();
+  }, [user, uidDoFirebase, locale]);
 
   const contextValue = useMemo(() => ({
     user,
