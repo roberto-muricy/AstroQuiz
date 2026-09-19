@@ -90,12 +90,12 @@ android {
         applicationId "com.astroquiz.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // Alinhado ao iOS de proposito: versionCode espelha o numero do build
-        // (36) e versionName a versao publicada. Nada foi publicado no Play
-        // ainda, entao o valor e livre — e igualar remove ambiguidade quando um
-        // relatorio de erro chegar de uma das duas lojas.
-        versionCode 60
-        versionName "1.2.1"
+        // versionName acompanha a versao do iOS (a mesma versao nas duas lojas
+        // evita ambiguidade quando chega um relatorio de erro). versionCode e
+        // proprio do Android e so sobe: a Play recusa um codigo igual ou menor
+        // que qualquer um ja enviado, inclusive nas faixas de teste.
+        versionCode 61
+        versionName "1.3.1"
     }
     signingConfigs {
         debug {
