@@ -147,6 +147,26 @@ describe('chaves de i18n do ranking', () => {
     }
   });
 
+  /**
+   * Quem acabou de instalar não tem pontos, e o app só manda a pontuação ao
+   * servidor quando ela passa de zero: sem posição para mostrar, o cartão caía
+   * em "Ninguém pontuou nesta semana ainda" mesmo com gente no ranking. Visto
+   * em 19/09/2026 no primeiro teste do Android com o ranking.
+   */
+  it('o cartao da Home tem texto proprio para o convidado sem pontos, com plural', () => {
+    for (const idioma of LOCALES) {
+      const home = (traducoes[idioma].leaderboard as any).home;
+      expect(typeof home.guestNoScore_one).toBe('string');
+      expect(typeof home.guestNoScore_other).toBe('string');
+      for (const forma of [home.guestNoScore_one, home.guestNoScore_other]) {
+        expect(forma).toContain('{{count}}');
+      }
+      expect(home.guestNoScore_one).not.toBe(home.guestNoScore_other);
+      // O texto de lista vazia continua existindo para quando ela está vazia.
+      expect(home.guestNoScore_other).not.toBe(home.empty);
+    }
+  });
+
   it('cada motivo de lista vazia tem titulo e dica nos quatro idiomas', () => {
     for (const idioma of LOCALES) {
       const vazio = (traducoes[idioma].leaderboard as any).empty;

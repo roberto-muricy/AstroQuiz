@@ -513,7 +513,9 @@
       "guest": "Voyez à quelle place vous seriez",
       "empty": "Personne n'a marqué cette semaine",
       "yours_one": "sur {{count}} joueur cette semaine",
-      "yours_other": "sur {{count}} joueurs cette semaine"
+      "yours_other": "sur {{count}} joueurs cette semaine",
+      "guestNoScore_one": "{{count}} joueur cette semaine. Jouez une phase pour entrer",
+      "guestNoScore_other": "{{count}} joueurs cette semaine. Jouez une phase pour entrer"
     },
     "profile": {
       "title": "Classement",

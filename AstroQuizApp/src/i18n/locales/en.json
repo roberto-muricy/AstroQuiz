@@ -513,7 +513,9 @@
       "guest": "See where you would land",
       "empty": "No one has scored this week yet",
       "yours_one": "of {{count}} player this week",
-      "yours_other": "of {{count}} players this week"
+      "yours_other": "of {{count}} players this week",
+      "guestNoScore_one": "{{count}} player this week. Play a phase to join",
+      "guestNoScore_other": "{{count}} players this week. Play a phase to join"
     },
     "profile": {
       "title": "Ranking",

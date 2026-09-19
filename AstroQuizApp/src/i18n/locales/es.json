@@ -513,7 +513,9 @@
       "guest": "Mira en qué posición entrarías",
       "empty": "Nadie ha puntuado esta semana todavía",
       "yours_one": "de {{count}} jugador esta semana",
-      "yours_other": "de {{count}} jugadores esta semana"
+      "yours_other": "de {{count}} jugadores esta semana",
+      "guestNoScore_one": "{{count}} jugador esta semana. Juega una fase para entrar",
+      "guestNoScore_other": "{{count}} jugadores esta semana. Juega una fase para entrar"
     },
     "profile": {
       "title": "Clasificación",

@@ -78,7 +78,14 @@ export const CartaoDoRanking: React.FC<Props> = ({ idioma, aoAbrir }) => {
       t('leaderboard.home.yours', { count: pagina?.totalPlayers ?? 0 })
     : hipotetica && temGente
       ? t('leaderboard.home.guest')
-      : t('leaderboard.home.empty');
+      : temGente
+        ? // Tem gente na semana, mas quem abre ainda não tem pontos: o app só
+          // manda a pontuação ao servidor quando ela passa de zero, então não
+          // há posição para mostrar. Antes caía em "Ninguém pontuou nesta
+          // semana ainda" — falso, e era a primeira coisa que todo usuário
+          // novo lia na Início.
+          t('leaderboard.home.guestNoScore', { count: pagina?.totalPlayers ?? 0 })
+        : t('leaderboard.home.empty');
 
   return (
     <Pressable
