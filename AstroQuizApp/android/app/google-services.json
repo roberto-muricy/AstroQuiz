@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "473888146350-5k7r446l2ig9jkl7gqjclj0348mrp0mc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.astroquiz.app",
+            "certificate_hash": "6fd9d7f1af3b1613fbcda35f189667949c144664"
+          }
+        },
+        {
+          "client_id": "473888146350-r98ecb8sjs4q7eok15a85d2u25ohih2d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.astroquiz.app",
+            "certificate_hash": "99ae5304f705dc7de5ccacaa0898f0a6e8abbf48"
+          }
+        },
+        {
           "client_id": "473888146350-udqdloorhbn0tauttltuju4ud68eslih.apps.googleusercontent.com",
           "client_type": 3
         }
