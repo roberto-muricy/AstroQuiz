@@ -146,6 +146,23 @@ O que uma pessoa vê da outra, no app inteiro: apelido de até 20 caracteres
 Sem chat, mensagem, comentário, foto, áudio, página de perfil ou lista de
 amigos.
 
+### O que o questionário devolveu (21/09/2026)
+
+Nove autoridades deram o mínimo: **Brasil Livre** (ClassInd), ESRB Livre,
+PEGI 3, Coreia livre (GRAC), Taiwan público geral, Austrália Geral, Arábia
+Saudita 3, IARC Generic 3, Rússia 3. Todas com o elemento interativo "Usuários
+Interagem", e a Austrália com a descrição "Interatividade Online e Chat".
+
+**A exceção é a Alemanha: USK a partir de 16 anos**, com a descrição "Riscos de
+comunicação aumentados". A USK trata qualquer recurso de conteúdo entre usuários
+como risco de comunicação e sobe a faixa, mesmo sendo um apelido de 20
+caracteres. Decidido pagar o preço: em setembro a Alemanha teve uma pessoa, e a
+restrição atinge só alemães de 13 a 15 anos. Responder "não" seria impreciso, e
+questionário impreciso é motivo de remoção do app. Se a Alemanha passar a
+importar, cabe pedir revisão à USK pelo canal de suporte ao desenvolvedor da
+IARC, mostrando o filtro automático de apelidos (`src/services/nickname.ts`) e a
+denúncia (`src/services/leaderboard-reports.ts`).
+
 ---
 
 ## 6. Ordem sugerida
@@ -154,5 +171,6 @@ As seis rápidas primeiro, para a lista encolher. Depois público-alvo, detalhes
 do login, classificação de conteúdo e, por último, segurança dos dados, que é a
 mais longa.
 
-A classificação sai na hora. A segurança dos dados passa por revisão do Google e
-aparece na página do app em algumas horas.
+**Nada disso entra em vigor ao salvar.** Cada declaração salva fica na **Visão
+geral da publicação** esperando ser enviada à revisão. Preencher as dez e enviar
+de uma vez.
