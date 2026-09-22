@@ -421,6 +421,32 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // escutava isso, e a tela seguia com a conta antiga.
   useEffect(() => auth().onAuthStateChanged((fb) => setUidDoFirebase(fb ? fb.uid : null)), []);
 
+  /**
+   * Ninguém no Firebase — nem de verdade, nem anônimo — entra sozinho com
+   * login anônimo. É o que dá a toda instalação um firebaseUid de verdade
+   * (o app já manda o token dele em cada requisição, ver tokenParaRequisicao),
+   * e com isso elegibilidade no ranking assim que uma fase termina, sem exigir
+   * tela de login. `user` (o modelo local, com o id `anon_…`) não muda por
+   * causa disto — quem decide se a pessoa "está logada" na tela continua
+   * sendo ehUsuarioAutenticado, olhando o `user`, não o Firebase.
+   *
+   * Dispara de novo depois de Sair ou Excluir conta, porque os dois derrubam
+   * o Firebase e uidDoFirebase volta a null — então a pessoa nunca fica sem
+   * uid enquanto joga como convidado.
+   *
+   * Exige a autenticação anônima ligada no Console do Firebase; sem isso,
+   * signInAnonymously falha (auth/operation-not-allowed) e cai no catch —
+   * o app segue exatamente como hoje, sem token nenhum.
+   */
+  useEffect(() => {
+    if (uidDoFirebase !== null) return; // undefined = Firebase ainda não respondeu; string = já tem alguém
+    auth()
+      .signInAnonymously()
+      .catch((erro: any) => {
+        console.log('Login anônimo não disponível:', erro?.code || erro?.message);
+      });
+  }, [uidDoFirebase]);
+
   // Tela e Firebase discordando: volta para convidado e explica por quê, para
   // a pessoa não seguir jogando achando que as fases vão para o ranking.
   useEffect(() => {

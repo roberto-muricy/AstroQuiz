@@ -39,6 +39,7 @@ import {
 } from '../services/quiz-answer-rules';
 import { registrarResultadoDaSessao } from '../services/phase-results';
 import { limparCacheDoRanking } from '../services/leaderboard-service';
+import { garantirJogador } from '../services/leaderboard-players';
 import {
   createOptionalAuthMiddleware,
   AuthContext,
@@ -93,6 +94,14 @@ export function createQuizRoutes(strapi: any): any[] {
       // Resultado novo muda o ranking: a proxima leitura recalcula.
       if (await registrarResultadoDaSessao(strapi.db.connection, session)) {
         limparCacheDoRanking();
+      }
+
+      // Quem termina uma fase logado (login anonimo inclusive) ja tem o que
+      // precisa para aparecer no ranking. Antes disso so acontecia numa visita
+      // manual a aba Ranking (GET /api/leaderboard/me); duas fontes para o
+      // mesmo cadastro, sem conflito, porque garantirJogador e idempotente.
+      if (session.firebaseUid) {
+        await garantirJogador(strapi.db.connection, session.firebaseUid);
       }
     } catch (error: any) {
       strapi.log.error(`Error recording phase result for ${session?.sessionId}:`, error);
