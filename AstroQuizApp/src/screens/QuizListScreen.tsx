@@ -13,7 +13,7 @@ import { useNavigation, NavigationProp, useFocusEffect } from '@react-navigation
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
-import { calculateStarRating, getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
+import { getUnlockRequirement, isPhaseUnlocked, getDifficultyDistribution } from '@/utils/progressionSystem';
 import React, { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {

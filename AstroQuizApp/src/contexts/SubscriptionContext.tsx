@@ -25,7 +25,6 @@ import {
   ProductInfo,
   isSubscriptionServiceAvailable,
 } from '@/services/subscriptionService';
-import { SubscriptionPlan } from '@/constants/subscription';
 import { useAds } from './AdsContext';
 import { useApp } from './AppContext';
 

@@ -252,7 +252,7 @@ class SoundService {
     this.vibrate([0, 45]);
   }
 
-  playStreak(streakCount?: number) {
+  playStreak(_streakCount?: number) {
     this.vibrate([0, 20]);
   }
 

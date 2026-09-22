@@ -38,7 +38,7 @@ export const ContinueModal: React.FC<ContinueModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { isLoaded, isShowing, showAd } = useRewardedAd({ type: 'continue' });
+  const { isShowing, showAd } = useRewardedAd({ type: 'continue' });
   const { adsEnabled, canUseContinue, continuesRemaining, incrementContinueUsed } = useAds();
 
   const [isProcessing, setIsProcessing] = useState(false);

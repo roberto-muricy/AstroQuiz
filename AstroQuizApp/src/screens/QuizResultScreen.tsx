@@ -8,7 +8,7 @@
 import { useNavigation, useRoute, NavigationProp, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '@/types';
 import { ProgressStorage } from '@/utils/progressStorage';
-import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, estimatePhaseXP, PlayerLevel } from '@/utils/progressionSystem';
+import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRating, getUnlockRequirement, PlayerLevel } from '@/utils/progressionSystem';
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import analyticsService from '@/services/analyticsService';
@@ -46,7 +46,6 @@ import {
   KeepLookingIcon,
   FireIcon,
   AwardIcon,
-  IconSizes,
   IconColors,
   RefreshIcon,
 } from '@/components/Icons';
@@ -78,8 +77,9 @@ export const QuizResultScreen = () => {
     tituloChave: string;
     icon: RankIconName;
   } | null>(null);
-  const [stars, setStars] = useState(0);
-  const [unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
+  // Calculados e guardados, mas ainda sem lugar na tela — ver nota do lint.
+  const [_stars, setStars] = useState(0);
+  const [_unlockRequirement, setUnlockRequirement] = useState<{ requiredAccuracy: number; specialRequirement?: string } | null>(null);
   const [totalXP, setTotalXP] = useState(0);
   // A chave, e não o texto — ver a mesma escolha em HomeScreen.
   const [levelTitleKey, setLevelTitleKey] = useState('');

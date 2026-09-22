@@ -27,7 +27,7 @@ type LoginNav = NativeStackNavigationProp<RootStackParamList, "Login">;
 
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginNav>();
-  const { signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, isAuthenticated, setUser, isLoading } = useApp();
+  const { signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, isLoading } = useApp();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [localLoading, setLocalLoading] = useState(false);

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Play, SkipForward, Heart } from 'lucide-react-native';
-import { COLORS, SPACING, TYPOGRAPHY, RADIUS } from '@/constants/design-system';
+import { COLORS, SPACING, RADIUS } from '@/constants/design-system';
 import { useRewardedAd, RewardType } from '@/hooks/useRewardedAd';
 import { useAds } from '@/contexts/AdsContext';
 
@@ -70,7 +70,7 @@ export const RewardedAdButton: React.FC<RewardedAdButtonProps> = ({
   showUsageCount = true,
 }) => {
   const { t } = useTranslation();
-  const { isLoaded, isShowing, showAd } = useRewardedAd({ type: rewardType });
+  const { isShowing, showAd } = useRewardedAd({ type: rewardType });
   const {
     adsEnabled,
     canUseSkip,

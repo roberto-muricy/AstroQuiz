@@ -11,7 +11,6 @@ import { ProgressBar } from './ProgressBar';
 import { StarsRating, PlayIcon, LockIcon, IconSizes } from './Icons';
 import {
   COLORS,
-  SPACING,
   TYPOGRAPHY,
   RADIUS,
 } from '@/constants/design-system';

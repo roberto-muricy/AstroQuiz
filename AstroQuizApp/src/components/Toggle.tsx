@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, StyleSheet, Animated } from 'react-native';
 
 interface ToggleProps {
   value: boolean;

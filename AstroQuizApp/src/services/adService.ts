@@ -25,7 +25,6 @@ let AdEventType: any = null;
 let RewardedAdEventType: any = null;
 let TestIds: any = null;
 let mobileAds: any = null;
-let AdsConsent: any = null;
 let isAdModuleAvailable = false;
 
 try {
@@ -36,7 +35,6 @@ try {
   RewardedAdEventType = adsModule.RewardedAdEventType;
   TestIds = adsModule.TestIds;
   mobileAds = adsModule.default;
-  AdsConsent = adsModule.AdsConsent;
   isAdModuleAvailable = !!(InterstitialAd && RewardedAd && AdEventType && TestIds);
   console.log('[AdService] Module loaded:', isAdModuleAvailable);
 } catch (error) {

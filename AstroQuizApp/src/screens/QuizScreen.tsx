@@ -117,7 +117,7 @@ export const QuizScreen = () => {
   // O envio da pergunta ao servidor falhou. O banner fica, e no lugar de
   // "Próxima" aparece "Tentar novamente".
   const [falhaEnvio, setFalhaEnvio] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(30);
   const [autoSubmitCountdown, setAutoSubmitCountdown] = useState<number | null>(null);
   const [currentScore, setCurrentScore] = useState(0);

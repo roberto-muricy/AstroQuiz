@@ -5,8 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import { COLORS, TYPOGRAPHY } from '@/constants/design-system';
-import { CheckIcon, InfoIcon, IconSizes, IconColors } from '@/components/Icons';
+import { CheckIcon, InfoIcon, IconSizes } from '@/components/Icons';
 
 export type ToastType = 'success' | 'info' | 'warning' | 'error';
 

@@ -6,7 +6,6 @@
 import React, { useState } from 'react';
 import {
   Alert,
-  Animated,
   Linking,
   Platform,
   ScrollView,
@@ -20,14 +19,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import { X, Star, Zap, SkipForward, Crown, Check } from 'lucide-react-native';
-import { COLORS, SPACING, TYPOGRAPHY, RADIUS } from '@/constants/design-system';
+import { COLORS } from '@/constants/design-system';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { PRICES } from '@/constants/subscription';
 
 export const UpgradeScreen = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const { isPro, purchaseMonthly, purchaseYearly, restore, customerInfo, isLoading } = useSubscription();
+  const { isPro, purchaseMonthly, purchaseYearly, restore, customerInfo } = useSubscription();
   const expirationDate = customerInfo?.expirationDate;
   const [selectedPlan, setSelectedPlan] = useState<'yearly' | 'monthly'>('yearly');
   const [purchasing, setPurchasing] = useState(false);

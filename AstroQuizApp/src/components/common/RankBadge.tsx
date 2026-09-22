@@ -6,7 +6,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { SPACING, TYPOGRAPHY, COLORS, SIZES, RADIUS } from '@/constants/design-system';
+import { SPACING, TYPOGRAPHY, COLORS, SIZES } from '@/constants/design-system';
 import { RankData } from '@/constants/ranks';
 import {
   Sparkles,

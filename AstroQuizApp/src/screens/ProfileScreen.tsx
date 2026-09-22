@@ -40,7 +40,7 @@ type ProfileNav = NativeStackNavigationProp<RootStackParamList>;
 
 export const ProfileScreen = () => {
   const navigation = useNavigation<ProfileNav>();
-  const { user, locale, setLocale, isAuthenticated, signInWithGoogle, signOut, deleteAccount, isLoading } = useApp();
+  const { user, locale, setLocale, isAuthenticated, signOut, deleteAccount, isLoading } = useApp();
   const { isPro } = useSubscription();
   const { t, i18n } = useTranslation();
   const idiomaAtual = ((i18n.language || 'pt').slice(0, 2) as IdiomaSuportado) || 'pt';

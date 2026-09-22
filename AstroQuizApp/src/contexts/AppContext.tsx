@@ -144,7 +144,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       }
 
       // Carregar regras do jogo (opcional, não bloqueia UI)
-      loadGameRules().catch((err) => {
+      loadGameRules().catch((_err) => {
         console.log("Regras do jogo não carregadas, usando defaults");
       });
     } catch (error) {

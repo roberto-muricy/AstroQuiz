@@ -6,8 +6,6 @@
 import api from './api';
 import {
   QuizSession,
-  CurrentQuestion,
-  AnswerResult,
   GameRules,
   ApiResponse,
 } from '@/types';
