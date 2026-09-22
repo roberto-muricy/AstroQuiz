@@ -243,7 +243,7 @@ class AnalyticsService {
   /**
    * Login
    */
-  async logLogin(method: 'google' | 'email') {
+  async logLogin(method: 'google' | 'email' | 'apple') {
     await analytics().logLogin({ method });
   }
 

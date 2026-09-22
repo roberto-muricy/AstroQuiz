@@ -186,10 +186,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   useEffect(() => {
     if (user) {
       AsyncStorage.setItem("@user", JSON.stringify(user));
-      setSentryUser({
-        id: user.id,
-        name: user.name,
-      });
+      setSentryUser({ id: user.id });
       analyticsService.setUserId(user.id);
       analyticsService.setUserProperties({
         user_level: String(user.level || 1),

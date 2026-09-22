@@ -86,6 +86,19 @@ versão do ar.
    versão nova, como a tela avisa — e a página precisa estar publicada no Vercel
    antes.
 
+### 2.3. Pendência identificada em 22/09/2026: falta declarar a foto do perfil
+
+O login com Google devolve `fbUser.photoURL`, e o app manda essa URL para o
+backend em `strapiSyncService.syncUser` (`AppContext.tsx`). A declaração de
+17/09 tem 10 tipos e a de 18/09 (1.3.0) acrescentou 2; nenhuma das duas inclui
+**Fotos**. Não bloqueia a loja hoje — só fica incompleta.
+
+Na próxima atualização da ficha, acrescentar à tabela da seção 2.1:
+
+| Tipo de dado | Finalidade | Vinculado | Rastreamento | Origem no código |
+|---|---|---|---|---|
+| Fotos ou vídeos | Funcionalidade do app | sim | não | `fbUser.photoURL`, só no login Google |
+
 ---
 
 ## 3. App Store — classificação etária e conteúdo gerado pelo usuário
@@ -230,4 +243,5 @@ existe.
 - Conferir se os rótulos da seção 2.2 batem com o que está respondido hoje.
 - Publicar as páginas legais atualizadas antes de enviar a build — a revisão lê
   a política no ar, não a do repositório.
+- Acrescentar a linha de Fotos da seção 2.3 na próxima atualização da ficha.
 - Decidir sobre o "ocultar este jogador" da seção 3.1, se a revisão pedir.

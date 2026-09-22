@@ -70,11 +70,10 @@ export const initSentry = () => {
  * cada relatório de falha até 16/09/2026, sem acrescentar nada ao diagnóstico —
  * era endereço de e-mail guardado por terceiro sem motivo.
  */
-export const setSentryUser = (user: { id: string; name?: string } | null) => {
+export const setSentryUser = (user: { id: string } | null) => {
   if (user) {
     Sentry.setUser({
       id: user.id,
-      username: user.name,
     });
   } else {
     Sentry.setUser(null);
