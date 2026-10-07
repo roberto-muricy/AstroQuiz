@@ -45,7 +45,7 @@ export const ImageCreditsScreen = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.intro}>{t('imageCredits.intro')}</Text>

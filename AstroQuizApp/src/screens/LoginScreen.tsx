@@ -102,7 +102,7 @@ export const LoginScreen: React.FC = () => {
       <TouchableOpacity style={[styles.closeButton, { top: insets.top + 8 }]} onPress={handleClose}>
         <Text style={styles.closeButtonText}>✕</Text>
       </TouchableOpacity>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40 }]} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>
           <View style={styles.logoCircle}>
             <RocketIcon size={44} color={IconColors.primary} />
