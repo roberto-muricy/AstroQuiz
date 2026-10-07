@@ -42,7 +42,12 @@ const get = async (caminho) => {
     const p = await get(`/projects/${ORG}/${projeto}/`);
     console.log(`projeto ${p.slug} (id ${p.id}) — últimos ${dias} dias, só abertos\n`);
 
-    const issues = await get(`/projects/${ORG}/${projeto}/issues/?query=is:unresolved&statsPeriod=${dias}d&limit=50&sort=freq`);
+    // A API só aceita statsPeriod de 24h ou 14d nesta rota (8d devolve 400);
+    // o recorte pelo número de dias pedido é feito aqui, pelo lastSeen.
+    const periodo = dias <= 1 ? '24h' : '14d';
+    const corte = Date.now() - dias * 24 * 60 * 60 * 1000;
+    const issues = (await get(`/projects/${ORG}/${projeto}/issues/?query=is:unresolved&statsPeriod=${periodo}&limit=50&sort=freq`))
+      .filter((i) => new Date(i.lastSeen).getTime() >= corte || dias >= 14);
     if (!issues.length) console.log('nenhum erro aberto.');
     for (const i of issues) {
       const nome = (i.metadata?.type ? i.metadata.type + ': ' : '') + (i.metadata?.value || i.title);
