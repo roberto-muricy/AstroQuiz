@@ -80,6 +80,13 @@ export const LeaderboardScreen: React.FC = () => {
   const paisDoJogador = useMemo(() => paisDoAparelho(), []);
 
   const [periodo, setPeriodo] = useState<Periodo>('weekly');
+  /**
+   * A semana começa vazia toda segunda-feira, e com poucos jogadores fica vazia
+   * por dias: quem abria o ranking via só "Ninguém no ranking ainda", mesmo com
+   * gente no geral. Sem escolha da pessoa, a tela passa para o geral e avisa.
+   */
+  const [caiuNoGeral, setCaiuNoGeral] = useState(false);
+  const periodoEscolhido = useRef(false);
   const [escopo, setEscopo] = useState<Escopo>('mundo');
   const [metrica, setMetrica] = useState<MetricaDoRanking>('pontos');
 
@@ -107,6 +114,8 @@ export const LeaderboardScreen: React.FC = () => {
   const pais = escopo === 'pais' ? paisDoJogador : null;
 
   const trocarPeriodo = (novo: Periodo) => {
+    periodoEscolhido.current = true;
+    setCaiuNoGeral(false);
     setPeriodo(novo);
     if (novo === 'weekly') setMetrica('pontos');
     analyticsService.logLeaderboardFilterChange('periodo', novo);
@@ -147,6 +156,11 @@ export const LeaderboardScreen: React.FC = () => {
 
         setPagina(nova);
         setErro(false);
+
+        if (recorte === 'weekly' && nova.totalPlayers === 0 && !periodoEscolhido.current) {
+          setCaiuNoGeral(true);
+          setPeriodo('all-time');
+        }
         setMostrandoSalvo(false);
         await LeaderboardStorage.guardar(recorte, pais, nova);
 
@@ -352,6 +366,10 @@ export const LeaderboardScreen: React.FC = () => {
           <Text style={styles.contagem}>
             {t('leaderboard.players', { count: pagina.totalPlayers })}
           </Text>
+        )}
+
+        {caiuNoGeral && periodo === 'all-time' && (
+          <Text style={styles.avisoSalvo}>{t('leaderboard.weekEmptyShowingAllTime')}</Text>
         )}
 
         {mostrandoSalvo && <Text style={styles.avisoSalvo}>{t('leaderboard.savedList')}</Text>}

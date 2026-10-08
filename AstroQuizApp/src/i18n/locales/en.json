@@ -11,7 +11,9 @@
     "retry": "Retry",
     "continue": "Continue",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "linkErrorTitle": "Couldn't open the link",
+    "linkErrorMessage": "Open this address yourself:\n{{address}}"
   },
   "quiz": {
     "phase": "Phase",
@@ -556,6 +558,7 @@
         "message": "Your nickname, country and position are deleted. Your games stop counting for the ranking. This does not delete your account.",
         "confirm": "Delete"
       }
-    }
+    },
+    "weekEmptyShowingAllTime": "No one has scored this week yet. Showing the all-time ranking."
   }
 }

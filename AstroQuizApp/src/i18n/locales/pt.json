@@ -11,7 +11,9 @@
     "retry": "Tentar Novamente",
     "continue": "Continuar",
     "yes": "Sim",
-    "no": "Não"
+    "no": "Não",
+    "linkErrorTitle": "Não foi possível abrir o link",
+    "linkErrorMessage": "Abra este endereço por conta própria:\n{{address}}"
   },
   "quiz": {
     "phase": "Fase",
@@ -556,6 +558,7 @@
         "message": "Seu apelido, país e posição são apagados. Suas partidas deixam de contar para o ranking. Isso não apaga sua conta.",
         "confirm": "Apagar"
       }
-    }
+    },
+    "weekEmptyShowingAllTime": "Ninguém pontuou nesta semana ainda. Mostrando o ranking geral."
   }
 }

@@ -6,7 +6,6 @@
 import React, { useState } from 'react';
 import {
   Alert,
-  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { abrirLink } from '@/utils/abrirLink';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
@@ -109,7 +109,7 @@ export const UpgradeScreen = () => {
                 const url = Platform.OS === 'ios'
                   ? 'https://apps.apple.com/account/subscriptions'
                   : 'https://play.google.com/store/account/subscriptions';
-                Linking.openURL(url);
+                abrirLink(url);
               }}
             >
               <Text style={styles.manageButtonText}>{t('subscription.status.manageSubscription')}</Text>
@@ -230,11 +230,11 @@ export const UpgradeScreen = () => {
           <View style={styles.legalContainer}>
             <Text style={styles.legalText}>{t('subscription.legalText')}</Text>
             <View style={styles.legalLinks}>
-              <TouchableOpacity onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/terms.html')}>
+              <TouchableOpacity onPress={() => abrirLink('https://astroquiz-legal.vercel.app/terms.html')}>
                 <Text style={styles.legalLink}>{t('profile.terms')}</Text>
               </TouchableOpacity>
               <Text style={styles.legalSeparator}>•</Text>
-              <TouchableOpacity onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/privacy.html')}>
+              <TouchableOpacity onPress={() => abrirLink('https://astroquiz-legal.vercel.app/privacy.html')}>
                 <Text style={styles.legalLink}>{t('profile.privacy')}</Text>
               </TouchableOpacity>
             </View>

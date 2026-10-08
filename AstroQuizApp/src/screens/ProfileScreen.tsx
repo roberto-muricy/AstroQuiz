@@ -16,7 +16,8 @@ import { getPlayerLevel } from '@/utils/progressionSystem';
 import React, { useState, useEffect, useRef } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Alert, Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Linking } from 'react-native';
+import { Alert, Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
+import { abrirLink } from '@/utils/abrirLink';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
@@ -413,7 +414,7 @@ export const ProfileScreen = () => {
               e o ranking passou a ter apelidos escritos por jogadores. */}
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => Linking.openURL('mailto:robertomuricy@gmail.com')}
+            onPress={() => abrirLink('mailto:robertomuricy@gmail.com')}
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
@@ -434,7 +435,7 @@ export const ProfileScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/terms.html')}
+            onPress={() => abrirLink('https://astroquiz-legal.vercel.app/terms.html')}
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>
@@ -445,7 +446,7 @@ export const ProfileScreen = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.settingItem}
-            onPress={() => Linking.openURL('https://astroquiz-legal.vercel.app/privacy.html')}
+            onPress={() => abrirLink('https://astroquiz-legal.vercel.app/privacy.html')}
           >
             <View style={styles.settingLeft}>
               <View style={styles.settingIconContainer}>

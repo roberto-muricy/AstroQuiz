@@ -11,7 +11,9 @@
     "retry": "Réessayer",
     "continue": "Continuer",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "linkErrorTitle": "Impossible d'ouvrir le lien",
+    "linkErrorMessage": "Ouvrez cette adresse vous-même :\n{{address}}"
   },
   "quiz": {
     "phase": "Phase",
@@ -556,6 +558,7 @@
         "message": "Votre pseudo, pays et position sont supprimés. Vos parties cessent de compter pour le classement. Cela ne supprime pas votre compte.",
         "confirm": "Supprimer"
       }
-    }
+    },
+    "weekEmptyShowingAllTime": "Personne n'a encore marqué cette semaine. Voici le classement général."
   }
 }

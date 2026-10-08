@@ -11,7 +11,9 @@
     "retry": "Reintentar",
     "continue": "Continuar",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "linkErrorTitle": "No se pudo abrir el enlace",
+    "linkErrorMessage": "Abre esta dirección por tu cuenta:\n{{address}}"
   },
   "quiz": {
     "phase": "Fase",
@@ -556,6 +558,7 @@
         "message": "Se borran tu apodo, país y posición. Tus partidas dejan de contar para la clasificación. Esto no borra tu cuenta.",
         "confirm": "Borrar"
       }
-    }
+    },
+    "weekEmptyShowingAllTime": "Nadie ha puntuado esta semana todavía. Mostrando la clasificación general."
   }
 }
