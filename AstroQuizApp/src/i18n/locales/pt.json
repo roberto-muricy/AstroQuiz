@@ -480,7 +480,9 @@
       "title": "Entre para aparecer no ranking",
       "subtitle": "Quem tem conta aparece na lista e acompanha a própria posição.",
       "hypothetical": "Com o que você já pontuou, entraria em {{position}}.",
-      "action": "Entrar"
+      "action": "Entrar",
+      "inBoardTitle": "Você aparece como {{name}}",
+      "inBoardText": "Entre para escolher seu apelido. Os pontos que você já fez vão junto."
     },
     "hidden": {
       "title": "Você não está aparecendo",

@@ -295,6 +295,7 @@ export const LeaderboardScreen: React.FC = () => {
         <CartaoDeConvite
           posicaoHipotetica={pagina?.hypotheticalPosition ?? null}
           totalDeJogadores={pagina?.totalPlayers ?? 0}
+          nomeNoRanking={eu?.inBoard ? nomeDeExibicao(eu.name, idioma) : null}
           idioma={idioma}
           aoEntrar={() => {
             analyticsService.logLeaderboardLoginCta(pagina?.hypotheticalPosition ?? null);

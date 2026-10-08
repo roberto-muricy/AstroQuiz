@@ -480,7 +480,9 @@
       "title": "Sign in to join the ranking",
       "subtitle": "Players with an account appear on the list and can follow their own position.",
       "hypothetical": "With what you have scored so far, you would be {{position}}.",
-      "action": "Sign in"
+      "action": "Sign in",
+      "inBoardTitle": "You're on the ranking as {{name}}",
+      "inBoardText": "Sign in to choose your own nickname. The points you've already scored come with you."
     },
     "hidden": {
       "title": "You're not showing up",

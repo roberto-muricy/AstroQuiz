@@ -480,7 +480,9 @@
       "title": "Inicia sesión para aparecer en la clasificación",
       "subtitle": "Quien tiene cuenta aparece en la lista y sigue su propia posición.",
       "hypothetical": "Con lo que ya has puntuado, entrarías en {{position}}.",
-      "action": "Iniciar sesión"
+      "action": "Iniciar sesión",
+      "inBoardTitle": "Apareces como {{name}}",
+      "inBoardText": "Inicia sesión para elegir tu apodo. Los puntos que ya hiciste se quedan contigo."
     },
     "hidden": {
       "title": "No estás apareciendo",

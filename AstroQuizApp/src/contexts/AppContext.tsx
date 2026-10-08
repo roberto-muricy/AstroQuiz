@@ -236,14 +236,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       console.log('🔑 Firebase ID token saved for API authentication');
     }
 
+    // Conta anônima vinculada a um login (ver vincularAoAnonimo): o nome, o
+    // e-mail e a foto podem estar só no provedor, e não no usuário principal.
+    const doProvedor = (campo: 'displayName' | 'email' | 'photoURL') =>
+      fbUser[campo] || fbUser.providerData?.find((p: any) => p?.[campo])?.[campo] || null;
+    const nome = doProvedor('displayName');
+    const email = doProvedor('email');
+    const foto = doProvedor('photoURL');
+
     // Sync with Strapi backend
     console.log('📡 Syncing user with Strapi...');
     try {
       const serverProfile = await strapiSyncService.syncUser(
         fbUser.uid,
-        fbUser.email,
-        fbUser.displayName,
-        fbUser.photoURL
+        email,
+        nome,
+        foto
       );
 
       const localProgress = await ProgressStorage.getProgress();
@@ -261,9 +269,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     const nextUser: User = {
       id: fbUser.uid,
-      name: fbUser.displayName || "Astronauta",
-      email: fbUser.email || "user@astroquiz.com",
-      avatarUrl: fbUser.photoURL || null,
+      name: nome || "Astronauta",
+      email: email || "user@astroquiz.com",
+      avatarUrl: foto,
       level: user?.level ?? 1,
       xp: user?.xp ?? 0,
       totalXP: user?.totalXP ?? 0,

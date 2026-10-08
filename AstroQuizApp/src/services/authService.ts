@@ -11,6 +11,7 @@ import auth from '@react-native-firebase/auth';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import appleAuth from '@invertase/react-native-apple-authentication';
 import { Platform } from 'react-native';
+import { vincularAoAnonimo } from '@/utils/autenticacao';
 
 const GOOGLE_WEB_CLIENT_ID =
   '473888146350-udqdloorhbn0tauttltuju4ud68eslih.apps.googleusercontent.com';
@@ -63,7 +64,10 @@ class AuthService {
       }
 
       const credential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(credential);
+      // Quem jogava sem conta leva as partidas e a posição no ranking junto.
+      if ((await vincularAoAnonimo(auth().currentUser, credential)) !== 'vinculada') {
+        await auth().signInWithCredential(credential);
+      }
       return { ok: true };
     } catch (e: any) {
       // Map common GoogleSignIn errors to a stable surface for UI.
@@ -92,20 +96,37 @@ class AuthService {
     }
   }
 
+  private async pedirCredencialDaApple() {
+    const appleAuthResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+    const { identityToken, nonce } = appleAuthResponse;
+    return identityToken ? auth.AppleAuthProvider.credential(identityToken, nonce) : null;
+  }
+
   async signInWithApple(): Promise<AuthResult> {
     try {
-      const appleAuthResponse = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-      });
-
-      if (!appleAuthResponse.identityToken) {
+      const appleCredential = await this.pedirCredencialDaApple();
+      if (!appleCredential) {
         return { ok: false, code: 'NO_ID_TOKEN', message: 'Apple não retornou identityToken.' };
       }
 
-      const { identityToken, nonce } = appleAuthResponse;
-      const appleCredential = auth.AppleAuthProvider.credential(identityToken, nonce);
-      await auth().signInWithCredential(appleCredential);
+      // Quem jogava sem conta leva as partidas e a posição no ranking junto.
+      const vinculo = await vincularAoAnonimo(auth().currentUser, appleCredential);
+      if (vinculo === 'sem-anonimo') {
+        await auth().signInWithCredential(appleCredential);
+      } else if (vinculo === 'conta-existente') {
+        // O Firebase não aceita a mesma credencial da Apple duas vezes (a
+        // tentativa de vínculo já a gastou), então a folha abre de novo para
+        // entrar na conta que a pessoa já tinha. Só acontece com quem já tinha
+        // conta Apple e voltou a jogar sem login.
+        const novaCredencial = await this.pedirCredencialDaApple();
+        if (!novaCredencial) {
+          return { ok: false, code: 'NO_ID_TOKEN', message: 'Apple não retornou identityToken.' };
+        }
+        await auth().signInWithCredential(novaCredencial);
+      }
       return { ok: true };
     } catch (e: any) {
       if (e?.code === appleAuth.Error.CANCELED) {
@@ -176,7 +197,16 @@ class AuthService {
 
   async signUpWithEmail(email: string, password: string): Promise<AuthResult> {
     try {
-      await auth().createUserWithEmailAndPassword(email.trim(), password);
+      // Quem jogava sem conta vira essa conta nova, com as partidas e a posição
+      // no ranking. Um e-mail que já tem conta cai no erro de "já está em uso".
+      const credencial = auth.EmailAuthProvider.credential(email.trim(), password);
+      const vinculo = await vincularAoAnonimo(auth().currentUser, credencial);
+      if (vinculo === 'conta-existente') {
+        return { ok: false, code: 'UNKNOWN', message: 'E-mail já está em uso.' };
+      }
+      if (vinculo === 'sem-anonimo') {
+        await auth().createUserWithEmailAndPassword(email.trim(), password);
+      }
       return { ok: true };
     } catch (e: any) {
       const code = e?.code as string | undefined;

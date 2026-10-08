@@ -480,7 +480,9 @@
       "title": "Connectez-vous pour figurer au classement",
       "subtitle": "Les joueurs avec un compte apparaissent dans la liste et suivent leur position.",
       "hypothetical": "Avec vos points actuels, vous seriez {{position}}.",
-      "action": "Se connecter"
+      "action": "Se connecter",
+      "inBoardTitle": "Vous apparaissez comme {{name}}",
+      "inBoardText": "Connectez-vous pour choisir votre pseudo. Les points déjà gagnés vous suivent."
     },
     "hidden": {
       "title": "Vous n'apparaissez pas",
