@@ -17,7 +17,7 @@ export interface VersaoDaPlataforma {
 }
 
 export const VERSOES: Record<'ios' | 'android', VersaoDaPlataforma> = {
-  ios: { versao: '1.3.2', build: '52' },
+  ios: { versao: '1.3.3', build: '53' },
   android: { versao: '1.3.3', build: '64' },
 };
 
