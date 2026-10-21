@@ -204,3 +204,35 @@ select count(*) from (
 ```
 
 Relatório anterior: `docs/relatorio-pos-ranking-29-set-2026.md`.
+
+## Atualização de 21/10/2026 — os 3 primeiros dias com a iOS 1.3.3
+
+A iOS 1.3.3 foi liberada em 18/10. Este trecho cobre de 18 a 20/10. É cedo
+demais para medir o efeito dela; serve para ver se algo quebrou e quem
+continuou jogando. Os dias 19 e 20 ainda podem crescer no GA4.
+
+| | 18–20/10 |
+|---|---|
+| Usuários ativos | 4, **todos no iOS** (nenhum Android) |
+| Novas instalações | 3 |
+| Na 1.3.3 | 2 dos 4 |
+| Sessões engajadas | 8, média de **392 s** (antes 265 s) |
+| Erros novos no Sentry | **nenhum** |
+
+- **Um jogador novo foi fundo de cara:** a conta anônima `9619dd` apareceu em
+  18/10 e jogou 8 partidas em 3 dias, até a fase 5. Na fase 5 reprovou duas
+  vezes, com média de 5 acertos, e passou na terceira. É o único jogador da
+  semana no ranking (1.062 pontos).
+- **Primeira recompensa por anúncio:** o GA4 registrou um `ad_reward`. Alguém
+  assistiu a um anúncio com recompensa. Não aparecia nos relatórios
+  anteriores.
+- `f0af5e`, que chegou à fase 13 de 15 a 17/10, não voltou a jogar.
+- **O vínculo de conta ainda não foi usado de fora:** continua 1, o nosso
+  teste. Ninguém tocou em Entrar nesses 3 dias.
+- **Ranking:** 19 cadastros (18 visíveis), nenhum apelido escolhido, nenhuma
+  denúncia.
+- **Android parado:** nenhum usuário Android nesses 3 dias. A 1.3.3 (64)
+  continua só no Teste interno.
+
+Próxima leitura com amostra útil: por volta de 01/11, duas semanas depois da
+liberação.
