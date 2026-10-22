@@ -17,8 +17,8 @@ export interface VersaoDaPlataforma {
 }
 
 export const VERSOES: Record<'ios' | 'android', VersaoDaPlataforma> = {
-  ios: { versao: '1.3.3', build: '53' },
-  android: { versao: '1.3.3', build: '64' },
+  ios: { versao: '1.3.4', build: '54' },
+  android: { versao: '1.3.4', build: '65' },
 };
 
 /** "1.3.0 (48)" — a build entra porque é ela que identifica o envio num relato de erro. */
