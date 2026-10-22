@@ -3,6 +3,7 @@
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
 #import <Firebase.h>
+#import "AstroQuizLembretes.h"
 
 @implementation AppDelegate
 
@@ -13,6 +14,10 @@
     [FIRApp configure];
   }
   
+  // Lembretes locais: o delegado tem de existir antes do React Native, para o
+  // toque que abre o app frio não se perder.
+  [UNUserNotificationCenter currentNotificationCenter].delegate = [AQLembretesDelegado compartilhado];
+
   self.moduleName = @"AstroQuizApp";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.

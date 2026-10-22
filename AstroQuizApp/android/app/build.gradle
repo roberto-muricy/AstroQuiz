@@ -127,6 +127,9 @@ android {
 }
 
 dependencies {
+    // Lembretes locais (LembretesModule). A mesma versão que o SDK de anúncios
+    // já traz: declarar outra subiria a dele junto.
+    implementation("androidx.work:work-runtime:2.7.0")
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     // flipper-integration foi removido no RN 0.74+ — não incluir

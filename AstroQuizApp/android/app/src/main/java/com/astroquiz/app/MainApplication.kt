@@ -1,6 +1,7 @@
 package com.astroquiz.app
 
 import android.app.Application
+import com.astroquiz.app.lembretes.LembretesPackage
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
@@ -20,8 +21,8 @@ class MainApplication : Application(), ReactApplication {
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here, for example:
-              // add(MyReactNativePackage())
+              // Lembretes locais para voltar a jogar (módulo próprio, sem biblioteca).
+              add(LembretesPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"

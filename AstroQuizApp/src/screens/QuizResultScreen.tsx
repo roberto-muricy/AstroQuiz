@@ -12,6 +12,7 @@ import { checkAchievements, getPlayerLevel, getXPToNextLevel, calculateStarRatin
 import type { RankIconName } from '@/utils/progressionSystem';
 import { RankIcon } from '@/components/RankIcon';
 import analyticsService from '@/services/analyticsService';
+import lembreteService from '@/services/lembreteService';
 import soundService from '@/services/soundService';
 import { showInterstitialAfterPhase, loadInterstitialAd } from '@/services/adService';
 import { useAds } from '@/contexts/AdsContext';
@@ -215,6 +216,9 @@ export const QuizResultScreen = () => {
       } catch (e) {
         // Analytics nunca pode derrubar a tela de resultado.
       }
+
+      // Agenda os lembretes a partir de hoje (sem esperar: é só agenda).
+      lembreteService.reagendar();
 
       soundService.playPhaseComplete(isPerfect);
 

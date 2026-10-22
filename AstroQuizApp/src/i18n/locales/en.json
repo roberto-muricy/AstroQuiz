@@ -560,5 +560,36 @@
       }
     },
     "weekEmptyShowingAllTime": "No one has scored this week yet. Showing the all-time ranking."
+  },
+  "reminders": {
+    "streak": {
+      "title_one": "Your {{count}}-day streak ends today",
+      "title_other": "Your {{count}}-day streak ends today",
+      "body_one": "Play one phase to reach {{count}} day in a row.",
+      "body_other": "Play one phase to reach {{count}} days in a row."
+    },
+    "phase": {
+      "title": "Phase {{phase}} is waiting for you",
+      "body": "Ten questions about the universe, about 5 minutes."
+    },
+    "generic": {
+      "title": "Time for a quick round?"
+    },
+    "comeback": {
+      "title": "The universe is still up there",
+      "body": "Your phase {{phase}} is saved. Come back whenever you like.",
+      "bodyDone": "Your progress is saved. Come back whenever you like."
+    },
+    "offer": {
+      "title": "Want a reminder to play?",
+      "message": "If you go a day without playing, AstroQuiz will remind you at 7 pm. Two reminders at most, and you can turn them off in Profile.",
+      "accept": "Remind me",
+      "decline": "Not now"
+    },
+    "denied": {
+      "title": "Notifications are off",
+      "message": "To get reminders, allow notifications for AstroQuiz in your device Settings.",
+      "openSettings": "Open Settings"
+    }
   }
 }

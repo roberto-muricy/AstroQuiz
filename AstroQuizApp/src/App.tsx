@@ -21,6 +21,7 @@ import { initSentry, SentryWrap } from "@/config/sentry";
 import { requestTrackingPermission, loadInterstitialAd, loadAllRewardedAds } from "@/services/adService";
 
 import analyticsService from "@/services/analyticsService";
+import lembreteService from "@/services/lembreteService";
 
 // Importar configuração de i18n (deve ser antes do App)
 import '@/i18n';
@@ -56,12 +57,21 @@ const App = () => {
       }, 800);
     };
 
+    // Lembretes: registra se um deles abriu o app e refaz a agenda, para o
+    // que já passou sair e os textos acompanharem o progresso e o idioma.
+    const atualizarLembretes = () => {
+      lembreteService.registrarAbertura();
+      lembreteService.reagendar();
+    };
+
     if (AppState.currentState === "active") {
       runTracking();
+      atualizarLembretes();
     }
     const sub = AppState.addEventListener("change", (state) => {
       if (state === "active") {
         runTracking();
+        atualizarLembretes();
         // Retoma a música ao voltar para o app (se o usuário a tiver ativado).
         soundService.resumeBackgroundMusic();
       } else {

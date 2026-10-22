@@ -34,6 +34,9 @@ export const AnalyticsEvents = {
   LEADERBOARD_VIEW: 'leaderboard_view',
   LEADERBOARD_FILTER_CHANGE: 'leaderboard_filter_change',
   LEADERBOARD_LOGIN_CTA: 'leaderboard_login_cta_click',
+  // Lembretes
+  REMINDER_PERMISSION: 'reminder_permission',
+  REMINDER_OPEN: 'reminder_open',
   LEADERBOARD_ENROLL: 'leaderboard_enroll',
   LEADERBOARD_NICKNAME_SET: 'leaderboard_nickname_set',
   LEADERBOARD_REPORT: 'leaderboard_report',
@@ -303,6 +306,19 @@ class AnalyticsService {
    * o ranking existe para trazer conta, e sem isto só se sabe quem entrou, não
    * quem se interessou.
    */
+  /**
+   * Resposta ao convite de lembretes. `origem`: a oferta depois da primeira
+   * fase ou o botão do Perfil. `resultado`: o que aconteceu com a permissão.
+   */
+  async logReminderPermission(origem: 'oferta' | 'perfil', resultado: 'concedida' | 'negada' | 'recusou_oferta') {
+    await this.logEvent(AnalyticsEvents.REMINDER_PERMISSION, { origem, resultado });
+  }
+
+  /** Um lembrete foi tocado e abriu o app. É o número que diz se eles trazem alguém de volta. */
+  async logReminderOpen(lembrete: string) {
+    await this.logEvent(AnalyticsEvents.REMINDER_OPEN, { lembrete });
+  }
+
   async logLeaderboardLoginCta(posicaoHipotetica: number | null) {
     await this.logEvent(AnalyticsEvents.LEADERBOARD_LOGIN_CTA, {
       posicao_hipotetica: posicaoHipotetica ?? 0,

@@ -25,7 +25,17 @@ export interface AppSettings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
   musicEnabled: boolean;
+  /**
+   * Lembretes para voltar a jogar. Só vale junto com `lembretesPerguntado` e
+   * com a permissão do sistema: o padrão `true` vem de antes de os lembretes
+   * existirem, quando o botão do Perfil não fazia nada.
+   */
   notificationsEnabled: boolean;
+  /**
+   * O app já ofereceu os lembretes (ou a pessoa os ligou no Perfil). Até lá
+   * nada é agendado, mesmo onde o sistema não pede permissão (Android < 13).
+   */
+  lembretesPerguntado: boolean;
   language: 'pt' | 'en' | 'es' | 'fr';
 }
 
@@ -38,6 +48,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   vibrationEnabled: true,
   musicEnabled: false,
   notificationsEnabled: true,
+  lembretesPerguntado: false,
   language: 'pt',
 };
 

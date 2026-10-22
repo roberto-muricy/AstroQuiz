@@ -14,6 +14,7 @@ import { StatDisplay } from '@/components/common';
 import { useApp } from '@/contexts/AppContext';
 import quizService from '@/services/quizService';
 import soundService from '@/services/soundService';
+import lembreteService from '@/services/lembreteService';
 import { ProgressStorage } from '@/utils/progressStorage';
 import { diasVisiveis } from '@/utils/sequenciaDiaria';
 import { getPlayerLevel, getXPToNextLevel } from '@/utils/progressionSystem';
@@ -95,9 +96,18 @@ export const HomeScreen = () => {
 
   useEffect(() => {
     loadProgress();
+    let oferta: ReturnType<typeof setTimeout> | undefined;
     SettingsStorage.getSettings()
-      .then((s) => setMostrarOnboarding(!s.onboardingVisto))
+      .then((s) => {
+        setMostrarOnboarding(!s.onboardingVisto);
+        // Uma vez só, e só para quem já terminou uma fase (o serviço confere).
+        // A pausa deixa a Home aparecer antes do alerta.
+        if (s.onboardingVisto && !s.lembretesPerguntado) {
+          oferta = setTimeout(() => lembreteService.talvezOferecer(), 1200);
+        }
+      })
       .catch(() => {});
+    return () => clearTimeout(oferta);
   }, []);
 
   // Recarrega quando o app volta para o primeiro plano. Sem isto, um app que

@@ -1,8 +1,11 @@
 package com.astroquiz.app
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import com.astroquiz.app.lembretes.LembreteWorker
+import com.astroquiz.app.lembretes.LembretesModule
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -20,6 +23,7 @@ class MainActivity : ReactActivity() {
     // Switch from SplashTheme to AppTheme before calling super
     setTheme(R.style.AppTheme)
     super.onCreate(savedInstanceState)
+    anotarLembrete(intent)
 
     // Barra de navegação de três botões: o app já desenha a barra de abas por
     // trás dela (edge-to-edge, targetSdk 36), mas a cor herdada da SplashTheme
@@ -32,6 +36,19 @@ class MainActivity : ReactActivity() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
       window.isNavigationBarContrastEnforced = false
     }
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    anotarLembrete(intent)
+  }
+
+  /** Toque num lembrete: guarda qual foi, para o JS registrar a volta. */
+  private fun anotarLembrete(intent: Intent?) {
+    val id = intent?.getStringExtra(LembreteWorker.EXTRA_LEMBRETE) ?: return
+    LembretesModule.registrarAbertura(this, id)
+    intent.removeExtra(LembreteWorker.EXTRA_LEMBRETE)
   }
 
   /**

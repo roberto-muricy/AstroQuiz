@@ -18,6 +18,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Alert, Animated, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { abrirLink } from '@/utils/abrirLink';
+import lembreteService from '@/services/lembreteService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // LinearGradient removido - usando background sólido
 import { RootStackParamList } from '@/types';
@@ -66,6 +67,9 @@ export const ProfileScreen = () => {
   const [maxStreak, setMaxStreak] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  // Lembretes: ligado só com a escolha da pessoa E a permissão do sistema, que
+  // pode ser retirada nos Ajustes a qualquer momento — por isso relido no foco.
+  const [lembretesLigados, setLembretesLigados] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -74,6 +78,7 @@ export const ProfileScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       loadProgress();
+      lembreteService.estaLigado().then(setLembretesLigados).catch(() => {});
     }, [])
   );
 
@@ -176,9 +181,9 @@ export const ProfileScreen = () => {
   };
 
   const handleToggleNotifications = async (value: boolean) => {
-    setSettings({ ...settings, notificationsEnabled: value });
-    await SettingsStorage.saveSettings({ notificationsEnabled: value });
+    setLembretesLigados(value);
     if (settings.vibrationEnabled) soundService.playTap();
+    setLembretesLigados(await lembreteService.definirPeloPerfil(value));
   };
 
   return (
@@ -392,7 +397,7 @@ export const ProfileScreen = () => {
             </View>
             <View style={styles.switchContainer}>
               <ToggleSwitch
-                value={settings.notificationsEnabled}
+                value={lembretesLigados}
                 onValueChange={handleToggleNotifications}
                 trackColor={{ false: '#3A3A3C', true: '#4CAF50' }}
                 thumbColor="#FFFFFF"

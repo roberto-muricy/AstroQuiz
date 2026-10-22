@@ -9,6 +9,8 @@
          quiz — no iOS o háptico não pede permissão, então nunca apareceu lá.
          É permissão normal: não gera diálogo para o usuário. -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Lembretes para voltar a jogar (Android 13+ pede permissão para notificar). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
       android:name=".MainApplication"

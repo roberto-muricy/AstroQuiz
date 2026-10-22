@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AstroQuizApp</string>
+    <!-- Nome do canal de notificações, visto em Ajustes > Apps > AstroQuiz > Notificações. -->
+    <string name="lembretes_canal">Lembretes para jogar</string>
 </resources>

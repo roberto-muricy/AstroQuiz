@@ -12,6 +12,7 @@
 		0D08441B6A5745CBBAC46719 /* phase.wav in Resources */ = {isa = PBXBuildFile; fileRef = C2029F7DF14E49168D92204F /* phase.wav */; };
 		0E29C3A379754D258D6BD72F /* BuildFile in Resources */ = {isa = PBXBuildFile; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
+		A1C0FFEE0000000000000003 /* AstroQuizLembretes.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000000000002 /* AstroQuizLembretes.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		18815DC432504F3096D5C8BB /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -80,6 +81,8 @@
 		13B07F961A680F5B00A75B9A /* AstroQuizApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AstroQuizApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = AstroQuizApp/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = AstroQuizApp/AppDelegate.mm; sourceTree = "<group>"; };
+		A1C0FFEE0000000000000001 /* AstroQuizLembretes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AstroQuizLembretes.h; path = AstroQuizApp/AstroQuizLembretes.h; sourceTree = "<group>"; };
+		A1C0FFEE0000000000000002 /* AstroQuizLembretes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AstroQuizLembretes.m; path = AstroQuizApp/AstroQuizLembretes.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = AstroQuizApp/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = AstroQuizApp/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = AstroQuizApp/main.m; sourceTree = "<group>"; };
@@ -152,6 +155,8 @@
 				947025C92F084A21009636C5 /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
+				A1C0FFEE0000000000000001 /* AstroQuizLembretes.h */,
+				A1C0FFEE0000000000000002 /* AstroQuizLembretes.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -555,6 +560,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				A1C0FFEE0000000000000003 /* AstroQuizLembretes.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
