@@ -32,6 +32,8 @@
     "dist/",
     ".cache/",
     ".tmp/",
+    // Configuração do Railway (lida pela CLI, não faz parte do servidor)
+    ".railway/",
 
     // Do not include admin files in the server compilation
     "src/admin/",

@@ -115,7 +115,10 @@ temp-*.json
 # ========================================
 .vercel/
 .netlify/
-.railway/
+# .railway/ guarda a configuração do serviço (railway.ts), que é versionada;
+# o resto que a CLI gera ali fica de fora.
+.railway/*
+!.railway/railway.ts
 
 # ========================================
 # 📱 MOBILE (Future)
